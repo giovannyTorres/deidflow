@@ -1,0 +1,115 @@
+{
+  "machine": {
+    "execution": "CPU",
+    "gpu_memory_bytes": null,
+    "logical_cpu_count": 16,
+    "machine": "AMD64",
+    "physical_cpu_count": 8,
+    "physical_memory_bytes": 16962179072,
+    "platform": "Windows-10-10.0.26200-SP0",
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "python": "3.11.9",
+    "versions": {
+      "DataProfiler": null,
+      "deidflow": "0.1.0",
+      "numpy": "2.4.6",
+      "presidio-analyzer": null,
+      "psutil": "7.2.2",
+      "scikit-learn": "1.8.0",
+      "spacy": null
+    }
+  },
+  "methodology": "End-to-end CSV includes schema classification, all-cell transformation, output write and library re-read verification; separate gold check excluded from timing. Peak RSS is sampled process-tree RSS, not allocation-only memory. Single full-scale repeats unless configured; no statistical speedup claims.",
+  "schema_version": 1,
+  "seed": 1729,
+  "workloads": [
+    {
+      "batch_size": 128,
+      "columns": 5,
+      "file_bytes": 103928,
+      "gold_sensitive_cells": 3000,
+      "input_sha256": "62f8698a573cb88e0a5a13d9a1815d6bed384f3d116d3bfb6ed58dead07e56be",
+      "repeats": 1,
+      "rows": 1000,
+      "runs": [
+        {
+          "cpu_percent_one_core_scale": 99.41004656009352,
+          "elapsed_seconds": 0.3457899999998517,
+          "ground_truth": {
+            "expected_records": 1000,
+            "gold_sensitive_cells_checked": 3000,
+            "passed": true,
+            "records": 1000,
+            "residual_gold_cells": 0,
+            "unchanged_amount_errors": 0
+          },
+          "library_issues": [],
+          "mb_per_second": 0.3005523583679244,
+          "peak_process_tree_rss_bytes": 40091648,
+          "peak_rss_bytes": 40091648,
+          "records_per_second": 2891.9286272027207,
+          "status": "APPROVED",
+          "units": 1000
+        }
+      ],
+      "status": "measured",
+      "workload": "csv_full_transform_and_reread"
+    },
+    {
+      "batch_size": 128,
+      "findings": 2126,
+      "nlp_tokens_per_second": null,
+      "note": "Rules-only text; NLP token rate unavailable without statistical adapter",
+      "records": 1000,
+      "runs": [
+        {
+          "cpu_percent_one_core_scale": 112.55731418429424,
+          "elapsed_seconds": 0.08329090000006545,
+          "mb_per_second": null,
+          "peak_process_tree_rss_bytes": 41639936,
+          "peak_rss_bytes": 41639936,
+          "records_per_second": 12006.113512991386,
+          "units": 1000
+        }
+      ],
+      "status": "measured",
+      "workload": "free_text_stream"
+    },
+    {
+      "email_findings": 100,
+      "email_gold": 100,
+      "email_recall": 1.0,
+      "pages": 100,
+      "pages_per_second": 239.63133198834097,
+      "runs": [
+        {
+          "cpu_percent_one_core_scale": 101.09446818258134,
+          "elapsed_seconds": 0.4173077000000376,
+          "mb_per_second": 0.12827465201335891,
+          "peak_process_tree_rss_bytes": 56942592,
+          "peak_rss_bytes": 56942592,
+          "records_per_second": 239.63133198834097,
+          "units": 100
+        }
+      ],
+      "scope": "Native extraction plus detection; no PDF transformation or OCR",
+      "status": "measured",
+      "workload": "native_pdf"
+    },
+    {
+      "reason": "Requires local OCR executable and Spanish weights; no assets downloaded by benchmark",
+      "status": "unavailable",
+      "workload": "scanned_pdf_collection"
+    },
+    {
+      "reason": "No GPU-capable discriminative adapter configured",
+      "status": "not_measured",
+      "workload": "gpu_vs_cpu"
+    },
+    {
+      "reason": "No supported local ONNX model configured",
+      "status": "not_measured",
+      "workload": "onnx"
+    }
+  ]
+}

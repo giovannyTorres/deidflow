@@ -1,0 +1,52 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "deidflow"
+version = "0.1.0"
+description = "Local-first Spanish and Mexican sensitive-data detection and verified transformations"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "LicenseRef-Proprietary"
+authors = [{name = "Giovanny Torres"}]
+dependencies = []
+
+[project.optional-dependencies]
+nlp = ["spacy>=3.8,<3.9"]
+pdf = ["pypdf>=6.21.4,<7"]
+ocr = ["Pillow>=13,<14", "pytesseract>=0.3.13,<0.4", "pypdfium2>=4.30,<6"]
+tables = ["pandas>=2.2,<3", "polars>=1.30,<2", "pyarrow>=20,<24"]
+yaml = ["PyYAML>=6.0.2,<7"]
+training = ["scikit-learn>=1.6,<1.9", "joblib>=1.4,<2"]
+benchmarks = ["psutil>=7,<8", "reportlab>=4.4,<5"]
+baselines = ["presidio-analyzer>=2.2,<3", "spacy>=3.8,<3.9"]
+dev = ["pytest>=8.4,<10", "hypothesis>=6.135,<7", "ruff>=0.12,<1", "mypy>=1.16,<2", "build>=1.2,<2", "pip-audit>=2.9,<3"]
+
+[project.scripts]
+deidflow = "deidflow.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/deidflow"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "B", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+check_untyped_defs = true
+files = ["src/deidflow"]
+
+[[tool.mypy.overrides]]
+module = ["yaml", "joblib.*", "sklearn.*", "pytesseract.*", "pandas.*", "reportlab.*", "psutil.*"]
+ignore_missing_imports = true
+follow_untyped_imports = false

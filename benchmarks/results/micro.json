@@ -1,0 +1,54 @@
+{
+  "budgets": {
+    "max_engine_to_same_run_rules_ratio": 5.0,
+    "max_seconds_per_record": 0.005,
+    "minimum_critical_exact_recall": 1.0
+  },
+  "critical_exact_recall": {
+    "API_KEY": 1.0,
+    "CLABE": 1.0,
+    "CURP": 1.0,
+    "EMAIL": 1.0,
+    "RFC": 1.0
+  },
+  "engine_seconds": [
+    0.08267520000026707,
+    0.08222070000010717,
+    0.08068009999988135,
+    0.09639349999997648,
+    0.09106689999953232
+  ],
+  "engine_to_same_run_reference_ratio": 1.03001006647868,
+  "machine": {
+    "execution": "CPU",
+    "gpu_memory_bytes": null,
+    "logical_cpu_count": 16,
+    "machine": "AMD64",
+    "physical_cpu_count": 8,
+    "physical_memory_bytes": 16962179072,
+    "platform": "Windows-10-10.0.26200-SP0",
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "python": "3.11.9",
+    "versions": {
+      "DataProfiler": null,
+      "deidflow": "0.1.0",
+      "numpy": "2.4.6",
+      "presidio-analyzer": "2.2.366",
+      "psutil": "7.2.2",
+      "scikit-learn": "1.8.0",
+      "spacy": "3.8.18"
+    }
+  },
+  "median_seconds_per_record": 8.267520000026707e-05,
+  "passed": true,
+  "records": 1000,
+  "repeats": 5,
+  "same_run_reference_seconds": [
+    0.07993199999964418,
+    0.07679559999996854,
+    0.08026640000025509,
+    0.09166300000015326,
+    0.09730509999917558
+  ],
+  "scope": "Gross CI regression guard; identical contextual rules, engine wrapper versus direct detector, alternating timing order; no fine-grained cross-machine or statistical speedup claim"
+}

@@ -1,0 +1,163 @@
+{
+  "csv_fast_path": [],
+  "machine": {
+    "execution": "CPU",
+    "gpu_memory_bytes": null,
+    "logical_cpu_count": 16,
+    "machine": "AMD64",
+    "physical_cpu_count": 8,
+    "physical_memory_bytes": 16962179072,
+    "platform": "Windows-10-10.0.26200-SP0",
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "python": "3.11.9",
+    "versions": {
+      "DataProfiler": null,
+      "deidflow": "0.1.0",
+      "numpy": "2.4.6",
+      "presidio-analyzer": "2.2.366",
+      "psutil": "7.2.2",
+      "scikit-learn": "1.8.0",
+      "spacy": "3.8.18"
+    }
+  },
+  "parallel_outputs_identical": true,
+  "repeats": 3,
+  "scope": "CSV paired conditions classify and handle every same sensitive column, then re-read and independently verify all gold cells. schema_fast_path=False additionally scans all input cells; true replaces known sensitive fields wholesale. Text timers include multiprocessing startup and hashing of findings; process-tree RSS includes spawned interpreters. Results are machine-specific, not universal speedups.",
+  "text_worker_scaling": [
+    {
+      "batch_size": 1024,
+      "runs": [
+        {
+          "cpu_accounting_note": "Process CPU only; excludes child CPU",
+          "cpu_percent_one_core_scale": 103.95957116541095,
+          "elapsed_seconds": 1.0370617999997194,
+          "findings": 20653,
+          "mb_per_second": null,
+          "peak_process_tree_rss_bytes": 43634688,
+          "peak_rss_bytes": 43634688,
+          "prediction_sha256": "e500b7ecfa8baf50e7db590538dbc917eac1bb742f3e85ad888accac6cc95e90",
+          "records": 10000,
+          "records_per_second": 9642.626890704783,
+          "units": 10000
+        },
+        {
+          "cpu_accounting_note": "Process CPU only; excludes child CPU",
+          "cpu_percent_one_core_scale": 99.46677046423467,
+          "elapsed_seconds": 1.0839046999999482,
+          "findings": 20653,
+          "mb_per_second": null,
+          "peak_process_tree_rss_bytes": 43040768,
+          "peak_rss_bytes": 43040768,
+          "prediction_sha256": "e500b7ecfa8baf50e7db590538dbc917eac1bb742f3e85ad888accac6cc95e90",
+          "records": 10000,
+          "records_per_second": 9225.903347407275,
+          "units": 10000
+        },
+        {
+          "cpu_accounting_note": "Process CPU only; excludes child CPU",
+          "cpu_percent_one_core_scale": 100.86397504744691,
+          "elapsed_seconds": 1.2857662999995227,
+          "findings": 20653,
+          "mb_per_second": null,
+          "peak_process_tree_rss_bytes": 42733568,
+          "peak_rss_bytes": 42733568,
+          "prediction_sha256": "e500b7ecfa8baf50e7db590538dbc917eac1bb742f3e85ad888accac6cc95e90",
+          "records": 10000,
+          "records_per_second": 7777.463136188678,
+          "units": 10000
+        }
+      ],
+      "workers": 1
+    },
+    {
+      "batch_size": 1024,
+      "runs": [
+        {
+          "cpu_accounting_note": "Process CPU only; excludes child CPU",
+          "cpu_percent_one_core_scale": 72.50470848119632,
+          "elapsed_seconds": 1.2283685000002151,
+          "findings": 20653,
+          "mb_per_second": null,
+          "peak_process_tree_rss_bytes": 110645248,
+          "peak_rss_bytes": 44560384,
+          "prediction_sha256": "e500b7ecfa8baf50e7db590538dbc917eac1bb742f3e85ad888accac6cc95e90",
+          "records": 10000,
+          "records_per_second": 8140.879548765903,
+          "units": 10000
+        },
+        {
+          "cpu_accounting_note": "Process CPU only; excludes child CPU",
+          "cpu_percent_one_core_scale": 61.29882719067301,
+          "elapsed_seconds": 1.121554900000774,
+          "findings": 20653,
+          "mb_per_second": null,
+          "peak_process_tree_rss_bytes": 110931968,
+          "peak_rss_bytes": 44462080,
+          "prediction_sha256": "e500b7ecfa8baf50e7db590538dbc917eac1bb742f3e85ad888accac6cc95e90",
+          "records": 10000,
+          "records_per_second": 8916.193045916074,
+          "units": 10000
+        },
+        {
+          "cpu_accounting_note": "Process CPU only; excludes child CPU",
+          "cpu_percent_one_core_scale": 65.71995718884558,
+          "elapsed_seconds": 1.1887561000003188,
+          "findings": 20653,
+          "mb_per_second": null,
+          "peak_process_tree_rss_bytes": 111050752,
+          "peak_rss_bytes": 44699648,
+          "prediction_sha256": "e500b7ecfa8baf50e7db590538dbc917eac1bb742f3e85ad888accac6cc95e90",
+          "records": 10000,
+          "records_per_second": 8412.154520172235,
+          "units": 10000
+        }
+      ],
+      "workers": 2
+    },
+    {
+      "batch_size": 1024,
+      "runs": [
+        {
+          "cpu_accounting_note": "Process CPU only; excludes child CPU",
+          "cpu_percent_one_core_scale": 68.42911172655704,
+          "elapsed_seconds": 1.073190899999645,
+          "findings": 20653,
+          "mb_per_second": null,
+          "peak_process_tree_rss_bytes": 177471488,
+          "peak_rss_bytes": 44945408,
+          "prediction_sha256": "e500b7ecfa8baf50e7db590538dbc917eac1bb742f3e85ad888accac6cc95e90",
+          "records": 10000,
+          "records_per_second": 9318.006703190746,
+          "units": 10000
+        },
+        {
+          "cpu_accounting_note": "Process CPU only; excludes child CPU",
+          "cpu_percent_one_core_scale": 85.00773398158815,
+          "elapsed_seconds": 1.4153123999994932,
+          "findings": 20653,
+          "mb_per_second": null,
+          "peak_process_tree_rss_bytes": 178270208,
+          "peak_rss_bytes": 46051328,
+          "prediction_sha256": "e500b7ecfa8baf50e7db590538dbc917eac1bb742f3e85ad888accac6cc95e90",
+          "records": 10000,
+          "records_per_second": 7065.577889378756,
+          "units": 10000
+        },
+        {
+          "cpu_accounting_note": "Process CPU only; excludes child CPU",
+          "cpu_percent_one_core_scale": 72.18063591023927,
+          "elapsed_seconds": 0.9741186000001107,
+          "findings": 20653,
+          "mb_per_second": null,
+          "peak_process_tree_rss_bytes": 178118656,
+          "peak_rss_bytes": 45985792,
+          "prediction_sha256": "e500b7ecfa8baf50e7db590538dbc917eac1bb742f3e85ad888accac6cc95e90",
+          "records": 10000,
+          "records_per_second": 10265.690440567363,
+          "units": 10000
+        }
+      ],
+      "workers": 4
+    }
+  ]
+}

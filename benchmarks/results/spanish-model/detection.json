@@ -1,0 +1,747 @@
+{
+  "baselines": [
+    {
+      "bytes": 13091,
+      "documents": 159,
+      "exact": {
+        "calibration_count": 0,
+        "document_leakage_rate": 0.4129032258064516,
+        "documents": 159,
+        "entity_level_recall": 0.5934426229508196,
+        "expected_calibration_error": null,
+        "f1": 0.7448559670781892,
+        "false_negatives": 124,
+        "false_positives": 0,
+        "false_redaction_rate": 0.0,
+        "matching": "exact",
+        "precision": 1.0,
+        "recall": 0.5934426229508196,
+        "recall_by_format": {
+          "text": 0.5934426229508196
+        },
+        "recall_by_type": {
+          "ADDRESS": 0.0,
+          "API_KEY": 1.0,
+          "CLABE": 0.967741935483871,
+          "CURP": 0.967741935483871,
+          "CUSTOMER_ID": 0.0,
+          "DIAGNOSIS": 0.0,
+          "EMAIL": 1.0,
+          "PERSON": 0.0,
+          "PHONE": 1.0,
+          "RFC": 1.0
+        },
+        "true_positives": 181
+      },
+      "first_call_seconds": 0.00019530000008671777,
+      "median_records_per_second": 25731.486277879318,
+      "name": "deterministic_only",
+      "overlap": {
+        "calibration_count": 0,
+        "document_leakage_rate": 0.4129032258064516,
+        "documents": 159,
+        "entity_level_recall": 0.5934426229508196,
+        "expected_calibration_error": null,
+        "f1": 0.7448559670781892,
+        "false_negatives": 124,
+        "false_positives": 0,
+        "false_redaction_rate": 0.0,
+        "matching": "overlap",
+        "precision": 1.0,
+        "recall": 0.5934426229508196,
+        "recall_by_format": {
+          "text": 0.5934426229508196
+        },
+        "recall_by_type": {
+          "ADDRESS": 0.0,
+          "API_KEY": 1.0,
+          "CLABE": 0.967741935483871,
+          "CURP": 0.967741935483871,
+          "CUSTOMER_ID": 0.0,
+          "DIAGNOSIS": 0.0,
+          "EMAIL": 1.0,
+          "PERSON": 0.0,
+          "PHONE": 1.0,
+          "RFC": 1.0
+        },
+        "true_positives": 181
+      },
+      "p50_latency_seconds": 3.580000020519947e-05,
+      "p95_latency_seconds": 6.91000000188069e-05,
+      "person_only_exact": {
+        "calibration_count": 0,
+        "document_leakage_rate": 1.0,
+        "documents": 159,
+        "entity_level_recall": 0.0,
+        "expected_calibration_error": null,
+        "f1": 0.0,
+        "false_negatives": 31,
+        "false_positives": 0,
+        "false_redaction_rate": 0.0,
+        "matching": "exact",
+        "precision": 0.0,
+        "recall": 0.0,
+        "recall_by_format": {
+          "text": 0.0
+        },
+        "recall_by_type": {
+          "PERSON": 0.0
+        },
+        "true_positives": 0
+      },
+      "prediction_sha256": "b41d740b77b98d85ac3d1c4d1561d4dc9cfc66d7c08b084e2b176b7e3d2cd4f2",
+      "repeats": 3,
+      "runs": [
+        {
+          "cpu_accounting_note": "Unavailable for runs below 100ms due to OS CPU-time granularity",
+          "cpu_percent_one_core_scale": null,
+          "elapsed_seconds": 0.006163200000173674,
+          "mb_per_second": 2.1240589303658988,
+          "peak_process_tree_rss_bytes": 43626496,
+          "peak_rss_bytes": 43626496,
+          "records_per_second": 25798.286603634395,
+          "units": 159
+        },
+        {
+          "cpu_accounting_note": "Unavailable for runs below 100ms due to OS CPU-time granularity",
+          "cpu_percent_one_core_scale": null,
+          "elapsed_seconds": 0.00658290000001216,
+          "mb_per_second": 1.9886372267504928,
+          "peak_process_tree_rss_bytes": 43732992,
+          "peak_rss_bytes": 43732992,
+          "records_per_second": 24153.48858401408,
+          "units": 159
+        },
+        {
+          "cpu_accounting_note": "Unavailable for runs below 100ms due to OS CPU-time granularity",
+          "cpu_percent_one_core_scale": null,
+          "elapsed_seconds": 0.006179199999678531,
+          "mb_per_second": 2.1185590368787306,
+          "peak_process_tree_rss_bytes": 43769856,
+          "peak_rss_bytes": 43769856,
+          "records_per_second": 25731.486277879318,
+          "units": 159
+        }
+      ],
+      "status": "measured",
+      "warmup_documents": 1
+    },
+    {
+      "bytes": 13091,
+      "documents": 159,
+      "exact": {
+        "calibration_count": 0,
+        "document_leakage_rate": 0.0064516129032258064,
+        "documents": 159,
+        "entity_level_recall": 0.9967213114754099,
+        "expected_calibration_error": null,
+        "f1": 0.95,
+        "false_negatives": 1,
+        "false_positives": 31,
+        "false_redaction_rate": 0.0,
+        "matching": "exact",
+        "precision": 0.9074626865671642,
+        "recall": 0.9967213114754099,
+        "recall_by_format": {
+          "text": 0.9967213114754099
+        },
+        "recall_by_type": {
+          "ADDRESS": 1.0,
+          "API_KEY": 1.0,
+          "CLABE": 1.0,
+          "CURP": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "DIAGNOSIS": 1.0,
+          "EMAIL": 1.0,
+          "PERSON": 0.967741935483871,
+          "PHONE": 1.0,
+          "RFC": 1.0
+        },
+        "true_positives": 304
+      },
+      "first_call_seconds": 0.00012770000012096716,
+      "median_records_per_second": 12376.333958812733,
+      "name": "deidflow_contextual_rules",
+      "overlap": {
+        "calibration_count": 0,
+        "document_leakage_rate": 0.0064516129032258064,
+        "documents": 159,
+        "entity_level_recall": 0.9967213114754099,
+        "expected_calibration_error": null,
+        "f1": 0.95,
+        "false_negatives": 1,
+        "false_positives": 31,
+        "false_redaction_rate": 0.0,
+        "matching": "overlap",
+        "precision": 0.9074626865671642,
+        "recall": 0.9967213114754099,
+        "recall_by_format": {
+          "text": 0.9967213114754099
+        },
+        "recall_by_type": {
+          "ADDRESS": 1.0,
+          "API_KEY": 1.0,
+          "CLABE": 1.0,
+          "CURP": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "DIAGNOSIS": 1.0,
+          "EMAIL": 1.0,
+          "PERSON": 0.967741935483871,
+          "PHONE": 1.0,
+          "RFC": 1.0
+        },
+        "true_positives": 304
+      },
+      "p50_latency_seconds": 7.549999963885057e-05,
+      "p95_latency_seconds": 0.0001348400000097172,
+      "person_only_exact": {
+        "calibration_count": 0,
+        "document_leakage_rate": 0.03225806451612903,
+        "documents": 159,
+        "entity_level_recall": 0.967741935483871,
+        "expected_calibration_error": null,
+        "f1": 0.9836065573770492,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "false_redaction_rate": 0.0,
+        "matching": "exact",
+        "precision": 1.0,
+        "recall": 0.967741935483871,
+        "recall_by_format": {
+          "text": 0.967741935483871
+        },
+        "recall_by_type": {
+          "PERSON": 0.967741935483871
+        },
+        "true_positives": 30
+      },
+      "prediction_sha256": "51aac35a3a3a6eaa672132623be9d96e41d05a48df830979b271a9e4e03a6268",
+      "repeats": 3,
+      "runs": [
+        {
+          "cpu_accounting_note": "Unavailable for runs below 100ms due to OS CPU-time granularity",
+          "cpu_percent_one_core_scale": null,
+          "elapsed_seconds": 0.014415299999654962,
+          "mb_per_second": 0.9081323316416128,
+          "peak_process_tree_rss_bytes": 43880448,
+          "peak_rss_bytes": 43880448,
+          "records_per_second": 11029.947347873838,
+          "units": 159
+        },
+        {
+          "cpu_accounting_note": "Unavailable for runs below 100ms due to OS CPU-time granularity",
+          "cpu_percent_one_core_scale": null,
+          "elapsed_seconds": 0.012219499999901018,
+          "mb_per_second": 1.0713204304681896,
+          "peak_process_tree_rss_bytes": 43880448,
+          "peak_rss_bytes": 43880448,
+          "records_per_second": 13011.989034026594,
+          "units": 159
+        },
+        {
+          "cpu_accounting_note": "Unavailable for runs below 100ms due to OS CPU-time granularity",
+          "cpu_percent_one_core_scale": null,
+          "elapsed_seconds": 0.012847099999817146,
+          "mb_per_second": 1.0189848292755816,
+          "peak_process_tree_rss_bytes": 43880448,
+          "peak_rss_bytes": 43880448,
+          "records_per_second": 12376.333958812733,
+          "units": 159
+        }
+      ],
+      "status": "measured",
+      "warmup_documents": 1
+    },
+    {
+      "bytes": 13091,
+      "documents": 159,
+      "exact": {
+        "calibration_count": 0,
+        "document_leakage_rate": 0.9935483870967742,
+        "documents": 159,
+        "entity_level_recall": 0.10163934426229508,
+        "expected_calibration_error": null,
+        "f1": 0.1313559322033898,
+        "false_negatives": 274,
+        "false_positives": 136,
+        "false_redaction_rate": 0.09106728538283063,
+        "matching": "exact",
+        "precision": 0.18562874251497005,
+        "recall": 0.10163934426229508,
+        "recall_by_format": {
+          "text": 0.10163934426229508
+        },
+        "recall_by_type": {
+          "ADDRESS": 0.0,
+          "API_KEY": 0.0,
+          "CLABE": 0.0,
+          "CURP": 0.0,
+          "CUSTOMER_ID": 0.0,
+          "DIAGNOSIS": 0.0,
+          "EMAIL": 0.0,
+          "PERSON": 1.0,
+          "PHONE": 0.0,
+          "RFC": 0.0
+        },
+        "true_positives": 31
+      },
+      "factory_initialization_seconds": 1.7282611000000543,
+      "first_call_seconds": 0.007185399999798392,
+      "median_records_per_second": 106.8500922103041,
+      "name": "spacy_spanish",
+      "nlp_token_count": 2271,
+      "nlp_tokens_per_second": 1526.141883079249,
+      "overlap": {
+        "calibration_count": 0,
+        "document_leakage_rate": 0.9935483870967742,
+        "documents": 159,
+        "entity_level_recall": 0.10163934426229508,
+        "expected_calibration_error": null,
+        "f1": 0.1313559322033898,
+        "false_negatives": 274,
+        "false_positives": 136,
+        "false_redaction_rate": 0.09106728538283063,
+        "matching": "overlap",
+        "precision": 0.18562874251497005,
+        "recall": 0.10163934426229508,
+        "recall_by_format": {
+          "text": 0.10163934426229508
+        },
+        "recall_by_type": {
+          "ADDRESS": 0.0,
+          "API_KEY": 0.0,
+          "CLABE": 0.0,
+          "CURP": 0.0,
+          "CUSTOMER_ID": 0.0,
+          "DIAGNOSIS": 0.0,
+          "EMAIL": 0.0,
+          "PERSON": 1.0,
+          "PHONE": 0.0,
+          "RFC": 0.0
+        },
+        "true_positives": 31
+      },
+      "p50_latency_seconds": 0.006650100000115344,
+      "p95_latency_seconds": 0.018076279999968393,
+      "person_only_exact": {
+        "calibration_count": 0,
+        "document_leakage_rate": 0.0,
+        "documents": 159,
+        "entity_level_recall": 1.0,
+        "expected_calibration_error": null,
+        "f1": 0.6138613861386139,
+        "false_negatives": 0,
+        "false_positives": 39,
+        "false_redaction_rate": 0.035238713868139,
+        "matching": "exact",
+        "precision": 0.44285714285714284,
+        "recall": 1.0,
+        "recall_by_format": {
+          "text": 1.0
+        },
+        "recall_by_type": {
+          "PERSON": 1.0
+        },
+        "true_positives": 31
+      },
+      "prediction_sha256": "17b23fe51f67964c1f165e0eb5f203dc067372dd064059a2b7fa34cf073c2a48",
+      "repeats": 3,
+      "runs": [
+        {
+          "cpu_accounting_note": "Process CPU only; excludes child CPU",
+          "cpu_percent_one_core_scale": 99.73644382255267,
+          "elapsed_seconds": 1.4882975000000442,
+          "mb_per_second": 0.008795956453598566,
+          "peak_process_tree_rss_bytes": 186109952,
+          "peak_rss_bytes": 186109952,
+          "records_per_second": 106.83347919350484,
+          "units": 159
+        },
+        {
+          "cpu_accounting_note": "Process CPU only; excludes child CPU",
+          "cpu_percent_one_core_scale": 100.80197378330575,
+          "elapsed_seconds": 1.4880660999997417,
+          "mb_per_second": 0.00879732425864837,
+          "peak_process_tree_rss_bytes": 172933120,
+          "peak_rss_bytes": 172933120,
+          "records_per_second": 106.8500922103041,
+          "units": 159
+        },
+        {
+          "cpu_accounting_note": "Process CPU only; excludes child CPU",
+          "cpu_percent_one_core_scale": 100.2885716162291,
+          "elapsed_seconds": 1.4645238000002792,
+          "mb_per_second": 0.008938741726148463,
+          "peak_process_tree_rss_bytes": 172863488,
+          "peak_rss_bytes": 172863488,
+          "records_per_second": 108.56771327305825,
+          "units": 159
+        }
+      ],
+      "status": "measured",
+      "warmup_documents": 1
+    },
+    {
+      "bytes": 13091,
+      "documents": 159,
+      "exact": {
+        "calibration_count": 0,
+        "document_leakage_rate": 0.9870967741935484,
+        "documents": 159,
+        "entity_level_recall": 0.20327868852459016,
+        "expected_calibration_error": null,
+        "f1": 0.23048327137546468,
+        "false_negatives": 243,
+        "false_positives": 171,
+        "false_redaction_rate": 0.09324245939675174,
+        "matching": "exact",
+        "precision": 0.26609442060085836,
+        "recall": 0.20327868852459016,
+        "recall_by_format": {
+          "text": 0.20327868852459016
+        },
+        "recall_by_type": {
+          "ADDRESS": 0.0,
+          "API_KEY": 0.0,
+          "CLABE": 0.0,
+          "CURP": 0.0,
+          "CUSTOMER_ID": 0.0,
+          "DIAGNOSIS": 0.0,
+          "EMAIL": 1.0,
+          "PERSON": 1.0,
+          "PHONE": 0.0,
+          "RFC": 0.0
+        },
+        "true_positives": 62
+      },
+      "factory_initialization_seconds": 0.2789199999997436,
+      "first_call_seconds": 0.25027460000001156,
+      "median_records_per_second": 81.4213609196338,
+      "name": "presidio_spanish",
+      "nlp_token_count": 2271,
+      "nlp_tokens_per_second": 1162.9428342672225,
+      "overlap": {
+        "calibration_count": 0,
+        "document_leakage_rate": 0.9870967741935484,
+        "documents": 159,
+        "entity_level_recall": 0.20327868852459016,
+        "expected_calibration_error": null,
+        "f1": 0.23048327137546468,
+        "false_negatives": 243,
+        "false_positives": 171,
+        "false_redaction_rate": 0.09324245939675174,
+        "matching": "overlap",
+        "precision": 0.26609442060085836,
+        "recall": 0.20327868852459016,
+        "recall_by_format": {
+          "text": 0.20327868852459016
+        },
+        "recall_by_type": {
+          "ADDRESS": 0.0,
+          "API_KEY": 0.0,
+          "CLABE": 0.0,
+          "CURP": 0.0,
+          "CUSTOMER_ID": 0.0,
+          "DIAGNOSIS": 0.0,
+          "EMAIL": 1.0,
+          "PERSON": 1.0,
+          "PHONE": 0.0,
+          "RFC": 0.0
+        },
+        "true_positives": 62
+      },
+      "p50_latency_seconds": 0.008533900000202266,
+      "p95_latency_seconds": 0.0217770000002929,
+      "person_only_exact": {
+        "calibration_count": 0,
+        "document_leakage_rate": 0.0,
+        "documents": 159,
+        "entity_level_recall": 1.0,
+        "expected_calibration_error": null,
+        "f1": 0.6138613861386139,
+        "false_negatives": 0,
+        "false_positives": 39,
+        "false_redaction_rate": 0.035238713868139,
+        "matching": "exact",
+        "precision": 0.44285714285714284,
+        "recall": 1.0,
+        "recall_by_format": {
+          "text": 1.0
+        },
+        "recall_by_type": {
+          "PERSON": 1.0
+        },
+        "true_positives": 31
+      },
+      "prediction_sha256": "8f23887415398fed04598bd8d87c4515cafedca52bccae80f1de7cbcc8746af8",
+      "repeats": 3,
+      "runs": [
+        {
+          "cpu_accounting_note": "Process CPU only; excludes child CPU",
+          "cpu_percent_one_core_scale": 101.61667488987317,
+          "elapsed_seconds": 1.952804500000184,
+          "mb_per_second": 0.00670369204904985,
+          "peak_process_tree_rss_bytes": 202252288,
+          "peak_rss_bytes": 202252288,
+          "records_per_second": 81.4213609196338,
+          "units": 159
+        },
+        {
+          "cpu_accounting_note": "Process CPU only; excludes child CPU",
+          "cpu_percent_one_core_scale": 100.04055298011849,
+          "elapsed_seconds": 2.077282600000217,
+          "mb_per_second": 0.006301983177444722,
+          "peak_process_tree_rss_bytes": 187744256,
+          "peak_rss_bytes": 187744256,
+          "records_per_second": 76.54230579892375,
+          "units": 159
+        },
+        {
+          "cpu_accounting_note": "Process CPU only; excludes child CPU",
+          "cpu_percent_one_core_scale": 96.88093629584291,
+          "elapsed_seconds": 1.870853100000204,
+          "mb_per_second": 0.006997342549235198,
+          "peak_process_tree_rss_bytes": 187883520,
+          "peak_rss_bytes": 187883520,
+          "records_per_second": 84.9879661850429,
+          "units": 159
+        }
+      ],
+      "status": "measured",
+      "warmup_documents": 1
+    },
+    {
+      "bytes": 13091,
+      "documents": 159,
+      "exact": {
+        "calibration_count": 0,
+        "document_leakage_rate": 0.0,
+        "documents": 159,
+        "entity_level_recall": 1.0,
+        "expected_calibration_error": null,
+        "f1": 0.7850707850707851,
+        "false_negatives": 0,
+        "false_positives": 167,
+        "false_redaction_rate": 0.09106728538283063,
+        "matching": "exact",
+        "precision": 0.6461864406779662,
+        "recall": 1.0,
+        "recall_by_format": {
+          "text": 1.0
+        },
+        "recall_by_type": {
+          "ADDRESS": 1.0,
+          "API_KEY": 1.0,
+          "CLABE": 1.0,
+          "CURP": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "DIAGNOSIS": 1.0,
+          "EMAIL": 1.0,
+          "PERSON": 1.0,
+          "PHONE": 1.0,
+          "RFC": 1.0
+        },
+        "true_positives": 305
+      },
+      "first_call_seconds": 0.23073660000000018,
+      "median_records_per_second": 99.12005701833888,
+      "name": "deidflow_rules_plus_local_spacy",
+      "nlp_token_count": 2271,
+      "nlp_tokens_per_second": 1415.7336445826893,
+      "overlap": {
+        "calibration_count": 0,
+        "document_leakage_rate": 0.0,
+        "documents": 159,
+        "entity_level_recall": 1.0,
+        "expected_calibration_error": null,
+        "f1": 0.7850707850707851,
+        "false_negatives": 0,
+        "false_positives": 167,
+        "false_redaction_rate": 0.09106728538283063,
+        "matching": "overlap",
+        "precision": 0.6461864406779662,
+        "recall": 1.0,
+        "recall_by_format": {
+          "text": 1.0
+        },
+        "recall_by_type": {
+          "ADDRESS": 1.0,
+          "API_KEY": 1.0,
+          "CLABE": 1.0,
+          "CURP": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "DIAGNOSIS": 1.0,
+          "EMAIL": 1.0,
+          "PERSON": 1.0,
+          "PHONE": 1.0,
+          "RFC": 1.0
+        },
+        "true_positives": 305
+      },
+      "p50_latency_seconds": 0.006725200000346376,
+      "p95_latency_seconds": 0.019642780000049244,
+      "person_only_exact": {
+        "calibration_count": 0,
+        "document_leakage_rate": 0.0,
+        "documents": 159,
+        "entity_level_recall": 1.0,
+        "expected_calibration_error": null,
+        "f1": 0.6138613861386139,
+        "false_negatives": 0,
+        "false_positives": 39,
+        "false_redaction_rate": 0.035238713868139,
+        "matching": "exact",
+        "precision": 0.44285714285714284,
+        "recall": 1.0,
+        "recall_by_format": {
+          "text": 1.0
+        },
+        "recall_by_type": {
+          "PERSON": 1.0
+        },
+        "true_positives": 31
+      },
+      "prediction_sha256": "258c27bbd4f70b7905c739c0be4b94f40a0c21e94cf239d9afaee742e1666bd8",
+      "repeats": 3,
+      "runs": [
+        {
+          "cpu_accounting_note": "Process CPU only; excludes child CPU",
+          "cpu_percent_one_core_scale": 98.15147421607823,
+          "elapsed_seconds": 1.6396850000000995,
+          "mb_per_second": 0.007983850556661313,
+          "peak_process_tree_rss_bytes": 250974208,
+          "peak_rss_bytes": 250974208,
+          "records_per_second": 96.96984481774874,
+          "units": 159
+        },
+        {
+          "cpu_accounting_note": "Process CPU only; excludes child CPU",
+          "cpu_percent_one_core_scale": 101.30194506591236,
+          "elapsed_seconds": 1.6041153000001032,
+          "mb_per_second": 0.008160884694509901,
+          "peak_process_tree_rss_bytes": 237588480,
+          "peak_rss_bytes": 237588480,
+          "records_per_second": 99.12005701833888,
+          "units": 159
+        },
+        {
+          "cpu_accounting_note": "Process CPU only; excludes child CPU",
+          "cpu_percent_one_core_scale": 100.37530904464356,
+          "elapsed_seconds": 1.5722243000000162,
+          "mb_per_second": 0.008326420091586084,
+          "peak_process_tree_rss_bytes": 237633536,
+          "peak_rss_bytes": 237633536,
+          "records_per_second": 101.13060839983096,
+          "units": 159
+        }
+      ],
+      "status": "measured",
+      "warmup_documents": 1
+    },
+    {
+      "batch_size": 32,
+      "documents": 159,
+      "exact": {
+        "calibration_count": 0,
+        "document_leakage_rate": 0.0,
+        "documents": 159,
+        "entity_level_recall": 1.0,
+        "expected_calibration_error": null,
+        "f1": 0.7850707850707851,
+        "false_negatives": 0,
+        "false_positives": 167,
+        "false_redaction_rate": 0.09106728538283063,
+        "matching": "exact",
+        "precision": 0.6461864406779662,
+        "recall": 1.0,
+        "recall_by_format": {
+          "text": 1.0
+        },
+        "recall_by_type": {
+          "ADDRESS": 1.0,
+          "API_KEY": 1.0,
+          "CLABE": 1.0,
+          "CURP": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "DIAGNOSIS": 1.0,
+          "EMAIL": 1.0,
+          "PERSON": 1.0,
+          "PHONE": 1.0,
+          "RFC": 1.0
+        },
+        "true_positives": 305
+      },
+      "name": "deidflow_rules_plus_local_spacy_batch",
+      "nlp_token_count": 2271,
+      "nlp_tokens_per_second": 2861.413828226665,
+      "note": "One batch timing; compare to single-item only as exploratory, not established speedup",
+      "repeats": 1,
+      "runs": [
+        {
+          "cpu_accounting_note": "Process CPU only; excludes child CPU",
+          "cpu_percent_one_core_scale": 100.40462987089933,
+          "elapsed_seconds": 0.7936635999999453,
+          "mb_per_second": 0.016494393846462032,
+          "peak_process_tree_rss_bytes": 249360384,
+          "peak_rss_bytes": 249360384,
+          "records_per_second": 200.3367673659356,
+          "units": 159
+        }
+      ],
+      "status": "measured"
+    },
+    {
+      "name": "dataprofiler",
+      "reason": "DataProfiler and a reviewed local labeler are not installed. Structured/character-level labeler comparison remains an explicit benchmark backlog item. No model was fetched.",
+      "status": "unavailable"
+    }
+  ],
+  "cold_start_subprocess_seconds": 0.2717398999998295,
+  "dataset_scope": "Synthetic Spanish/Mexican challenge corpus; templates and value namespaces are split-disjoint; not an enterprise accuracy estimate",
+  "dataset_sha256": {
+    "test": "5d281e6a691cb1b84ecfc5c42632cae8e3be3e7d5b8e37d63d4071b3efa5fef1",
+    "train": "e8fccfb8036a07a1568f9a6481be6e99167f2a4a4ad0f23475c26419278856b2",
+    "validation": "650c098fa9af31bffd4fdeca971e0fb1a3a1ffb1c448ba8f0abbc04b87b631cb"
+  },
+  "machine": {
+    "execution": "CPU",
+    "gpu_memory_bytes": null,
+    "logical_cpu_count": 16,
+    "machine": "AMD64",
+    "physical_cpu_count": 8,
+    "physical_memory_bytes": 16962179072,
+    "platform": "Windows-10-10.0.26200-SP0",
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "python": "3.11.9",
+    "versions": {
+      "DataProfiler": null,
+      "deidflow": "0.1.0",
+      "numpy": "2.4.6",
+      "presidio-analyzer": "2.2.366",
+      "psutil": "7.2.2",
+      "scikit-learn": "1.8.0",
+      "spacy": "3.8.18"
+    }
+  },
+  "measurement_notes": [
+    "Cold start includes Python interpreter and import",
+    "CPU scale is one core; RSS sampled every 10 ms and includes resident imports/models; baselines share the interpreter, so resident RSS is not an isolated per-model memory comparison",
+    "Exact matching is type+start+end; overlap matching requires same type and any intersecting span",
+    "False-redaction rate is covered non-gold characters / all non-gold characters",
+    "ECE is unavailable unless predictions provide calibrated confidence",
+    "Deterministic-only excludes contextual rules; contextual rules have no statistical NER; rules_plus_local_spacy is the statistical hybrid",
+    "Not all taxonomy categories appear in this small corpus; no aggregate superiority claim"
+  ],
+  "model_assets": {
+    "bundled": false,
+    "spanish_model": "es_core_news_sm-3.8.0",
+    "weight_license": "User-supplied; recorded separately in licensing report"
+  },
+  "network_guard": {
+    "attempted_connections": 0,
+    "presidio_suffix_list": "installed tldextract bundled snapshot, remote suffix URLs disabled",
+    "socket_connect_and_dns": "denied"
+  },
+  "schema_version": 1,
+  "seed": 1729
+}

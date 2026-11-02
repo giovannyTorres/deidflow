@@ -1,0 +1,261 @@
+{
+  "baselines": [
+    {
+      "bytes": 12995,
+      "documents": 157,
+      "exact": {
+        "calibration_count": 0,
+        "document_leakage_rate": 0.40522875816993464,
+        "documents": 157,
+        "entity_level_recall": 0.5973597359735974,
+        "expected_calibration_error": null,
+        "f1": 0.7479338842975207,
+        "false_negatives": 122,
+        "false_positives": 0,
+        "false_redaction_rate": 0.0,
+        "matching": "exact",
+        "precision": 1.0,
+        "recall": 0.5973597359735974,
+        "recall_by_format": {
+          "text": 0.5973597359735974
+        },
+        "recall_by_type": {
+          "ADDRESS": 0.0,
+          "API_KEY": 1.0,
+          "CLABE": 0.967741935483871,
+          "CURP": 1.0,
+          "CUSTOMER_ID": 0.0,
+          "DIAGNOSIS": 0.0,
+          "EMAIL": 1.0,
+          "PERSON": 0.0,
+          "PHONE": 1.0,
+          "RFC": 1.0
+        },
+        "true_positives": 181
+      },
+      "median_records_per_second": 18571.96933864093,
+      "name": "deterministic_only",
+      "overlap": {
+        "calibration_count": 0,
+        "document_leakage_rate": 0.40522875816993464,
+        "documents": 157,
+        "entity_level_recall": 0.5973597359735974,
+        "expected_calibration_error": null,
+        "f1": 0.7479338842975207,
+        "false_negatives": 122,
+        "false_positives": 0,
+        "false_redaction_rate": 0.0,
+        "matching": "overlap",
+        "precision": 1.0,
+        "recall": 0.5973597359735974,
+        "recall_by_format": {
+          "text": 0.5973597359735974
+        },
+        "recall_by_type": {
+          "ADDRESS": 0.0,
+          "API_KEY": 1.0,
+          "CLABE": 0.967741935483871,
+          "CURP": 1.0,
+          "CUSTOMER_ID": 0.0,
+          "DIAGNOSIS": 0.0,
+          "EMAIL": 1.0,
+          "PERSON": 0.0,
+          "PHONE": 1.0,
+          "RFC": 1.0
+        },
+        "true_positives": 181
+      },
+      "p50_latency_seconds": 4.3900000036956044e-05,
+      "p95_latency_seconds": 0.00010634999989633798,
+      "prediction_sha256": "e597653c8c4c6c398113181eee0c572a7c49d79564d014465cf5136e9e0ae88c",
+      "repeats": 3,
+      "runs": [
+        {
+          "cpu_percent_one_core_scale": 333.9067625531369,
+          "elapsed_seconds": 0.009358899999824644,
+          "mb_per_second": 1.3885178814009644,
+          "peak_process_tree_rss_bytes": 40206336,
+          "peak_rss_bytes": 40206336,
+          "records_per_second": 16775.475750669597,
+          "units": 157
+        },
+        {
+          "cpu_percent_one_core_scale": 369.66499479778923,
+          "elapsed_seconds": 0.008453599999938888,
+          "mb_per_second": 1.5372149143671268,
+          "peak_process_tree_rss_bytes": 40341504,
+          "peak_rss_bytes": 40341504,
+          "records_per_second": 18571.96933864093,
+          "units": 157
+        },
+        {
+          "cpu_percent_one_core_scale": 215.9939176067066,
+          "elapsed_seconds": 0.0072340000001531735,
+          "mb_per_second": 1.7963782139514572,
+          "peak_process_tree_rss_bytes": 40394752,
+          "peak_rss_bytes": 40394752,
+          "records_per_second": 21703.06884112188,
+          "units": 157
+        }
+      ],
+      "status": "measured",
+      "warm_start_first_call_seconds": 0.00025789999972403166,
+      "warmup_documents": 1
+    },
+    {
+      "bytes": 12995,
+      "documents": 157,
+      "exact": {
+        "calibration_count": 0,
+        "document_leakage_rate": 0.006535947712418301,
+        "documents": 157,
+        "entity_level_recall": 0.9966996699669967,
+        "expected_calibration_error": null,
+        "f1": 0.9496855345911949,
+        "false_negatives": 1,
+        "false_positives": 31,
+        "false_redaction_rate": 0.0,
+        "matching": "exact",
+        "precision": 0.9069069069069069,
+        "recall": 0.9966996699669967,
+        "recall_by_format": {
+          "text": 0.9966996699669967
+        },
+        "recall_by_type": {
+          "ADDRESS": 1.0,
+          "API_KEY": 1.0,
+          "CLABE": 0.967741935483871,
+          "CURP": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "DIAGNOSIS": 1.0,
+          "EMAIL": 1.0,
+          "PERSON": 1.0,
+          "PHONE": 1.0,
+          "RFC": 1.0
+        },
+        "true_positives": 302
+      },
+      "median_records_per_second": 11754.136408039318,
+      "name": "deidflow_contextual_rules",
+      "overlap": {
+        "calibration_count": 0,
+        "document_leakage_rate": 0.006535947712418301,
+        "documents": 157,
+        "entity_level_recall": 0.9966996699669967,
+        "expected_calibration_error": null,
+        "f1": 0.9496855345911949,
+        "false_negatives": 1,
+        "false_positives": 31,
+        "false_redaction_rate": 0.0,
+        "matching": "overlap",
+        "precision": 0.9069069069069069,
+        "recall": 0.9966996699669967,
+        "recall_by_format": {
+          "text": 0.9966996699669967
+        },
+        "recall_by_type": {
+          "ADDRESS": 1.0,
+          "API_KEY": 1.0,
+          "CLABE": 0.967741935483871,
+          "CURP": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "DIAGNOSIS": 1.0,
+          "EMAIL": 1.0,
+          "PERSON": 1.0,
+          "PHONE": 1.0,
+          "RFC": 1.0
+        },
+        "true_positives": 302
+      },
+      "p50_latency_seconds": 7.980000009411015e-05,
+      "p95_latency_seconds": 0.00014069999997445848,
+      "prediction_sha256": "43e5967cb560862529d95fc22392183f874eff7207db5c231932928cbd63e9c1",
+      "repeats": 3,
+      "runs": [
+        {
+          "cpu_percent_one_core_scale": 203.7808687272967,
+          "elapsed_seconds": 0.015335099999902013,
+          "mb_per_second": 0.8474023645155906,
+          "peak_process_tree_rss_bytes": 40468480,
+          "peak_rss_bytes": 40468480,
+          "records_per_second": 10237.950844859386,
+          "units": 157
+        },
+        {
+          "cpu_percent_one_core_scale": 130.84730433542086,
+          "elapsed_seconds": 0.011941400000068825,
+          "mb_per_second": 1.088230860696828,
+          "peak_process_tree_rss_bytes": 40476672,
+          "peak_rss_bytes": 40476672,
+          "records_per_second": 13147.537139623086,
+          "units": 157
+        },
+        {
+          "cpu_percent_one_core_scale": 116.97986074879894,
+          "elapsed_seconds": 0.013356999999814434,
+          "mb_per_second": 0.972898105875611,
+          "peak_process_tree_rss_bytes": 40476672,
+          "peak_rss_bytes": 40476672,
+          "records_per_second": 11754.136408039318,
+          "units": 157
+        }
+      ],
+      "status": "measured",
+      "warm_start_first_call_seconds": 0.00013340000032258104,
+      "warmup_documents": 1
+    },
+    {
+      "name": "spacy_spanish",
+      "reason": "No local Spanish NER model supplied; no model download attempted",
+      "status": "unavailable"
+    },
+    {
+      "name": "presidio_spanish",
+      "reason": "No local Spanish NER model supplied; no model download attempted",
+      "status": "unavailable"
+    },
+    {
+      "name": "dataprofiler",
+      "reason": "DataProfiler profiles structured columns rather than returning equivalent text-span annotations; see structured baseline script",
+      "status": "not_applicable_to_span_corpus"
+    }
+  ],
+  "cold_start_subprocess_seconds": 0.2752010999997765,
+  "dataset_scope": "Synthetic Spanish/Mexican challenge corpus; templates and value namespaces are split-disjoint; not an enterprise accuracy estimate",
+  "dataset_sha256": {
+    "test": "e91b75c662cf86f6d02006c661b971089095f38366c89b92fc6ba66cf8eef3db",
+    "train": "e8fccfb8036a07a1568f9a6481be6e99167f2a4a4ad0f23475c26419278856b2",
+    "validation": "650c098fa9af31bffd4fdeca971e0fb1a3a1ffb1c448ba8f0abbc04b87b631cb"
+  },
+  "machine": {
+    "execution": "CPU",
+    "gpu_memory_bytes": null,
+    "logical_cpu_count": 16,
+    "machine": "AMD64",
+    "physical_cpu_count": 8,
+    "physical_memory_bytes": 16962179072,
+    "platform": "Windows-10-10.0.26200-SP0",
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "python": "3.11.9",
+    "versions": {
+      "DataProfiler": null,
+      "deidflow": "0.1.0",
+      "numpy": "2.4.6",
+      "presidio-analyzer": null,
+      "psutil": "7.2.2",
+      "scikit-learn": "1.8.0",
+      "spacy": null
+    }
+  },
+  "measurement_notes": [
+    "Cold start includes Python interpreter and import",
+    "CPU scale is one core; RSS sampled every 10 ms and includes resident imports/models",
+    "Exact matching is type+start+end; overlap matching requires same type and any intersecting span",
+    "False-redaction rate is covered non-gold characters / all non-gold characters",
+    "ECE is unavailable unless predictions provide calibrated confidence",
+    "Deterministic-only excludes contextual rules; contextual hybrid has no statistical NER unless explicitly configured separately",
+    "Not all taxonomy categories appear in this small corpus; no aggregate superiority claim"
+  ],
+  "schema_version": 1,
+  "seed": 1729
+}

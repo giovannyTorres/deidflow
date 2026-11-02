@@ -1,0 +1,19 @@
+name: preserve-clinical-content
+require_ner: true
+default:
+  action: placeholder
+entities:
+  DIAGNOSIS:
+    action: keep
+  MEDICATION:
+    action: keep
+  DATE:
+    action: generalize
+    replacement: "[YEAR_REMOVED]"
+domains:
+  financial:
+    CLABE:
+      action: redact
+    BANK_ACCOUNT:
+      action: redact
+token_scope: document

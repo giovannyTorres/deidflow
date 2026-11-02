@@ -1,0 +1,82 @@
+{
+  "baseline_test": {
+    "accuracy": 1.0,
+    "precision_by_type": {
+      "CLABE": 1.0,
+      "CUSTOMER_ID": 1.0,
+      "EMAIL": 1.0,
+      "NON_SENSITIVE": 1.0
+    },
+    "recall_by_type": {
+      "CLABE": 1.0,
+      "CUSTOMER_ID": 1.0,
+      "EMAIL": 1.0,
+      "NON_SENSITIVE": 1.0
+    },
+    "samples": 48
+  },
+  "promotion_gate": {
+    "eligible": true,
+    "reasons": [],
+    "status": "ELIGIBLE_FOR_MANUAL_ACTIVATION"
+  },
+  "scope": "Synthetic four-label columns only; no pretrained assets, no production calibration or auto activation",
+  "test": {
+    "accuracy": 1.0,
+    "precision_by_type": {
+      "CLABE": 1.0,
+      "CUSTOMER_ID": 1.0,
+      "EMAIL": 1.0,
+      "NON_SENSITIVE": 1.0
+    },
+    "recall_by_type": {
+      "CLABE": 1.0,
+      "CUSTOMER_ID": 1.0,
+      "EMAIL": 1.0,
+      "NON_SENSITIVE": 1.0
+    },
+    "samples": 48
+  },
+  "training": {
+    "activation": "STAGED",
+    "calibrated": false,
+    "kind": "column-char-logistic",
+    "labels": [
+      "CLABE",
+      "CUSTOMER_ID",
+      "EMAIL",
+      "NON_SENSITIVE"
+    ],
+    "limitations": [
+      "Character n-gram model is a column prior, not a definitive PII classifier",
+      "Model may retain customer-specific feature strings; keep private",
+      "Validation is synthetic unless caller supplies a representative private holdout"
+    ],
+    "schema_version": 1,
+    "seed": 1729,
+    "sha256": "9dbcd95ba475e9977e389970636a4315f2a79022d52a6bdf0782b0beab498e08",
+    "software": {
+      "joblib": "1.6.0",
+      "scikit-learn": "1.8.0"
+    },
+    "training_samples": 96,
+    "validation": {
+      "accuracy": 1.0,
+      "precision_by_type": {
+        "CLABE": 1.0,
+        "CUSTOMER_ID": 1.0,
+        "EMAIL": 1.0,
+        "NON_SENSITIVE": 1.0
+      },
+      "recall_by_type": {
+        "CLABE": 1.0,
+        "CUSTOMER_ID": 1.0,
+        "EMAIL": 1.0,
+        "NON_SENSITIVE": 1.0
+      },
+      "samples": 48
+    },
+    "validation_samples": 48,
+    "version": "synthetic-0.1"
+  }
+}

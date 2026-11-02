@@ -1,0 +1,73 @@
+{
+  "calibrated": {
+    "calibration_count": 335,
+    "document_leakage_rate": 0.0064516129032258064,
+    "documents": 159,
+    "entity_level_recall": 0.9967213114754099,
+    "expected_calibration_error": 0.02171679911335818,
+    "f1": 0.95,
+    "false_negatives": 1,
+    "false_positives": 31,
+    "false_redaction_rate": 0.0,
+    "matching": "exact",
+    "precision": 0.9074626865671642,
+    "recall": 0.9967213114754099,
+    "recall_by_format": {
+      "text": 0.9967213114754099
+    },
+    "recall_by_type": {
+      "ADDRESS": 1.0,
+      "API_KEY": 1.0,
+      "CLABE": 1.0,
+      "CURP": 1.0,
+      "CUSTOMER_ID": 1.0,
+      "DIAGNOSIS": 1.0,
+      "EMAIL": 1.0,
+      "PERSON": 0.967741935483871,
+      "PHONE": 1.0,
+      "RFC": 1.0
+    },
+    "true_positives": 304
+  },
+  "evaluation_split": "test",
+  "fit_candidates": 330,
+  "fit_positive_candidates": 300,
+  "fit_split": "validation",
+  "limitations": [
+    "Synthetic challenge-only score mapping; not a production probability guarantee",
+    "Only rules.es_MX/model provenance calibrated",
+    "Calibration annotates scores without discarding any candidate",
+    "Uncalibrated raw scores have no reported ECE"
+  ],
+  "seed": 1729,
+  "unmodified": {
+    "calibration_count": 0,
+    "document_leakage_rate": 0.0064516129032258064,
+    "documents": 159,
+    "entity_level_recall": 0.9967213114754099,
+    "expected_calibration_error": null,
+    "f1": 0.95,
+    "false_negatives": 1,
+    "false_positives": 31,
+    "false_redaction_rate": 0.0,
+    "matching": "exact",
+    "precision": 0.9074626865671642,
+    "recall": 0.9967213114754099,
+    "recall_by_format": {
+      "text": 0.9967213114754099
+    },
+    "recall_by_type": {
+      "ADDRESS": 1.0,
+      "API_KEY": 1.0,
+      "CLABE": 1.0,
+      "CURP": 1.0,
+      "CUSTOMER_ID": 1.0,
+      "DIAGNOSIS": 1.0,
+      "EMAIL": 1.0,
+      "PERSON": 0.967741935483871,
+      "PHONE": 1.0,
+      "RFC": 1.0
+    },
+    "true_positives": 304
+  }
+}

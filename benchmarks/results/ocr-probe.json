@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "purpose": "actual_scanned_pdf_coverage_probe",
+  "synthetic": true,
+  "python": "3.11.9",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "documents": 3,
+  "pages": 3,
+  "requested_language": "spa+eng",
+  "ocr_status": "NOT_RUN",
+  "reason": "LOCAL_TESSERACT_NOT_INSTALLED",
+  "coverage_probe_wall_seconds": 0.22113189999981842,
+  "ocr_pages_per_second": null,
+  "ocr_error_rate": null,
+  "detection_recall": null,
+  "note": "Coverage/routing probe only. Wall time includes extraction and refusal checks; it is not an OCR benchmark. No unavailable metric is imputed.",
+  "cases": [
+    {
+      "case": "synthetic-scan-0.pdf",
+      "complete": false,
+      "issues": [
+        "pdf_regions_require_ocr"
+      ],
+      "scan_refused": true,
+      "ocr_fragments": 0
+    },
+    {
+      "case": "synthetic-scan-1.pdf",
+      "complete": false,
+      "issues": [
+        "pdf_regions_require_ocr"
+      ],
+      "scan_refused": true,
+      "ocr_fragments": 0
+    },
+    {
+      "case": "synthetic-scan-2.pdf",
+      "complete": false,
+      "issues": [
+        "pdf_regions_require_ocr"
+      ],
+      "scan_refused": true,
+      "ocr_fragments": 0
+    }
+  ]
+}
