@@ -13,7 +13,7 @@ finding list on an incomplete graph must never approve a release.
 | CSV/TSV | All headers and cells; quoted multiline cells preserved | Use streaming table engine for large files |
 | DOCX | OOXML paragraphs, tables, revisions, headers, footers, footnotes, endnotes, comments, property metadata, external relationship targets | Unsupported in-place release |
 | XLSX | Visible/hidden/very-hidden sheets, cells, formulas and cached values, comments, headers/footers, names and metadata | Unsupported in-place release |
-| PDF | Native pypdf text, page coordinates, Info metadata and annotation text; selective page OCR when configured | Unsupported automatic PDF redaction |
+| PDF | Native pypdf text, page coordinates, Info metadata and annotation text; selective page OCR when configured | Lossless image-only reconstruction with physical removal and verified output; supported geometry only |
 | PNG/JPEG/TIFF | Every frame through explicit local OCR adapter | Separate pixel operator; always review required |
 | Parquet | All flat columns through bounded Arrow batches; graph size limits apply | Automatic Parquet rewrite unsupported |
 | DataFrames | See structured engine | See structured engine |
@@ -43,7 +43,7 @@ Office package rewriting is a separate, currently unsupported capability.
 
 ## Native PDF and OCR
 
-Install `deidflow[pdf,ocr]` for pypdf, pypdfium2, Pillow and pytesseract. The
+Install `deidflow[pdf,ocr]` for pypdf, pypdfium2 and Pillow. The
 Tesseract binary and requested `spa`/`eng` traineddata must already exist locally.
 The adapter never installs assets or contacts a service:
 
@@ -51,7 +51,11 @@ The adapter never installs assets or contacts a service:
 from deidflow.ocr import TesseractOCR
 from deidflow.readers import read_document
 
-ocr = TesseractOCR(language="spa+eng", executable=r"C:\Program Files\Tesseract-OCR\tesseract.exe")
+ocr = TesseractOCR(
+    language="spa+eng",
+    executable=r"..\..\work\tesseract-5.5.4\bin\tesseract.exe",
+    tessdata_dir=r"..\..\work\tesseract-5.5.4\share\tessdata",
+)
 graph = read_document("scan.pdf", ocr=ocr)
 assert graph.complete, graph.issues
 ```
@@ -68,14 +72,17 @@ Native PDF bounding boxes describe page containers, **not glyph-accurate masks**
 Native span offsets index extracted text, not PDF content-stream bytes. OCR token
 metadata records character offsets, confidence and top-left-origin boxes; PDF OCR
 boxes are scaled into page points. These records can be inspected to locate
-findings, but cannot justify native PDF overlay redaction. PDFs with forms,
+findings, but cannot justify native PDF overlay redaction. The separate
+[PDF reconstruction backend](pdf-redaction.md) uses PDFium glyph mapping plus
+OCR and new image-only pages, never an overlay on original content. PDFs with forms,
 attachments/actions or annotations require review. Rotated/cropped pages and
 complex resource trees require additional specialized QA.
 
 OCR confidence below 50 by default marks the graph incomplete. Low-confidence
 words remain in the text; they are not dropped to inflate apparent quality.
-Tesseract execution has a timeout and a shared lock protects its process-global
-executable configuration. OCR engine confidence is not calibrated entity
+Tesseract execution has a timeout and explicit shell-free process arguments;
+PNG/TSV travel through pipes without process-global executable settings or
+sensitive temporary OCR files. OCR engine confidence is not calibrated entity
 confidence. OCR text reconstruction introduces spaces and line breaks, so spans
 refer to that reconstruction, linked back to token boxes.
 
@@ -114,9 +121,11 @@ fields and custom schema metadata require review; readable metadata are scanned.
 An empty file's field names are still scanned. Arrow's internal parser buffers
 are outside the graph size limit, so use process limits for hostile files.
 
-Run `python scripts/ocr_probe.py` for the synthetic scanned-PDF routing check.
-Its JSON records actual missing-asset failures and scan refusals. Unavailable OCR
-metrics remain null; the probe does not invent OCR accuracy or speed results.
+The original `scripts/ocr_probe.py` records missing-asset failure behavior from
+v0.1. For current installed OCR and real character/word-error, physical-pixel
+verification and throughput measurements, use `scripts/benchmark_pdf_ocr.py` and
+the [v0.2 OCR/PDF report](pdf-ocr-report.md). See [local setup](local-ocr.md) for
+the pinned, compiled Tesseract 5.5.4 runtime and explicit Spanish data paths.
 
 These checks reduce common abuse; they are not an operating-system sandbox.
 Adversarial compressed PDF streams, recursive PDF structures, malformed image
@@ -131,10 +140,12 @@ process memory cap. Parser errors contain fixed messages, never source text.
 - pypdf: BSD-3-Clause; native extraction only.
 - pypdfium2: Apache-2.0/BSD-3-Clause wrapper, bundled PDFium BSD-style third-party
   components; distribute its bundled notices with any commercial redistribution.
-- Pillow: HPND-style Pillow license and linked codec notices.
-- pytesseract and Tesseract: Apache-2.0; separately review installed traineddata
+- Pillow 13: MIT-CMU and linked codec notices.
+- Tesseract: Apache-2.0; separately review installed traineddata
   and executable distributions, including their bundled notices.
 - PyMuPDF is not used and is not a dependency.
 
 Review the resolved dependency inventory and actual installed asset licenses
 before redistribution. No model-weight license is granted by DeidFlow.
+The current OCR adapter does not depend on pytesseract; native libraries and
+language weights stay outside Python distributions.

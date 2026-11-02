@@ -13,7 +13,7 @@ documents components; it does not provide trademark or legal clearance.
 | pypdf | Optional native PDF extraction | BSD-3-Clause; no PyMuPDF dependency |
 | pypdfium2 / PDFium | Optional rasterization | Apache-2.0/BSD-3-Clause wrapper; PDFium/Bundled third-party notices separately |
 | Pillow 13.0.0 | Optional image processing | MIT-CMU and bundled codec notices; see installed package licenses |
-| pytesseract / Tesseract | Optional local OCR | Apache-2.0 wrapper/engine; executable and language-data licenses separately reviewed |
+| Tesseract 5.5.4 / tessdata_fast spa+eng | Explicit local OCR | Apache-2.0; source-built runtime, DLL and model hashes/notices separately inventoried; no wrapper dependency |
 | pandas / NumPy / SciPy / scikit-learn | Optional tables and CPU learner | BSD-family code; binary wheels bundle additional native libraries/notices |
 | Polars | Optional DataFrame adapter | MIT; native runtime distribution separately inventoried |
 | PyArrow | Optional Parquet | Apache-2.0 with bundled component notices |
@@ -30,6 +30,16 @@ transitive and native distributions rather than asserting that a top-level
 license settles all redistribution obligations. Preserve the applicable license
 texts/notices if shipping a binary or vendored environment. `requirements-lock-windows-py311.txt`
 records the exact final tested environment, not a universal cross-platform lock.
+
+The v0.2 local OCR build additionally records all pinned native package versions,
+URLs, SHA-256 and license declarations in `ocr-build-lock.json`; `ocr-assets.json`
+records actual compiled binaries and model hashes. Original native notices are
+kept in the private runtime outside the repository. This includes LGPL libraries
+and GCC runtime exceptions, whose redistribution obligations need separate review.
+No native executable/DLL/traineddata is in Python wheels or source archives.
+See [local OCR setup](local-ocr.md) for upstream patch level and limitations.
+`pytesseract` remains in the historical validation environment inventory but is no
+longer an OCR extra dependency or runtime adapter import.
 
 The downloaded Spanish model is stored outside this repository in the parent
 workspace `work/models`, solely to execute real local baselines. Official wheel

@@ -484,6 +484,17 @@ def _page_has_images(page: Any) -> bool:
 
 
 def _read_pdf(path: Path, graph: DocumentGraph, ocr: OCREngine | None, performance: str) -> None:
+    # PDFium's global native runtime is unsafe across concurrent threads, even
+    # when documents differ. Share one reentrant lock with PDF reconstruction.
+    from deidflow.pdf_runtime import PDFIUM_LOCK
+
+    with PDFIUM_LOCK:
+        _read_pdf_locked(path, graph, ocr, performance)
+
+
+def _read_pdf_locked(
+    path: Path, graph: DocumentGraph, ocr: OCREngine | None, performance: str
+) -> None:
     try:
         from pypdf import PdfReader
     except ImportError:

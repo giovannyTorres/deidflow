@@ -1,0 +1,674 @@
+{
+  "schema_version": 1,
+  "seed": 1729,
+  "machine": {
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": "3.11.9",
+    "machine": "AMD64",
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "logical_cpu_count": 16,
+    "versions": {
+      "deidflow": "0.2.0",
+      "psutil": "7.2.2",
+      "spacy": "3.8.18",
+      "presidio-analyzer": "2.2.366",
+      "DataProfiler": null,
+      "numpy": "2.4.6",
+      "scikit-learn": "1.8.0"
+    },
+    "execution": "CPU",
+    "gpu_memory_bytes": null,
+    "physical_memory_bytes": 16962179072,
+    "physical_cpu_count": 8
+  },
+  "configuration": {
+    "language": "spa+eng",
+    "dpi": 216,
+    "psm": 6,
+    "oem": 1,
+    "critical_ocr_confidence": 50,
+    "policy": "explicit rules-only full redaction"
+  },
+  "asset_sha256": {
+    "executable": "8353c0238e8d16c97974a24ccbad1aec6f2a304607bff9e57df4d072a9b7c52b",
+    "spa_traineddata": "6f2e04d02774a18f01bed44b1111f2cd7f3ba7ac9dc4373cd3f898a40ea6b464",
+    "eng_traineddata": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"
+  },
+  "workloads": [
+    {
+      "workload": "scanned-challenge",
+      "pages": 3,
+      "input_sha256": "b6e1b5d2b1cc0bdbc3dbbc965bb91e6b296e402e53504e11bed421c0e2572e32",
+      "source_ocr": {
+        "elapsed_seconds": 1.4833902000000307,
+        "units": 3,
+        "records_per_second": 2.0223943774200057,
+        "mb_per_second": 0.4178152181401678,
+        "peak_rss_bytes": 123875328,
+        "peak_process_tree_rss_bytes": 182239232,
+        "cpu_percent_one_core_scale": 68.46647631890644,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU",
+        "pages_per_second": 2.0223943774200057,
+        "page_latency_p50_seconds": 0.47239040000022214,
+        "page_latency_p95_seconds": 0.49918430000061564,
+        "first_page_seconds": 0.5021614000006593,
+        "later_pages_latency_p50_seconds": 0.45360630000004676,
+        "later_pages_latency_p95_seconds": 0.4705119900002046
+      },
+      "transcription": {
+        "character_error_rate": 0.0,
+        "word_error_rate": 0.0,
+        "reference_characters": 1181,
+        "reference_words": 138,
+        "normalization": "Unicode NFC, whitespace collapsed, case and punctuation retained"
+      },
+      "detection": {
+        "gold_entities": 27,
+        "predicted_entities": 30,
+        "matched_gold_values": 27,
+        "gold_value_precision": 0.9,
+        "gold_value_recall": 1.0,
+        "gold_value_f1": 0.9473684210526316,
+        "recall_by_type": {
+          "PERSON": 1.0,
+          "EMAIL": 1.0,
+          "PHONE": 1.0,
+          "CURP": 1.0,
+          "RFC": 1.0,
+          "CLABE": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "ADDRESS": 1.0,
+          "DIAGNOSIS": 1.0
+        },
+        "ocr_exact_value_recovery_by_type": {
+          "PERSON": 1.0,
+          "EMAIL": 1.0,
+          "PHONE": 1.0,
+          "CURP": 1.0,
+          "RFC": 1.0,
+          "CLABE": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "ADDRESS": 1.0,
+          "DIAGNOSIS": 1.0
+        },
+        "definition": "One-to-one category + NFC/whitespace-normalized whole value matching on OCR text; not original-layout exact-span F1"
+      },
+      "ocr_confidence_minimum": 35.424812,
+      "ocr_confidence_p50": 96.399117,
+      "end_to_end": {
+        "elapsed_seconds": 3.4322244999993927,
+        "units": 3,
+        "records_per_second": 0.8740686980121873,
+        "mb_per_second": 0.1805776399533625,
+        "peak_rss_bytes": 212508672,
+        "peak_process_tree_rss_bytes": 270163968,
+        "cpu_percent_one_core_scale": 75.57052284897037,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU"
+      },
+      "status": "REVIEW_REQUIRED",
+      "issues": [
+        "LOW_SOURCE_OCR_CONFIDENCE"
+      ],
+      "residual_findings_by_type": {},
+      "library_audit": {
+        "verification": "reread_and_rescan",
+        "model": "rules_only",
+        "policy": "strict",
+        "policy_sha256": "e9de649dab8390816a36a3265b8389ab7e9fe466d17fbcfce72bff41857f9781",
+        "domain": null,
+        "anonymity_proven": false,
+        "format": "pdf",
+        "pdf_mode": "lossless_raster_rebuild",
+        "dpi": 216,
+        "pages": 3,
+        "masks": 60,
+        "source_findings_by_type": {
+          "PERSON": 3,
+          "EMAIL": 3,
+          "PHONE": 3,
+          "CURP": 3,
+          "RFC": 3,
+          "CLABE": 3,
+          "CUSTOMER_ID": 3,
+          "ADDRESS": 6,
+          "DIAGNOSIS": 3
+        },
+        "page_receipts": [
+          {
+            "page": 1,
+            "page_width": 612.0,
+            "page_height": 792.0,
+            "raster_width": 1836,
+            "raster_height": 2376,
+            "raster_sha256": "fc01867151dd26072a26d208332b11baadab191c6fb9de803ab77e291c3584ed",
+            "masks": [
+              [
+                126,
+                889,
+                251,
+                923
+              ],
+              [
+                128,
+                968,
+                181,
+                1001
+              ],
+              [
+                188,
+                966,
+                291,
+                1000
+              ],
+              [
+                212,
+                570,
+                515,
+                609
+              ],
+              [
+                239,
+                487,
+                677,
+                531
+              ],
+              [
+                242,
+                327,
+                753,
+                385
+              ],
+              [
+                254,
+                727,
+                445,
+                764
+              ],
+              [
+                258,
+                645,
+                621,
+                686
+              ],
+              [
+                258,
+                888,
+                369,
+                920
+              ],
+              [
+                270,
+                262,
+                365,
+                296
+              ],
+              [
+                274,
+                418,
+                338,
+                451
+              ],
+              [
+                290,
+                808,
+                375,
+                841
+              ],
+              [
+                338,
+                1041,
+                477,
+                1074
+              ],
+              [
+                345,
+                417,
+                388,
+                450
+              ],
+              [
+                372,
+                258,
+                505,
+                299
+              ],
+              [
+                382,
+                807,
+                465,
+                839
+              ],
+              [
+                397,
+                414,
+                478,
+                448
+              ],
+              [
+                474,
+                804,
+                515,
+                836
+              ],
+              [
+                485,
+                412,
+                568,
+                446
+              ],
+              [
+                510,
+                257,
+                619,
+                289
+              ]
+            ],
+            "native_findings": 0,
+            "ocr_findings": 10,
+            "source_ocr_tokens": 46,
+            "all_unmasked_pixels_white": false,
+            "actual_solid_regions_excluded_from_ocr": 20,
+            "verification_ocr_tokens": 26,
+            "rendered_verification": true
+          },
+          {
+            "page": 2,
+            "page_width": 612.0,
+            "page_height": 792.0,
+            "raster_width": 1836,
+            "raster_height": 2376,
+            "raster_sha256": "3630f71fdf28f4724c6b350382682dbcb6b72885f8a03dfafac18c01ba99188c",
+            "masks": [
+              [
+                133,
+                870,
+                259,
+                904
+              ],
+              [
+                133,
+                948,
+                187,
+                982
+              ],
+              [
+                192,
+                948,
+                297,
+                982
+              ],
+              [
+                227,
+                558,
+                531,
+                592
+              ],
+              [
+                256,
+                480,
+                695,
+                514
+              ],
+              [
+                263,
+                324,
+                775,
+                365
+              ],
+              [
+                265,
+                714,
+                453,
+                748
+              ],
+              [
+                265,
+                870,
+                378,
+                904
+              ],
+              [
+                270,
+                636,
+                635,
+                670
+              ],
+              [
+                292,
+                246,
+                373,
+                280
+              ],
+              [
+                293,
+                402,
+                358,
+                436
+              ],
+              [
+                299,
+                792,
+                385,
+                826
+              ],
+              [
+                340,
+                1027,
+                481,
+                1060
+              ],
+              [
+                364,
+                402,
+                409,
+                436
+              ],
+              [
+                380,
+                246,
+                499,
+                280
+              ],
+              [
+                391,
+                792,
+                475,
+                826
+              ],
+              [
+                416,
+                402,
+                498,
+                436
+              ],
+              [
+                483,
+                792,
+                526,
+                826
+              ],
+              [
+                504,
+                402,
+                588,
+                436
+              ],
+              [
+                505,
+                246,
+                650,
+                287
+              ]
+            ],
+            "native_findings": 0,
+            "ocr_findings": 10,
+            "source_ocr_tokens": 46,
+            "all_unmasked_pixels_white": false,
+            "actual_solid_regions_excluded_from_ocr": 20,
+            "verification_ocr_tokens": 26,
+            "rendered_verification": true
+          },
+          {
+            "page": 3,
+            "page_width": 612.0,
+            "page_height": 792.0,
+            "raster_width": 1836,
+            "raster_height": 2376,
+            "raster_sha256": "3e5d805d29e8c3d832b2c4cbb55a860671c85d20273a3eb5bad1dfa864220031",
+            "masks": [
+              [
+                134,
+                871,
+                258,
+                903
+              ],
+              [
+                134,
+                949,
+                186,
+                981
+              ],
+              [
+                193,
+                949,
+                296,
+                981
+              ],
+              [
+                228,
+                559,
+                530,
+                591
+              ],
+              [
+                257,
+                481,
+                694,
+                513
+              ],
+              [
+                264,
+                325,
+                775,
+                364
+              ],
+              [
+                266,
+                715,
+                456,
+                747
+              ],
+              [
+                266,
+                871,
+                377,
+                903
+              ],
+              [
+                271,
+                637,
+                635,
+                669
+              ],
+              [
+                294,
+                403,
+                357,
+                435
+              ],
+              [
+                295,
+                247,
+                384,
+                279
+              ],
+              [
+                300,
+                793,
+                385,
+                825
+              ],
+              [
+                341,
+                1027,
+                481,
+                1059
+              ],
+              [
+                365,
+                403,
+                408,
+                435
+              ],
+              [
+                393,
+                247,
+                506,
+                279
+              ],
+              [
+                393,
+                793,
+                474,
+                825
+              ],
+              [
+                417,
+                403,
+                497,
+                435
+              ],
+              [
+                484,
+                793,
+                524,
+                825
+              ],
+              [
+                505,
+                403,
+                587,
+                435
+              ],
+              [
+                515,
+                247,
+                615,
+                286
+              ]
+            ],
+            "native_findings": 0,
+            "ocr_findings": 10,
+            "source_ocr_tokens": 46,
+            "all_unmasked_pixels_white": false,
+            "actual_solid_regions_excluded_from_ocr": 20,
+            "verification_ocr_tokens": 26,
+            "rendered_verification": true
+          }
+        ],
+        "text_layer_removed": true,
+        "original_objects_copied": false,
+        "encoded_pixels_verified": true,
+        "output_rerendered_and_ocr_verified": true,
+        "source_sha256": "b6e1b5d2b1cc0bdbc3dbbc965bb91e6b296e402e53504e11bed421c0e2572e32",
+        "sha256": "8f94d2b5d002b7ab598eb7ef14a370ab2fda1c715db0baf1bf71b014b4cb4e22"
+      },
+      "output_ground_truth": {
+        "pages": 3,
+        "expected_pages": 3,
+        "native_text_pages": 0,
+        "annotation_pages": 0,
+        "forbidden_catalog_keys": [],
+        "metadata_gold_leaks": 0,
+        "original_values_in_page_content_streams": 0,
+        "residual_gold_values_in_output_ocr": null,
+        "residual_gold_values_observed_in_readable_output_pages": 0,
+        "output_ocr_failed_pages": [
+          3
+        ],
+        "output_ocr_complete": false,
+        "residual_gold_by_type": {},
+        "gold_values_checked": 27,
+        "utility_amount_pages_preserved": 2,
+        "independent_gold_pixels": {
+          "gold_words_checked": 60,
+          "gold_words_opaque_black": 60,
+          "unmasked_gold_word_regions": 0,
+          "indeterminate_gold_word_regions": 0,
+          "minimum_black_pixel_fraction": 1.0,
+          "gold_word_mask_rate_by_type": {
+            "PERSON": 1.0,
+            "EMAIL": 1.0,
+            "PHONE": 1.0,
+            "CURP": 1.0,
+            "RFC": 1.0,
+            "CLABE": 1.0,
+            "CUSTOMER_ID": 1.0,
+            "ADDRESS": 1.0,
+            "DIAGNOSIS": 1.0
+          },
+          "passed": true,
+          "definition": "Known drawn field word boxes tightened to source ink; actual rerendered output word rectangle must be >=99.5% near-black. Independent of OCR matching. This is fixture-specific geometry, not general visual privacy proof."
+        },
+        "output_ocr_page_latency_p50_seconds": 0.4490677000003416,
+        "output_ocr_page_latency_p95_seconds": 0.4807816300002742,
+        "passed": false,
+        "limitations": "Gold OCR absence is not absence of all PII; actual embedded pixel/hash verification is performed by library independently"
+      }
+    }
+  ],
+  "tesseract_version": "tesseract 5.5.4",
+  "notes": [
+    "RSS is sampled every10ms and process-tree includes local OCR subprocesses",
+    "CPU accounting excludes exited OCR child CPU",
+    "Full-scale workloads have one repetition; small-native repeats are separate",
+    "No customer data or cloud inference"
+  ],
+  "repeat_experiment": {
+    "pages": 3,
+    "repeats": 3,
+    "runs": [
+      {
+        "elapsed_seconds": 2.9271624000002703,
+        "units": 3,
+        "records_per_second": 1.0248833477772614,
+        "mb_per_second": 0.0012100456059423532,
+        "peak_rss_bytes": 218427392,
+        "peak_process_tree_rss_bytes": 272863232,
+        "cpu_percent_one_core_scale": 70.99452356998738,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU",
+        "status": "APPROVED",
+        "issues": []
+      },
+      {
+        "elapsed_seconds": 2.8483276999995724,
+        "units": 3,
+        "records_per_second": 1.0532495962457025,
+        "mb_per_second": 0.001243536689967426,
+        "peak_rss_bytes": 215257088,
+        "peak_process_tree_rss_bytes": 272662528,
+        "cpu_percent_one_core_scale": 70.2166397497135,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU",
+        "status": "APPROVED",
+        "issues": []
+      },
+      {
+        "elapsed_seconds": 3.183071700000255,
+        "units": 3,
+        "records_per_second": 0.9424858384433374,
+        "mb_per_second": 0.0011127616132554337,
+        "peak_rss_bytes": 215756800,
+        "peak_process_tree_rss_bytes": 273047552,
+        "cpu_percent_one_core_scale": 74.12258416924165,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU",
+        "status": "APPROVED",
+        "issues": []
+      }
+    ],
+    "median_pages_per_second": 1.0248833477772614,
+    "output_sha256": [
+      "0039a7fabc336ad3e17e24cf7ef02503bd114c7f63f988a429aa5034614e8b86",
+      "0039a7fabc336ad3e17e24cf7ef02503bd114c7f63f988a429aa5034614e8b86",
+      "0039a7fabc336ad3e17e24cf7ef02503bd114c7f63f988a429aa5034614e8b86"
+    ],
+    "identical_output_bytes": true
+  },
+  "network_guard": {
+    "python_attempted_connections": 0,
+    "scope": "Python DNS/connect denied; local Tesseract child process executes installed assets, no system-wide firewall claim"
+  },
+  "measurement_sessions": [
+    {
+      "id": "challenge-and-repeat-5.5.4",
+      "completed_workloads": [
+        "scanned-challenge",
+        "repeated-native"
+      ],
+      "completed_pages": 3,
+      "repeat_transformation_pages": 9,
+      "completion": "Complete; unreadable independent output OCR is explicitly UNKNOWN, not zero leakage",
+      "network_guard_active": true,
+      "attempted_connection_count": 0
+    }
+  ]
+}

@@ -97,6 +97,8 @@ class DeidEngine:
         ocr: Any = None,
         custom_transforms: dict[str, Callable[[str], str]] | None = None,
         schema_fast_path: bool = True,
+        pdf_dpi: int = 216,
+        pdf_max_pages: int = 1000,
     ) -> None:
         if language != "es" or country.upper() != "MX":
             raise ValueError("Only the es_MX country pack is implemented")
@@ -106,6 +108,13 @@ class DeidEngine:
             raise ValueError("Unknown performance profile")
         if max_bytes < 1 or memory_budget_mb < 8:
             raise ValueError("Invalid resource budget")
+        if (
+            type(pdf_dpi) is not int
+            or not 72 <= pdf_dpi <= 600
+            or type(pdf_max_pages) is not int
+            or not 1 <= pdf_max_pages <= 1000
+        ):
+            raise ValueError("Invalid PDF rasterization limits")
         if key is not None and (not isinstance(key, bytes) or len(key) < 32):
             raise ValueError("Secret key must contain at least 32 bytes")
         self.detector = RuleDetector(recognizers=recognizers)
@@ -113,12 +122,20 @@ class DeidEngine:
         self.key, self.tenant_id, self.dataset_id = key, tenant_id, dataset_id
         self.max_bytes, self.memory_budget_mb = max_bytes, memory_budget_mb
         self.schema_fast_path = schema_fast_path
+        self.pdf_dpi, self.pdf_max_pages = pdf_dpi, pdf_max_pages
         self.custom_transforms = custom_transforms or {}
         self.session_id = secrets.token_hex(16)
         self._nlp_lock = threading.Lock()
 
     def scan_text(self, text: str) -> list[Finding]:
         return self.scan_texts([text])[0]
+
+    def scan_ocr_text(self, text: str) -> list[Finding]:
+        """Add uncertain field candidates while retaining the original OCR text."""
+        from deidflow.detectors.ocr import ocr_field_candidates
+
+        findings = self.scan_text(text)
+        return fuse(findings + ocr_field_candidates(text, findings))
 
     def scan_texts(self, texts: list[str]) -> list[list[Finding]]:
         if any(not isinstance(t, str) for t in texts):
@@ -166,6 +183,10 @@ class DeidEngine:
             for fragment, items in zip(
                 batch, self.scan_texts([f.text for f in batch]), strict=True
             ):
+                if fragment.kind == "ocr":
+                    from deidflow.detectors.ocr import ocr_field_candidates
+
+                    items = fuse(items + ocr_field_candidates(fragment.text, items))
                 findings.extend(replace(f, location=fragment.location) for f in items)
         return findings
 
@@ -314,13 +335,19 @@ class DeidEngine:
         expected_sha256: str | None = None,
         domain: str | None = None,
     ) -> Result:
-        policy = policy or Policy.strict()
         path = Path(source)
+        policy = policy or (
+            Policy.strict_pdf() if path.suffix.lower() == ".pdf" else Policy.strict()
+        )
         if expected_sha256:
             with path.open("rb") as handle:
                 digest = hashlib.file_digest(handle, "sha256").hexdigest()
             if digest != expected_sha256:
                 return Result(ReleaseStatus.BLOCKED, issues=["OUTPUT_DIGEST_MISMATCH"])
+        if path.suffix.lower() == ".pdf":
+            from deidflow.redactors.pdf import verify_pdf
+
+            return verify_pdf(path, engine=self, policy=policy, dpi=self.pdf_dpi, domain=domain)
         if path.suffix.lower() in {".csv", ".tsv", ".jsonl", ".json"}:
             return self._verify_stream(path, policy, domain)
         graph = self.read(source)
@@ -731,9 +758,25 @@ class DeidEngine:
         domain: str | None = None,
     ) -> Result:
         source, target = Path(source), Path(output)
-        policy = policy or Policy.strict()
+        policy = policy or (
+            Policy.strict_pdf() if source.suffix.lower() == ".pdf" else Policy.strict()
+        )
         if batch_size < 1 or source.resolve() == target.resolve():
             raise ValueError("Use a distinct output path and positive batch size")
+        if source.suffix.lower() == ".pdf" and target.suffix.lower() == ".pdf":
+            from deidflow.redactors.pdf import redact_pdf
+
+            return redact_pdf(
+                source,
+                target,
+                engine=self,
+                policy=policy,
+                dpi=self.pdf_dpi,
+                max_pages=self.pdf_max_pages,
+                max_bytes=self.max_bytes,
+                memory_budget_mb=self.memory_budget_mb,
+                domain=domain,
+            )
         suffix = source.suffix.lower()
         if (
             suffix not in {".txt", ".csv", ".tsv", ".json", ".jsonl"}

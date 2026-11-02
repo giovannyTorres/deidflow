@@ -1,17 +1,48 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "date": "2026-11-02",
-  "host_execution": "Windows CPU, Python 3.11.9",
-  "pytest": {"passed": 127, "failed": 0, "skipped": 0, "seconds": 7.12, "external_local_spanish_model_provided": true},
+  "pytest": {
+    "passed": 208,
+    "failed": 0,
+    "skipped": 0,
+    "real_local_spanish_ocr": true,
+    "real_local_spanish_ner": true
+  },
   "ruff_lint": "passed",
-  "ruff_format": {"status": "passed", "files": 46},
-  "mypy": {"status": "passed", "source_files": 21},
+  "ruff_format": {
+    "status": "passed",
+    "files": 60
+  },
+  "mypy": {
+    "status": "passed",
+    "source_files": 23
+  },
   "pip_check": "passed",
-  "pip_audit": {"status": "passed", "known_vulnerabilities": 0, "response": "docs/dependency-audit.json"},
-  "license_inventory_distributions": 99,
-  "base_wheel_smoke": {"status": "passed", "python": "3.13", "install": "--no-deps", "network_sockets": "denied"},
-  "examples": {"rag_preprocessing": "passed", "pseudonymize": "passed", "yaml_policy": "passed"},
+  "python_dependency_audit": "no known vulnerabilities",
+  "native_ocr": {
+    "version": "5.5.4",
+    "source_commit": "7e548e6eff172f38f97664afe7f7ce40db36c8d6",
+    "languages": [
+      "spa",
+      "eng"
+    ],
+    "source_built": true,
+    "assets_bundled_in_python_package": false,
+    "manifest": "docs/ocr-assets.json",
+    "note": "Python dependency audit does not cover native libraries"
+  },
+  "benchmarks": {
+    "primary": "benchmarks/results/pdf-ocr.json",
+    "challenge": "benchmarks/results/pdf-ocr-challenge.json",
+    "fixture_pages": 121,
+    "known_gold_entities": 1089,
+    "known_word_pixel_regions": 2420,
+    "known_word_pixel_regions_removed": 2420,
+    "challenge_extra_output_ocr": "UNKNOWN on one page; retained failure"
+  },
+  "visual_qa": "Poppler previews inspected for both curated PDFs",
+  "api_example": "passed with explicit rules-only PDF policy",
+  "microbenchmark_guard": "passed",
   "remote_ci_executed": false,
-  "published": false,
-  "notes": ["GPU, ONNX and actual OCR inference are unmeasured", "Baseline Spanish model weights are outside the repository and distributed artifacts", "APPROVED is a configured automated gate, not anonymity proof"]
+  "published": false
 }

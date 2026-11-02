@@ -1,6 +1,6 @@
 # Architecture and API
 
-DeidFlow 0.1.0 is a working, local development release with explicit release
+DeidFlow 0.2.0 is a working, local development release with explicit release
 gates. It is not certified production privacy infrastructure. Python 3.11+;
 `src/` package; no base runtime dependencies. Optional backends import lazily.
 
@@ -24,6 +24,9 @@ gates. It is not certified production privacy infrastructure. Python 3.11+;
    and headers. Only non-blocked candidates receive the final filename, using
    an atomic hard link that cannot overwrite an existing file. Temporary files
    are removed on failure. This requires a filesystem that supports hard links.
+   PDF files use a separate streaming raster-reconstruction path: exact native
+   glyph mapping plus OCR, new lossless pixels, closed object grammar, decoded
+   pixel hashes/masks and actual output rerender/OCR. No source objects are copied.
 6. Status is APPROVED, REVIEW_REQUIRED, BLOCKED or UNSUPPORTED. APPROVED means the
    configured automated checks passed. It does not establish anonymity.
 
@@ -111,7 +114,7 @@ unavailable; no GPU/ONNX throughput claim is made.
 | `policies` | Typed Python/YAML configuration and fingerprints |
 | `transformations` | Redaction, placeholders, keyed tokens, shift/bucket/mask/custom |
 | `engine` | Public APIs, streaming, processes, release verification |
-| `readers`, `ocr`, `redactors` | Native extraction, OCR protocol, actual image masking |
+| `readers`, `ocr`, `redactors` | Native extraction, local OCR process, actual image masking and verified PDF reconstruction |
 | `risk` | Inspectable quasi-identifier/health association flags |
 | `training` | Local column learner, annotation import, active learning, promotion gate |
 | `benchmarks` | Synthetic gold, detection metrics, measured performance |

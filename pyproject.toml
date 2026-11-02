@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "deidflow"
-version = "0.1.0"
+version = "0.2.0"
 description = "Local-first Spanish and Mexican sensitive-data detection and verified transformations"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -15,7 +15,8 @@ dependencies = []
 [project.optional-dependencies]
 nlp = ["spacy>=3.8,<3.9"]
 pdf = ["pypdf>=6.21.4,<7"]
-ocr = ["Pillow>=13,<14", "pytesseract>=0.3.13,<0.4", "pypdfium2>=4.30,<6"]
+ocr = ["Pillow>=13,<14", "pypdfium2>=5.14,<6"]
+ocr-build = ["certifi>=2026.10.23,<2027"]
 tables = ["pandas>=2.2,<3", "polars>=1.30,<2", "pyarrow>=20,<24"]
 yaml = ["PyYAML>=6.0.2,<7"]
 training = ["scikit-learn>=1.6,<1.9", "joblib>=1.4,<2"]

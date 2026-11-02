@@ -1,9 +1,10 @@
 # DeidFlow
 
 Local-first Spanish/Mexican sensitive-data detection and verified transformations.
-Working development release **0.1.0**, with genuine tests and benchmarks. This is
+Working development release **0.2.0**, with genuine tests and benchmarks. This is
 not certified production privacy infrastructure, a guarantee of anonymity, or a
-compliance claim. [Engineering report](docs/engineering-report.md) records evidence
+compliance claim. [Current OCR/PDF report](docs/pdf-ocr-report.md) and the
+[v0.1 baseline report](docs/engineering-report.md) record evidence
 and remaining work. No public repository or package publication was performed.
 
 ```sh
@@ -49,6 +50,11 @@ verification gate. It never establishes anonymous data. Always inspect
 - Strict Python/YAML policies, domain overrides, reread verification and release
   states; actual image-pixel masking with mandatory review.
 - Bounded ordered text multiprocessing, CLI and executable RAG preprocessing examples.
+- Explicit local Spanish/English Tesseract 5.5.4, compiled from pinned patched
+  source; shell-free image/TSV pipes, timeout, per-call settings and asset hashes.
+- Physical PDF removal by streaming **new lossless image-only pages**. Output
+  pixels, closed PDF structure, actual rerendering and OCR are verified; original
+  streams/metadata/attachments/text are never copied. See [PDF guide](docs/pdf-redaction.md).
 - Local column-model training, annotation import, active-learning selection,
   weak-label export, versioned staged models and critical-recall promotion gates.
 
@@ -59,25 +65,28 @@ not comprehensively recognized by the base installation. See [detection](docs/de
 
 Learned column priors, per-provenance held-out calibration, schema-level medical
 associations, quasi-identifier risk flags and exact repeated-mention grouping.
-Image/OCR adapters require reviewed local assets and independent quality checks.
+OCR accuracy depends on layout, image quality and independently evaluated local assets.
 The synthetic column learner tied its deterministic baseline. No automatic
 customer model activation exists.
 
 ## Unsupported or unmeasured
 
-Automatic PDF/DOCX/XLSX/Parquet output transformation, automatic image release,
+DOCX/XLSX/Parquet output transformation, automatic standalone image release,
 private token-level NER training, cross-page clinical/coreference reasoning,
-ONNX acceleration and GPU performance. Tesseract was absent, so real OCR accuracy
-and throughput are unmeasured; scanned inputs fail closed. DataProfiler was not
+ONNX acceleration and GPU performance. PDF rotation/cropping, interactive forms,
+encryption/signatures, searchable/vector output and non-removal PDF operators
+remain unsupported. Missing/failed OCR blocks release. DataProfiler was not
 measured. Safe unsupported statuses replace misleading successful outputs.
 
 ## Measured evidence
 
-Validation on an 8-core Ryzen 7 5700G, 16.96 GB RAM, Windows, Python 3.11.9:
+The following are retained **v0.1 baseline** measurements on an 8-core Ryzen 7
+5700G, 16.96 GB RAM, Windows, Python 3.11.9. Current v0.2 OCR/PDF measurements and
+validation are recorded in [the dedicated report](docs/pdf-ocr-report.md).
 
 | Workload | Result |
 | --- | --- |
-| Local tests, including real-model offline inference | 127 passed |
+| v0.1 local tests, including real-model offline inference | 127 passed |
 | Synthetic contextual-rules detection, 159 documents / 305 gold spans | Precision 90.75%, recall 99.67%, exact F1 95.00% |
 | Actual rules + local Spanish spaCy on the same corpus | Precision 64.62%, recall 100%, exact F1 78.51% |
 | 100,000-row CSV, transform + write + reread | 22.52 s; 4,440 rows/s; sampled peak RSS 41.32 MB |
@@ -116,6 +125,46 @@ Use it as constraints in a matching environment; it is not a cross-platform lock
 The optional Spanish model used for real baseline comparison is **GPL-3.0** and
 kept outside the repository/package. Select and review model terms independently.
 No PyMuPDF dependency exists.
+
+## Local Spanish OCR and PDF removal
+
+The local native executable and `spa+eng` language assets are installed outside
+the repository under `../../work/tesseract-5.5.4`. No runtime download occurs.
+The [setup guide](docs/local-ocr.md) records the reproducible source build,
+component licenses, hashes, configuration and native-security boundaries.
+
+```python
+from pathlib import Path
+from deidflow import DeidEngine, Policy
+from deidflow.ocr import TesseractOCR
+
+runtime = Path("../../work/tesseract-5.5.4").resolve()
+ocr = TesseractOCR(
+    executable=str(runtime / "bin/tesseract.exe"),
+    tessdata_dir=runtime / "share/tessdata",
+    language="spa+eng",
+    psm=6,
+)
+engine = DeidEngine(ocr=ocr, pdf_dpi=216)
+result = engine.deidentify("input.pdf", output="candidate.pdf")
+# PDF default: Policy.strict_pdf(), requiring an evaluated local semantic adapter.
+# Policy.strict_pdf(require_ner=False) explicitly chooses a narrower rules-only gate.
+if result.release_approved:
+    approved_path = result.output_path
+```
+
+PDF supports `redact`, `suppress` and `keep`. `Policy.strict()` requests typed
+placeholders; use `Policy.strict_pdf()` for physical removal. Unsupported PDF
+operators return `UNSUPPORTED`, never a silent substitute. The output loses text
+search/selection and vector/accessibility/form structure. The original is preserved.
+
+```powershell
+deidflow deidentify input.pdf --output candidate.pdf --policy examples/policy-pdf-local.yaml --ocr-executable ../../work/tesseract-5.5.4/bin/tesseract.exe --tessdata-dir ../../work/tesseract-5.5.4/share/tessdata --pdf-dpi 216
+python examples/pdf_redaction.py examples/pdf/original-demo.pdf ../../work/reviewed-demo.pdf --rules-only
+```
+
+The [synthetic before/after examples](examples/pdf) have been visually checked.
+Their fixture-specific pixel and OCR results do not prove anonymity of new data.
 
 See `docs/architecture.md`, `docs/formats.md`, `docs/training.md`,
 `docs/security.md`, `docs/third-party-licenses.md` and `docs/roadmap.md`.

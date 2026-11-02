@@ -103,6 +103,11 @@ class Policy:
     def strict(cls, *, require_ner: bool = True) -> Policy:
         return cls(require_ner=require_ner)
 
+    @classmethod
+    def strict_pdf(cls, *, require_ner: bool = True) -> Policy:
+        """Physical pixel removal for reconstructed PDFs, with explicit semantics."""
+        return cls(name="strict_pdf", default=Rule("redact"), require_ner=require_ner)
+
     def rule(self, entity_type: str, domain: str | None = None) -> Rule:
         if domain and entity_type in self.domains.get(domain, {}):
             return self.domains[domain][entity_type]

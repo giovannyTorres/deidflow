@@ -230,10 +230,9 @@ def test_failure_keeps_no_final_or_temp_artifact(tmp_path):
 
 
 def test_format_unsupported_and_no_overwrite(tmp_path):
-    assert (
-        DeidEngine().deidentify(tmp_path / "file.pdf", output=tmp_path / "out.pdf").status
-        == ReleaseStatus.UNSUPPORTED
-    )
+    missing_ocr = DeidEngine().deidentify(tmp_path / "file.pdf", output=tmp_path / "out.pdf")
+    assert missing_ocr.status == ReleaseStatus.BLOCKED
+    assert missing_ocr.issues == ["LOCAL_OCR_REQUIRED"]
     a, b = tmp_path / "a.txt", tmp_path / "b.txt"
     a.write_text("a")
     b.write_text("previous")

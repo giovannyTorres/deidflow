@@ -9,14 +9,16 @@ explicitly unimplemented or not validated; they are not hidden fallback paths.
    administrative and contract corpora, with real-world negatives and difficult
    names/addresses. Set domain-specific critical recall/review targets. Validate
    model/weight redistribution terms and independently review privacy/security.
-2. Provision an approved local OCR executable and Spanish language data. Measure
-   scanned-page detection, OCR character error, low-confidence regions, raster
-   boxes, selective routing and independent visual verification. OCR was not
-   available on the validation host.
-3. Implement and adversarially verify PDF redaction/removal of all alternate
-   representations, attachments, layers, forms, actions, XMP and hidden text.
+2. Expand the installed, source-built Tesseract 5.5.4 Spanish OCR evaluation from
+   synthetic fixtures to independently annotated real document layouts, degraded
+   regions, selective routing, external quality holdouts and visual verification.
+3. Extend the implemented lossless image-only PDF reconstruction to safely support
+   rotated/cropped geometry and additional source features. Current reconstruction
+   discards original objects, metadata, attachments and hidden text, and verifies
+   actual output pixels and OCR. Searchable/vector-preserving redaction, forms
+   and signature workflows need separate implementation and adversarial review.
    Office rewriting must account for revisions, orphan strings, hidden sheets,
-   formulas, comments, embedded objects and relationships. It remains unsupported.
+   formulas, comments, embedded objects and relationships. Office rewriting remains unsupported.
 4. Strengthen independent verification beyond the detector used for transformation;
    implement signed transformation receipts, integrity-protected private audit
    stores and private review workflows. Policies/keys/adapters remain trusted code.

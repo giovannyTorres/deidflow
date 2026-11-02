@@ -1,0 +1,5 @@
+name: strict-pdf-local
+require_ner: true
+default:
+  action: redact
+token_scope: document

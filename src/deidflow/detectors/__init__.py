@@ -120,26 +120,36 @@ _PHONE = re.compile(
 _DATE = re.compile(
     r"(?<!\d)(?:[12][0-9]{3}-[01][0-9]-[0-3][0-9]|[0-3][0-9][/-][01][0-9][/-](?:[12][0-9]{3}|[0-9]{2}))(?!\d)"
 )
+# A line-wrapped value may follow a label, but another field label is not its
+# value. This matters after physical removal leaves a form's labels intact.
+_VALUE_NOT_LABEL = r"(?![ \t]*(?i:nombre(?:[ \t]+completo)?|paciente(?:[ \t]+id)?|patient(?:[ \t]+id)?|name|cliente|customer(?:[ \t]+id)?|empleado|employee(?:[ \t]+id)?|domicilio|direcci[oó]n|address|diagn[oó]stico|diagnosis|correo(?:[ \t]+electr[oó]nico)?|e-?mail|tel[eé]fono|phone|CURP|RFC|CLABE|importe|monto|amount|cuenta(?:[ \t]+bancaria)?|expediente|medicaci[oó]n|tratamiento|fecha[ \t]+de[ \t]+nacimiento|date[ \t]+of[ \t]+birth)[ \t]*[:=])"
 _FIELD_ID = re.compile(
-    r"\b(?P<label>cuenta(?:\s+bancaria)?|bank\s+account|n[úu]mero\s+de\s+cuenta|empleado|employee(?:\s+id)?|cliente|customer(?:\s+id)?|paciente\s+id|patient\s+id|expediente|pasaporte|passport|contrato|contract|identificador\s+interno|internal\s+id|NSS|INE)\s*(?:n[úu]m(?:ero)?\.?|id|no\.?)?\s*[:=#]\s*(?P<value>[A-Z0-9][A-Z0-9_./-]{2,47})",
+    r"\b(?P<label>cuenta(?:\s+bancaria)?|bank\s+account|n[úu]mero\s+de\s+cuenta|empleado|employee(?:\s+id)?|cliente|customer(?:\s+id)?|paciente\s+id|patient\s+id|expediente|pasaporte|passport|contrato|contract|identificador\s+interno|internal\s+id|NSS|INE)\s*(?:n[úu]m(?:ero)?\.?|id|no\.?)?\s*[:=#]\s*(?P<value>"
+    + _VALUE_NOT_LABEL
+    + r"[A-Z0-9][A-Z0-9_./-]{2,47})",
     _FLAGS,
 )
 _NAME_WORD = r"[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+(?:[-'][A-ZÁÉÍÓÚÜÑa-záéíóúüñ]+)?"
 _NAME_VALUE = _NAME_WORD + r"(?:[ \t]+(?:(?:de|del|la|las|los|y)[ \t]+)?" + _NAME_WORD + r"){1,5}"
 _NAME = re.compile(
     r"\b(?i:nombre(?:\s+completo)?|paciente|titular|beneficiari[oa]|contacto|name|patient)\s*[:=]\s*(?P<value>"
+    + _VALUE_NOT_LABEL
     + _NAME_VALUE
     + r")"
 )
 _NAME_FIELD = re.compile(
     r"\b(?:nombre(?:\s+completo)?|paciente|titular|beneficiari[oa]|name|patient)\s*[:=]\s*"
-    r"(?P<value>[A-ZÁÉÍÓÚÜÑ][A-ZÁÉÍÓÚÜÑ'-]{0,63}(?:[ \t]+[A-ZÁÉÍÓÚÜÑ][A-ZÁÉÍÓÚÜÑ'-]{0,63}){1,7})"
+    r"(?P<value>"
+    + _VALUE_NOT_LABEL
+    + r"[A-ZÁÉÍÓÚÜÑ][A-ZÁÉÍÓÚÜÑ'-]{0,63}(?:[ \t]+[A-ZÁÉÍÓÚÜÑ][A-ZÁÉÍÓÚÜÑ'-]{0,63}){1,7})"
     r"(?=[ \t]*(?:[,;\r\n]|$))",
     _FLAGS,
 )
 _HONORIFIC = re.compile(r"\b(?:Sr\.?|Sra\.?|Dr\.?|Dra\.?)\s+(?P<value>" + _NAME_VALUE + r")")
 _ADDRESS = re.compile(
-    r"\b(?:domicilio|direcci[óo]n|address)\s*[:=]\s*(?P<value>[^\n;]{4,180}(?:\r?\n[ \t]*(?:(?:col(?:onia)?\.?|C\.?\s*P\.?|c[óo]digo\s+postal|alcald[íi]a|municipio|ciudad|estado)\b[^\n;]{1,120})){0,4})",
+    r"\b(?:domicilio|direcci[óo]n|address)\s*[:=]\s*(?P<value>"
+    + _VALUE_NOT_LABEL
+    + r"[^\n;]{4,180}(?:\r?\n[ \t]*(?:(?:col(?:onia)?\.?|C\.?\s*P\.?|c[óo]digo\s+postal|alcald[íi]a|municipio|ciudad|estado)\b[^\n;]{1,120})){0,4})",
     _FLAGS,
 )
 _STREET = re.compile(

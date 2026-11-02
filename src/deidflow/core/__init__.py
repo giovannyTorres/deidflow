@@ -66,7 +66,7 @@ class Finding:
     detector: str
     validation: str = "pattern"
     context: tuple[str, ...] = ()
-    model_version: str = "rules-0.1"
+    model_version: str = "rules-0.2"
     confidence: float | None = None
     risk: str = "high"
     location: SourceLocation | None = None

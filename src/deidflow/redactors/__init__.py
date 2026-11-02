@@ -12,6 +12,8 @@ from pathlib import Path
 
 from deidflow.readers import MAX_PIXELS, DocumentError, OptionalDependencyError
 
+from .pdf import redact_pdf, verify_pdf
+
 
 @dataclass(frozen=True)
 class ImageRedactionResult:
@@ -131,4 +133,4 @@ def redact_image(
         raise DocumentError("Image redaction failed") from None
 
 
-__all__ = ["ImageRedactionResult", "redact_image", "verify_pixels"]
+__all__ = ["ImageRedactionResult", "redact_image", "verify_pixels", "redact_pdf", "verify_pdf"]

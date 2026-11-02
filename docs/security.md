@@ -29,8 +29,12 @@ not. Tests deny sockets for the base pipeline and an actual local Spanish model.
 - Non-keep operators that return the exact sensitive source span unchanged fail.
   Short partial masks fully replace their content. Partial masks, date shifts,
   generalization and stable pseudonyms retain information and can permit linkage.
-- Unsupported PDF/Office rewriting and automatic image release cannot return
-  APPROVED. Image pixel replacement verifies real raster pixels and removes
+- Office rewriting and automatic standalone image release cannot return APPROVED.
+  Supported PDFs use new raster-only reconstruction, closed object grammar and
+  actual decoded-pixel/mask verification plus rerender/OCR. Source content is not
+  copied; verified constant black regions alone can be whitened in temporary OCR
+  input, preventing bar hallucinations without exempting retained pixels.
+  Unsupported PDF geometry/forms/signatures remain fail-closed. Image pixel replacement verifies real raster pixels and removes
   metadata, but still requires independent OCR/review. Missing OCR makes an
   image-only PDF incomplete, and `scan()` refuses to imply complete coverage.
 - Standalone structured verification cannot prove whole-field identity removal
@@ -88,7 +92,11 @@ names, free-form addresses, unknown secrets, multilingual variants, novel
 identifiers and domain-specific medical relationships. OCR can miss content or
 misread identifiers; damaged-ID candidates are not silently corrected into
 validity. Office revision text is scanned but automatic rewriting is unsupported.
-Native PDF extraction cannot prove visual/text equivalence or locate every glyph.
+Native graph PDF extraction cannot prove visual/text equivalence or locate every glyph.
+The PDF removal backend uses its separate explicit character/glyph mapping and
+refuses unsupported geometry. It trades away searchability/vector structure,
+preserves original files, and rehashes the source before release. These controls
+verify selected removal, not detection completeness.
 Exact repeated mention grouping does not establish person identity or resolve
 ambiguous aliases. Quasi-identifier flags are heuristics, not measured attack risk.
 
@@ -106,3 +114,9 @@ OOXML strings, duplicate archives, bad OCR geometry and malformed files.
 `docs/dependency-audit.json` records the final pip-audit response; inventory and
 native/model-license qualifications are in `docs/third-party-licenses.md`.
 An audit with no known advisories is not evidence of vulnerability absence.
+The locally compiled OCR runtime is Tesseract 5.5.4 with pinned language/native
+assets and CURL/archive/legacy/graphics disabled. Native dependency hashes and
+licenses are recorded separately; pip-audit does not audit those binaries.
+Faces, handwritten signatures and barcode/QR payloads are outside current text/OCR
+detection coverage. Use separately evaluated detectors or private visual review;
+successful removal of detected text does not cover these visual identifiers.

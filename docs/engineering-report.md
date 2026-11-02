@@ -1,5 +1,8 @@
 # DeidFlow 0.1.0 — engineering report
 
+This is the retained v0.1 baseline report. Current OCR installation, physical PDF
+reconstruction and v0.2 validation are in [the OCR/PDF report](pdf-ocr-report.md).
+
 Validation date: **2026-11-02**. Delivery: local installable repository, wheel and
 source distribution. This release is functional research/development software
 with production-oriented controls; it is **not a validated enterprise privacy

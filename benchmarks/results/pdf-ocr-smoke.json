@@ -1,0 +1,1480 @@
+{
+  "schema_version": 1,
+  "seed": 1729,
+  "machine": {
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": "3.11.9",
+    "machine": "AMD64",
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "logical_cpu_count": 16,
+    "versions": {
+      "deidflow": "0.2.0",
+      "psutil": "7.2.2",
+      "spacy": "3.8.18",
+      "presidio-analyzer": "2.2.366",
+      "DataProfiler": null,
+      "numpy": "2.4.6",
+      "scikit-learn": "1.8.0"
+    },
+    "execution": "CPU",
+    "gpu_memory_bytes": null,
+    "physical_memory_bytes": 16962179072,
+    "physical_cpu_count": 8
+  },
+  "configuration": {
+    "language": "spa+eng",
+    "dpi": 216,
+    "psm": 6,
+    "oem": 1,
+    "critical_ocr_confidence": 50,
+    "policy": "explicit rules-only full redaction"
+  },
+  "asset_sha256": {
+    "executable": "babb405f4366b480d02cd8ff2bac8d497170f6c1711ce6f3d5d8bf0fb7fa6ed9",
+    "spa_traineddata": "6f2e04d02774a18f01bed44b1111f2cd7f3ba7ac9dc4373cd3f898a40ea6b464",
+    "eng_traineddata": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"
+  },
+  "workloads": [
+    {
+      "workload": "native",
+      "pages": 1,
+      "input_sha256": "d1969f397b7a9e34d94a13549435f75301fa5cfac78129e67385147118b7eef3",
+      "source_ocr": {
+        "elapsed_seconds": 1.4254969000003257,
+        "units": 1,
+        "records_per_second": 0.7015097682778346,
+        "mb_per_second": 0.0012711357001194362,
+        "peak_rss_bytes": 89300992,
+        "peak_process_tree_rss_bytes": 185970688,
+        "cpu_percent_one_core_scale": 71.24708584071757,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU",
+        "pages_per_second": 0.7015097682778346,
+        "page_latency_p50_seconds": 1.3053205000005619,
+        "page_latency_p95_seconds": 1.3053205000005619,
+        "first_page_seconds": 1.3053205000005619,
+        "later_pages_latency_p50_seconds": null,
+        "later_pages_latency_p95_seconds": null
+      },
+      "transcription": {
+        "character_error_rate": 0.0,
+        "word_error_rate": 0.0,
+        "reference_characters": 394,
+        "reference_words": 46,
+        "normalization": "Unicode NFC, whitespace collapsed, case and punctuation retained"
+      },
+      "detection": {
+        "gold_entities": 9,
+        "predicted_entities": 10,
+        "matched_gold_values": 9,
+        "gold_value_precision": 0.9,
+        "gold_value_recall": 1.0,
+        "gold_value_f1": 0.9473684210526316,
+        "recall_by_type": {
+          "PERSON": 1.0,
+          "EMAIL": 1.0,
+          "PHONE": 1.0,
+          "CURP": 1.0,
+          "RFC": 1.0,
+          "CLABE": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "ADDRESS": 1.0,
+          "DIAGNOSIS": 1.0
+        },
+        "ocr_exact_value_recovery_by_type": {
+          "PERSON": 1.0,
+          "EMAIL": 1.0,
+          "PHONE": 1.0,
+          "CURP": 1.0,
+          "RFC": 1.0,
+          "CLABE": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "ADDRESS": 1.0,
+          "DIAGNOSIS": 1.0
+        },
+        "definition": "One-to-one category + NFC/whitespace-normalized whole value matching on OCR text; not original-layout exact-span F1"
+      },
+      "ocr_confidence_minimum": 85.865738,
+      "ocr_confidence_p50": 96.420853,
+      "end_to_end": {
+        "elapsed_seconds": 3.7783371999994415,
+        "units": 1,
+        "records_per_second": 0.2646666898867967,
+        "mb_per_second": 0.00047957604207487565,
+        "peak_rss_bytes": 196829184,
+        "peak_process_tree_rss_bytes": 285970432,
+        "cpu_percent_one_core_scale": 72.36979801592098,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU"
+      },
+      "status": "BLOCKED",
+      "issues": [
+        "RESIDUAL_FINDINGS"
+      ],
+      "library_audit": {
+        "verification": "reread_and_rescan",
+        "model": "rules_only",
+        "policy": "strict",
+        "policy_sha256": "e9de649dab8390816a36a3265b8389ab7e9fe466d17fbcfce72bff41857f9781",
+        "domain": null,
+        "anonymity_proven": false,
+        "format": "pdf",
+        "pdf_mode": "lossless_raster_rebuild",
+        "dpi": 216,
+        "pages": 1,
+        "masks": 177,
+        "source_findings_by_type": {
+          "PERSON": 2,
+          "EMAIL": 2,
+          "PHONE": 2,
+          "CURP": 2,
+          "RFC": 2,
+          "CLABE": 2,
+          "CUSTOMER_ID": 2,
+          "ADDRESS": 3,
+          "DIAGNOSIS": 2
+        },
+        "page_receipts": [
+          {
+            "page": 1,
+            "page_width": 612.0,
+            "page_height": 792.0,
+            "raster_width": 1836,
+            "raster_height": 2376,
+            "raster_sha256": "7ab527633a60aec7f341b7f71fd72edfde0e06e8b6b5e17d59378a8acb2ea63c",
+            "masks": [
+              [
+                132,
+                831,
+                164,
+                878
+              ],
+              [
+                132,
+                909,
+                164,
+                956
+              ],
+              [
+                134,
+                838,
+                258,
+                871
+              ],
+              [
+                134,
+                916,
+                186,
+                949
+              ],
+              [
+                158,
+                831,
+                184,
+                878
+              ],
+              [
+                158,
+                909,
+                188,
+                956
+              ],
+              [
+                178,
+                831,
+                192,
+                878
+              ],
+              [
+                186,
+                831,
+                212,
+                878
+              ],
+              [
+                192,
+                909,
+                218,
+                956
+              ],
+              [
+                193,
+                916,
+                296,
+                949
+              ],
+              [
+                206,
+                831,
+                232,
+                878
+              ],
+              [
+                212,
+                909,
+                238,
+                956
+              ],
+              [
+                226,
+                519,
+                260,
+                566
+              ],
+              [
+                226,
+                831,
+                240,
+                878
+              ],
+              [
+                227,
+                525,
+                531,
+                559
+              ],
+              [
+                232,
+                909,
+                258,
+                956
+              ],
+              [
+                234,
+                831,
+                260,
+                878
+              ],
+              [
+                252,
+                909,
+                278,
+                956
+              ],
+              [
+                254,
+                441,
+                286,
+                488
+              ],
+              [
+                254,
+                519,
+                288,
+                566
+              ],
+              [
+                257,
+                447,
+                694,
+                481
+              ],
+              [
+                262,
+                285,
+                288,
+                332
+              ],
+              [
+                264,
+                291,
+                774,
+                332
+              ],
+              [
+                264,
+                675,
+                296,
+                722
+              ],
+              [
+                264,
+                831,
+                296,
+                878
+              ],
+              [
+                266,
+                682,
+                456,
+                715
+              ],
+              [
+                266,
+                838,
+                377,
+                871
+              ],
+              [
+                270,
+                597,
+                296,
+                644
+              ],
+              [
+                271,
+                604,
+                635,
+                637
+              ],
+              [
+                272,
+                909,
+                298,
+                956
+              ],
+              [
+                280,
+                441,
+                310,
+                488
+              ],
+              [
+                282,
+                285,
+                308,
+                332
+              ],
+              [
+                282,
+                519,
+                314,
+                566
+              ],
+              [
+                290,
+                597,
+                316,
+                644
+              ],
+              [
+                290,
+                675,
+                316,
+                722
+              ],
+              [
+                290,
+                831,
+                316,
+                878
+              ],
+              [
+                292,
+                207,
+                328,
+                254
+              ],
+              [
+                292,
+                363,
+                319,
+                410
+              ],
+              [
+                294,
+                370,
+                357,
+                403
+              ],
+              [
+                295,
+                214,
+                388,
+                246
+              ],
+              [
+                298,
+                753,
+                330,
+                800
+              ],
+              [
+                299,
+                759,
+                384,
+                793
+              ],
+              [
+                302,
+                285,
+                326,
+                332
+              ],
+              [
+                304,
+                441,
+                336,
+                488
+              ],
+              [
+                308,
+                519,
+                338,
+                566
+              ],
+              [
+                310,
+                597,
+                336,
+                644
+              ],
+              [
+                310,
+                675,
+                326,
+                722
+              ],
+              [
+                310,
+                831,
+                336,
+                878
+              ],
+              [
+                313,
+                363,
+                339,
+                410
+              ],
+              [
+                320,
+                285,
+                334,
+                332
+              ],
+              [
+                320,
+                675,
+                338,
+                722
+              ],
+              [
+                322,
+                207,
+                348,
+                254
+              ],
+              [
+                324,
+                753,
+                350,
+                800
+              ],
+              [
+                328,
+                285,
+                354,
+                332
+              ],
+              [
+                330,
+                441,
+                370,
+                488
+              ],
+              [
+                330,
+                597,
+                356,
+                644
+              ],
+              [
+                330,
+                831,
+                346,
+                878
+              ],
+              [
+                332,
+                519,
+                358,
+                566
+              ],
+              [
+                332,
+                675,
+                358,
+                722
+              ],
+              [
+                333,
+                363,
+                359,
+                410
+              ],
+              [
+                340,
+                831,
+                359,
+                878
+              ],
+              [
+                340,
+                987,
+                366,
+                1034
+              ],
+              [
+                341,
+                994,
+                481,
+                1026
+              ],
+              [
+                342,
+                207,
+                361,
+                254
+              ],
+              [
+                344,
+                753,
+                358,
+                800
+              ],
+              [
+                348,
+                285,
+                374,
+                332
+              ],
+              [
+                350,
+                597,
+                376,
+                644
+              ],
+              [
+                352,
+                519,
+                378,
+                566
+              ],
+              [
+                352,
+                675,
+                378,
+                722
+              ],
+              [
+                352,
+                753,
+                366,
+                800
+              ],
+              [
+                352,
+                831,
+                378,
+                878
+              ],
+              [
+                354,
+                207,
+                370,
+                254
+              ],
+              [
+                360,
+                753,
+                386,
+                800
+              ],
+              [
+                360,
+                987,
+                374,
+                1034
+              ],
+              [
+                363,
+                363,
+                389,
+                410
+              ],
+              [
+                364,
+                207,
+                390,
+                254
+              ],
+              [
+                364,
+                441,
+                390,
+                488
+              ],
+              [
+                365,
+                371,
+                408,
+                403
+              ],
+              [
+                368,
+                285,
+                384,
+                332
+              ],
+              [
+                368,
+                987,
+                394,
+                1034
+              ],
+              [
+                370,
+                597,
+                396,
+                644
+              ],
+              [
+                372,
+                519,
+                398,
+                566
+              ],
+              [
+                372,
+                675,
+                398,
+                722
+              ],
+              [
+                378,
+                285,
+                404,
+                332
+              ],
+              [
+                383,
+                363,
+                409,
+                410
+              ],
+              [
+                384,
+                441,
+                410,
+                488
+              ],
+              [
+                388,
+                987,
+                414,
+                1034
+              ],
+              [
+                390,
+                597,
+                416,
+                644
+              ],
+              [
+                390,
+                753,
+                416,
+                800
+              ],
+              [
+                392,
+                519,
+                418,
+                566
+              ],
+              [
+                392,
+                675,
+                418,
+                722
+              ],
+              [
+                393,
+                760,
+                474,
+                792
+              ],
+              [
+                394,
+                207,
+                424,
+                254
+              ],
+              [
+                397,
+                214,
+                529,
+                254
+              ],
+              [
+                398,
+                285,
+                414,
+                332
+              ],
+              [
+                404,
+                441,
+                430,
+                488
+              ],
+              [
+                408,
+                285,
+                434,
+                332
+              ],
+              [
+                408,
+                987,
+                434,
+                1034
+              ],
+              [
+                410,
+                597,
+                436,
+                644
+              ],
+              [
+                410,
+                753,
+                436,
+                800
+              ],
+              [
+                412,
+                519,
+                438,
+                566
+              ],
+              [
+                412,
+                675,
+                438,
+                722
+              ],
+              [
+                413,
+                363,
+                439,
+                410
+              ],
+              [
+                417,
+                207,
+                432,
+                254
+              ],
+              [
+                417,
+                370,
+                497,
+                403
+              ],
+              [
+                424,
+                441,
+                450,
+                488
+              ],
+              [
+                426,
+                207,
+                452,
+                254
+              ],
+              [
+                428,
+                285,
+                454,
+                332
+              ],
+              [
+                428,
+                987,
+                444,
+                1034
+              ],
+              [
+                430,
+                597,
+                456,
+                644
+              ],
+              [
+                430,
+                753,
+                456,
+                800
+              ],
+              [
+                432,
+                519,
+                458,
+                566
+              ],
+              [
+                432,
+                675,
+                458,
+                722
+              ],
+              [
+                433,
+                363,
+                459,
+                410
+              ],
+              [
+                438,
+                987,
+                464,
+                1034
+              ],
+              [
+                444,
+                441,
+                470,
+                488
+              ],
+              [
+                446,
+                207,
+                482,
+                254
+              ],
+              [
+                448,
+                285,
+                474,
+                332
+              ],
+              [
+                450,
+                597,
+                476,
+                644
+              ],
+              [
+                450,
+                753,
+                476,
+                800
+              ],
+              [
+                452,
+                519,
+                486,
+                566
+              ],
+              [
+                453,
+                363,
+                479,
+                410
+              ],
+              [
+                458,
+                987,
+                482,
+                1034
+              ],
+              [
+                464,
+                441,
+                490,
+                488
+              ],
+              [
+                468,
+                285,
+                494,
+                332
+              ],
+              [
+                470,
+                597,
+                496,
+                644
+              ],
+              [
+                473,
+                363,
+                499,
+                410
+              ],
+              [
+                476,
+                207,
+                502,
+                254
+              ],
+              [
+                480,
+                519,
+                512,
+                566
+              ],
+              [
+                480,
+                753,
+                506,
+                800
+              ],
+              [
+                484,
+                441,
+                520,
+                488
+              ],
+              [
+                484,
+                760,
+                524,
+                792
+              ],
+              [
+                488,
+                285,
+                514,
+                332
+              ],
+              [
+                490,
+                597,
+                516,
+                644
+              ],
+              [
+                496,
+                207,
+                510,
+                254
+              ],
+              [
+                500,
+                753,
+                526,
+                800
+              ],
+              [
+                503,
+                363,
+                529,
+                410
+              ],
+              [
+                504,
+                207,
+                530,
+                254
+              ],
+              [
+                505,
+                370,
+                588,
+                403
+              ],
+              [
+                506,
+                519,
+                532,
+                566
+              ],
+              [
+                508,
+                285,
+                534,
+                332
+              ],
+              [
+                510,
+                597,
+                536,
+                644
+              ],
+              [
+                514,
+                441,
+                550,
+                488
+              ],
+              [
+                523,
+                363,
+                549,
+                410
+              ],
+              [
+                528,
+                285,
+                571,
+                332
+              ],
+              [
+                530,
+                597,
+                556,
+                644
+              ],
+              [
+                534,
+                207,
+                562,
+                254
+              ],
+              [
+                535,
+                214,
+                643,
+                246
+              ],
+              [
+                543,
+                363,
+                569,
+                410
+              ],
+              [
+                544,
+                441,
+                576,
+                488
+              ],
+              [
+                550,
+                597,
+                576,
+                644
+              ],
+              [
+                556,
+                207,
+                582,
+                254
+              ],
+              [
+                563,
+                363,
+                589,
+                410
+              ],
+              [
+                565,
+                285,
+                591,
+                332
+              ],
+              [
+                570,
+                441,
+                600,
+                488
+              ],
+              [
+                570,
+                597,
+                596,
+                644
+              ],
+              [
+                576,
+                207,
+                595,
+                254
+              ],
+              [
+                585,
+                285,
+                609,
+                332
+              ],
+              [
+                588,
+                207,
+                607,
+                254
+              ],
+              [
+                590,
+                597,
+                616,
+                644
+              ],
+              [
+                594,
+                441,
+                626,
+                488
+              ],
+              [
+                600,
+                207,
+                626,
+                254
+              ],
+              [
+                603,
+                285,
+                629,
+                332
+              ],
+              [
+                610,
+                597,
+                636,
+                644
+              ],
+              [
+                620,
+                207,
+                644,
+                254
+              ],
+              [
+                620,
+                441,
+                652,
+                488
+              ],
+              [
+                623,
+                285,
+                659,
+                332
+              ],
+              [
+                646,
+                441,
+                676,
+                488
+              ],
+              [
+                653,
+                285,
+                679,
+                332
+              ],
+              [
+                670,
+                441,
+                696,
+                488
+              ],
+              [
+                673,
+                285,
+                687,
+                332
+              ],
+              [
+                681,
+                285,
+                707,
+                332
+              ],
+              [
+                701,
+                285,
+                717,
+                332
+              ],
+              [
+                711,
+                285,
+                727,
+                332
+              ],
+              [
+                721,
+                285,
+                747,
+                332
+              ],
+              [
+                741,
+                285,
+                765,
+                332
+              ],
+              [
+                759,
+                285,
+                775,
+                332
+              ]
+            ],
+            "native_findings": 9,
+            "ocr_findings": 10,
+            "source_ocr_tokens": 46,
+            "all_unmasked_pixels_white": false,
+            "actual_solid_regions_excluded_from_ocr": 177,
+            "verification_ocr_tokens": 26,
+            "rendered_verification": true
+          }
+        ],
+        "text_layer_removed": true,
+        "original_objects_copied": false,
+        "encoded_pixels_verified": true,
+        "output_rerendered_and_ocr_verified": true,
+        "source_sha256": "d1969f397b7a9e34d94a13549435f75301fa5cfac78129e67385147118b7eef3"
+      },
+      "output_ground_truth": null
+    },
+    {
+      "workload": "scanned",
+      "pages": 1,
+      "input_sha256": "2507170fa387a013af352e1938a4264dd543b2f084aafb71a33e42a7259e7333",
+      "source_ocr": {
+        "elapsed_seconds": 1.2513386000000537,
+        "units": 1,
+        "records_per_second": 0.7991442124457417,
+        "mb_per_second": 0.08049380079859733,
+        "peak_rss_bytes": 119504896,
+        "peak_process_tree_rss_bytes": 207331328,
+        "cpu_percent_one_core_scale": 57.43849026953769,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU",
+        "pages_per_second": 0.7991442124457417,
+        "page_latency_p50_seconds": 1.2295713999992586,
+        "page_latency_p95_seconds": 1.2295713999992586,
+        "first_page_seconds": 1.2295713999992586,
+        "later_pages_latency_p50_seconds": null,
+        "later_pages_latency_p95_seconds": null
+      },
+      "transcription": {
+        "character_error_rate": 0.0025380710659898475,
+        "word_error_rate": 0.021739130434782608,
+        "reference_characters": 394,
+        "reference_words": 46,
+        "normalization": "Unicode NFC, whitespace collapsed, case and punctuation retained"
+      },
+      "detection": {
+        "gold_entities": 9,
+        "predicted_entities": 9,
+        "matched_gold_values": 8,
+        "gold_value_precision": 0.8888888888888888,
+        "gold_value_recall": 0.8888888888888888,
+        "gold_value_f1": 0.8888888888888888,
+        "recall_by_type": {
+          "PERSON": 1.0,
+          "EMAIL": 0.0,
+          "PHONE": 1.0,
+          "CURP": 1.0,
+          "RFC": 1.0,
+          "CLABE": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "ADDRESS": 1.0,
+          "DIAGNOSIS": 1.0
+        },
+        "ocr_exact_value_recovery_by_type": {
+          "PERSON": 1.0,
+          "EMAIL": 0.0,
+          "PHONE": 1.0,
+          "CURP": 1.0,
+          "RFC": 1.0,
+          "CLABE": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "ADDRESS": 1.0,
+          "DIAGNOSIS": 1.0
+        },
+        "definition": "One-to-one category + NFC/whitespace-normalized whole value matching on OCR text; not original-layout exact-span F1"
+      },
+      "ocr_confidence_minimum": 53.544731,
+      "ocr_confidence_p50": 96.448681,
+      "end_to_end": {
+        "elapsed_seconds": 2.8516970000000583,
+        "units": 1,
+        "records_per_second": 0.35066839148758777,
+        "mb_per_second": 0.03532107373258728,
+        "peak_rss_bytes": 196866048,
+        "peak_process_tree_rss_bytes": 286543872,
+        "cpu_percent_one_core_scale": 67.94200085072013,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU"
+      },
+      "status": "BLOCKED",
+      "issues": [
+        "UNCERTAIN_SOURCE_FINDINGS",
+        "RESIDUAL_FINDINGS"
+      ],
+      "library_audit": {
+        "verification": "reread_and_rescan",
+        "model": "rules_only",
+        "policy": "strict",
+        "policy_sha256": "e9de649dab8390816a36a3265b8389ab7e9fe466d17fbcfce72bff41857f9781",
+        "domain": null,
+        "anonymity_proven": false,
+        "format": "pdf",
+        "pdf_mode": "lossless_raster_rebuild",
+        "dpi": 216,
+        "pages": 1,
+        "masks": 20,
+        "source_findings_by_type": {
+          "PERSON": 1,
+          "EMAIL": 1,
+          "PHONE": 1,
+          "CURP": 1,
+          "RFC": 1,
+          "CLABE": 1,
+          "CUSTOMER_ID": 1,
+          "ADDRESS": 2,
+          "DIAGNOSIS": 1
+        },
+        "page_receipts": [
+          {
+            "page": 1,
+            "page_width": 612.0,
+            "page_height": 792.0,
+            "raster_width": 1836,
+            "raster_height": 2376,
+            "raster_sha256": "eafefdf020f1401d16abfe3a0adbc7350ed8f7549be46763d5f328589450da7b",
+            "masks": [
+              [
+                134,
+                871,
+                258,
+                903
+              ],
+              [
+                134,
+                949,
+                186,
+                981
+              ],
+              [
+                193,
+                949,
+                296,
+                981
+              ],
+              [
+                228,
+                559,
+                530,
+                591
+              ],
+              [
+                257,
+                481,
+                694,
+                513
+              ],
+              [
+                264,
+                325,
+                775,
+                364
+              ],
+              [
+                266,
+                715,
+                456,
+                747
+              ],
+              [
+                266,
+                871,
+                377,
+                903
+              ],
+              [
+                271,
+                637,
+                634,
+                669
+              ],
+              [
+                294,
+                403,
+                357,
+                435
+              ],
+              [
+                295,
+                247,
+                388,
+                279
+              ],
+              [
+                300,
+                793,
+                385,
+                825
+              ],
+              [
+                341,
+                1027,
+                481,
+                1059
+              ],
+              [
+                365,
+                403,
+                408,
+                435
+              ],
+              [
+                393,
+                793,
+                474,
+                825
+              ],
+              [
+                397,
+                247,
+                529,
+                286
+              ],
+              [
+                417,
+                403,
+                497,
+                435
+              ],
+              [
+                484,
+                793,
+                524,
+                825
+              ],
+              [
+                505,
+                403,
+                587,
+                435
+              ],
+              [
+                535,
+                247,
+                643,
+                279
+              ]
+            ],
+            "native_findings": 0,
+            "ocr_findings": 10,
+            "source_ocr_tokens": 46,
+            "all_unmasked_pixels_white": false,
+            "actual_solid_regions_excluded_from_ocr": 20,
+            "verification_ocr_tokens": 26,
+            "rendered_verification": true
+          }
+        ],
+        "text_layer_removed": true,
+        "original_objects_copied": false,
+        "encoded_pixels_verified": true,
+        "output_rerendered_and_ocr_verified": true,
+        "source_sha256": "2507170fa387a013af352e1938a4264dd543b2f084aafb71a33e42a7259e7333"
+      },
+      "output_ground_truth": null
+    }
+  ],
+  "notes": [
+    "RSS is sampled every10ms and process-tree includes local OCR subprocesses",
+    "CPU accounting excludes exited OCR child CPU",
+    "Full-scale workloads have one repetition; small-native repeats are separate",
+    "No customer data or cloud inference"
+  ],
+  "network_guard": {
+    "python_attempted_connections": 0,
+    "scope": "Python DNS/connect denied; local Tesseract child process executes installed assets, no system-wide firewall claim"
+  }
+}

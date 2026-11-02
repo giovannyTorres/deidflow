@@ -102,3 +102,7 @@ The recorded calibration experiment fits validation templates and measures ECE
 on test templates. Raw rule ranks are not probabilities, so their ECE is `null`.
 The fitted mapping is experimental and susceptible to domain shift; it is not
 automatically enabled in the engine.
+
+The v0.2 labelled-field parsing update has rule provenance `rules-0.2`.
+Saved v0.1 score calibrators intentionally reject the updated candidates;
+refit/revalidate rather than applying a stale mapping across rule-pack changes.
