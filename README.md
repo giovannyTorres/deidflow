@@ -7,7 +7,9 @@ compliance claim. [Current engineering/release assessment](docs/RELEASE_REPORT_v
 [performance](docs/PERFORMANCE.md), [detection quality](docs/DETECTION_QUALITY.md),
 [v0.2 OCR/PDF report](docs/pdf-ocr-report.md) and the
 [v0.1 baseline report](docs/engineering-report.md) record evidence
-and remaining work. No public repository or package publication was performed.
+and remaining work. Source code is published on [GitHub](https://github.com/giovannyTorres/deidflow).
+No package is uploaded to PyPI. The current [license](LICENSE) reserves all rights;
+this source publication does not grant public reuse rights.
 
 ```sh
 python -m pip install -e .

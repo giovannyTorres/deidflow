@@ -78,7 +78,11 @@
   "release": {
     "remote_ci_executed": false,
     "published": false,
-    "publication_pending": "owner choice of public-use licence and explicit experimental scope",
-    "production_readiness": false
+    "publication_pending": null,
+    "production_readiness": false,
+    "github_source_only_authorized": true,
+    "repository": "https://github.com/giovannyTorres/deidflow",
+    "licence": "LicenseRef-Proprietary; rights reserved",
+    "pypi_published": false
   }
 }

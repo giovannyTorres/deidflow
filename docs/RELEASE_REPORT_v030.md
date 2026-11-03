@@ -124,8 +124,9 @@ Production publication is not justified by these results. A clearly labelled
 experimental release can support supervised evaluation, once the copyright
 holder chooses public-use terms and the release artifacts pass their final gate.
 `LICENSE` currently reserves all rights and makes no public license grant.
-No public repository, package upload, remote push, endpoint or model publication
-has been performed. The user's conditional publication instruction does not
+The user authorized source publication on GitHub only. The repository preserves
+the existing reserved-rights license and explicit experimental scope. No PyPI
+upload, private document, endpoint or model publication is part of this release. The user's conditional publication instruction does not
 require calling insufficient privacy coverage production-ready.
 
 Priority work is independently annotated Mexican/provider holdouts, free-form
