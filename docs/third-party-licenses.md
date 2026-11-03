@@ -1,8 +1,8 @@
 # Third-party licensing and naming inventory
 
-The base package has **zero runtime dependencies** and is not publicly released.
-`LICENSE` reserves the copyright holder's licensing decisions. No public
-repository, remote push or PyPI publication was performed. This inventory
+The base package has **zero runtime dependencies**. Source was published on
+GitHub on 2026-11-03 with the existing reserved-rights `LICENSE`; no public reuse
+grant or PyPI publication was made. This inventory
 documents components; it does not provide trademark or legal clearance.
 
 | Component | Use | Declared upstream terms / review boundary |

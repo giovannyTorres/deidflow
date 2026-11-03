@@ -124,3 +124,10 @@ account/VM that holds the credentials and original files. Do not return private
 reports for automatic inspection, and never return originals, filenames, subjects,
 annotations, tokens or training exports. Read
 [PRIVACY_BOUNDARIES.md](PRIVACY_BOUNDARIES.md) for the complete operational boundary.
+
+## Source publication update
+
+On 2026-11-03 the user authorized GitHub source publication only. The public
+repository retains the reserved-rights license and experimental limitations.
+No private data, native runtime, model weights or original corpus were published.
+PyPI was not used. The development privacy statements above remain unchanged.

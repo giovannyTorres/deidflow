@@ -77,12 +77,15 @@
   },
   "release": {
     "remote_ci_executed": false,
-    "published": false,
+    "published": true,
     "publication_pending": null,
     "production_readiness": false,
     "github_source_only_authorized": true,
     "repository": "https://github.com/giovannyTorres/deidflow",
     "licence": "LicenseRef-Proprietary; rights reserved",
-    "pypi_published": false
+    "pypi_published": false,
+    "published_date": "2026-11-03",
+    "publication_kind": "GITHUB_SOURCE_ONLY_EXPERIMENTAL",
+    "remote_ci_status": "queued; not reported as passed"
   }
 }
