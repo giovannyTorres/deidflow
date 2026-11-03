@@ -99,7 +99,7 @@ def _secure_stage(parent: Path) -> Path:
     stage = Path(tempfile.mkdtemp(prefix=".deidflow-rag-", dir=parent))
     try:
         if os.name == "nt":
-            flags = subprocess.CREATE_NO_WINDOW
+            flags = 0x08000000  # Win32 CREATE_NO_WINDOW; available to cross-platform type checks.
             info = subprocess.run(
                 ["whoami", "/user", "/fo", "csv", "/nh"],
                 capture_output=True,

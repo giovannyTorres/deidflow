@@ -132,7 +132,7 @@ class TesseractOCR:
                     timeout=self.timeout,
                     check=True,
                     env=environment,
-                    creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
+                    creationflags=0x08000000 if os.name == "nt" else 0,  # Win32 CREATE_NO_WINDOW
                 )
                 diagnostics = getattr(process, "stderr", b"").decode("utf-8").lower()
                 if any(

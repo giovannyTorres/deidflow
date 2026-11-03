@@ -105,7 +105,7 @@ def protect(path: Path, *, directory: bool) -> None:
             capture_output=True,
             text=True,
             check=True,
-            creationflags=subprocess.CREATE_NO_WINDOW,
+            creationflags=0x08000000,  # Win32 CREATE_NO_WINDOW (this branch is Windows-only).
         )
         import csv
 
