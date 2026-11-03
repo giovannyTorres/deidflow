@@ -12,7 +12,10 @@ import math
 import os
 import tempfile
 import zlib
-from collections import Counter
+from collections import Counter, deque
+from collections.abc import Callable, Generator, Iterator
+from concurrent.futures import Future, ThreadPoolExecutor
+from contextlib import closing
 from pathlib import Path
 from typing import Any, BinaryIO
 
@@ -20,6 +23,7 @@ from deidflow.core import Finding
 from deidflow.engine import ReleaseStatus, Result
 from deidflow.ocr import OCRError, OCRResult
 from deidflow.pdf_runtime import PDFIUM_LOCK
+from deidflow.performance import ACTIVE_PROFILER, StageProfiler
 from deidflow.policies import Policy
 
 _SUPPORTED = {"keep", "redact", "suppress"}
@@ -419,6 +423,174 @@ def _scan_page(
     return text, spans, engine.scan_ocr_text(text), low, len(result.tokens)
 
 
+def _interpret_ocr(
+    result: OCRResult | None, size: tuple[int, int], engine: Any
+) -> tuple[str, list[Any], list[Finding], bool, int]:
+    if result is None:
+        return "", [], [], False, 0
+    text, spans, _ = _ocr_text(result, size)
+    threshold = getattr(engine.ocr, "min_confidence", 50)
+    return (
+        text,
+        spans,
+        engine.scan_ocr_text(text),
+        any(t.confidence < threshold for t in result.tokens),
+        len(result.tokens),
+    )
+
+
+def _recognize_prepared(image: Any, engine: Any, profiler: StageProfiler) -> OCRResult | None:
+    if _blank(image):
+        return None
+    with profiler.stage("ocr"):
+        return engine.ocr.recognize(image)
+
+
+def _ocr_jobs(
+    prepared: Iterator[dict[str, Any]], engine: Any, workers: int, profiler: StageProfiler
+) -> Generator[tuple[dict[str, Any], OCRResult | None], None, None]:
+    """Bounded ordered local OCR processes; PDFium/model calls stay in parent."""
+    if workers == 1:
+        for item in prepared:
+            try:
+                yield item, _recognize_prepared(item["image"], engine, profiler)
+            finally:
+                item["image"].close()
+        return
+    queue: deque[tuple[dict[str, Any], Future[Any]]] = deque()
+    pool = ThreadPoolExecutor(max_workers=workers, thread_name_prefix="deidflow-local-ocr")
+    try:
+        exhausted = False
+        while queue or not exhausted:
+            while not exhausted and len(queue) < workers:
+                try:
+                    item = next(prepared)
+                except StopIteration:
+                    exhausted = True
+                    break
+                queue.append(
+                    (item, pool.submit(_recognize_prepared, item["image"], engine, profiler))
+                )
+            if queue:
+                item, future = queue.popleft()
+                try:
+                    yield item, future.result()
+                finally:
+                    item["image"].close()
+    finally:
+        pool.shutdown(wait=True, cancel_futures=True)
+        for item, _ in queue:
+            item["image"].close()
+        close = getattr(prepared, "close", None)
+        if close:
+            close()
+
+
+def _prepare_source(
+    document: Any,
+    dimensions: list[tuple[float, float]],
+    engine: Any,
+    policy: Policy,
+    domain: str | None,
+    dpi: int,
+    padding: int,
+    budget: int,
+    workers: int,
+    pdfium: Any,
+    Image: Any,
+    profiler: StageProfiler,
+) -> Iterator[dict[str, Any]]:
+    for number, (point_width, point_height) in enumerate(dimensions, 1):
+        width, height = math.ceil(point_width * dpi / 72), math.ceil(point_height * dpi / 72)
+        if width * height > _MAX_PIXELS or width * height * 16 * workers > budget * 1024**2:
+            raise PDFRedactionError("Bounded OCR pages exceed configured raster memory budget")
+        page = document[number - 1]
+        textpage = page.get_textpage()
+        bitmap = None
+        image = None
+        try:
+            with profiler.stage("context"):
+                native, indices = _native_text(textpage, pdfium.raw)
+                for offset, index in enumerate(indices):
+                    if native[offset].isspace():
+                        continue
+                    angle = float(pdfium.raw.FPDFText_GetCharAngle(textpage, index))
+                    if not math.isfinite(angle):
+                        raise PDFUnsupportedError("Native glyph orientation is unsupported")
+                    angle = (angle + math.pi) % (2 * math.pi) - math.pi
+                    if abs(angle) > 0.0001:
+                        raise PDFUnsupportedError("Rotated native text requires visual review")
+            native_findings = engine.scan_text(native) if native else []
+            with profiler.stage("rendering"):
+                bitmap = page.render(
+                    scale=dpi / 72,
+                    draw_annots=True,
+                    may_draw_forms=False,
+                    fill_color=(255, 255, 255, 255),
+                )
+                with bitmap.to_pil() as raster:
+                    image = Image.new("RGB", raster.size, "white")
+                    image.paste(raster)
+            with profiler.stage("redaction"):
+                masks = _native_masks(
+                    textpage,
+                    bitmap.get_posconv(page),
+                    native,
+                    indices,
+                    native_findings,
+                    policy,
+                    domain,
+                    image.width,
+                    image.height,
+                    padding,
+                )
+            item = {
+                "image": image,
+                "page": number,
+                "point_width": point_width,
+                "point_height": point_height,
+                "native_findings": native_findings,
+                "native_masks": masks,
+            }
+        except Exception:
+            if image is not None:
+                image.close()
+            raise
+        finally:
+            if bitmap is not None:
+                bitmap.close()
+            textpage.close()
+            page.close()
+        yield item
+
+
+def _prepare_output(
+    document: Any, receipts: list[dict[str, Any]], dpi: int, ImageDraw: Any, profiler: StageProfiler
+) -> Iterator[dict[str, Any]]:
+    for number, receipt in enumerate(receipts):
+        page = document[number]
+        bitmap = None
+        clean = None
+        try:
+            with profiler.stage("rendering"):
+                bitmap = page.render(
+                    scale=dpi / 72,
+                    draw_annots=True,
+                    may_draw_forms=False,
+                    fill_color=(255, 255, 255, 255),
+                )
+                with bitmap.to_pil() as raster, raster.convert("RGB") as image:
+                    if image.size != (receipt["raster_width"], receipt["raster_height"]):
+                        raise PDFRedactionError("Sanitized PDF render geometry changed")
+                    with profiler.stage("verification"):
+                        clean = _verification_image(image, receipt["masks"], ImageDraw)
+        finally:
+            if bitmap is not None:
+                bitmap.close()
+            page.close()
+        yield {"image": clean, "receipt": receipt}
+
+
 def _verification_image(image: Any, masks: list[tuple[int, int, int, int]], ImageDraw: Any) -> Any:
     """Whiten proven constant *rendered* regions for OCR, never the output PDF.
 
@@ -450,42 +622,41 @@ def _verify_rendered(
     receipts: list[dict[str, Any]],
     pdfium: Any,
     ImageDraw: Any,
+    on_verified_page: Callable[[dict[str, Any]], None] | None = None,
+    workers: int = 1,
+    profiler: StageProfiler | None = None,
 ) -> tuple[list[Finding], list[str]]:
+    profiler = profiler or StageProfiler(False)
     residual: list[Finding] = []
     issues: list[str] = []
     with pdfium.PdfDocument(path) as document:
         if len(document) != len(receipts):
             raise PDFRedactionError("Sanitized PDF rendered page count changed")
-        for page, receipt in zip(document, receipts, strict=True):
-            bitmap = page.render(
-                scale=dpi / 72,
-                draw_annots=True,
-                may_draw_forms=False,
-                fill_color=(255, 255, 255, 255),
-            )
-            try:
-                with bitmap.to_pil() as raster, raster.convert("RGB") as image:
-                    if image.size != (receipt["raster_width"], receipt["raster_height"]):
-                        raise PDFRedactionError("Sanitized PDF render geometry changed")
-                    with _verification_image(image, receipt["masks"], ImageDraw) as ocr_image:
-                        try:
-                            _, _, found, low, count = _scan_page(ocr_image, engine)
-                        except OCRError:
-                            if not receipt["all_unmasked_pixels_white"] or not _blank(ocr_image):
-                                raise PDFRedactionError(
-                                    "Sanitized PDF OCR verification failed"
-                                ) from None
-                            found, low, count = [], False, 0
-                    receipt["actual_solid_regions_excluded_from_ocr"] = len(receipt["masks"])
-                    receipt["verification_ocr_tokens"] = count
-                    receipt["rendered_verification"] = True
-                    if low and "LOW_OUTPUT_OCR_CONFIDENCE" not in issues:
-                        issues.append("LOW_OUTPUT_OCR_CONFIDENCE")
-                    residual.extend(f for f in found if _disallowed(f, policy, domain))
-                    residual = residual[:100]
-            finally:
-                bitmap.close()
-                page.close()
+        prepared = _prepare_output(document, receipts, dpi, ImageDraw, profiler)
+        with closing(_ocr_jobs(prepared, engine, workers, profiler)) as jobs:
+            for item, ocr in jobs:
+                receipt = item["receipt"]
+                image = item["image"]
+                safe_text, safe_spans, found, low, count = _interpret_ocr(ocr, image.size, engine)
+                receipt["actual_solid_regions_excluded_from_ocr"] = len(receipt["masks"])
+                receipt["verification_ocr_tokens"] = count
+                receipt["rendered_verification"] = True
+                if low and "LOW_OUTPUT_OCR_CONFIDENCE" not in issues:
+                    issues.append("LOW_OUTPUT_OCR_CONFIDENCE")
+                residual.extend(f for f in found if _disallowed(f, policy, domain))
+                residual = residual[:100]
+                if on_verified_page is not None:
+                    on_verified_page(
+                        {
+                            "page": receipt["page"],
+                            "page_width": receipt["page_width"],
+                            "page_height": receipt["page_height"],
+                            "raster_width": image.width,
+                            "raster_height": image.height,
+                            "text": safe_text,
+                            "spans": safe_spans,
+                        }
+                    )
     return residual, issues
 
 
@@ -501,6 +672,9 @@ def redact_pdf(
     max_bytes: int | None = None,
     memory_budget_mb: int | None = None,
     domain: str | None = None,
+    _on_verified_page: Callable[[dict[str, Any]], None] | None = None,
+    workers: int | None = None,
+    profile: bool | None = None,
 ) -> Result:
     """Rebuild and independently verify an unsearchable image-only local PDF.
 
@@ -510,6 +684,15 @@ def redact_pdf(
     verified masks cover every nonwhite pixel. No automatic model download occurs.
     """
     policy = policy or Policy.strict_pdf()
+    workers = getattr(engine, "pdf_workers", 1) if workers is None else workers
+    profile = getattr(engine, "pdf_profile", False) if profile is None else profile
+    if type(workers) is not int or not 1 <= workers <= 8 or type(profile) is not bool:
+        raise ValueError("Invalid bounded PDF OCR configuration")
+    if workers > 1:
+        from deidflow.ocr import TesseractOCR
+
+        if type(engine.ocr) is not TesseractOCR:
+            return Result(ReleaseStatus.UNSUPPORTED, issues=["PDF_CONCURRENT_BACKEND_UNSUPPORTED"])
     src, dst = Path(source), Path(output)
     if src.resolve() == dst.resolve() or dst.suffix.lower() != ".pdf":
         raise ValueError("PDF redaction requires a distinct .pdf output path")
@@ -537,80 +720,77 @@ def redact_pdf(
     issues: list[str] = []
     originals: list[Finding] = []
     counts: Counter[str] = Counter()
+    profiler = StageProfiler(profile)
+    profiler_token = ACTIVE_PROFILER.set(profiler)
     try:
         pdfium, Image, ImageDraw, PdfReader = _dependencies()
         with PDFIUM_LOCK:
-            source_sha256 = _source_digest(src, limit)
-            _, dimensions = _preflight(src, PdfReader, max_pages, limit)
+            with profiler.stage("loading"):
+                source_sha256 = _source_digest(src, limit)
+                _, dimensions = _preflight(src, PdfReader, max_pages, limit)
             dst.parent.mkdir(parents=True, exist_ok=True)
             descriptor, name = tempfile.mkstemp(prefix=".deidflow-", suffix=".pdf", dir=dst.parent)
             temporary = Path(name)
+            try:
+                from deidflow.private.security import protect
+
+                # Restrict the empty candidate before any document pixels are
+                # written. The published hard link retains these protections.
+                protect(temporary, directory=False)
+            except BaseException:
+                os.close(descriptor)
+                raise
             with os.fdopen(descriptor, "wb") as handle, pdfium.PdfDocument(src) as document:
                 if len(document) != len(dimensions):
                     raise PDFRedactionError("Independent PDF parsers disagree on page count")
                 writer = _RasterWriter(handle, max_bytes=limit * 4)
-                for number, (point_width, point_height) in enumerate(dimensions, 1):
-                    width, height = (
-                        math.ceil(point_width * dpi / 72),
-                        math.ceil(point_height * dpi / 72),
-                    )
-                    if width * height > _MAX_PIXELS or width * height * 16 > budget * 1024**2:
-                        raise PDFRedactionError("PDF page exceeds configured raster memory budget")
-                    page = document[number - 1]
-                    textpage = page.get_textpage()
-                    bitmap = None
-                    try:
-                        native, indices = _native_text(textpage, pdfium.raw)
-                        native_findings = engine.scan_text(native) if native else []
-                        bitmap = page.render(
-                            scale=dpi / 72,
-                            draw_annots=True,
-                            may_draw_forms=False,
-                            fill_color=(255, 255, 255, 255),
+                prepared = _prepare_source(
+                    document,
+                    dimensions,
+                    engine,
+                    policy,
+                    domain,
+                    dpi,
+                    padding,
+                    budget,
+                    workers,
+                    pdfium,
+                    Image,
+                    profiler,
+                )
+                with closing(_ocr_jobs(prepared, engine, workers, profiler)) as jobs:
+                    for item, ocr in jobs:
+                        image = item["image"]
+                        native_findings = item["native_findings"]
+                        text, spans, ocr_findings, low, token_count = _interpret_ocr(
+                            ocr, image.size, engine
                         )
-                        with (
-                            bitmap.to_pil() as raster,
-                            Image.new("RGB", raster.size, "white") as image,
+                        if low and "LOW_SOURCE_OCR_CONFIDENCE" not in issues:
+                            issues.append("LOW_SOURCE_OCR_CONFIDENCE")
+                        findings = native_findings + ocr_findings
+                        originals.extend(findings[: max(0, 100 - len(originals))])
+                        counts.update(f.entity_type for f in findings)
+                        if (
+                            any(f.score < policy.review_below for f in findings)
+                            and "UNCERTAIN_SOURCE_FINDINGS" not in issues
                         ):
-                            image.paste(raster)
-                            text, spans, ocr_findings, low, token_count = _scan_page(image, engine)
-                            if low and "LOW_SOURCE_OCR_CONFIDENCE" not in issues:
-                                issues.append("LOW_SOURCE_OCR_CONFIDENCE")
-                            findings = native_findings + ocr_findings
-                            originals.extend(findings[: max(0, 100 - len(originals))])
-                            counts.update(f.entity_type for f in findings)
-                            if (
-                                any(f.score < policy.review_below for f in findings)
-                                and "UNCERTAIN_SOURCE_FINDINGS" not in issues
-                            ):
-                                issues.append("UNCERTAIN_SOURCE_FINDINGS")
-                            if (
-                                any("window_boundary" in f.context for f in findings)
-                                and "UNRESOLVED_MODEL_WINDOW_BOUNDARY" not in issues
-                            ):
-                                issues.append("UNRESOLVED_MODEL_WINDOW_BOUNDARY")
-                            if (
-                                any(
-                                    policy.rule(f.entity_type, domain).action != "keep"
-                                    and not _selected(f, policy, domain)
-                                    for f in findings
-                                )
-                                and "SOURCE_FINDING_BELOW_POLICY_THRESHOLD" not in issues
-                            ):
-                                issues.append("SOURCE_FINDING_BELOW_POLICY_THRESHOLD")
-                            masks = _native_masks(
-                                textpage,
-                                bitmap.get_posconv(page),
-                                native,
-                                indices,
-                                native_findings,
-                                policy,
-                                domain,
-                                image.width,
-                                image.height,
-                                padding,
+                            issues.append("UNCERTAIN_SOURCE_FINDINGS")
+                        if (
+                            any("window_boundary" in f.context for f in findings)
+                            and "UNRESOLVED_MODEL_WINDOW_BOUNDARY" not in issues
+                        ):
+                            issues.append("UNRESOLVED_MODEL_WINDOW_BOUNDARY")
+                        if (
+                            any(
+                                policy.rule(f.entity_type, domain).action != "keep"
+                                and not _selected(f, policy, domain)
+                                for f in findings
                             )
-                            masks += _ocr_masks(
+                            and "SOURCE_FINDING_BELOW_POLICY_THRESHOLD" not in issues
+                        ):
+                            issues.append("SOURCE_FINDING_BELOW_POLICY_THRESHOLD")
+                        with profiler.stage("redaction"):
+                            masks = item["native_masks"] + _ocr_masks(
                                 text,
                                 spans,
                                 ocr_findings,
@@ -625,9 +805,9 @@ def redact_pdf(
                             for x0, y0, x1, y1 in masks:
                                 draw.rectangle((x0, y0, x1 - 1, y1 - 1), fill=(0, 0, 0))
                             receipt = {
-                                "page": number,
-                                "page_width": point_width,
-                                "page_height": point_height,
+                                "page": item["page"],
+                                "page_width": item["point_width"],
+                                "page_height": item["point_height"],
                                 "raster_width": image.width,
                                 "raster_height": image.height,
                                 "raster_sha256": hashlib.sha256(image.tobytes()).hexdigest(),
@@ -639,17 +819,24 @@ def redact_pdf(
                                     image, masks, ImageDraw
                                 ),
                             }
-                            writer.page(image, (point_width, point_height))
-                            receipts.append(receipt)
-                    finally:
-                        if bitmap is not None:
-                            bitmap.close()
-                        textpage.close()
-                        page.close()
+                        with profiler.stage("reconstruction"):
+                            writer.page(image, (item["point_width"], item["point_height"]))
+                        receipts.append(receipt)
                 writer.finish()
-            _verify_encoded(temporary, receipts, PdfReader)
+            with profiler.stage("verification"):
+                _verify_encoded(temporary, receipts, PdfReader)
             residual, verification_issues = _verify_rendered(
-                temporary, engine, policy, domain, dpi, receipts, pdfium, ImageDraw
+                temporary,
+                engine,
+                policy,
+                domain,
+                dpi,
+                receipts,
+                pdfium,
+                ImageDraw,
+                _on_verified_page,
+                workers,
+                profiler,
             )
             result = engine._gate(
                 policy=policy,
@@ -662,6 +849,7 @@ def redact_pdf(
             result.audit.update(
                 {
                     "format": "pdf",
+                    "ocr_workers": workers,
                     "pdf_mode": "lossless_raster_rebuild",
                     "dpi": dpi,
                     "pages": len(receipts),
@@ -676,13 +864,23 @@ def redact_pdf(
                 }
             )
             if result.status == ReleaseStatus.BLOCKED:
+                if profile:
+                    result.audit["performance"] = profiler.report()
+                    result.audit["performance"]["nlp_configured"] = engine.nlp is not None
                 return result
-            if _source_digest(src, limit) != source_sha256:
-                return Result(ReleaseStatus.BLOCKED, issues=["SOURCE_CHANGED_DURING_PROCESSING"])
-            with temporary.open("rb") as handle:
-                result.audit["sha256"] = hashlib.file_digest(handle, "sha256").hexdigest()
-            os.link(temporary, dst)
+            with profiler.stage("hashing"):
+                if _source_digest(src, limit) != source_sha256:
+                    return Result(
+                        ReleaseStatus.BLOCKED, issues=["SOURCE_CHANGED_DURING_PROCESSING"]
+                    )
+                with temporary.open("rb") as handle:
+                    result.audit["sha256"] = hashlib.file_digest(handle, "sha256").hexdigest()
+            with profiler.stage("publication"):
+                os.link(temporary, dst)
             result.output_path = dst
+            if profile:
+                result.audit["performance"] = profiler.report()
+                result.audit["performance"]["nlp_configured"] = engine.nlp is not None
             return result
     except PDFUnsupportedError:
         return Result(
@@ -701,6 +899,8 @@ def redact_pdf(
             ReleaseStatus.BLOCKED, issues=["PDF_PROCESSING_FAILED"], records=len(receipts)
         )
     finally:
+        ACTIVE_PROFILER.reset(profiler_token)
+        profiler.close()
         if temporary is not None:
             temporary.unlink(missing_ok=True)
 

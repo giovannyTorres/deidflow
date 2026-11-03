@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "scope": "Public unannotated documents for local operational testing only. No precision, recall, F1 or de-identification completeness claim is supported. Raw documents and derived PDFs must remain outside the repository.",
+  "raw_redistribution": false,
+  "training_use_authorized": false,
+  "acquisition": "Explicit source registry only; HTTPS certificate verification, bounded bytes and redirects restricted to government hosts. Access failures are recorded without bypass.",
+  "reproduce_from_repository_root": "python scripts/benchmark_public_documents.py --max-pages 3",
+  "raw_storage": "../../work/public-documents/run-<random>/; raw and derived PDFs must never be committed or redistributed.",
+  "interpretation": "Availability in the runtime may differ from web indexing. HTTP 200 with a non-PDF body counts as unavailable; successful acquisition does not imply complete processing or release approval. The operational report states original and processed page counts and actual review/block gates.",
+  "sources": [
+    {
+      "id": "scjn-ar118-2025",
+      "url": "https://www2.scjn.gob.mx/juridica/Engroses/Cerrados/Publico/Proyecto/AR118_2025.pdf",
+      "format": "pdf",
+      "expected_pages": 29,
+      "gold_annotations": false,
+      "source_kind": "official_public_judicial_version",
+      "already_masked": "Possible official public-version masking; neither completeness nor residual identity removal is certified.",
+      "license_status": "restricted_or_uncertain",
+      "license_note": "SCJN portal terms section 4 permit informational/academic copies and prohibit commercialization of portal information. No unrestricted redistribution, commercial-training or de-identification gold license was established.",
+      "terms_url": "https://www.scjn.gob.mx/terminos-condiciones",
+      "download_guidance_url": "https://bicentenario.scjn.gob.mx/manual-usuario-descarga"
+    },
+    {
+      "id": "scjn-ct-vt-j2-2025",
+      "url": "https://www.scjn.gob.mx/sites/default/files/resoluciones/2025-07/CT-VT-J-2-2025.pdf",
+      "format": "pdf",
+      "expected_pages": 8,
+      "gold_annotations": false,
+      "source_kind": "official_public_transparency_resolution",
+      "already_masked": "Official public access does not certify complete anonymization.",
+      "license_status": "restricted_or_uncertain",
+      "license_note": "Same SCJN portal terms; local informational/academic operational evaluation only. Raw or derived contents are not redistributed.",
+      "terms_url": "https://www.scjn.gob.mx/terminos-condiciones",
+      "download_guidance_url": "https://bicentenario.scjn.gob.mx/manual-usuario-descarga"
+    },
+    {
+      "id": "gob-solicitud-2024",
+      "url": "https://www.gob.mx/cms/uploads/attachment/file/902077/Formato_de_solicitud_2024.pdf",
+      "format": "pdf",
+      "expected_pages": null,
+      "gold_annotations": false,
+      "source_kind": "official_blank_form_candidate",
+      "already_masked": "Expected blank form, not verified if unavailable; no populated private form is authorized.",
+      "license_status": "not_established",
+      "license_note": "Public URL alone does not establish redistribution or training permission; an access denial must not be bypassed."
+    }
+  ]
+}

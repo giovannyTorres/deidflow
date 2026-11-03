@@ -127,12 +127,27 @@ native hidden text inside a page is conservatively masked when detected.
 Unsupported native glyph geometry blocks rather than leaving a finding unmasked.
 
 Both a per-page raster admission estimate and a pixel ceiling are enforced.
-The implementation processes one page at a time and does not retain all decoded
-page pixels. Compressed PDF parsing, image codecs, native-library allocations and
+The default processes one page at a time. Explicit `pdf_workers=2`, `4` or `8`
+overlaps a bounded number of detached page images and local Tesseract processes;
+PDFium, NLP and output writing remain ordered in the parent. Custom OCR adapters
+are unsupported with concurrent OCR. `pdf_profile=True` records numeric stage
+timing and sampled memory. The admission estimate accounts for the worker count.
+Compressed PDF parsing, image codecs, native-library allocations and
 the external OCR process are outside a hard Python RSS cap. These limits do not
 replace operating-system sandboxing for hostile PDFs. PDFium is serialized with
 a process-wide lock because separate documents are not safe concurrent entry
 points; use bounded isolated processes for independently parallel native parsing.
+
+Native rotated glyphs also return `UNSUPPORTED`. Image-only orientation, complex
+columns and unknown visual identifiers are not reliably recognized automatically;
+review representative layouts and evaluate OCR rather than inferring coverage
+from a successful render. Faces, handwriting and QR/barcodes remain outside the
+text-detection guarantee. The ordinary candidate file is restricted to the current
+user before writing pixels; a permissions failure blocks release and cleanup
+closes the descriptor first.
+
+PDF+JSONL is an optional joint bundle with an independent serialized JSONL gate.
+See [RAG export](RAG_EXPORT.md) and [current performance](PERFORMANCE.md).
 
 Standalone `engine.verify("existing.pdf")` or `verify_pdf()` inspects actual
 rendered pixels and findings, but cannot reconstruct the original source-to-mask

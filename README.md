@@ -1,9 +1,11 @@
 # DeidFlow
 
 Local-first Spanish/Mexican sensitive-data detection and verified transformations.
-Working development release **0.2.0**, with genuine tests and benchmarks. This is
+Working experimental development release **0.3.0**, with genuine tests and benchmarks. This is
 not certified production privacy infrastructure, a guarantee of anonymity, or a
-compliance claim. [Current OCR/PDF report](docs/pdf-ocr-report.md) and the
+compliance claim. [Current engineering/release assessment](docs/RELEASE_REPORT_v030.md),
+[performance](docs/PERFORMANCE.md), [detection quality](docs/DETECTION_QUALITY.md),
+[v0.2 OCR/PDF report](docs/pdf-ocr-report.md) and the
 [v0.1 baseline report](docs/engineering-report.md) record evidence
 and remaining work. No public repository or package publication was performed.
 
@@ -57,6 +59,13 @@ verification gate. It never establishes anonymous data. Always inspect
   streams/metadata/attachments/text are never copied. See [PDF guide](docs/pdf-redaction.md).
 - Local column-model training, annotation import, active-learning selection,
   weak-label export, versioned staged models and critical-recall promotion gates.
+- Pinned public-gold acquisition, independent baseline comparisons and held-out
+  Spanish clinical-field improvements with explicit negative English results.
+- Bounded local PDF OCR workers and numeric stage time/memory profiling.
+- Jointly gated PDF/JSONL/audit export for RAG, derived from actual sanitized pixels.
+  Lines and chunks are preserved; merged/multi-page table reconstruction is unsupported.
+- Synthetic-tested read-only private Gmail runner and authenticated localhost
+  review/annotation, requiring user execution outside Codex and explicit consent.
 
 The taxonomy is broader than built-in detection coverage. Names/medical text are
 not comprehensively recognized by the base installation. See [detection](docs/detection.md).
@@ -100,6 +109,26 @@ measure all possible leakage. True hybrid NER adds false positives on this corpu
 it is not automatically better. The [methodology](docs/benchmark-methodology.md)
 and [raw results](benchmarks/results) record baseline coverage, per-type metrics,
 latency, sampled memory, calibration and optimization experiments.
+
+## Public gold evaluation of the v0.3 candidate
+
+Independent human gold exposes substantially lower accuracy than the easy
+synthetic fixtures above. On MEDDOCAN's 250 held-out Spanish clinical documents,
+exact rules F1 improves from 0.2433 (frozen v0.2) to 0.5089; with the same local
+Spanish NER model, F1 improves from 0.2931 to 0.4679. The source-article-disjoint
+subset retains the gain. MEDDOCAN has synthetic PHI inserted into published
+clinical narratives; it does not represent private Mexican records. On127 actual
+public English TAB judgments, both rule versions score exact F1 0.0.
+
+Every MEDDOCAN test document still misses an exact typed gold mention. Partial
+span overlap is not proof of removal, and these text corpora do not measure OCR
+or transformed PDF leakage. Scores remain uncalibrated; public ECE and an actual
+transformation review-required rate are unavailable. Synthetic hard negatives and
+property tests protect boundary parsing, checksum evidence and existing critical
+candidates, but do not establish real-world specificity. Corpus provenance,
+licenses, confidence intervals, per-type errors and baseline configurations are in
+[real-world benchmarks](docs/REAL_WORLD_BENCHMARKS.md) and
+[detection quality](docs/DETECTION_QUALITY.md). Raw public data stay outside Git.
 
 ## CLI and reproduction
 

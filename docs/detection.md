@@ -80,3 +80,21 @@ typed mentions with a scope-separated HMAC identifier. It keeps no plaintext
 mapping and does not fuzzy-merge people. Single-word names remain separate;
 aliases require explicit application-provided mappings. Equal full names are
 matching mentions, not proof of one person's identity.
+
+## Public clinical validation
+
+The v0.3 contextual additions cover explicit Spanish clinical identifier/person
+fields, real calendar dates and patient-associated demographics. They retain
+prior protected candidates, including invalid-checksum evidence. A necessary
+condition prefilter avoids scanning all added patterns on text that cannot match
+any of them; every finding and its metadata are identical with/without this
+prefilter on 500 MEDDOCAN dev/test documents and synthetic property tests. It
+changes runtime, not recognition rules. The aggregate equivalence hashes are in
+`benchmarks/results/public-trigger-equivalence.json`.
+
+[Detection quality](DETECTION_QUALITY.md) reports independent gold recall,
+remaining type/boundary gaps and English TAB failure. Heuristic scores are not
+calibrated and no public ECE is measured. Hard negatives protect known parsing
+boundaries; they do not estimate specificity on arbitrary real documents. The
+numeric-only age boundary is retained for existing bucketing semantics even
+where a wider gold phrase creates an exact-span mismatch.

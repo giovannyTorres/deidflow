@@ -10,3 +10,9 @@ dist/
 benchmark-work/
 private-models/
 *.key
+private-data/
+private-benchmarks/
+private-annotations/
+gmail-token*.json
+oauth-client*.json
+downloaded-corpora/

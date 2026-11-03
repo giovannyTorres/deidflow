@@ -12,7 +12,23 @@ from deidflow import DeidEngine, Policy
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="deidflow")
+    arguments = list(sys.argv[1:] if argv is None else argv)
+    if arguments[:2] == ["benchmark", "private-gmail"]:
+        from deidflow.private.cli import main as private_main
+
+        return private_main(arguments[2:])
+    if arguments[:1] == ["annotate"]:
+        from deidflow.private.annotation import main as annotation_main
+
+        return annotation_main(arguments[1:])
+    parser = argparse.ArgumentParser(
+        prog="deidflow",
+        epilog=(
+            "Private workflows (external terminal only): "
+            "deidflow benchmark private-gmail --help; deidflow annotate --help. "
+            "See docs/PRIVATE_GMAIL_BENCHMARK.md before using private data."
+        ),
+    )
     parser.add_argument("command", choices=["scan", "deidentify", "verify", "profile"])
     parser.add_argument("source", type=Path)
     parser.add_argument("--output", type=Path)
@@ -32,7 +48,26 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--ocr-timeout", type=float, default=60)
     parser.add_argument("--pdf-dpi", type=int, default=216)
     parser.add_argument("--pdf-max-pages", type=int, default=1000)
-    args = parser.parse_args(argv)
+    parser.add_argument(
+        "--pdf-workers", type=int, default=1, help="Bounded concurrent local OCR processes, 1-8"
+    )
+    parser.add_argument(
+        "--profile-stages",
+        action="store_true",
+        help="Record numeric-only PDF stage timing and sampled memory",
+    )
+    parser.add_argument(
+        "--outputs",
+        nargs="+",
+        choices=["pdf", "jsonl"],
+        help="PDF+JSONL creates a new output bundle directory",
+    )
+    parser.add_argument(
+        "--require-table-structure",
+        action="store_true",
+        help="Require review if table relationships cannot be reconstructed",
+    )
+    args = parser.parse_args(arguments)
     try:
         nlp = None
         if args.model:
@@ -53,7 +88,12 @@ def main(argv: list[str] | None = None) -> int:
         elif args.tessdata_dir:
             parser.error("--tessdata-dir requires --ocr-executable")
         engine = DeidEngine(
-            nlp=nlp, ocr=ocr, pdf_dpi=args.pdf_dpi, pdf_max_pages=args.pdf_max_pages
+            nlp=nlp,
+            ocr=ocr,
+            pdf_dpi=args.pdf_dpi,
+            pdf_max_pages=args.pdf_max_pages,
+            pdf_workers=args.pdf_workers,
+            pdf_profile=args.profile_stages,
         )
         policy = (
             Policy.from_yaml(args.policy)
@@ -95,7 +135,12 @@ def main(argv: list[str] | None = None) -> int:
             if not args.output:
                 parser.error("deidentify requires --output")
             result = engine.deidentify(
-                args.source, output=args.output, policy=policy, batch_size=args.batch_size
+                args.source,
+                output=args.output,
+                policy=policy,
+                batch_size=args.batch_size,
+                outputs=args.outputs,
+                require_table_structure=args.require_table_structure,
             )
         else:
             result = engine.verify(args.source, policy=policy)

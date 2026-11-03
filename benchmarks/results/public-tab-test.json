@@ -1,0 +1,477 @@
+{
+  "schema_version": 1,
+  "machine": {
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": "3.11.9",
+    "machine": "AMD64",
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "logical_cpu_count": 16,
+    "versions": {
+      "deidflow": "0.2.0",
+      "psutil": "7.2.2",
+      "spacy": "3.8.18",
+      "presidio-analyzer": "2.2.366",
+      "DataProfiler": null,
+      "numpy": "2.4.6",
+      "scikit-learn": "1.8.0"
+    },
+    "execution": "CPU",
+    "gpu_memory_bytes": null,
+    "physical_memory_bytes": 16962179072,
+    "physical_cpu_count": 8
+  },
+  "source": {
+    "repository": "https://github.com/NorskRegnesentral/text-anonymization-benchmark",
+    "commit": "558e09e26d6b36f5f78440074e6a233946d98bd9",
+    "archive_url": "https://codeload.github.com/NorskRegnesentral/text-anonymization-benchmark/zip/558e09e26d6b36f5f78440074e6a233946d98bd9",
+    "archive_sha256": "fc9925949e91b0eaf831fa8df0ad19ddc325d48e3aeae1e947d15872ba3eaa22",
+    "license": "MIT",
+    "license_url": "https://github.com/NorskRegnesentral/text-anonymization-benchmark/blob/558e09e26d6b36f5f78440074e6a233946d98bd9/LICENSE.txt",
+    "language": "en",
+    "format": "JSON text + human entity/masking annotations",
+    "gold": true,
+    "provenance_kind": "public_judicial",
+    "already_anonymized": "Public ECHR judgments; masking decisions identify DIRECT/QUASI mentions",
+    "attribution": "TAB; Copyright 2021-2026 Norsk Regnesentral; Pilan et al. 2022"
+  },
+  "integrity": {
+    "archive_sha256": "fc9925949e91b0eaf831fa8df0ad19ddc325d48e3aeae1e947d15872ba3eaa22",
+    "verified_corpus_files": 3,
+    "corpus_file_digest_sha256": "ed35ec6c5831198cc3496990878d36c4422c1496e13580e82fe36cf81a3da952",
+    "method": "Read-only byte equality with the SHA256-pinned source archive; no source files modified"
+  },
+  "corpus": {
+    "official_split": "test",
+    "annotator_selection": "lexicographically first quality_checked annotator; no union of divergent gold",
+    "selected_annotator_counts": {
+      "annotator1": 21,
+      "annotator12": 18,
+      "annotator4": 9,
+      "annotator10": 61,
+      "annotator2": 13,
+      "annotator5": 2,
+      "annotator3": 2,
+      "annotator8": 1
+    },
+    "ignored_no_mask_mentions": 2184,
+    "gold_span_count": 5384,
+    "text_bytes": 652935,
+    "gold_verified_against_text": true
+  },
+  "split": "test",
+  "documents": 127,
+  "scope": "Independent public human annotations; semi-synthetic clinical and real public judicial corpora remain separate",
+  "taxonomy": {
+    "gold_label_mapping": {
+      "PERSON": "PERSON",
+      "LOC": "LOCATION",
+      "ORG": "ORGANIZATION",
+      "DEM": "DEMOGRAPHIC",
+      "DATETIME": "DATE",
+      "CODE": "CODE",
+      "MISC": "MISC",
+      "QUANTITY": "QUANTITY"
+    },
+    "prediction_aliases": {
+      "meddocan": {
+        "DATE_OF_BIRTH": "DATE",
+        "NATIONAL_ID": "PATIENT_ID",
+        "PASSPORT": "PATIENT_ID"
+      },
+      "tab": "regional/document/contact identifiers -> CODE; AGE/OCCUPATION -> DEMOGRAPHIC"
+    },
+    "excluded_prediction_categories": [
+      "CLINICAL_OBSERVATION",
+      "DIAGNOSIS",
+      "MEDICAL_ATTRIBUTE",
+      "MEDICAL_CONDITION",
+      "MEDICAL_HISTORY",
+      "MEDICATION",
+      "TREATMENT"
+    ],
+    "exclusion_reason": "These clinical attributes are outside the PHI/masking gold annotation task, so unlabeled medical spans cannot be asserted false positives"
+  },
+  "corpus_sha256": "0f3cd3120e6da0cdbef7dd8734502c0ee63c8ca5ea5fe7ede62e6ccc7b78042f",
+  "pipelines": [
+    {
+      "name": "deidflow_v0.2.0_rules",
+      "status": "measured",
+      "snapshot_commit": "0b79d3d",
+      "source_sha256": "2bba03713031950484d75bb41f34b322de8cae893b8546ef4f30886b8ecbbc1c",
+      "p50_seconds": 0.002510000000256696,
+      "metrics": {
+        "exact": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 6,
+          "false_negatives": 5384,
+          "document_leakage_rate": 1.0,
+          "false_redaction_rate": 6.941660549328307e-06,
+          "entity_level_recall": 0.0007429420505200594,
+          "recall_by_type": {
+            "CODE": 0.0,
+            "DATE": 0.0,
+            "DEMOGRAPHIC": 0.0,
+            "LOCATION": 0.0,
+            "MISC": 0.0,
+            "ORGANIZATION": 0.0,
+            "PERSON": 0.0,
+            "QUANTITY": 0.0
+          },
+          "recall_by_format": {
+            "text": 0.0
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 127
+        },
+        "overlap": {
+          "precision": 0.6666666666666666,
+          "recall": 0.0007429420505200594,
+          "f1": 0.001484230055658627,
+          "true_positives": 4,
+          "false_positives": 2,
+          "false_negatives": 5380,
+          "document_leakage_rate": 1.0,
+          "false_redaction_rate": 6.941660549328307e-06,
+          "entity_level_recall": 0.0007429420505200594,
+          "recall_by_type": {
+            "CODE": 0.0,
+            "DATE": 0.0,
+            "DEMOGRAPHIC": 0.0,
+            "LOCATION": 0.0,
+            "MISC": 0.0,
+            "ORGANIZATION": 0.0,
+            "PERSON": 0.004020100502512563,
+            "QUANTITY": 0.0
+          },
+          "recall_by_format": {
+            "text": 0.0007429420505200594
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "overlap",
+          "documents": 127
+        },
+        "confidence_intervals": {
+          "status": "measured",
+          "unit": "document bootstrap",
+          "seed": 1729,
+          "repeats": 500,
+          "confidence": 0.95,
+          "intervals": {
+            "precision": [
+              0.0,
+              0.0
+            ],
+            "recall": [
+              0.0,
+              0.0
+            ],
+            "f1": [
+              0.0,
+              0.0
+            ],
+            "document_leakage_rate": [
+              1.0,
+              1.0
+            ]
+          }
+        },
+        "person_only_exact": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 4,
+          "false_negatives": 995,
+          "document_leakage_rate": 1.0,
+          "false_redaction_rate": 0.0,
+          "entity_level_recall": 0.004020100502512563,
+          "recall_by_type": {
+            "PERSON": 0.0
+          },
+          "recall_by_format": {
+            "text": 0.0
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 127
+        },
+        "common_scope_exact": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 4,
+          "false_negatives": 3872,
+          "document_leakage_rate": 1.0,
+          "false_redaction_rate": 0.0,
+          "entity_level_recall": 0.0010330578512396695,
+          "recall_by_type": {
+            "DATE": 0.0,
+            "LOCATION": 0.0,
+            "PERSON": 0.0
+          },
+          "recall_by_format": {
+            "text": 0.0
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 127
+        },
+        "common_scope_types": [
+          "DATE",
+          "LOCATION",
+          "PERSON"
+        ],
+        "frequency_strata": {
+          "once": {
+            "gold_mentions": 2784,
+            "exact_recall": 0.0
+          },
+          "two_to_five": {
+            "gold_mentions": 1918,
+            "exact_recall": 0.0
+          },
+          "more_than_five": {
+            "gold_mentions": 682,
+            "exact_recall": 0.0
+          }
+        },
+        "coverage_leakage": {
+          "sensitive_character_recall": 0.0006722030053076029,
+          "documents_with_uncovered_gold_characters": 127,
+          "character_coverage_document_leakage_rate": 1.0,
+          "entity_value_groups": 3633,
+          "entity_value_complete_coverage_rate": 0.0,
+          "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities."
+        },
+        "uncertain_candidate_document_rate": 0.0,
+        "review_rate_definition": "candidate uncertainty proxy only; no transformation or semantic-model release gating evaluated",
+        "strata": {
+          "source": "tab",
+          "language": "en",
+          "source_format": "text",
+          "scanned": false,
+          "domain": "public_judicial",
+          "structure": "unstructured"
+        },
+        "ocr_cer": null,
+        "ocr_wer": null,
+        "table_reconstruction_quality": null,
+        "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated"
+      }
+    },
+    {
+      "name": "deidflow_candidate_rules",
+      "status": "measured",
+      "documents": 127,
+      "repeats": 1,
+      "runs": [
+        {
+          "elapsed_seconds": 0.771820399999342,
+          "units": 127,
+          "records_per_second": 164.54605242373518,
+          "mb_per_second": 0.8459675333802483,
+          "peak_rss_bytes": 76836864,
+          "peak_process_tree_rss_bytes": 76836864,
+          "cpu_percent_one_core_scale": 103.24616970485351,
+          "cpu_accounting_note": "Process CPU only; excludes child CPU"
+        }
+      ],
+      "p50_seconds": 0.003550299999915296,
+      "p95_seconds": 0.019590789999529068,
+      "metrics": {
+        "exact": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 6,
+          "false_negatives": 5384,
+          "document_leakage_rate": 1.0,
+          "false_redaction_rate": 6.941660549328307e-06,
+          "entity_level_recall": 0.0007429420505200594,
+          "recall_by_type": {
+            "CODE": 0.0,
+            "DATE": 0.0,
+            "DEMOGRAPHIC": 0.0,
+            "LOCATION": 0.0,
+            "MISC": 0.0,
+            "ORGANIZATION": 0.0,
+            "PERSON": 0.0,
+            "QUANTITY": 0.0
+          },
+          "recall_by_format": {
+            "text": 0.0
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 127
+        },
+        "overlap": {
+          "precision": 0.6666666666666666,
+          "recall": 0.0007429420505200594,
+          "f1": 0.001484230055658627,
+          "true_positives": 4,
+          "false_positives": 2,
+          "false_negatives": 5380,
+          "document_leakage_rate": 1.0,
+          "false_redaction_rate": 6.941660549328307e-06,
+          "entity_level_recall": 0.0007429420505200594,
+          "recall_by_type": {
+            "CODE": 0.0,
+            "DATE": 0.0,
+            "DEMOGRAPHIC": 0.0,
+            "LOCATION": 0.0,
+            "MISC": 0.0,
+            "ORGANIZATION": 0.0,
+            "PERSON": 0.004020100502512563,
+            "QUANTITY": 0.0
+          },
+          "recall_by_format": {
+            "text": 0.0007429420505200594
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "overlap",
+          "documents": 127
+        },
+        "confidence_intervals": {
+          "status": "measured",
+          "unit": "document bootstrap",
+          "seed": 1729,
+          "repeats": 500,
+          "confidence": 0.95,
+          "intervals": {
+            "precision": [
+              0.0,
+              0.0
+            ],
+            "recall": [
+              0.0,
+              0.0
+            ],
+            "f1": [
+              0.0,
+              0.0
+            ],
+            "document_leakage_rate": [
+              1.0,
+              1.0
+            ]
+          }
+        },
+        "person_only_exact": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 4,
+          "false_negatives": 995,
+          "document_leakage_rate": 1.0,
+          "false_redaction_rate": 0.0,
+          "entity_level_recall": 0.004020100502512563,
+          "recall_by_type": {
+            "PERSON": 0.0
+          },
+          "recall_by_format": {
+            "text": 0.0
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 127
+        },
+        "common_scope_exact": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "true_positives": 0,
+          "false_positives": 4,
+          "false_negatives": 3872,
+          "document_leakage_rate": 1.0,
+          "false_redaction_rate": 0.0,
+          "entity_level_recall": 0.0010330578512396695,
+          "recall_by_type": {
+            "DATE": 0.0,
+            "LOCATION": 0.0,
+            "PERSON": 0.0
+          },
+          "recall_by_format": {
+            "text": 0.0
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 127
+        },
+        "common_scope_types": [
+          "DATE",
+          "LOCATION",
+          "PERSON"
+        ],
+        "frequency_strata": {
+          "once": {
+            "gold_mentions": 2784,
+            "exact_recall": 0.0
+          },
+          "two_to_five": {
+            "gold_mentions": 1918,
+            "exact_recall": 0.0
+          },
+          "more_than_five": {
+            "gold_mentions": 682,
+            "exact_recall": 0.0
+          }
+        },
+        "coverage_leakage": {
+          "sensitive_character_recall": 0.0006722030053076029,
+          "documents_with_uncovered_gold_characters": 127,
+          "character_coverage_document_leakage_rate": 1.0,
+          "entity_value_groups": 3633,
+          "entity_value_complete_coverage_rate": 0.0,
+          "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities."
+        },
+        "uncertain_candidate_document_rate": 0.0,
+        "review_rate_definition": "candidate uncertainty proxy only; no transformation or semantic-model release gating evaluated",
+        "strata": {
+          "source": "tab",
+          "language": "en",
+          "source_format": "text",
+          "scanned": false,
+          "domain": "public_judicial",
+          "structure": "unstructured"
+        },
+        "ocr_cer": null,
+        "ocr_wer": null,
+        "table_reconstruction_quality": null,
+        "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated"
+      },
+      "prediction_sha256": "bd1494dbcee84e99db32c3798ef78ad1fa19d13b9c06c863c2b6e2a13643b58b"
+    },
+    {
+      "name": "spacy_presidio_english",
+      "status": "not_measured",
+      "reason": "No reviewed local English model provisioned; applying a Spanish NER model to English is not a comparable baseline"
+    }
+  ],
+  "network_guard": {
+    "attempts": 0,
+    "dns_and_connect": "denied"
+  },
+  "limitations": [
+    "MEDDOCAN is not real private patient data and is predominantly Spain Spanish, not a Mexican enterprise holdout",
+    "TAB uses the first reviewed annotator, DIRECT/QUASI mask decisions and a different English judicial task",
+    "No corpus text, source filenames or entity values are in this report",
+    "Text corpora do not measure OCR/layout/table accuracy or real output-transformation leakage",
+    "Confidence intervals resample documents and do not account for source/provider template correlations"
+  ]
+}

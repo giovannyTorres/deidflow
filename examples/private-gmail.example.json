@@ -1,0 +1,20 @@
+{
+  "account": "fictional.owner@gmail.com",
+  "private_root": "C:/Users/YOUR_USER/AppData/Local/DeidFlowPrivate",
+  "token_file": "C:/Users/YOUR_USER/AppData/Local/DeidFlowPrivate/readonly-token.json",
+  "client_secret_file": "C:/Users/YOUR_USER/AppData/Local/DeidFlowPrivate/desktop-client.json",
+  "approval_file": "C:/Users/YOUR_USER/AppData/Local/DeidFlowPrivate/personal-approvals.json",
+  "personal_senders": ["fictional.friend@example.org"],
+  "excluded_domains": ["example-employer.invalid"],
+  "excluded_senders": [],
+  "excluded_subject_terms": ["work", "trabajo", "internal", "interno"],
+  "allowed_extensions": [".pdf", ".docx", ".xlsx", ".csv", ".tsv", ".txt", ".json", ".jsonl", ".parquet", ".png", ".jpg", ".jpeg", ".tif", ".tiff"],
+  "after": "2025-01-01",
+  "before": "2027-01-01",
+  "max_messages": 1000,
+  "max_attachments": 100,
+  "max_attachments_per_message": 20,
+  "max_attachment_bytes": 16777216,
+  "max_total_bytes": 536870912,
+  "seconds_per_attachment": null
+}

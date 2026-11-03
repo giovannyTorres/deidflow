@@ -1,0 +1,35 @@
+{
+  "meddocan": {
+    "method": "Published official splits; exact text/category-value hashes and MEDDOCAN source article ID stems",
+    "pairs": {
+      "train_vs_dev": {
+        "identical_document_texts": 0,
+        "shared_category_value_hashes": 752,
+        "shared_source_article_identifiers": 15
+      },
+      "train_vs_test": {
+        "identical_document_texts": 0,
+        "shared_category_value_hashes": 725,
+        "shared_source_article_identifiers": 18
+      },
+      "dev_vs_test": {
+        "identical_document_texts": 0,
+        "shared_category_value_hashes": 548,
+        "shared_source_article_identifiers": 7
+      }
+    },
+    "guarantees": "Does not certify unseen identities, unseen templates, or absence of semantic near-duplicates",
+    "training_overlap": "measured"
+  },
+  "tab": {
+    "method": "Published official splits; exact text/category-value hashes and MEDDOCAN source article ID stems",
+    "pairs": {
+      "dev_vs_test": {
+        "identical_document_texts": 0,
+        "shared_category_value_hashes": 782
+      }
+    },
+    "guarantees": "Does not certify unseen identities, unseen templates, or absence of semantic near-duplicates",
+    "training_overlap": "not measured: TAB training includes annotations without quality_checked review; no unreviewed training gold was silently substituted"
+  }
+}

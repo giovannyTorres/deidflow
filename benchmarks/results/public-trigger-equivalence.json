@@ -1,0 +1,18 @@
+{
+  "source": "meddocan",
+  "method": "Exact equality of every contextual finding coordinate, category, score, validation, provenance and protection with trigger enabled vs unconditional scan; source text is excluded",
+  "results": [
+    {
+      "split": "dev",
+      "documents": 250,
+      "with_and_without_prefilter_sha256": "ddd52d63e04699f13be0ede4c8de7ba2ebe2ad7f1fedfb1f80090c9a016d7148",
+      "identical_all_finding_metadata": true
+    },
+    {
+      "split": "test",
+      "documents": 250,
+      "with_and_without_prefilter_sha256": "dd3c42efba1f0823463ab035a229955ce471a7db21e52d70d583b756d76bb893",
+      "identical_all_finding_metadata": true
+    }
+  ]
+}

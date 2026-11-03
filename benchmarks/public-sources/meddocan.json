@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "source": "meddocan",
+  "repository": "https://github.com/PlanTL-GOB-ES/SPACCC_MEDDOCAN",
+  "commit": "783a6df385c975b328c99bcffb54196a9ba4078a",
+  "archive_url": "https://codeload.github.com/PlanTL-GOB-ES/SPACCC_MEDDOCAN/zip/783a6df385c975b328c99bcffb54196a9ba4078a",
+  "archive_sha256": "555470b36d90d04094aedf1a72bff079cb5dbcef98c8e40627a6beafc205ed1b",
+  "license": "CC-BY-4.0",
+  "license_url": "https://github.com/PlanTL-GOB-ES/SPACCC_MEDDOCAN/blob/783a6df385c975b328c99bcffb54196a9ba4078a/LICENSE",
+  "language": "es",
+  "format": "UTF-8 text + BRAT standoff",
+  "gold": true,
+  "provenance_kind": "semi_synthetic_clinical",
+  "already_anonymized": "Released synthetic/enriched PHI, not original private patient records",
+  "attribution": "SPACCC MEDDOCAN; 2019 Secretaria de Estado para el Avance Digital (SEAD)",
+  "downloaded_bytes": 16952604,
+  "extracted_files": 2002,
+  "extracted_bytes": 3909453,
+  "file_digest_manifest_sha256": "ba4823b70e231902fe7d865c1193607631eb0a2d1f30c8591a6fc523388d4cdc",
+  "raw_documents_committed": false,
+  "changes": "No source text edits; source annotation labels mapped only at evaluation time"
+}

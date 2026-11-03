@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "source": "tab",
+  "repository": "https://github.com/NorskRegnesentral/text-anonymization-benchmark",
+  "commit": "558e09e26d6b36f5f78440074e6a233946d98bd9",
+  "archive_url": "https://codeload.github.com/NorskRegnesentral/text-anonymization-benchmark/zip/558e09e26d6b36f5f78440074e6a233946d98bd9",
+  "archive_sha256": "fc9925949e91b0eaf831fa8df0ad19ddc325d48e3aeae1e947d15872ba3eaa22",
+  "license": "MIT",
+  "license_url": "https://github.com/NorskRegnesentral/text-anonymization-benchmark/blob/558e09e26d6b36f5f78440074e6a233946d98bd9/LICENSE.txt",
+  "language": "en",
+  "format": "JSON text + human entity/masking annotations",
+  "gold": true,
+  "provenance_kind": "public_judicial",
+  "already_anonymized": "Public ECHR judgments; masking decisions identify DIRECT/QUASI mentions",
+  "attribution": "TAB; Copyright 2021-2026 Norsk Regnesentral; Pilan et al. 2022",
+  "downloaded_bytes": 7081058,
+  "extracted_files": 6,
+  "extracted_bytes": 73274433,
+  "file_digest_manifest_sha256": "cc6e2eac8ac649c0ea7f8b7c940af19e00af38e69fe50f2fa1c646f9de24f613",
+  "raw_documents_committed": false,
+  "changes": "No source text edits; source annotation labels mapped only at evaluation time"
+}

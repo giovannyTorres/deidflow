@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.3.0 - 2026-11-02 (local experimental release)
+
+- Added pinned MEDDOCAN/TAB acquisition, verified human gold, frozen v0.2
+  comparisons, source-disjoint holdout diagnostics and explicit coverage gaps.
+- Added Spanish clinical-field recognizers; MEDDOCAN exact F1 improves from
+  0.2433 to0.5089 while remaining insufficient for unattended anonymization.
+- Added transactional PDF+JSONL+audit export from verified output pixels with
+  independent structured verification and shared release gates.
+- Added bounded local Tesseract workers 1/2/4/8, numeric stage timing/RSS,
+  permission-hardened PDF candidates and native rotated-glyph refusal.
+- Added external-terminal-only read-only personal Gmail infrastructure, individual
+  attachment attestation, suppressed aggregates and consented local annotation.
+  No real Gmail/private document was accessed in development.
+- Added real local benchmarks for 100-page native/scanned PDFs, mixed workloads,
+  100k/1m CSV, long Spanish text and public unannotated operational subsets.
+- Preserved blocked/review outcomes, original tests, proprietary license terms,
+  source provenance and all historical development measurements. Not published.
+
 ## 0.2.0 - 2026-11-02
 
 - Installed and source-built patched Tesseract 5.5.4 with pinned Spanish/English

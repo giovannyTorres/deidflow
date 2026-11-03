@@ -63,7 +63,10 @@ column references; these are private API data, not safe public log content.
 `Result.audit_dict()` excludes original text, findings and filenames. Audit
 hashes and aggregate categories can themselves be sensitive in some contexts.
 
-Original files are not altered. Temporary candidates use the destination
+Original files are not altered. PDF candidates receive current-user-only
+permissions before any pixels are written; permission failure blocks processing
+and closes the file before cleanup. RAG staging and private workflows also have
+protected directories. Other temporary candidates use the destination
 directory's access controls and are deleted on failure. Callers must secure that
 directory and exclude it from automatic synchronization. Deletion is not secure
 physical erasure. Python cannot reliably erase all plaintext copies from memory.

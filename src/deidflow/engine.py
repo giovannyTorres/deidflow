@@ -13,6 +13,7 @@ import threading
 import time
 from collections.abc import Callable, Iterable, Iterator
 from concurrent.futures import ProcessPoolExecutor
+from contextlib import nullcontext
 from dataclasses import dataclass, field, replace
 from enum import StrEnum
 from pathlib import Path
@@ -43,10 +44,20 @@ class Result:
     issues: list[str] = field(default_factory=list)
     records: int = 0
     audit: dict[str, Any] = field(default_factory=dict)
+    safe_jsonl: Path | None = field(default=None, repr=False)
+    audit_path: Path | None = field(default=None, repr=False)
 
     @property
     def release_approved(self) -> bool:
         return self.status == ReleaseStatus.APPROVED
+
+    @property
+    def safe_pdf(self) -> Path | None:
+        return (
+            self.output_path
+            if self.output_path and self.output_path.suffix.lower() == ".pdf"
+            else None
+        )
 
     def audit_dict(self) -> dict[str, Any]:
         """No filenames, source values, headers or locations are included in audit logs."""
@@ -99,6 +110,8 @@ class DeidEngine:
         schema_fast_path: bool = True,
         pdf_dpi: int = 216,
         pdf_max_pages: int = 1000,
+        pdf_workers: int = 1,
+        pdf_profile: bool = False,
     ) -> None:
         if language != "es" or country.upper() != "MX":
             raise ValueError("Only the es_MX country pack is implemented")
@@ -123,6 +136,13 @@ class DeidEngine:
         self.max_bytes, self.memory_budget_mb = max_bytes, memory_budget_mb
         self.schema_fast_path = schema_fast_path
         self.pdf_dpi, self.pdf_max_pages = pdf_dpi, pdf_max_pages
+        if (
+            type(pdf_workers) is not int
+            or not 1 <= pdf_workers <= 8
+            or type(pdf_profile) is not bool
+        ):
+            raise ValueError("Invalid PDF concurrency or profiling configuration")
+        self.pdf_workers, self.pdf_profile = pdf_workers, pdf_profile
         self.custom_transforms = custom_transforms or {}
         self.session_id = secrets.token_hex(16)
         self._nlp_lock = threading.Lock()
@@ -135,7 +155,11 @@ class DeidEngine:
         from deidflow.detectors.ocr import ocr_field_candidates
 
         findings = self.scan_text(text)
-        return fuse(findings + ocr_field_candidates(text, findings))
+        from deidflow.performance import ACTIVE_PROFILER
+
+        profiler = ACTIVE_PROFILER.get()
+        with profiler.stage("context") if profiler else nullcontext():
+            return fuse(findings + ocr_field_candidates(text, findings))
 
     def scan_texts(self, texts: list[str]) -> list[list[Finding]]:
         if any(not isinstance(t, str) for t in texts):
@@ -144,13 +168,17 @@ class DeidEngine:
             raise ValueError("Text exceeds configured size limit")
         if sum(len(t) for t in texts) * 4 > self.memory_budget_mb * 1024**2 // 2:
             raise ValueError("Text batch exceeds configured memory budget")
+        from deidflow.performance import ACTIVE_PROFILER
+
+        profiler = ACTIVE_PROFILER.get()
         try:
-            results = [self.detector.detect(t) for t in texts]
+            with profiler.stage("rules") if profiler else nullcontext():
+                results = [self.detector.detect(t) for t in texts]
         except Exception:
             raise RuntimeError("Local rule recognizer failed; output is not verified") from None
         if self.nlp is not None and texts:
             try:
-                with self._nlp_lock:
+                with self._nlp_lock, profiler.stage("nlp") if profiler else nullcontext():
                     predicted = self.nlp.detect_batch(texts)
             except Exception:
                 raise RuntimeError("Local NLP adapter failed; output is not verified") from None
@@ -756,13 +784,49 @@ class DeidEngine:
         output: str | Path,
         batch_size: int = 1024,
         domain: str | None = None,
+        outputs: list[str] | tuple[str, ...] | None = None,
+        require_table_structure: bool = False,
     ) -> Result:
         source, target = Path(source), Path(output)
+        if type(require_table_structure) is not bool:
+            raise ValueError("Table structure requirement must be boolean")
+        if require_table_structure and (
+            not isinstance(outputs, (list, tuple))
+            or any(not isinstance(value, str) for value in outputs)
+            or set(outputs) != {"pdf", "jsonl"}
+        ):
+            raise ValueError("Table structure verification requires a PDF+JSONL bundle")
         policy = policy or (
             Policy.strict_pdf() if source.suffix.lower() == ".pdf" else Policy.strict()
         )
         if batch_size < 1 or source.resolve() == target.resolve():
             raise ValueError("Use a distinct output path and positive batch size")
+        if outputs is not None:
+            if (
+                not isinstance(outputs, (list, tuple))
+                or any(not isinstance(v, str) for v in outputs)
+                or len(set(outputs)) != len(outputs)
+            ):
+                raise ValueError("Invalid output format selection")
+            if set(outputs) == {"pdf", "jsonl"} and source.suffix.lower() == ".pdf":
+                from deidflow.rag import export_pdf_bundle
+
+                return export_pdf_bundle(
+                    source,
+                    target,
+                    engine=self,
+                    policy=policy,
+                    domain=domain,
+                    require_table_structure=require_table_structure,
+                )
+            if outputs != ["pdf"] and outputs != ("pdf",):
+                return Result(
+                    ReleaseStatus.UNSUPPORTED, issues=["OUTPUT_FORMAT_COMBINATION_UNSUPPORTED"]
+                )
+            if source.suffix.lower() != ".pdf":
+                return Result(
+                    ReleaseStatus.UNSUPPORTED, issues=["OUTPUT_FORMAT_COMBINATION_UNSUPPORTED"]
+                )
         if source.suffix.lower() == ".pdf" and target.suffix.lower() == ".pdf":
             from deidflow.redactors.pdf import redact_pdf
 

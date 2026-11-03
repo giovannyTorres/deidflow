@@ -16,6 +16,8 @@ from deidflow.validators import (
     validate_rfc,
 )
 
+from .clinical import contextual_spanish
+
 
 class Detector(Protocol):
     def detect(self, text: str) -> list[Finding]: ...
@@ -353,6 +355,8 @@ class RuleDetector:
                 )
         for recognizer in self.recognizers:
             findings.extend(recognizer.detect(text))
+        if self.contextual:
+            findings.extend(contextual_spanish(text))
         return fuse(findings)
 
     def detect_batch(self, texts: list[str]) -> list[list[Finding]]:

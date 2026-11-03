@@ -3,6 +3,12 @@
 This delivery prioritizes functioning, verified components. The following are
 explicitly unimplemented or not validated; they are not hidden fallback paths.
 
+v0.3 adds pinned public-gold acquisition/comparison, source-disjoint evaluation,
+local private review/annotation, joint PDF+JSONL gates, numeric stage profiling
+and measured bounded OCR workers. These are implemented. Remaining clinical and
+English detection gaps, real private evaluation and production acceptance targets
+are documented in the current quality/security reports.
+
 ## Before commercial use
 
 1. Obtain independently annotated, licensed Mexican clinical, financial,
@@ -35,7 +41,7 @@ explicitly unimplemented or not validated; they are not hidden fallback paths.
 - Compare DataProfiler on equivalent structured labels after provisioning a
   reviewed local labeler. The existing column learner equals a simple pattern
   baseline on its easy synthetic holdout; no model advantage is claimed.
-- Add evaluation stratification, external calibration, abstention criteria,
+- Extend the implemented evaluation stratification with external calibration, abstention criteria,
   semantic drift monitoring and rigorous alias resolution without weak person merges.
 
 ## Performance and delivery
@@ -45,8 +51,9 @@ explicitly unimplemented or not validated; they are not hidden fallback paths.
   structured per-record provenance receipts. No vectorized speedup is claimed.
 - Benchmark isolated model memory, >1m heterogeneous rows, statistical text batches,
   repeated full-scale trials and actual scanned collections on representative hosts.
-- CUDA consumer-GPU and ONNX encoder adapters, OCR worker pools and parallel file
-  rewriting are not validated. Benchmark before selecting them.
+- CUDA consumer-GPU and ONNX encoder adapters and parallel file rewriting remain
+  unvalidated. OCR workers1/2/4/8 are measured on synthetic fixtures in v0.3;
+  representative real collections and repeated full-scale trials remain necessary.
 - Add maintained dependency hash locks by OS/Python, signed artifacts/SBOMs,
   protected key/model storage, process isolation and platform-specific installation.
   CI is configured locally; it has not run on a remote hosting service.

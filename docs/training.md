@@ -106,3 +106,20 @@ automatically enabled in the engine.
 The v0.2 labelled-field parsing update has rule provenance `rules-0.2`.
 Saved v0.1 score calibrators intentionally reject the updated candidates;
 refit/revalidate rather than applying a stale mapping across rule-pack changes.
+
+## Public gold is evaluation evidence
+
+The v0.3 candidate's generic contextual rules were selected on MEDDOCAN dev and
+frozen before official test evaluation. No column classifier or token model was
+trained on MEDDOCAN/TAB. Source-article holdout and recurring value diagnostics
+are documented in [public validation](REAL_WORLD_BENCHMARKS.md); neither guarantees
+unseen people/templates/providers. Reusing that test for later rule selection
+would require a fresh holdout before making further generalization claims.
+
+New `rules.es_clinical` candidates have `clinical-context-0.3` provenance; fused
+candidates retain contributing detector identities. Do not apply an older score
+mapping globally to new or fused provenance. Fit on independent reviewed
+validation candidates and evaluate calibration on an untouched domain holdout.
+The public experiments have no fitted calibrator and report ECE as null. Synthetic
+calibration mechanics do not establish probabilities for these clinical/judicial
+domains. Raw scores continue to be ranking signals.

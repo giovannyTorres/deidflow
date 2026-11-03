@@ -1,0 +1,2372 @@
+{
+  "schema_version": 1,
+  "machine": {
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": "3.11.9",
+    "machine": "AMD64",
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "logical_cpu_count": 16,
+    "versions": {
+      "deidflow": "0.2.0",
+      "psutil": "7.2.2",
+      "spacy": "3.8.18",
+      "presidio-analyzer": "2.2.366",
+      "DataProfiler": null,
+      "numpy": "2.4.6",
+      "scikit-learn": "1.8.0"
+    },
+    "execution": "CPU",
+    "gpu_memory_bytes": null,
+    "physical_memory_bytes": 16962179072,
+    "physical_cpu_count": 8
+  },
+  "configuration": {
+    "seed": 1729,
+    "dpi": 216,
+    "psm": 6,
+    "language": "spa+eng",
+    "memory_admission_budget_mb": 2048,
+    "policy": "strict_pdf explicit rules-only require_ner=False",
+    "nlp_configured": false,
+    "small_pages": 6,
+    "small_repeats": 3
+  },
+  "notes": [
+    "No private data. Python DNS/connect denied during inference.",
+    "Small-sample worker selection does not establish full-scale speedup.",
+    "Full-scale workloads have one run per configuration, no run-latency percentile inferred.",
+    "Other local benchmark processes may be running; timings are not an isolated machine experiment.",
+    "OCR work time overlaps and must not be summed as end-to-end time.",
+    "Per-stage memory and peak RSS are samples, not enforced process-tree caps.",
+    "Critical gold pixel coverage is checked independently of the detector."
+  ],
+  "asset_sha256": {
+    "tesseract": "8353c0238e8d16c97974a24ccbad1aec6f2a304607bff9e57df4d072a9b7c52b",
+    "spa": "6f2e04d02774a18f01bed44b1111f2cd7f3ba7ac9dc4373cd3f898a40ea6b464",
+    "eng": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"
+  },
+  "scaling_runs": [
+    {
+      "label": "small-0",
+      "kind": "native",
+      "workers": 1,
+      "pages": 6,
+      "input_sha256": "9ecb2179a935db58c1765055e0fac47f5c3df273ff5e4e1d5a63ea73a8c6d700",
+      "output_sha256": "7e21959c6ad3bdb8bd25fa9d45d19204e9f085bb87bab854724e6db5a8710958",
+      "status": "APPROVED",
+      "release_approved": true,
+      "issues": [],
+      "metrics": {
+        "elapsed_seconds": 8.65941969999949,
+        "units": 6,
+        "records_per_second": 0.69288707648624,
+        "mb_per_second": 0.0007090544416042523,
+        "peak_rss_bytes": 162934784,
+        "peak_process_tree_rss_bytes": 227409920,
+        "cpu_percent_one_core_scale": 99.42207790206204,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU"
+      },
+      "pages_per_second": 0.69288707648624,
+      "documents_per_second": 0.11548117941437334,
+      "performance": {
+        "enabled": true,
+        "elapsed_seconds": 8.657479600000443,
+        "stages": {
+          "context": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.01573169999937818,
+            "exclusive_work_seconds": 0.01573169999937818,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "hashing": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0008047999999689637,
+            "exclusive_work_seconds": 0.0008047999999689637,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "loading": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.015549199999441043,
+            "exclusive_work_seconds": 0.015549199999441043,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "ocr": {
+            "calls": 12,
+            "inclusive_work_seconds": 4.5672038000029715,
+            "exclusive_work_seconds": 4.5672038000029715,
+            "sampled_peak_parent_rss_bytes": 152788992,
+            "sampled_peak_tree_rss_bytes": 226906112
+          },
+          "publication": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0008063999994192272,
+            "exclusive_work_seconds": 0.0008063999994192272,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "reconstruction": {
+            "calls": 6,
+            "inclusive_work_seconds": 1.511364499998308,
+            "exclusive_work_seconds": 1.511364499998308,
+            "sampled_peak_parent_rss_bytes": 119496704,
+            "sampled_peak_tree_rss_bytes": 119496704
+          },
+          "redaction": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.30439479999586183,
+            "exclusive_work_seconds": 0.30439479999586183,
+            "sampled_peak_parent_rss_bytes": 138584064,
+            "sampled_peak_tree_rss_bytes": 138584064
+          },
+          "rendering": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.9335430999981327,
+            "exclusive_work_seconds": 0.807589599995481,
+            "sampled_peak_parent_rss_bytes": 165527552,
+            "sampled_peak_tree_rss_bytes": 165527552
+          },
+          "rules": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.010343899995859829,
+            "exclusive_work_seconds": 0.010343899995859829,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "verification": {
+            "calls": 7,
+            "inclusive_work_seconds": 0.5762200000026496,
+            "exclusive_work_seconds": 0.5762200000026496,
+            "sampled_peak_parent_rss_bytes": 163131392,
+            "sampled_peak_tree_rss_bytes": 163131392
+          }
+        },
+        "memory_sample_interval_ms": 10,
+        "rss_available": true,
+        "timing_semantics": "Worker work times overlap; do not sum as wall time. Memory is sampled process/tree RSS, not a hard admission cap.",
+        "nlp_configured": false
+      },
+      "masks": 1060,
+      "independent_gold": {
+        "gold_words_checked": 120,
+        "gold_words_opaque_black": 120,
+        "unmasked_gold_word_regions": 0,
+        "indeterminate_gold_word_regions": 0,
+        "minimum_black_pixel_fraction": 1.0,
+        "gold_word_mask_rate_by_type": {
+          "PERSON": 1.0,
+          "EMAIL": 1.0,
+          "PHONE": 1.0,
+          "CURP": 1.0,
+          "RFC": 1.0,
+          "CLABE": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "ADDRESS": 1.0,
+          "DIAGNOSIS": 1.0
+        },
+        "passed": true,
+        "definition": "Known drawn field word boxes tightened to source ink; actual rerendered output word rectangle must be >=99.5% near-black. Independent of OCR matching. This is fixture-specific geometry, not general visual privacy proof."
+      },
+      "independent_check": "pixel gold only; library independently rescans serialized output"
+    },
+    {
+      "label": "small-0",
+      "kind": "native",
+      "workers": 2,
+      "pages": 6,
+      "input_sha256": "9ecb2179a935db58c1765055e0fac47f5c3df273ff5e4e1d5a63ea73a8c6d700",
+      "output_sha256": "7e21959c6ad3bdb8bd25fa9d45d19204e9f085bb87bab854724e6db5a8710958",
+      "status": "APPROVED",
+      "release_approved": true,
+      "issues": [],
+      "metrics": {
+        "elapsed_seconds": 4.697595500001626,
+        "units": 6,
+        "records_per_second": 1.2772491799257564,
+        "mb_per_second": 0.0013070516607906907,
+        "peak_rss_bytes": 184201216,
+        "peak_process_tree_rss_bytes": 314904576,
+        "cpu_percent_one_core_scale": 114.42023903501568,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU"
+      },
+      "pages_per_second": 1.2772491799257564,
+      "documents_per_second": 0.2128748633209594,
+      "performance": {
+        "enabled": true,
+        "elapsed_seconds": 4.695741199999247,
+        "stages": {
+          "context": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.024926200003392296,
+            "exclusive_work_seconds": 0.024926200003392296,
+            "sampled_peak_parent_rss_bytes": 105783296,
+            "sampled_peak_tree_rss_bytes": 105783296
+          },
+          "hashing": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0008402999992540572,
+            "exclusive_work_seconds": 0.0008402999992540572,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "loading": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0017692000001261476,
+            "exclusive_work_seconds": 0.0017692000001261476,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "ocr": {
+            "calls": 12,
+            "inclusive_work_seconds": 4.498106800001551,
+            "exclusive_work_seconds": 4.498106800001551,
+            "sampled_peak_parent_rss_bytes": 183775232,
+            "sampled_peak_tree_rss_bytes": 309657600
+          },
+          "publication": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0006609000010939781,
+            "exclusive_work_seconds": 0.0006609000010939781,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "reconstruction": {
+            "calls": 6,
+            "inclusive_work_seconds": 1.5270280000004277,
+            "exclusive_work_seconds": 1.5270280000004277,
+            "sampled_peak_parent_rss_bytes": 139177984,
+            "sampled_peak_tree_rss_bytes": 216027136
+          },
+          "redaction": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.3241583000017272,
+            "exclusive_work_seconds": 0.3241583000017272,
+            "sampled_peak_parent_rss_bytes": 162799616,
+            "sampled_peak_tree_rss_bytes": 229502976
+          },
+          "rendering": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.8321986999981164,
+            "exclusive_work_seconds": 0.7268213999977888,
+            "sampled_peak_parent_rss_bytes": 183775232,
+            "sampled_peak_tree_rss_bytes": 242847744
+          },
+          "rules": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.009598400007234886,
+            "exclusive_work_seconds": 0.009598400007234886,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "verification": {
+            "calls": 7,
+            "inclusive_work_seconds": 0.5725239000003057,
+            "exclusive_work_seconds": 0.5725239000003057,
+            "sampled_peak_parent_rss_bytes": 183775232,
+            "sampled_peak_tree_rss_bytes": 208912384
+          }
+        },
+        "memory_sample_interval_ms": 10,
+        "rss_available": true,
+        "timing_semantics": "Worker work times overlap; do not sum as wall time. Memory is sampled process/tree RSS, not a hard admission cap.",
+        "nlp_configured": false
+      },
+      "masks": 1060,
+      "independent_gold": {
+        "gold_words_checked": 120,
+        "gold_words_opaque_black": 120,
+        "unmasked_gold_word_regions": 0,
+        "indeterminate_gold_word_regions": 0,
+        "minimum_black_pixel_fraction": 1.0,
+        "gold_word_mask_rate_by_type": {
+          "PERSON": 1.0,
+          "EMAIL": 1.0,
+          "PHONE": 1.0,
+          "CURP": 1.0,
+          "RFC": 1.0,
+          "CLABE": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "ADDRESS": 1.0,
+          "DIAGNOSIS": 1.0
+        },
+        "passed": true,
+        "definition": "Known drawn field word boxes tightened to source ink; actual rerendered output word rectangle must be >=99.5% near-black. Independent of OCR matching. This is fixture-specific geometry, not general visual privacy proof."
+      },
+      "independent_check": "pixel gold only; library independently rescans serialized output"
+    },
+    {
+      "label": "small-0",
+      "kind": "native",
+      "workers": 4,
+      "pages": 6,
+      "input_sha256": "9ecb2179a935db58c1765055e0fac47f5c3df273ff5e4e1d5a63ea73a8c6d700",
+      "output_sha256": "7e21959c6ad3bdb8bd25fa9d45d19204e9f085bb87bab854724e6db5a8710958",
+      "status": "APPROVED",
+      "release_approved": true,
+      "issues": [],
+      "metrics": {
+        "elapsed_seconds": 4.726597999999285,
+        "units": 6,
+        "records_per_second": 1.2694119533755372,
+        "mb_per_second": 0.0012990315656209663,
+        "peak_rss_bytes": 219336704,
+        "peak_process_tree_rss_bytes": 461533184,
+        "cpu_percent_one_core_scale": 115.70161033370783,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU"
+      },
+      "pages_per_second": 1.2694119533755372,
+      "documents_per_second": 0.21156865889592288,
+      "performance": {
+        "enabled": true,
+        "elapsed_seconds": 4.7127405000010185,
+        "stages": {
+          "context": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.004092700004548533,
+            "exclusive_work_seconds": 0.004092700004548533,
+            "sampled_peak_parent_rss_bytes": 155570176,
+            "sampled_peak_tree_rss_bytes": 202960896
+          },
+          "hashing": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0008840999998938059,
+            "exclusive_work_seconds": 0.0008840999998938059,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "loading": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0018534999999246793,
+            "exclusive_work_seconds": 0.0018534999999246793,
+            "sampled_peak_parent_rss_bytes": 65900544,
+            "sampled_peak_tree_rss_bytes": 65900544
+          },
+          "ocr": {
+            "calls": 12,
+            "inclusive_work_seconds": 4.852743500003271,
+            "exclusive_work_seconds": 4.852743500003271,
+            "sampled_peak_parent_rss_bytes": 219402240,
+            "sampled_peak_tree_rss_bytes": 464441344
+          },
+          "publication": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0007306000006792601,
+            "exclusive_work_seconds": 0.0007306000006792601,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "reconstruction": {
+            "calls": 6,
+            "inclusive_work_seconds": 2.154972899999848,
+            "exclusive_work_seconds": 2.154972899999848,
+            "sampled_peak_parent_rss_bytes": 174784512,
+            "sampled_peak_tree_rss_bytes": 328486912
+          },
+          "redaction": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.3623851999982435,
+            "exclusive_work_seconds": 0.3623851999982435,
+            "sampled_peak_parent_rss_bytes": 197709824,
+            "sampled_peak_tree_rss_bytes": 339480576
+          },
+          "rendering": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.8630862000009074,
+            "exclusive_work_seconds": 0.7251729000054183,
+            "sampled_peak_parent_rss_bytes": 219230208,
+            "sampled_peak_tree_rss_bytes": 323104768
+          },
+          "rules": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.01073750000432483,
+            "exclusive_work_seconds": 0.01073750000432483,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "verification": {
+            "calls": 7,
+            "inclusive_work_seconds": 0.6012255999939953,
+            "exclusive_work_seconds": 0.6012255999939953,
+            "sampled_peak_parent_rss_bytes": 205455360,
+            "sampled_peak_tree_rss_bytes": 303943680
+          }
+        },
+        "memory_sample_interval_ms": 10,
+        "rss_available": true,
+        "timing_semantics": "Worker work times overlap; do not sum as wall time. Memory is sampled process/tree RSS, not a hard admission cap.",
+        "nlp_configured": false
+      },
+      "masks": 1060,
+      "independent_gold": {
+        "gold_words_checked": 120,
+        "gold_words_opaque_black": 120,
+        "unmasked_gold_word_regions": 0,
+        "indeterminate_gold_word_regions": 0,
+        "minimum_black_pixel_fraction": 1.0,
+        "gold_word_mask_rate_by_type": {
+          "PERSON": 1.0,
+          "EMAIL": 1.0,
+          "PHONE": 1.0,
+          "CURP": 1.0,
+          "RFC": 1.0,
+          "CLABE": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "ADDRESS": 1.0,
+          "DIAGNOSIS": 1.0
+        },
+        "passed": true,
+        "definition": "Known drawn field word boxes tightened to source ink; actual rerendered output word rectangle must be >=99.5% near-black. Independent of OCR matching. This is fixture-specific geometry, not general visual privacy proof."
+      },
+      "independent_check": "pixel gold only; library independently rescans serialized output"
+    },
+    {
+      "label": "small-0",
+      "kind": "native",
+      "workers": 8,
+      "pages": 6,
+      "input_sha256": "9ecb2179a935db58c1765055e0fac47f5c3df273ff5e4e1d5a63ea73a8c6d700",
+      "output_sha256": "7e21959c6ad3bdb8bd25fa9d45d19204e9f085bb87bab854724e6db5a8710958",
+      "status": "APPROVED",
+      "release_approved": true,
+      "issues": [],
+      "metrics": {
+        "elapsed_seconds": 4.270007299999634,
+        "units": 6,
+        "records_per_second": 1.4051498225777073,
+        "mb_per_second": 0.001437936651771187,
+        "peak_rss_bytes": 244449280,
+        "peak_process_tree_rss_bytes": 403386368,
+        "cpu_percent_one_core_scale": 121.12098731073466,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU"
+      },
+      "pages_per_second": 1.4051498225777073,
+      "documents_per_second": 0.23419163709628454,
+      "performance": {
+        "enabled": true,
+        "elapsed_seconds": 4.267556400000103,
+        "stages": {
+          "context": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.05633309999939229,
+            "exclusive_work_seconds": 0.05633309999939229,
+            "sampled_peak_parent_rss_bytes": 141967360,
+            "sampled_peak_tree_rss_bytes": 237395968
+          },
+          "hashing": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0011669999985315371,
+            "exclusive_work_seconds": 0.0011669999985315371,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "loading": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.016459000000395463,
+            "exclusive_work_seconds": 0.016459000000395463,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "ocr": {
+            "calls": 12,
+            "inclusive_work_seconds": 5.002151700000468,
+            "exclusive_work_seconds": 5.002151700000468,
+            "sampled_peak_parent_rss_bytes": 253820928,
+            "sampled_peak_tree_rss_bytes": 403480576
+          },
+          "publication": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.000838399999338435,
+            "exclusive_work_seconds": 0.000838399999338435,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "reconstruction": {
+            "calls": 6,
+            "inclusive_work_seconds": 1.807808899999145,
+            "exclusive_work_seconds": 1.807808899999145,
+            "sampled_peak_parent_rss_bytes": 193564672,
+            "sampled_peak_tree_rss_bytes": 401596416
+          },
+          "redaction": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.3268826999956218,
+            "exclusive_work_seconds": 0.3268826999956218,
+            "sampled_peak_parent_rss_bytes": 189628416,
+            "sampled_peak_tree_rss_bytes": 403480576
+          },
+          "rendering": {
+            "calls": 12,
+            "inclusive_work_seconds": 1.03246339999896,
+            "exclusive_work_seconds": 0.8695007000005717,
+            "sampled_peak_parent_rss_bytes": 253820928,
+            "sampled_peak_tree_rss_bytes": 397733888
+          },
+          "rules": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.010322299993276829,
+            "exclusive_work_seconds": 0.010322299993276829,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "verification": {
+            "calls": 7,
+            "inclusive_work_seconds": 0.6379554999984975,
+            "exclusive_work_seconds": 0.6379554999984975,
+            "sampled_peak_parent_rss_bytes": 253820928,
+            "sampled_peak_tree_rss_bytes": 349622272
+          }
+        },
+        "memory_sample_interval_ms": 10,
+        "rss_available": true,
+        "timing_semantics": "Worker work times overlap; do not sum as wall time. Memory is sampled process/tree RSS, not a hard admission cap.",
+        "nlp_configured": false
+      },
+      "masks": 1060,
+      "independent_gold": {
+        "gold_words_checked": 120,
+        "gold_words_opaque_black": 120,
+        "unmasked_gold_word_regions": 0,
+        "indeterminate_gold_word_regions": 0,
+        "minimum_black_pixel_fraction": 1.0,
+        "gold_word_mask_rate_by_type": {
+          "PERSON": 1.0,
+          "EMAIL": 1.0,
+          "PHONE": 1.0,
+          "CURP": 1.0,
+          "RFC": 1.0,
+          "CLABE": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "ADDRESS": 1.0,
+          "DIAGNOSIS": 1.0
+        },
+        "passed": true,
+        "definition": "Known drawn field word boxes tightened to source ink; actual rerendered output word rectangle must be >=99.5% near-black. Independent of OCR matching. This is fixture-specific geometry, not general visual privacy proof."
+      },
+      "independent_check": "pixel gold only; library independently rescans serialized output"
+    },
+    {
+      "label": "small-1",
+      "kind": "native",
+      "workers": 2,
+      "pages": 6,
+      "input_sha256": "9ecb2179a935db58c1765055e0fac47f5c3df273ff5e4e1d5a63ea73a8c6d700",
+      "output_sha256": "7e21959c6ad3bdb8bd25fa9d45d19204e9f085bb87bab854724e6db5a8710958",
+      "status": "APPROVED",
+      "release_approved": true,
+      "issues": [],
+      "metrics": {
+        "elapsed_seconds": 5.028828000000431,
+        "units": 6,
+        "records_per_second": 1.1931209418972941,
+        "mb_per_second": 0.0012209604305415643,
+        "peak_rss_bytes": 183365632,
+        "peak_process_tree_rss_bytes": 305205248,
+        "cpu_percent_one_core_scale": 113.40863119596676,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU"
+      },
+      "pages_per_second": 1.1931209418972941,
+      "documents_per_second": 0.19885349031621571,
+      "performance": {
+        "enabled": true,
+        "elapsed_seconds": 5.026793200000611,
+        "stages": {
+          "context": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.014160999997329782,
+            "exclusive_work_seconds": 0.014160999997329782,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "hashing": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0009236000005330425,
+            "exclusive_work_seconds": 0.0009236000005330425,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "loading": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0018756000008579576,
+            "exclusive_work_seconds": 0.0018756000008579576,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "ocr": {
+            "calls": 12,
+            "inclusive_work_seconds": 4.679124000002048,
+            "exclusive_work_seconds": 4.679124000002048,
+            "sampled_peak_parent_rss_bytes": 183332864,
+            "sampled_peak_tree_rss_bytes": 310075392
+          },
+          "publication": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0008207999999285676,
+            "exclusive_work_seconds": 0.0008207999999285676,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "reconstruction": {
+            "calls": 6,
+            "inclusive_work_seconds": 1.6794601999972656,
+            "exclusive_work_seconds": 1.6794601999972656,
+            "sampled_peak_parent_rss_bytes": 138694656,
+            "sampled_peak_tree_rss_bytes": 214097920
+          },
+          "redaction": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.29653500000131316,
+            "exclusive_work_seconds": 0.29653500000131316,
+            "sampled_peak_parent_rss_bytes": 162660352,
+            "sampled_peak_tree_rss_bytes": 229789696
+          },
+          "rendering": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.9369079000043712,
+            "exclusive_work_seconds": 0.8160309000031702,
+            "sampled_peak_parent_rss_bytes": 183332864,
+            "sampled_peak_tree_rss_bytes": 252383232
+          },
+          "rules": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.009933800001817872,
+            "exclusive_work_seconds": 0.009933800001817872,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "verification": {
+            "calls": 7,
+            "inclusive_work_seconds": 0.6214598000024125,
+            "exclusive_work_seconds": 0.6214598000024125,
+            "sampled_peak_parent_rss_bytes": 183332864,
+            "sampled_peak_tree_rss_bytes": 196919296
+          }
+        },
+        "memory_sample_interval_ms": 10,
+        "rss_available": true,
+        "timing_semantics": "Worker work times overlap; do not sum as wall time. Memory is sampled process/tree RSS, not a hard admission cap.",
+        "nlp_configured": false
+      },
+      "masks": 1060,
+      "independent_gold": {
+        "gold_words_checked": 120,
+        "gold_words_opaque_black": 120,
+        "unmasked_gold_word_regions": 0,
+        "indeterminate_gold_word_regions": 0,
+        "minimum_black_pixel_fraction": 1.0,
+        "gold_word_mask_rate_by_type": {
+          "PERSON": 1.0,
+          "EMAIL": 1.0,
+          "PHONE": 1.0,
+          "CURP": 1.0,
+          "RFC": 1.0,
+          "CLABE": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "ADDRESS": 1.0,
+          "DIAGNOSIS": 1.0
+        },
+        "passed": true,
+        "definition": "Known drawn field word boxes tightened to source ink; actual rerendered output word rectangle must be >=99.5% near-black. Independent of OCR matching. This is fixture-specific geometry, not general visual privacy proof."
+      },
+      "independent_check": "pixel gold only; library independently rescans serialized output"
+    },
+    {
+      "label": "small-1",
+      "kind": "native",
+      "workers": 4,
+      "pages": 6,
+      "input_sha256": "9ecb2179a935db58c1765055e0fac47f5c3df273ff5e4e1d5a63ea73a8c6d700",
+      "output_sha256": "7e21959c6ad3bdb8bd25fa9d45d19204e9f085bb87bab854724e6db5a8710958",
+      "status": "APPROVED",
+      "release_approved": true,
+      "issues": [],
+      "metrics": {
+        "elapsed_seconds": 4.407986299998811,
+        "units": 6,
+        "records_per_second": 1.3611657549846783,
+        "mb_per_second": 0.001392926289267654,
+        "peak_rss_bytes": 218107904,
+        "peak_process_tree_rss_bytes": 387981312,
+        "cpu_percent_one_core_scale": 113.43047958205652,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU"
+      },
+      "pages_per_second": 1.3611657549846783,
+      "documents_per_second": 0.22686095916411306,
+      "performance": {
+        "enabled": true,
+        "elapsed_seconds": 4.405302200000733,
+        "stages": {
+          "context": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.016391599994676653,
+            "exclusive_work_seconds": 0.016391599994676653,
+            "sampled_peak_parent_rss_bytes": 141586432,
+            "sampled_peak_tree_rss_bytes": 239271936
+          },
+          "hashing": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0011257000005571172,
+            "exclusive_work_seconds": 0.0011257000005571172,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "loading": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.011353299998518196,
+            "exclusive_work_seconds": 0.011353299998518196,
+            "sampled_peak_parent_rss_bytes": 64798720,
+            "sampled_peak_tree_rss_bytes": 64798720
+          },
+          "ocr": {
+            "calls": 12,
+            "inclusive_work_seconds": 4.829231300001993,
+            "exclusive_work_seconds": 4.829231300001993,
+            "sampled_peak_parent_rss_bytes": 218562560,
+            "sampled_peak_tree_rss_bytes": 395075584
+          },
+          "publication": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0007068000013532583,
+            "exclusive_work_seconds": 0.0007068000013532583,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "reconstruction": {
+            "calls": 6,
+            "inclusive_work_seconds": 1.8350217999995948,
+            "exclusive_work_seconds": 1.8350217999995948,
+            "sampled_peak_parent_rss_bytes": 173486080,
+            "sampled_peak_tree_rss_bytes": 386150400
+          },
+          "redaction": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.33660520000012184,
+            "exclusive_work_seconds": 0.33660520000012184,
+            "sampled_peak_parent_rss_bytes": 197922816,
+            "sampled_peak_tree_rss_bytes": 374800384
+          },
+          "rendering": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.9959995000008348,
+            "exclusive_work_seconds": 0.857491900000241,
+            "sampled_peak_parent_rss_bytes": 217665536,
+            "sampled_peak_tree_rss_bytes": 306769920
+          },
+          "rules": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.010240299994620727,
+            "exclusive_work_seconds": 0.010240299994620727,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "verification": {
+            "calls": 7,
+            "inclusive_work_seconds": 0.5908408000013878,
+            "exclusive_work_seconds": 0.5908408000013878,
+            "sampled_peak_parent_rss_bytes": 202850304,
+            "sampled_peak_tree_rss_bytes": 305557504
+          }
+        },
+        "memory_sample_interval_ms": 10,
+        "rss_available": true,
+        "timing_semantics": "Worker work times overlap; do not sum as wall time. Memory is sampled process/tree RSS, not a hard admission cap.",
+        "nlp_configured": false
+      },
+      "masks": 1060,
+      "independent_gold": {
+        "gold_words_checked": 120,
+        "gold_words_opaque_black": 120,
+        "unmasked_gold_word_regions": 0,
+        "indeterminate_gold_word_regions": 0,
+        "minimum_black_pixel_fraction": 1.0,
+        "gold_word_mask_rate_by_type": {
+          "PERSON": 1.0,
+          "EMAIL": 1.0,
+          "PHONE": 1.0,
+          "CURP": 1.0,
+          "RFC": 1.0,
+          "CLABE": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "ADDRESS": 1.0,
+          "DIAGNOSIS": 1.0
+        },
+        "passed": true,
+        "definition": "Known drawn field word boxes tightened to source ink; actual rerendered output word rectangle must be >=99.5% near-black. Independent of OCR matching. This is fixture-specific geometry, not general visual privacy proof."
+      },
+      "independent_check": "pixel gold only; library independently rescans serialized output"
+    },
+    {
+      "label": "small-1",
+      "kind": "native",
+      "workers": 8,
+      "pages": 6,
+      "input_sha256": "9ecb2179a935db58c1765055e0fac47f5c3df273ff5e4e1d5a63ea73a8c6d700",
+      "output_sha256": "7e21959c6ad3bdb8bd25fa9d45d19204e9f085bb87bab854724e6db5a8710958",
+      "status": "APPROVED",
+      "release_approved": true,
+      "issues": [],
+      "metrics": {
+        "elapsed_seconds": 4.17673239999931,
+        "units": 6,
+        "records_per_second": 1.4365296661095626,
+        "mb_per_second": 0.0014700486916521189,
+        "peak_rss_bytes": 249192448,
+        "peak_process_tree_rss_bytes": 433750016,
+        "cpu_percent_one_core_scale": 118.96261297469815,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU"
+      },
+      "pages_per_second": 1.4365296661095626,
+      "documents_per_second": 0.23942161101826043,
+      "performance": {
+        "enabled": true,
+        "elapsed_seconds": 4.174445100001321,
+        "stages": {
+          "context": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.005244000001766835,
+            "exclusive_work_seconds": 0.005244000001766835,
+            "sampled_peak_parent_rss_bytes": 172195840,
+            "sampled_peak_tree_rss_bytes": 308387840
+          },
+          "hashing": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0008638999988761498,
+            "exclusive_work_seconds": 0.0008638999988761498,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "loading": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.001554099999339087,
+            "exclusive_work_seconds": 0.001554099999339087,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "ocr": {
+            "calls": 12,
+            "inclusive_work_seconds": 5.135267700003169,
+            "exclusive_work_seconds": 5.135267700003169,
+            "sampled_peak_parent_rss_bytes": 253087744,
+            "sampled_peak_tree_rss_bytes": 438575104
+          },
+          "publication": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0007347000009758631,
+            "exclusive_work_seconds": 0.0007347000009758631,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "reconstruction": {
+            "calls": 6,
+            "inclusive_work_seconds": 1.7883880999997928,
+            "exclusive_work_seconds": 1.7883880999997928,
+            "sampled_peak_parent_rss_bytes": 178479104,
+            "sampled_peak_tree_rss_bytes": 438575104
+          },
+          "redaction": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.3176373999995121,
+            "exclusive_work_seconds": 0.3176373999995121,
+            "sampled_peak_parent_rss_bytes": 193654784,
+            "sampled_peak_tree_rss_bytes": 405852160
+          },
+          "rendering": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.9480221999965579,
+            "exclusive_work_seconds": 0.8721829999958572,
+            "sampled_peak_parent_rss_bytes": 253087744,
+            "sampled_peak_tree_rss_bytes": 407891968
+          },
+          "rules": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.010810800004037446,
+            "exclusive_work_seconds": 0.010810800004037446,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "verification": {
+            "calls": 7,
+            "inclusive_work_seconds": 0.5444688000006863,
+            "exclusive_work_seconds": 0.5444688000006863,
+            "sampled_peak_parent_rss_bytes": 253087744,
+            "sampled_peak_tree_rss_bytes": 350973952
+          }
+        },
+        "memory_sample_interval_ms": 10,
+        "rss_available": true,
+        "timing_semantics": "Worker work times overlap; do not sum as wall time. Memory is sampled process/tree RSS, not a hard admission cap.",
+        "nlp_configured": false
+      },
+      "masks": 1060,
+      "independent_gold": {
+        "gold_words_checked": 120,
+        "gold_words_opaque_black": 120,
+        "unmasked_gold_word_regions": 0,
+        "indeterminate_gold_word_regions": 0,
+        "minimum_black_pixel_fraction": 1.0,
+        "gold_word_mask_rate_by_type": {
+          "PERSON": 1.0,
+          "EMAIL": 1.0,
+          "PHONE": 1.0,
+          "CURP": 1.0,
+          "RFC": 1.0,
+          "CLABE": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "ADDRESS": 1.0,
+          "DIAGNOSIS": 1.0
+        },
+        "passed": true,
+        "definition": "Known drawn field word boxes tightened to source ink; actual rerendered output word rectangle must be >=99.5% near-black. Independent of OCR matching. This is fixture-specific geometry, not general visual privacy proof."
+      },
+      "independent_check": "pixel gold only; library independently rescans serialized output"
+    },
+    {
+      "label": "small-1",
+      "kind": "native",
+      "workers": 1,
+      "pages": 6,
+      "input_sha256": "9ecb2179a935db58c1765055e0fac47f5c3df273ff5e4e1d5a63ea73a8c6d700",
+      "output_sha256": "7e21959c6ad3bdb8bd25fa9d45d19204e9f085bb87bab854724e6db5a8710958",
+      "status": "APPROVED",
+      "release_approved": true,
+      "issues": [],
+      "metrics": {
+        "elapsed_seconds": 7.83695169999919,
+        "units": 6,
+        "records_per_second": 0.7656037997529855,
+        "mb_per_second": 0.0007834678884138885,
+        "peak_rss_bytes": 165404672,
+        "peak_process_tree_rss_bytes": 226435072,
+        "cpu_percent_one_core_scale": 96.69735491671824,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU"
+      },
+      "pages_per_second": 0.7656037997529855,
+      "documents_per_second": 0.12760063329216426,
+      "performance": {
+        "enabled": true,
+        "elapsed_seconds": 7.834369000000152,
+        "stages": {
+          "context": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.014523499999995693,
+            "exclusive_work_seconds": 0.014523499999995693,
+            "sampled_peak_parent_rss_bytes": 100708352,
+            "sampled_peak_tree_rss_bytes": 100708352
+          },
+          "hashing": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0010583000002952758,
+            "exclusive_work_seconds": 0.0010583000002952758,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "loading": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0015710000006947666,
+            "exclusive_work_seconds": 0.0015710000006947666,
+            "sampled_peak_parent_rss_bytes": 65757184,
+            "sampled_peak_tree_rss_bytes": 65757184
+          },
+          "ocr": {
+            "calls": 12,
+            "inclusive_work_seconds": 4.278129500000432,
+            "exclusive_work_seconds": 4.278129500000432,
+            "sampled_peak_parent_rss_bytes": 152440832,
+            "sampled_peak_tree_rss_bytes": 226967552
+          },
+          "publication": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.010169799999857787,
+            "exclusive_work_seconds": 0.010169799999857787,
+            "sampled_peak_parent_rss_bytes": 86044672,
+            "sampled_peak_tree_rss_bytes": 86044672
+          },
+          "reconstruction": {
+            "calls": 6,
+            "inclusive_work_seconds": 1.7049934000006033,
+            "exclusive_work_seconds": 1.7049934000006033,
+            "sampled_peak_parent_rss_bytes": 120139776,
+            "sampled_peak_tree_rss_bytes": 120139776
+          },
+          "redaction": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.3242651000018668,
+            "exclusive_work_seconds": 0.3242651000018668,
+            "sampled_peak_parent_rss_bytes": 134152192,
+            "sampled_peak_tree_rss_bytes": 134152192
+          },
+          "rendering": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.7920756999974401,
+            "exclusive_work_seconds": 0.6944500000008702,
+            "sampled_peak_parent_rss_bytes": 165318656,
+            "sampled_peak_tree_rss_bytes": 165318656
+          },
+          "rules": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.009454399996684515,
+            "exclusive_work_seconds": 0.009454399996684515,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "verification": {
+            "calls": 7,
+            "inclusive_work_seconds": 0.6286468999969657,
+            "exclusive_work_seconds": 0.6286468999969657,
+            "sampled_peak_parent_rss_bytes": 165318656,
+            "sampled_peak_tree_rss_bytes": 165318656
+          }
+        },
+        "memory_sample_interval_ms": 10,
+        "rss_available": true,
+        "timing_semantics": "Worker work times overlap; do not sum as wall time. Memory is sampled process/tree RSS, not a hard admission cap.",
+        "nlp_configured": false
+      },
+      "masks": 1060,
+      "independent_gold": {
+        "gold_words_checked": 120,
+        "gold_words_opaque_black": 120,
+        "unmasked_gold_word_regions": 0,
+        "indeterminate_gold_word_regions": 0,
+        "minimum_black_pixel_fraction": 1.0,
+        "gold_word_mask_rate_by_type": {
+          "PERSON": 1.0,
+          "EMAIL": 1.0,
+          "PHONE": 1.0,
+          "CURP": 1.0,
+          "RFC": 1.0,
+          "CLABE": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "ADDRESS": 1.0,
+          "DIAGNOSIS": 1.0
+        },
+        "passed": true,
+        "definition": "Known drawn field word boxes tightened to source ink; actual rerendered output word rectangle must be >=99.5% near-black. Independent of OCR matching. This is fixture-specific geometry, not general visual privacy proof."
+      },
+      "independent_check": "pixel gold only; library independently rescans serialized output"
+    },
+    {
+      "label": "small-2",
+      "kind": "native",
+      "workers": 4,
+      "pages": 6,
+      "input_sha256": "9ecb2179a935db58c1765055e0fac47f5c3df273ff5e4e1d5a63ea73a8c6d700",
+      "output_sha256": "7e21959c6ad3bdb8bd25fa9d45d19204e9f085bb87bab854724e6db5a8710958",
+      "status": "APPROVED",
+      "release_approved": true,
+      "issues": [],
+      "metrics": {
+        "elapsed_seconds": 4.667996700000003,
+        "units": 6,
+        "records_per_second": 1.2853479523668034,
+        "mb_per_second": 0.0013153394045886955,
+        "peak_rss_bytes": 218611712,
+        "peak_process_tree_rss_bytes": 432013312,
+        "cpu_percent_one_core_scale": 120.16664450512565,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU"
+      },
+      "pages_per_second": 1.2853479523668034,
+      "documents_per_second": 0.21422465872780058,
+      "performance": {
+        "enabled": true,
+        "elapsed_seconds": 4.665702100000999,
+        "stages": {
+          "context": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.04061130000263802,
+            "exclusive_work_seconds": 0.04061130000263802,
+            "sampled_peak_parent_rss_bytes": 105607168,
+            "sampled_peak_tree_rss_bytes": 105607168
+          },
+          "hashing": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0012607000007847091,
+            "exclusive_work_seconds": 0.0012607000007847091,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "loading": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.013317500000994187,
+            "exclusive_work_seconds": 0.013317500000994187,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "ocr": {
+            "calls": 12,
+            "inclusive_work_seconds": 5.212365999999747,
+            "exclusive_work_seconds": 5.212365999999747,
+            "sampled_peak_parent_rss_bytes": 218611712,
+            "sampled_peak_tree_rss_bytes": 423424000
+          },
+          "publication": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0010913000005530193,
+            "exclusive_work_seconds": 0.0010913000005530193,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "reconstruction": {
+            "calls": 6,
+            "inclusive_work_seconds": 1.7493537000009383,
+            "exclusive_work_seconds": 1.7493537000009383,
+            "sampled_peak_parent_rss_bytes": 172556288,
+            "sampled_peak_tree_rss_bytes": 326692864
+          },
+          "redaction": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.3328354000004765,
+            "exclusive_work_seconds": 0.3328354000004765,
+            "sampled_peak_parent_rss_bytes": 191905792,
+            "sampled_peak_tree_rss_bytes": 339681280
+          },
+          "rendering": {
+            "calls": 12,
+            "inclusive_work_seconds": 1.1295452999966074,
+            "exclusive_work_seconds": 0.9698070000013104,
+            "sampled_peak_parent_rss_bytes": 218611712,
+            "sampled_peak_tree_rss_bytes": 324087808
+          },
+          "rules": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.010432600005515269,
+            "exclusive_work_seconds": 0.010432600005515269,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "verification": {
+            "calls": 7,
+            "inclusive_work_seconds": 0.6461383999958343,
+            "exclusive_work_seconds": 0.6461383999958343,
+            "sampled_peak_parent_rss_bytes": 218537984,
+            "sampled_peak_tree_rss_bytes": 317046784
+          }
+        },
+        "memory_sample_interval_ms": 10,
+        "rss_available": true,
+        "timing_semantics": "Worker work times overlap; do not sum as wall time. Memory is sampled process/tree RSS, not a hard admission cap.",
+        "nlp_configured": false
+      },
+      "masks": 1060,
+      "independent_gold": {
+        "gold_words_checked": 120,
+        "gold_words_opaque_black": 120,
+        "unmasked_gold_word_regions": 0,
+        "indeterminate_gold_word_regions": 0,
+        "minimum_black_pixel_fraction": 1.0,
+        "gold_word_mask_rate_by_type": {
+          "PERSON": 1.0,
+          "EMAIL": 1.0,
+          "PHONE": 1.0,
+          "CURP": 1.0,
+          "RFC": 1.0,
+          "CLABE": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "ADDRESS": 1.0,
+          "DIAGNOSIS": 1.0
+        },
+        "passed": true,
+        "definition": "Known drawn field word boxes tightened to source ink; actual rerendered output word rectangle must be >=99.5% near-black. Independent of OCR matching. This is fixture-specific geometry, not general visual privacy proof."
+      },
+      "independent_check": "pixel gold only; library independently rescans serialized output"
+    },
+    {
+      "label": "small-2",
+      "kind": "native",
+      "workers": 8,
+      "pages": 6,
+      "input_sha256": "9ecb2179a935db58c1765055e0fac47f5c3df273ff5e4e1d5a63ea73a8c6d700",
+      "output_sha256": "7e21959c6ad3bdb8bd25fa9d45d19204e9f085bb87bab854724e6db5a8710958",
+      "status": "APPROVED",
+      "release_approved": true,
+      "issues": [],
+      "metrics": {
+        "elapsed_seconds": 4.341637499999706,
+        "units": 6,
+        "records_per_second": 1.3819670573603637,
+        "mb_per_second": 0.0014142129553654389,
+        "peak_rss_bytes": 253054976,
+        "peak_process_tree_rss_bytes": 462823424,
+        "cpu_percent_one_core_scale": 122.72155379163647,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU"
+      },
+      "pages_per_second": 1.3819670573603637,
+      "documents_per_second": 0.23032784289339395,
+      "performance": {
+        "enabled": true,
+        "elapsed_seconds": 4.33893419999913,
+        "stages": {
+          "context": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.004568600003040046,
+            "exclusive_work_seconds": 0.004568600003040046,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "hashing": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.01162780000049679,
+            "exclusive_work_seconds": 0.01162780000049679,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "loading": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0018411999990348704,
+            "exclusive_work_seconds": 0.0018411999990348704,
+            "sampled_peak_parent_rss_bytes": 65732608,
+            "sampled_peak_tree_rss_bytes": 65732608
+          },
+          "ocr": {
+            "calls": 12,
+            "inclusive_work_seconds": 5.2641291999971145,
+            "exclusive_work_seconds": 5.2641291999971145,
+            "sampled_peak_parent_rss_bytes": 253054976,
+            "sampled_peak_tree_rss_bytes": 465477632
+          },
+          "publication": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0007275000007211929,
+            "exclusive_work_seconds": 0.0007275000007211929,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "reconstruction": {
+            "calls": 6,
+            "inclusive_work_seconds": 1.8358483000010892,
+            "exclusive_work_seconds": 1.8358483000010892,
+            "sampled_peak_parent_rss_bytes": 176832512,
+            "sampled_peak_tree_rss_bytes": 465477632
+          },
+          "redaction": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.3671170999950846,
+            "exclusive_work_seconds": 0.3671170999950846,
+            "sampled_peak_parent_rss_bytes": 196800512,
+            "sampled_peak_tree_rss_bytes": 450310144
+          },
+          "rendering": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.9051928999997472,
+            "exclusive_work_seconds": 0.739975600001344,
+            "sampled_peak_parent_rss_bytes": 247349248,
+            "sampled_peak_tree_rss_bytes": 422506496
+          },
+          "rules": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.010815499997988809,
+            "exclusive_work_seconds": 0.010815499997988809,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "verification": {
+            "calls": 7,
+            "inclusive_work_seconds": 0.6185306999996101,
+            "exclusive_work_seconds": 0.6185306999996101,
+            "sampled_peak_parent_rss_bytes": 235483136,
+            "sampled_peak_tree_rss_bytes": 329617408
+          }
+        },
+        "memory_sample_interval_ms": 10,
+        "rss_available": true,
+        "timing_semantics": "Worker work times overlap; do not sum as wall time. Memory is sampled process/tree RSS, not a hard admission cap.",
+        "nlp_configured": false
+      },
+      "masks": 1060,
+      "independent_gold": {
+        "gold_words_checked": 120,
+        "gold_words_opaque_black": 120,
+        "unmasked_gold_word_regions": 0,
+        "indeterminate_gold_word_regions": 0,
+        "minimum_black_pixel_fraction": 1.0,
+        "gold_word_mask_rate_by_type": {
+          "PERSON": 1.0,
+          "EMAIL": 1.0,
+          "PHONE": 1.0,
+          "CURP": 1.0,
+          "RFC": 1.0,
+          "CLABE": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "ADDRESS": 1.0,
+          "DIAGNOSIS": 1.0
+        },
+        "passed": true,
+        "definition": "Known drawn field word boxes tightened to source ink; actual rerendered output word rectangle must be >=99.5% near-black. Independent of OCR matching. This is fixture-specific geometry, not general visual privacy proof."
+      },
+      "independent_check": "pixel gold only; library independently rescans serialized output"
+    },
+    {
+      "label": "small-2",
+      "kind": "native",
+      "workers": 1,
+      "pages": 6,
+      "input_sha256": "9ecb2179a935db58c1765055e0fac47f5c3df273ff5e4e1d5a63ea73a8c6d700",
+      "output_sha256": "7e21959c6ad3bdb8bd25fa9d45d19204e9f085bb87bab854724e6db5a8710958",
+      "status": "APPROVED",
+      "release_approved": true,
+      "issues": [],
+      "metrics": {
+        "elapsed_seconds": 7.674193799999557,
+        "units": 6,
+        "records_per_second": 0.7818410840758734,
+        "mb_per_second": 0.0008000840427043104,
+        "peak_rss_bytes": 165179392,
+        "peak_process_tree_rss_bytes": 227446784,
+        "cpu_percent_one_core_scale": 98.95176220335273,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU"
+      },
+      "pages_per_second": 0.7818410840758734,
+      "documents_per_second": 0.1303068473459789,
+      "performance": {
+        "enabled": true,
+        "elapsed_seconds": 7.671990899998491,
+        "stages": {
+          "context": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.01394570000229578,
+            "exclusive_work_seconds": 0.01394570000229578,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "hashing": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0010278999998263316,
+            "exclusive_work_seconds": 0.0010278999998263316,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "loading": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.011821100000815932,
+            "exclusive_work_seconds": 0.011821100000815932,
+            "sampled_peak_parent_rss_bytes": 65056768,
+            "sampled_peak_tree_rss_bytes": 65056768
+          },
+          "ocr": {
+            "calls": 12,
+            "inclusive_work_seconds": 4.354283100001339,
+            "exclusive_work_seconds": 4.354283100001339,
+            "sampled_peak_parent_rss_bytes": 152780800,
+            "sampled_peak_tree_rss_bytes": 226926592
+          },
+          "publication": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0006594999995286344,
+            "exclusive_work_seconds": 0.0006594999995286344,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "reconstruction": {
+            "calls": 6,
+            "inclusive_work_seconds": 1.4983511999998882,
+            "exclusive_work_seconds": 1.4983511999998882,
+            "sampled_peak_parent_rss_bytes": 119443456,
+            "sampled_peak_tree_rss_bytes": 119443456
+          },
+          "redaction": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.2833556999994471,
+            "exclusive_work_seconds": 0.2833556999994471,
+            "sampled_peak_parent_rss_bytes": 135745536,
+            "sampled_peak_tree_rss_bytes": 135745536
+          },
+          "rendering": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.8641482000039105,
+            "exclusive_work_seconds": 0.7467719000032957,
+            "sampled_peak_parent_rss_bytes": 165253120,
+            "sampled_peak_tree_rss_bytes": 165253120
+          },
+          "rules": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.010689700000511948,
+            "exclusive_work_seconds": 0.010689700000511948,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "verification": {
+            "calls": 7,
+            "inclusive_work_seconds": 0.5749570999996649,
+            "exclusive_work_seconds": 0.5749570999996649,
+            "sampled_peak_parent_rss_bytes": 164732928,
+            "sampled_peak_tree_rss_bytes": 164732928
+          }
+        },
+        "memory_sample_interval_ms": 10,
+        "rss_available": true,
+        "timing_semantics": "Worker work times overlap; do not sum as wall time. Memory is sampled process/tree RSS, not a hard admission cap.",
+        "nlp_configured": false
+      },
+      "masks": 1060,
+      "independent_gold": {
+        "gold_words_checked": 120,
+        "gold_words_opaque_black": 120,
+        "unmasked_gold_word_regions": 0,
+        "indeterminate_gold_word_regions": 0,
+        "minimum_black_pixel_fraction": 1.0,
+        "gold_word_mask_rate_by_type": {
+          "PERSON": 1.0,
+          "EMAIL": 1.0,
+          "PHONE": 1.0,
+          "CURP": 1.0,
+          "RFC": 1.0,
+          "CLABE": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "ADDRESS": 1.0,
+          "DIAGNOSIS": 1.0
+        },
+        "passed": true,
+        "definition": "Known drawn field word boxes tightened to source ink; actual rerendered output word rectangle must be >=99.5% near-black. Independent of OCR matching. This is fixture-specific geometry, not general visual privacy proof."
+      },
+      "independent_check": "pixel gold only; library independently rescans serialized output"
+    },
+    {
+      "label": "small-2",
+      "kind": "native",
+      "workers": 2,
+      "pages": 6,
+      "input_sha256": "9ecb2179a935db58c1765055e0fac47f5c3df273ff5e4e1d5a63ea73a8c6d700",
+      "output_sha256": "7e21959c6ad3bdb8bd25fa9d45d19204e9f085bb87bab854724e6db5a8710958",
+      "status": "APPROVED",
+      "release_approved": true,
+      "issues": [],
+      "metrics": {
+        "elapsed_seconds": 6.11092970000027,
+        "units": 6,
+        "records_per_second": 0.9818473284023763,
+        "mb_per_second": 0.0010047570993984318,
+        "peak_rss_bytes": 183341056,
+        "peak_process_tree_rss_bytes": 305287168,
+        "cpu_percent_one_core_scale": 108.15661976932427,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU"
+      },
+      "pages_per_second": 0.9818473284023763,
+      "documents_per_second": 0.16364122140039605,
+      "performance": {
+        "enabled": true,
+        "elapsed_seconds": 6.109055900000385,
+        "stages": {
+          "context": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.0031384000030811876,
+            "exclusive_work_seconds": 0.0031384000030811876,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "hashing": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.000926800001252559,
+            "exclusive_work_seconds": 0.000926800001252559,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "loading": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.001924600001075305,
+            "exclusive_work_seconds": 0.001924600001075305,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "ocr": {
+            "calls": 12,
+            "inclusive_work_seconds": 5.323103900002025,
+            "exclusive_work_seconds": 5.323103900002025,
+            "sampled_peak_parent_rss_bytes": 183316480,
+            "sampled_peak_tree_rss_bytes": 305287168
+          },
+          "publication": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0008214999998017447,
+            "exclusive_work_seconds": 0.0008214999998017447,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "reconstruction": {
+            "calls": 6,
+            "inclusive_work_seconds": 2.3835300999999163,
+            "exclusive_work_seconds": 2.3835300999999163,
+            "sampled_peak_parent_rss_bytes": 138129408,
+            "sampled_peak_tree_rss_bytes": 215060480
+          },
+          "redaction": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.3830190999997285,
+            "exclusive_work_seconds": 0.3830190999997285,
+            "sampled_peak_parent_rss_bytes": 160964608,
+            "sampled_peak_tree_rss_bytes": 230092800
+          },
+          "rendering": {
+            "calls": 12,
+            "inclusive_work_seconds": 1.1412710999957199,
+            "exclusive_work_seconds": 0.9320264999987558,
+            "sampled_peak_parent_rss_bytes": 183316480,
+            "sampled_peak_tree_rss_bytes": 257187840
+          },
+          "rules": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.01056110000172339,
+            "exclusive_work_seconds": 0.01056110000172339,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "verification": {
+            "calls": 7,
+            "inclusive_work_seconds": 0.7688360999964061,
+            "exclusive_work_seconds": 0.7688360999964061,
+            "sampled_peak_parent_rss_bytes": 183316480,
+            "sampled_peak_tree_rss_bytes": 257187840
+          }
+        },
+        "memory_sample_interval_ms": 10,
+        "rss_available": true,
+        "timing_semantics": "Worker work times overlap; do not sum as wall time. Memory is sampled process/tree RSS, not a hard admission cap.",
+        "nlp_configured": false
+      },
+      "masks": 1060,
+      "independent_gold": {
+        "gold_words_checked": 120,
+        "gold_words_opaque_black": 120,
+        "unmasked_gold_word_regions": 0,
+        "indeterminate_gold_word_regions": 0,
+        "minimum_black_pixel_fraction": 1.0,
+        "gold_word_mask_rate_by_type": {
+          "PERSON": 1.0,
+          "EMAIL": 1.0,
+          "PHONE": 1.0,
+          "CURP": 1.0,
+          "RFC": 1.0,
+          "CLABE": 1.0,
+          "CUSTOMER_ID": 1.0,
+          "ADDRESS": 1.0,
+          "DIAGNOSIS": 1.0
+        },
+        "passed": true,
+        "definition": "Known drawn field word boxes tightened to source ink; actual rerendered output word rectangle must be >=99.5% near-black. Independent of OCR matching. This is fixture-specific geometry, not general visual privacy proof."
+      },
+      "independent_check": "pixel gold only; library independently rescans serialized output"
+    }
+  ],
+  "scaling_summary": [
+    {
+      "workers": 1,
+      "median_seconds": 7.83695169999919,
+      "p50_document_latency_seconds": 7.83695169999919,
+      "p95_document_latency_seconds": 8.577172899999459,
+      "peak_tree_rss_bytes": 227446784,
+      "all_gold_pixels_masked": true,
+      "identical_output_sha256": true
+    },
+    {
+      "workers": 2,
+      "median_seconds": 5.028828000000431,
+      "p50_document_latency_seconds": 5.028828000000431,
+      "p95_document_latency_seconds": 6.002719530000286,
+      "peak_tree_rss_bytes": 314904576,
+      "all_gold_pixels_masked": true,
+      "identical_output_sha256": true
+    },
+    {
+      "workers": 4,
+      "median_seconds": 4.667996700000003,
+      "p50_document_latency_seconds": 4.667996700000003,
+      "p95_document_latency_seconds": 4.720737869999357,
+      "peak_tree_rss_bytes": 461533184,
+      "all_gold_pixels_masked": true,
+      "identical_output_sha256": true
+    },
+    {
+      "workers": 8,
+      "median_seconds": 4.270007299999634,
+      "p50_document_latency_seconds": 4.270007299999634,
+      "p95_document_latency_seconds": 4.334474479999699,
+      "peak_tree_rss_bytes": 462823424,
+      "all_gold_pixels_masked": true,
+      "identical_output_sha256": true
+    }
+  ],
+  "full_runs": [
+    {
+      "label": "full-native",
+      "kind": "native",
+      "workers": 1,
+      "pages": 100,
+      "input_sha256": "5ebe294e1a9471f8e972267db8edc578ce7a9d584faa0c05fc7b926c60bea200",
+      "output_sha256": "4c3db32eb3f4737beaace1d05df355cac1ce1fe12a301097f4d51c75969ef2e1",
+      "status": "REVIEW_REQUIRED",
+      "release_approved": false,
+      "issues": [
+        "UNCERTAIN_SOURCE_FINDINGS",
+        "LOW_SOURCE_OCR_CONFIDENCE"
+      ],
+      "metrics": {
+        "elapsed_seconds": 155.4903295999993,
+        "units": 100,
+        "records_per_second": 0.6431268121770091,
+        "mb_per_second": 0.000566260295585613,
+        "peak_rss_bytes": 194191360,
+        "peak_process_tree_rss_bytes": 255737856,
+        "cpu_percent_one_core_scale": 100.75988352654485,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU"
+      },
+      "pages_per_second": 0.6431268121770091,
+      "documents_per_second": 0.006431268121770091,
+      "performance": {
+        "enabled": true,
+        "elapsed_seconds": 155.4877718000007,
+        "stages": {
+          "context": {
+            "calls": 300,
+            "inclusive_work_seconds": 0.37335940001139534,
+            "exclusive_work_seconds": 0.37335940001139534,
+            "sampled_peak_parent_rss_bytes": 120315904,
+            "sampled_peak_tree_rss_bytes": 120315904
+          },
+          "hashing": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.04633719999947061,
+            "exclusive_work_seconds": 0.04633719999947061,
+            "sampled_peak_parent_rss_bytes": 112427008,
+            "sampled_peak_tree_rss_bytes": 112427008
+          },
+          "loading": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.06803299999955925,
+            "exclusive_work_seconds": 0.06803299999955925,
+            "sampled_peak_parent_rss_bytes": 66465792,
+            "sampled_peak_tree_rss_bytes": 66465792
+          },
+          "ocr": {
+            "calls": 200,
+            "inclusive_work_seconds": 82.51972069998374,
+            "exclusive_work_seconds": 82.51972069998374,
+            "sampled_peak_parent_rss_bytes": 187170816,
+            "sampled_peak_tree_rss_bytes": 256155648
+          },
+          "publication": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0007244999997055857,
+            "exclusive_work_seconds": 0.0007244999997055857,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "reconstruction": {
+            "calls": 100,
+            "inclusive_work_seconds": 36.681903100001364,
+            "exclusive_work_seconds": 36.681903100001364,
+            "sampled_peak_parent_rss_bytes": 125100032,
+            "sampled_peak_tree_rss_bytes": 125100032
+          },
+          "redaction": {
+            "calls": 200,
+            "inclusive_work_seconds": 6.258133999990605,
+            "exclusive_work_seconds": 6.258133999990605,
+            "sampled_peak_parent_rss_bytes": 146325504,
+            "sampled_peak_tree_rss_bytes": 146325504
+          },
+          "rendering": {
+            "calls": 200,
+            "inclusive_work_seconds": 17.5684243000087,
+            "exclusive_work_seconds": 15.185546400010935,
+            "sampled_peak_parent_rss_bytes": 193847296,
+            "sampled_peak_tree_rss_bytes": 193847296
+          },
+          "rules": {
+            "calls": 300,
+            "inclusive_work_seconds": 0.1892275999780395,
+            "exclusive_work_seconds": 0.1892275999780395,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "verification": {
+            "calls": 101,
+            "inclusive_work_seconds": 11.002186799998526,
+            "exclusive_work_seconds": 11.002186799998526,
+            "sampled_peak_parent_rss_bytes": 193847296,
+            "sampled_peak_tree_rss_bytes": 193847296
+          }
+        },
+        "memory_sample_interval_ms": 10,
+        "rss_available": true,
+        "timing_semantics": "Worker work times overlap; do not sum as wall time. Memory is sampled process/tree RSS, not a hard admission cap.",
+        "nlp_configured": false
+      },
+      "masks": 17683,
+      "independent_gold": {
+        "pages": 100,
+        "expected_pages": 100,
+        "native_text_pages": 0,
+        "annotation_pages": 0,
+        "forbidden_catalog_keys": [],
+        "metadata_gold_leaks": 0,
+        "original_values_in_page_content_streams": 0,
+        "residual_gold_values_in_output_ocr": 0,
+        "residual_gold_values_observed_in_readable_output_pages": 0,
+        "output_ocr_failed_pages": [],
+        "output_ocr_complete": true,
+        "residual_gold_by_type": {},
+        "gold_values_checked": 900,
+        "utility_amount_pages_preserved": 100,
+        "independent_gold_pixels": {
+          "gold_words_checked": 2000,
+          "gold_words_opaque_black": 2000,
+          "unmasked_gold_word_regions": 0,
+          "indeterminate_gold_word_regions": 0,
+          "minimum_black_pixel_fraction": 1.0,
+          "gold_word_mask_rate_by_type": {
+            "PERSON": 1.0,
+            "EMAIL": 1.0,
+            "PHONE": 1.0,
+            "CURP": 1.0,
+            "RFC": 1.0,
+            "CLABE": 1.0,
+            "CUSTOMER_ID": 1.0,
+            "ADDRESS": 1.0,
+            "DIAGNOSIS": 1.0
+          },
+          "passed": true,
+          "definition": "Known drawn field word boxes tightened to source ink; actual rerendered output word rectangle must be >=99.5% near-black. Independent of OCR matching. This is fixture-specific geometry, not general visual privacy proof."
+        },
+        "output_ocr_page_latency_p50_seconds": 0.503188699999555,
+        "output_ocr_page_latency_p95_seconds": 0.6651370700006737,
+        "passed": true,
+        "limitations": "Gold OCR absence is not absence of all PII; actual embedded pixel/hash verification is performed by library independently"
+      },
+      "independent_check": "full encoded/metadata/OCR/pixel gold"
+    },
+    {
+      "label": "full-native",
+      "kind": "native",
+      "workers": 8,
+      "pages": 100,
+      "input_sha256": "5ebe294e1a9471f8e972267db8edc578ce7a9d584faa0c05fc7b926c60bea200",
+      "output_sha256": "4c3db32eb3f4737beaace1d05df355cac1ce1fe12a301097f4d51c75969ef2e1",
+      "status": "REVIEW_REQUIRED",
+      "release_approved": false,
+      "issues": [
+        "UNCERTAIN_SOURCE_FINDINGS",
+        "LOW_SOURCE_OCR_CONFIDENCE"
+      ],
+      "metrics": {
+        "elapsed_seconds": 75.30651770000077,
+        "units": 100,
+        "records_per_second": 1.3279063094959571,
+        "mb_per_second": 0.0011691949473850004,
+        "peak_rss_bytes": 351199232,
+        "peak_process_tree_rss_bytes": 510713856,
+        "cpu_percent_one_core_scale": 121.42043317453658,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU"
+      },
+      "pages_per_second": 1.3279063094959571,
+      "documents_per_second": 0.013279063094959572,
+      "performance": {
+        "enabled": true,
+        "elapsed_seconds": 75.30413729999964,
+        "stages": {
+          "context": {
+            "calls": 300,
+            "inclusive_work_seconds": 0.6573070000104053,
+            "exclusive_work_seconds": 0.6573070000104053,
+            "sampled_peak_parent_rss_bytes": 277970944,
+            "sampled_peak_tree_rss_bytes": 457949184
+          },
+          "hashing": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.02997010000035516,
+            "exclusive_work_seconds": 0.02997010000035516,
+            "sampled_peak_parent_rss_bytes": 157462528,
+            "sampled_peak_tree_rss_bytes": 157462528
+          },
+          "loading": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.011086600001362967,
+            "exclusive_work_seconds": 0.011086600001362967,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "ocr": {
+            "calls": 200,
+            "inclusive_work_seconds": 93.68281319999369,
+            "exclusive_work_seconds": 93.68281319999369,
+            "sampled_peak_parent_rss_bytes": 351502336,
+            "sampled_peak_tree_rss_bytes": 518885376
+          },
+          "publication": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0007064000001264503,
+            "exclusive_work_seconds": 0.0007064000001264503,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "reconstruction": {
+            "calls": 100,
+            "inclusive_work_seconds": 36.090112400008366,
+            "exclusive_work_seconds": 36.090112400008366,
+            "sampled_peak_parent_rss_bytes": 308486144,
+            "sampled_peak_tree_rss_bytes": 511434752
+          },
+          "redaction": {
+            "calls": 200,
+            "inclusive_work_seconds": 6.995790699998906,
+            "exclusive_work_seconds": 6.995790699998906,
+            "sampled_peak_parent_rss_bytes": 309223424,
+            "sampled_peak_tree_rss_bytes": 486400000
+          },
+          "rendering": {
+            "calls": 200,
+            "inclusive_work_seconds": 20.0741338999851,
+            "exclusive_work_seconds": 16.79060759998174,
+            "sampled_peak_parent_rss_bytes": 351502336,
+            "sampled_peak_tree_rss_bytes": 518885376
+          },
+          "rules": {
+            "calls": 300,
+            "inclusive_work_seconds": 0.1961606000095344,
+            "exclusive_work_seconds": 0.1961606000095344,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "verification": {
+            "calls": 101,
+            "inclusive_work_seconds": 11.692752400003883,
+            "exclusive_work_seconds": 11.692752400003883,
+            "sampled_peak_parent_rss_bytes": 351195136,
+            "sampled_peak_tree_rss_bytes": 508473344
+          }
+        },
+        "memory_sample_interval_ms": 10,
+        "rss_available": true,
+        "timing_semantics": "Worker work times overlap; do not sum as wall time. Memory is sampled process/tree RSS, not a hard admission cap.",
+        "nlp_configured": false
+      },
+      "masks": 17683,
+      "independent_gold": {
+        "pages": 100,
+        "expected_pages": 100,
+        "native_text_pages": 0,
+        "annotation_pages": 0,
+        "forbidden_catalog_keys": [],
+        "metadata_gold_leaks": 0,
+        "original_values_in_page_content_streams": 0,
+        "residual_gold_values_in_output_ocr": 0,
+        "residual_gold_values_observed_in_readable_output_pages": 0,
+        "output_ocr_failed_pages": [],
+        "output_ocr_complete": true,
+        "residual_gold_by_type": {},
+        "gold_values_checked": 900,
+        "utility_amount_pages_preserved": 100,
+        "independent_gold_pixels": {
+          "gold_words_checked": 2000,
+          "gold_words_opaque_black": 2000,
+          "unmasked_gold_word_regions": 0,
+          "indeterminate_gold_word_regions": 0,
+          "minimum_black_pixel_fraction": 1.0,
+          "gold_word_mask_rate_by_type": {
+            "PERSON": 1.0,
+            "EMAIL": 1.0,
+            "PHONE": 1.0,
+            "CURP": 1.0,
+            "RFC": 1.0,
+            "CLABE": 1.0,
+            "CUSTOMER_ID": 1.0,
+            "ADDRESS": 1.0,
+            "DIAGNOSIS": 1.0
+          },
+          "passed": true,
+          "definition": "Known drawn field word boxes tightened to source ink; actual rerendered output word rectangle must be >=99.5% near-black. Independent of OCR matching. This is fixture-specific geometry, not general visual privacy proof."
+        },
+        "output_ocr_page_latency_p50_seconds": 0.44889635000072303,
+        "output_ocr_page_latency_p95_seconds": 0.49523428500078803,
+        "passed": true,
+        "limitations": "Gold OCR absence is not absence of all PII; actual embedded pixel/hash verification is performed by library independently"
+      },
+      "independent_check": "full encoded/metadata/OCR/pixel gold"
+    },
+    {
+      "label": "full-scanned",
+      "kind": "scanned",
+      "workers": 1,
+      "pages": 100,
+      "input_sha256": "83f6467c8435d96b5e778b603d5246d1f56d9831698277a9057343d6d8e1e4d6",
+      "output_sha256": null,
+      "status": "BLOCKED",
+      "release_approved": false,
+      "issues": [
+        "LOW_SOURCE_OCR_CONFIDENCE",
+        "RESIDUAL_FINDINGS"
+      ],
+      "metrics": {
+        "elapsed_seconds": 140.16967449999902,
+        "units": 100,
+        "records_per_second": 0.7134210759689016,
+        "mb_per_second": 0.07518558516735425,
+        "peak_rss_bytes": 215781376,
+        "peak_process_tree_rss_bytes": 277811200,
+        "cpu_percent_one_core_scale": 101.01596547547165,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU"
+      },
+      "pages_per_second": 0.7134210759689016,
+      "documents_per_second": 0.007134210759689015,
+      "performance": {
+        "enabled": true,
+        "elapsed_seconds": 140.16698879999967,
+        "stages": {
+          "context": {
+            "calls": 300,
+            "inclusive_work_seconds": 0.02004820000001928,
+            "exclusive_work_seconds": 0.02004820000001928,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "loading": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.20866799999930663,
+            "exclusive_work_seconds": 0.20866799999930663,
+            "sampled_peak_parent_rss_bytes": 98967552,
+            "sampled_peak_tree_rss_bytes": 98967552
+          },
+          "ocr": {
+            "calls": 200,
+            "inclusive_work_seconds": 75.55979550000302,
+            "exclusive_work_seconds": 75.55979550000302,
+            "sampled_peak_parent_rss_bytes": 203198464,
+            "sampled_peak_tree_rss_bytes": 277504000
+          },
+          "reconstruction": {
+            "calls": 100,
+            "inclusive_work_seconds": 30.42633489999389,
+            "exclusive_work_seconds": 30.42633489999389,
+            "sampled_peak_parent_rss_bytes": 185851904,
+            "sampled_peak_tree_rss_bytes": 185851904
+          },
+          "redaction": {
+            "calls": 200,
+            "inclusive_work_seconds": 5.0067060999972455,
+            "exclusive_work_seconds": 5.0067060999972455,
+            "sampled_peak_parent_rss_bytes": 188534784,
+            "sampled_peak_tree_rss_bytes": 188534784
+          },
+          "rendering": {
+            "calls": 200,
+            "inclusive_work_seconds": 18.528876699998364,
+            "exclusive_work_seconds": 17.06306389999918,
+            "sampled_peak_parent_rss_bytes": 215863296,
+            "sampled_peak_tree_rss_bytes": 215863296
+          },
+          "rules": {
+            "calls": 200,
+            "inclusive_work_seconds": 0.10496809998767276,
+            "exclusive_work_seconds": 0.10496809998767276,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "verification": {
+            "calls": 101,
+            "inclusive_work_seconds": 9.075240999998641,
+            "exclusive_work_seconds": 9.075240999998641,
+            "sampled_peak_parent_rss_bytes": 215339008,
+            "sampled_peak_tree_rss_bytes": 215339008
+          }
+        },
+        "memory_sample_interval_ms": 10,
+        "rss_available": true,
+        "timing_semantics": "Worker work times overlap; do not sum as wall time. Memory is sampled process/tree RSS, not a hard admission cap.",
+        "nlp_configured": false
+      },
+      "masks": 1999,
+      "independent_gold": null,
+      "independent_check": "full encoded/metadata/OCR/pixel gold"
+    },
+    {
+      "label": "full-scanned",
+      "kind": "scanned",
+      "workers": 8,
+      "pages": 100,
+      "input_sha256": "83f6467c8435d96b5e778b603d5246d1f56d9831698277a9057343d6d8e1e4d6",
+      "output_sha256": null,
+      "status": "BLOCKED",
+      "release_approved": false,
+      "issues": [
+        "LOW_SOURCE_OCR_CONFIDENCE",
+        "RESIDUAL_FINDINGS"
+      ],
+      "metrics": {
+        "elapsed_seconds": 72.57607649999954,
+        "units": 100,
+        "records_per_second": 1.3778645088371597,
+        "mb_per_second": 0.14520954435998018,
+        "peak_rss_bytes": 351342592,
+        "peak_process_tree_rss_bytes": 1118711808,
+        "cpu_percent_one_core_scale": 123.14664047732116,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU"
+      },
+      "pages_per_second": 1.3778645088371597,
+      "documents_per_second": 0.013778645088371597,
+      "performance": {
+        "enabled": true,
+        "elapsed_seconds": 72.57333930000095,
+        "stages": {
+          "context": {
+            "calls": 300,
+            "inclusive_work_seconds": 0.02043499999854248,
+            "exclusive_work_seconds": 0.02043499999854248,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "loading": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.030575900000258116,
+            "exclusive_work_seconds": 0.030575900000258116,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "ocr": {
+            "calls": 200,
+            "inclusive_work_seconds": 83.5896939000013,
+            "exclusive_work_seconds": 83.5896939000013,
+            "sampled_peak_parent_rss_bytes": 351322112,
+            "sampled_peak_tree_rss_bytes": 1118687232
+          },
+          "reconstruction": {
+            "calls": 100,
+            "inclusive_work_seconds": 36.28525079998508,
+            "exclusive_work_seconds": 36.28525079998508,
+            "sampled_peak_parent_rss_bytes": 327323648,
+            "sampled_peak_tree_rss_bytes": 1118687232
+          },
+          "redaction": {
+            "calls": 200,
+            "inclusive_work_seconds": 5.658577000003788,
+            "exclusive_work_seconds": 5.658577000003788,
+            "sampled_peak_parent_rss_bytes": 324390912,
+            "sampled_peak_tree_rss_bytes": 502095872
+          },
+          "rendering": {
+            "calls": 200,
+            "inclusive_work_seconds": 20.30959030000122,
+            "exclusive_work_seconds": 18.35168209999938,
+            "sampled_peak_parent_rss_bytes": 351322112,
+            "sampled_peak_tree_rss_bytes": 528687104
+          },
+          "rules": {
+            "calls": 200,
+            "inclusive_work_seconds": 0.10252270000273711,
+            "exclusive_work_seconds": 0.10252270000273711,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "verification": {
+            "calls": 101,
+            "inclusive_work_seconds": 8.906902800001262,
+            "exclusive_work_seconds": 8.906902800001262,
+            "sampled_peak_parent_rss_bytes": 351322112,
+            "sampled_peak_tree_rss_bytes": 528687104
+          }
+        },
+        "memory_sample_interval_ms": 10,
+        "rss_available": true,
+        "timing_semantics": "Worker work times overlap; do not sum as wall time. Memory is sampled process/tree RSS, not a hard admission cap.",
+        "nlp_configured": false
+      },
+      "masks": 1999,
+      "independent_gold": null,
+      "independent_check": "full encoded/metadata/OCR/pixel gold"
+    },
+    {
+      "label": "full-mixed",
+      "kind": "mixed",
+      "workers": 1,
+      "pages": 6,
+      "input_sha256": "ca22d5c1433f30200564db44a3e7644538541046059a47bcf7ff2b942c0e4c06",
+      "output_sha256": "707a83fdb4144c4c09dbe2c1185460bd2e2445dce5697a2e8ccdfaac3bb92ddf",
+      "status": "APPROVED",
+      "release_approved": true,
+      "issues": [],
+      "metrics": {
+        "elapsed_seconds": 7.871619600000486,
+        "units": 6,
+        "records_per_second": 0.7622319554160912,
+        "mb_per_second": 0.038933410857402345,
+        "peak_rss_bytes": 222912512,
+        "peak_process_tree_rss_bytes": 284532736,
+        "cpu_percent_one_core_scale": 101.82942529386845,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU"
+      },
+      "pages_per_second": 0.7622319554160912,
+      "documents_per_second": 0.1270386592360152,
+      "performance": {
+        "enabled": true,
+        "elapsed_seconds": 7.8692122000011295,
+        "stages": {
+          "context": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.013016799994147732,
+            "exclusive_work_seconds": 0.013016799994147732,
+            "sampled_peak_parent_rss_bytes": 174346240,
+            "sampled_peak_tree_rss_bytes": 174346240
+          },
+          "hashing": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.012661800001296797,
+            "exclusive_work_seconds": 0.012661800001296797,
+            "sampled_peak_parent_rss_bytes": 146337792,
+            "sampled_peak_tree_rss_bytes": 146337792
+          },
+          "loading": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.021823299999596202,
+            "exclusive_work_seconds": 0.021823299999596202,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "ocr": {
+            "calls": 12,
+            "inclusive_work_seconds": 4.314282000001185,
+            "exclusive_work_seconds": 4.314282000001185,
+            "sampled_peak_parent_rss_bytes": 209952768,
+            "sampled_peak_tree_rss_bytes": 283951104
+          },
+          "publication": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0006864000006316928,
+            "exclusive_work_seconds": 0.0006864000006316928,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "reconstruction": {
+            "calls": 6,
+            "inclusive_work_seconds": 1.5402277999965008,
+            "exclusive_work_seconds": 1.5402277999965008,
+            "sampled_peak_parent_rss_bytes": 189452288,
+            "sampled_peak_tree_rss_bytes": 189452288
+          },
+          "redaction": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.2655890999976691,
+            "exclusive_work_seconds": 0.2655890999976691,
+            "sampled_peak_parent_rss_bytes": 202031104,
+            "sampled_peak_tree_rss_bytes": 202031104
+          },
+          "rendering": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.9786741000025359,
+            "exclusive_work_seconds": 0.8688653000008344,
+            "sampled_peak_parent_rss_bytes": 222965760,
+            "sampled_peak_tree_rss_bytes": 222965760
+          },
+          "rules": {
+            "calls": 15,
+            "inclusive_work_seconds": 0.007717200001934543,
+            "exclusive_work_seconds": 0.007717200001934543,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "verification": {
+            "calls": 7,
+            "inclusive_work_seconds": 0.5733369000026869,
+            "exclusive_work_seconds": 0.5733369000026869,
+            "sampled_peak_parent_rss_bytes": 222965760,
+            "sampled_peak_tree_rss_bytes": 222965760
+          }
+        },
+        "memory_sample_interval_ms": 10,
+        "rss_available": true,
+        "timing_semantics": "Worker work times overlap; do not sum as wall time. Memory is sampled process/tree RSS, not a hard admission cap.",
+        "nlp_configured": false
+      },
+      "masks": 590,
+      "independent_gold": {
+        "pages": 6,
+        "expected_pages": 6,
+        "native_text_pages": 0,
+        "annotation_pages": 0,
+        "forbidden_catalog_keys": [],
+        "metadata_gold_leaks": 0,
+        "original_values_in_page_content_streams": 0,
+        "residual_gold_values_in_output_ocr": 0,
+        "residual_gold_values_observed_in_readable_output_pages": 0,
+        "output_ocr_failed_pages": [],
+        "output_ocr_complete": true,
+        "residual_gold_by_type": {},
+        "gold_values_checked": 54,
+        "utility_amount_pages_preserved": 6,
+        "independent_gold_pixels": {
+          "gold_words_checked": 120,
+          "gold_words_opaque_black": 120,
+          "unmasked_gold_word_regions": 0,
+          "indeterminate_gold_word_regions": 0,
+          "minimum_black_pixel_fraction": 1.0,
+          "gold_word_mask_rate_by_type": {
+            "PERSON": 1.0,
+            "EMAIL": 1.0,
+            "PHONE": 1.0,
+            "CURP": 1.0,
+            "RFC": 1.0,
+            "CLABE": 1.0,
+            "CUSTOMER_ID": 1.0,
+            "ADDRESS": 1.0,
+            "DIAGNOSIS": 1.0
+          },
+          "passed": true,
+          "definition": "Known drawn field word boxes tightened to source ink; actual rerendered output word rectangle must be >=99.5% near-black. Independent of OCR matching. This is fixture-specific geometry, not general visual privacy proof."
+        },
+        "output_ocr_page_latency_p50_seconds": 0.43558725000002596,
+        "output_ocr_page_latency_p95_seconds": 0.44961897500070336,
+        "passed": true,
+        "limitations": "Gold OCR absence is not absence of all PII; actual embedded pixel/hash verification is performed by library independently"
+      },
+      "independent_check": "full encoded/metadata/OCR/pixel gold"
+    },
+    {
+      "label": "full-mixed",
+      "kind": "mixed",
+      "workers": 8,
+      "pages": 6,
+      "input_sha256": "ca22d5c1433f30200564db44a3e7644538541046059a47bcf7ff2b942c0e4c06",
+      "output_sha256": "707a83fdb4144c4c09dbe2c1185460bd2e2445dce5697a2e8ccdfaac3bb92ddf",
+      "status": "APPROVED",
+      "release_approved": true,
+      "issues": [],
+      "metrics": {
+        "elapsed_seconds": 4.893086199999743,
+        "units": 6,
+        "records_per_second": 1.2262199672673486,
+        "mb_per_second": 0.06263306785807617,
+        "peak_rss_bytes": 298029056,
+        "peak_process_tree_rss_bytes": 475271168,
+        "cpu_percent_one_core_scale": 118.47073121254851,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU"
+      },
+      "pages_per_second": 1.2262199672673486,
+      "documents_per_second": 0.2043699945445581,
+      "performance": {
+        "enabled": true,
+        "elapsed_seconds": 4.890895200000159,
+        "stages": {
+          "context": {
+            "calls": 18,
+            "inclusive_work_seconds": 0.002607700000226032,
+            "exclusive_work_seconds": 0.002607700000226032,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "hashing": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.001010899999528192,
+            "exclusive_work_seconds": 0.001010899999528192,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "loading": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0021188999999139924,
+            "exclusive_work_seconds": 0.0021188999999139924,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "ocr": {
+            "calls": 12,
+            "inclusive_work_seconds": 5.425071699999535,
+            "exclusive_work_seconds": 5.425071699999535,
+            "sampled_peak_parent_rss_bytes": 306696192,
+            "sampled_peak_tree_rss_bytes": 470122496
+          },
+          "publication": {
+            "calls": 1,
+            "inclusive_work_seconds": 0.0007271999984368449,
+            "exclusive_work_seconds": 0.0007271999984368449,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "reconstruction": {
+            "calls": 6,
+            "inclusive_work_seconds": 2.165405199999441,
+            "exclusive_work_seconds": 2.165405199999441,
+            "sampled_peak_parent_rss_bytes": 246333440,
+            "sampled_peak_tree_rss_bytes": 461197312
+          },
+          "redaction": {
+            "calls": 12,
+            "inclusive_work_seconds": 0.3556822000009561,
+            "exclusive_work_seconds": 0.3556822000009561,
+            "sampled_peak_parent_rss_bytes": 229994496,
+            "sampled_peak_tree_rss_bytes": 306728960
+          },
+          "rendering": {
+            "calls": 12,
+            "inclusive_work_seconds": 1.0284669999964535,
+            "exclusive_work_seconds": 0.8509452999969653,
+            "sampled_peak_parent_rss_bytes": 306696192,
+            "sampled_peak_tree_rss_bytes": 470122496
+          },
+          "rules": {
+            "calls": 15,
+            "inclusive_work_seconds": 0.008452599997326615,
+            "exclusive_work_seconds": 0.008452599997326615,
+            "sampled_peak_parent_rss_bytes": 0,
+            "sampled_peak_tree_rss_bytes": 0
+          },
+          "verification": {
+            "calls": 7,
+            "inclusive_work_seconds": 0.7249363999999332,
+            "exclusive_work_seconds": 0.7249363999999332,
+            "sampled_peak_parent_rss_bytes": 293593088,
+            "sampled_peak_tree_rss_bytes": 388608000
+          }
+        },
+        "memory_sample_interval_ms": 10,
+        "rss_available": true,
+        "timing_semantics": "Worker work times overlap; do not sum as wall time. Memory is sampled process/tree RSS, not a hard admission cap.",
+        "nlp_configured": false
+      },
+      "masks": 590,
+      "independent_gold": {
+        "pages": 6,
+        "expected_pages": 6,
+        "native_text_pages": 0,
+        "annotation_pages": 0,
+        "forbidden_catalog_keys": [],
+        "metadata_gold_leaks": 0,
+        "original_values_in_page_content_streams": 0,
+        "residual_gold_values_in_output_ocr": 0,
+        "residual_gold_values_observed_in_readable_output_pages": 0,
+        "output_ocr_failed_pages": [],
+        "output_ocr_complete": true,
+        "residual_gold_by_type": {},
+        "gold_values_checked": 54,
+        "utility_amount_pages_preserved": 6,
+        "independent_gold_pixels": {
+          "gold_words_checked": 120,
+          "gold_words_opaque_black": 120,
+          "unmasked_gold_word_regions": 0,
+          "indeterminate_gold_word_regions": 0,
+          "minimum_black_pixel_fraction": 1.0,
+          "gold_word_mask_rate_by_type": {
+            "PERSON": 1.0,
+            "EMAIL": 1.0,
+            "PHONE": 1.0,
+            "CURP": 1.0,
+            "RFC": 1.0,
+            "CLABE": 1.0,
+            "CUSTOMER_ID": 1.0,
+            "ADDRESS": 1.0,
+            "DIAGNOSIS": 1.0
+          },
+          "passed": true,
+          "definition": "Known drawn field word boxes tightened to source ink; actual rerendered output word rectangle must be >=99.5% near-black. Independent of OCR matching. This is fixture-specific geometry, not general visual privacy proof."
+        },
+        "output_ocr_page_latency_p50_seconds": 0.42992545000015525,
+        "output_ocr_page_latency_p95_seconds": 0.451118050000332,
+        "passed": true,
+        "limitations": "Gold OCR absence is not absence of all PII; actual embedded pixel/hash verification is performed by library independently"
+      },
+      "independent_check": "full encoded/metadata/OCR/pixel gold"
+    }
+  ],
+  "all_scaling_output_sha256_identical": true,
+  "selected_full_workers": 8,
+  "network_guard": {
+    "python_attempted_connections": 0,
+    "scope": "Python only; no OS firewall claim"
+  }
+}

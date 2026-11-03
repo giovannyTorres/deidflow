@@ -11,13 +11,18 @@ import re
 from deidflow.core import Finding
 
 _FIELDS = re.compile(
-    r"(?im)\b(?P<label>correo(?:[ \t]+electr[oó]nico)?|e-?mail|tel[eé]fono|tel\.?|celular|m[oó]vil|phone|CURP|RFC|CLABE|cuenta(?:[ \t]+bancaria)?|nombre(?:[ \t]+completo)?|paciente|domicilio|direcci[oó]n|fecha[ \t]+de[ \t]+nacimiento|pasaporte|expediente|id[ \t]+(?:cliente|empleado)|api[ _-]?key|contrase[nñ]a)"
+    r"(?im)\b(?P<label>correo(?:[ \t]+electr[oó]nico)?|e-?mail|tel[eé]fono|tel\.?|celular|m[oó]vil|phone|CURP|RFC|CLABE|cuenta(?:[ \t]+bancaria)?|nombre(?:[ \t]+completo)?|paciente|domicilio|direcci[oó]n|fecha[ \t]+de[ \t]+nacimiento|pasaporte|expediente|id[ \t]+(?:cliente|empleado)|api[ _-]?key|contrase[nñ]a|diagn[oó]stico|tratamiento|medicaci[oó]n)"
     r"[ \t]*[:=][ \t]*(?P<value>[^\r\n]{1,240})"
 )
 
 
 def ocr_field_candidates(text: str, existing: list[Finding]) -> list[Finding]:
     candidates: list[Finding] = []
+    identified = any(
+        finding.entity_type
+        in {"PERSON", "EMAIL", "CURP", "PATIENT_ID", "CUSTOMER_ID", "EMPLOYEE_ID", "RFC"}
+        for finding in existing
+    )
     for match in _FIELDS.finditer(text):
         label = match.group("label").lower()
         start, end = match.span("value")
@@ -27,7 +32,21 @@ def ocr_field_candidates(text: str, existing: list[Finding]) -> list[Finding]:
             end -= 1
         if end <= start or not any(c.isalnum() for c in text[start:end]):
             continue
-        if label.startswith(("correo", "email", "e-mail")):
+        if label.startswith(("diagn", "tratamiento", "medicaci")):
+            # A damaged clinical value can evade a vocabulary rule, then become
+            # legible after redaction changes the OCR layout. Protect the entire
+            # labelled value conservatively only when a subject was identified;
+            # uncertainty remains visible to the release gate.
+            if not identified:
+                continue
+            kind = (
+                "DIAGNOSIS"
+                if label.startswith("diagn")
+                else "TREATMENT"
+                if label.startswith("tratamiento")
+                else "MEDICATION"
+            )
+        elif label.startswith(("correo", "email", "e-mail")):
             kind = "EMAIL"
         elif label.startswith(("tel", "celular", "móvil", "movil", "phone")):
             kind = "PHONE"
@@ -70,7 +89,7 @@ def ocr_field_candidates(text: str, existing: list[Finding]) -> list[Finding]:
                 "ocr.label_context",
                 validation="ocr_uncertain",
                 context=("labelled_ocr_value_unvalidated",),
-                model_version="ocr-context-0.2",
+                model_version="ocr-context-0.3",
                 protected=True,
             )
         )

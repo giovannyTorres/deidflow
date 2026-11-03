@@ -1,48 +1,84 @@
 {
-  "version": "0.2.0",
+  "version": "0.3.0",
   "date": "2026-11-02",
+  "classification": "EXPERIMENTAL_SUPERVISED_EVALUATION",
   "pytest": {
-    "passed": 208,
+    "passed": 370,
     "failed": 0,
     "skipped": 0,
+    "seconds": 44.844,
     "real_local_spanish_ocr": true,
     "real_local_spanish_ner": true
   },
   "ruff_lint": "passed",
   "ruff_format": {
     "status": "passed",
-    "files": 60
+    "files": 99
   },
   "mypy": {
     "status": "passed",
-    "source_files": 23
+    "source_files": 37
   },
   "pip_check": "passed",
-  "python_dependency_audit": "no known vulnerabilities",
-  "native_ocr": {
-    "version": "5.5.4",
-    "source_commit": "7e548e6eff172f38f97664afe7f7ce40db36c8d6",
-    "languages": [
-      "spa",
-      "eng"
-    ],
-    "source_built": true,
-    "assets_bundled_in_python_package": false,
-    "manifest": "docs/ocr-assets.json",
-    "note": "Python dependency audit does not cover native libraries"
+  "python_dependency_audit": {
+    "audited": 111,
+    "known_advisories": 0,
+    "ignored_advisories": 0,
+    "local_distribution_skipped": true
+  },
+  "source_tree_sha256": "a7973688597eb48648795da609efb73a4d0b0ba7c4cd19682131d1e5dfc2ada0",
+  "build": {
+    "wheel_and_sdist": "passed",
+    "assets_bundled": false,
+    "mandatory_runtime_dependencies": 0,
+    "artifact_hashes": "dist/v0.3.0/artifact-validation.json"
+  },
+  "isolated_python_313_wheel": {
+    "python": "3.13.5",
+    "version": "0.3.0",
+    "installed_wheel": true,
+    "base_api": true,
+    "actual_ocr_rag": true,
+    "status": "REVIEW_REQUIRED",
+    "python_inference_connections": 0
+  },
+  "baselines": {
+    "commit": "0b79d3d",
+    "tests_passed": 208,
+    "provenance": "benchmarks/results/v030/README.md"
   },
   "benchmarks": {
-    "primary": "benchmarks/results/pdf-ocr.json",
-    "challenge": "benchmarks/results/pdf-ocr-challenge.json",
-    "fixture_pages": 121,
-    "known_gold_entities": 1089,
-    "known_word_pixel_regions": 2420,
-    "known_word_pixel_regions_removed": 2420,
-    "challenge_extra_output_ocr": "UNKNOWN on one page; retained failure"
+    "public_gold": [
+      "MEDDOCAN semi-synthetic Spanish clinical human-gold",
+      "TAB English judicial human-gold"
+    ],
+    "private_gmail": "NOT_EXECUTED",
+    "pdf": "benchmarks/results/v030/pdf-scaling.json",
+    "tabular_and_text": "benchmarks/results/v030/tabular-and-text.json",
+    "public_unannotated": "benchmarks/results/v030/public-documents.json",
+    "development_failures_preserved": true
   },
-  "visual_qa": "Poppler previews inspected for both curated PDFs",
-  "api_example": "passed with explicit rules-only PDF policy",
-  "microbenchmark_guard": "passed",
-  "remote_ci_executed": false,
-  "published": false
+  "microbenchmark_guard": {
+    "passed": true,
+    "relative_ratio": 1.0866909437460361,
+    "critical_synthetic_exact_recall": 1.0
+  },
+  "visual_qa": {
+    "synthetic_rag_example_pages": 2,
+    "renderer": "Poppler",
+    "inspected": true,
+    "status": "REVIEW_REQUIRED; retained low source OCR confidence"
+  },
+  "privacy_boundary": {
+    "real_private_content_accessed": false,
+    "real_gmail_operations": false,
+    "external_inference": false,
+    "no_os_firewall_claim": true
+  },
+  "release": {
+    "remote_ci_executed": false,
+    "published": false,
+    "publication_pending": "owner choice of public-use licence and explicit experimental scope",
+    "production_readiness": false
+  }
 }

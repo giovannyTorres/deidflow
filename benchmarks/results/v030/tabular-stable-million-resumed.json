@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "started_at_utc": "2026-11-03T05:09:23.293784+00:00",
+  "seed": 1729,
+  "baseline_commit": "0b79d3d",
+  "scope": "Synthetic ground-truth CSV and Spanish text; fresh child processes import the requested source tree. No private Gmail access. Single full-scale trials with possible background workload; not a statistical speedup claim.",
+  "results": [
+    {
+      "implementation": "candidate_v0.3",
+      "source_engine_sha256": "8a39bc0b649eb6e1940faaf53a815722a3ef9cd4f47bf9c4a8851cc159101a6c",
+      "source_tree_sha256": "1d26f08550f2b1031467c7410bfe3639d4a9fe51a4b8d54ceab123d8bb1a7a3a",
+      "machine": {
+        "platform": "Windows-10-10.0.26200-SP0",
+        "python": "3.11.9",
+        "machine": "AMD64",
+        "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+        "logical_cpu_count": 16,
+        "versions": {
+          "deidflow": "0.2.0",
+          "psutil": "7.2.2",
+          "spacy": "3.8.18",
+          "presidio-analyzer": "2.2.366",
+          "DataProfiler": null,
+          "numpy": "2.4.6",
+          "scikit-learn": "1.8.0"
+        },
+        "execution": "CPU",
+        "gpu_memory_bytes": null,
+        "physical_memory_bytes": 16962179072,
+        "physical_cpu_count": 8
+      },
+      "seed": 1729,
+      "workload": "synthetic_csv",
+      "rows": 1000000,
+      "columns": 5,
+      "batch_size": 1024,
+      "input_bytes": 104889038,
+      "input_sha256": "e2905ebc48bb9f971bebdf9c10ea219db5aa66b91be3a28cf40ee3d6eb10f2b2",
+      "output_sha256": "f6c903f303338eafc9b8701795c5f90575dc8b6b141d1fb8f23faee739926678",
+      "status": "APPROVED",
+      "issues": [],
+      "measurement": {
+        "elapsed_seconds": 185.27395539999998,
+        "units": 1000000,
+        "records_per_second": 5397.4127007815805,
+        "mb_per_second": 0.5661294258739619,
+        "peak_rss_bytes": 38793216,
+        "peak_process_tree_rss_bytes": 38793216,
+        "cpu_percent_one_core_scale": 96.74862266150983,
+        "cpu_accounting_note": "Process CPU only; excludes child CPU"
+      },
+      "independent_ground_truth": {
+        "records": 1000000,
+        "expected_records": 1000000,
+        "gold_sensitive_cells_checked": 3000000,
+        "residual_gold_cells": 0,
+        "unchanged_amount_errors": 0,
+        "passed": true
+      },
+      "column_processing_seconds": 90.27563220000002,
+      "column_batch_latency_p50_seconds": 0.08939950000001318,
+      "column_batch_latency_p95_seconds": 0.12033564000000749,
+      "column_batches": 977,
+      "whole_request_latency_seconds": 185.27395539999998,
+      "source_engine_sha256_after": "8a39bc0b649eb6e1940faaf53a815722a3ef9cd4f47bf9c4a8851cc159101a6c",
+      "source_tree_sha256_after": "1d26f08550f2b1031467c7410bfe3639d4a9fe51a4b8d54ceab123d8bb1a7a3a",
+      "source_tree_changed_during_measurement": false,
+      "code_changed_during_measurement": false,
+      "scope": "One complete transform/write/reread; separate all-cell gold check excluded from timing. Batch latency is column-processing time, not individual record latency.",
+      "inference_network_attempts": 0
+    }
+  ],
+  "candidate_source_isolation": "requested_source_tree",
+  "worker_output_consistency": {
+    "candidate_v0.3": null
+  },
+  "source_integrity_passed": true,
+  "completed": true
+}

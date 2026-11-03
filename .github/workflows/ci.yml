@@ -13,7 +13,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: python -m pip install --upgrade "pip>=26.2" "setuptools>=84.1"
-      - run: python -m pip install -e ".[dev,pdf,ocr,tables,yaml,training,benchmarks,nlp]"
+      - run: python -m pip install -e ".[dev,pdf,ocr,tables,yaml,training,benchmarks,nlp,private-gmail]"
       - run: python -m ruff check .
       - run: python -m ruff format --check .
       - run: python -m mypy src/deidflow
@@ -28,6 +28,6 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install --upgrade "pip>=26.2" "setuptools>=84.1"
-      - run: python -m pip install -e ".[dev,pdf,ocr,tables,yaml,training,benchmarks,nlp]"
+      - run: python -m pip install -e ".[dev,pdf,ocr,tables,yaml,training,benchmarks,nlp,private-gmail]"
       - run: python -m pip_audit
       - run: python scripts/audit_licenses.py
