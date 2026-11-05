@@ -258,6 +258,9 @@ def test_combined_adapters_fuse_findings(toy_model):
         ("****1234", 0, 8, False),  # partial masks keep source digits
         ("[DF_PERSON_ABCD2345] y Ana", 0, 26, False),
         ("Ana", 0, 3, False),
+        ("RFC: [GODE561231GR8]", 5, 20, False),  # bracketed source values stay sensitive
+        ("Nombre: [JUAN].", 8, 14, False),
+        ("[DF_PERSON_562TAESGXPVTGFSOY2I7LPXCPG263BY3]", 0, 44, True),
     ],
 )
 def test_replacement_only_spans(text, start, end, expected):
@@ -282,3 +285,16 @@ def test_builtin_tagger_release_gate_end_to_end():
         ],
     )
     assert leaky.status == "BLOCKED"
+
+
+def test_bracketed_source_values_are_not_exempted(tmp_path):
+    from deidflow.transformations import replacement_only
+
+    source = tmp_path / "rfc.txt"
+    source.write_text("RFC: [GODE561231GR8]\n", "utf-8")
+    assert DeidEngine().verify(source, policy=Policy.strict(require_ner=False)).status == "BLOCKED"
+    tagger = SpanTagger.builtin("es-clinical")
+    assert [f.entity_type for f in tagger.detect("Nombre: [JUAN].")] == ["PERSON"]
+    # With transformation ranges, only the exact applied output counts.
+    assert replacement_only("[MY_TYPE] y [JUAN]", 0, 9, ranges=[(0, 9)])
+    assert not replacement_only("[MY_TYPE] y [JUAN]", 12, 18, ranges=[(0, 9)])

@@ -129,11 +129,12 @@ def _git_fixture(tmp_path):
     (origin / "corpus/test/brat").mkdir(parents=True)
     for split in ("train", "dev", "test"):
         (origin / f"corpus/{split}/brat/a.txt").write_bytes(b"Nombre: Ana Ruiz\r\n")
-        (origin / f"corpus/{split}/brat/a.ann").write_text(
-            "T1\tNOMBRE_SUJETO_ASISTENCIA 8 16\tAna Ruiz\n", encoding="utf-8"
+        # Bytes, not text mode: Windows would translate newlines and change digests.
+        (origin / f"corpus/{split}/brat/a.ann").write_bytes(
+            b"T1\tNOMBRE_SUJETO_ASISTENCIA 8 16\tAna Ruiz\n"
         )
-    (origin / "README.md").write_text("synthetic fixture\n", encoding="utf-8")
-    (origin / "unrelated.py").write_text("print('not extracted')\n", encoding="utf-8")
+    (origin / "README.md").write_bytes(b"synthetic fixture\n")
+    (origin / "unrelated.py").write_bytes(b"print('not extracted')\n")
 
     def git(*args):
         return subprocess.run(

@@ -112,8 +112,13 @@ dropped (`min_feature_docs`), but a dictionary attack can still confirm whether 
 common token was a feature, so treat privately trained tagger files as sensitive.
 
 Verification rescans ignore a finding only when every letter and digit it covers
-lies inside a DeidFlow replacement token (`[TYPE]`, `[DF_TYPE_...]`, redaction
-blocks or full masks). A finding that still covers any source letter or digit,
+lies inside DeidFlow replacement output. During `deidentify_text` that means the
+exact output ranges of the applied placeholder, redaction, suppression,
+pseudonym or generalization operators. Elsewhere (file verification, tables) it
+means the known formats only: typed placeholders for taxonomy categories such as
+`[PERSON]`, pseudonyms `[DF_TYPE_<32 base32 characters>]`, `[GENERALIZED]`,
+redaction blocks and full masks. Arbitrary bracketed source text such as `[JUAN]`
+or `[GODE561231GR8]` stays detectable. A finding that still covers any source letter or digit,
 including the visible digits of a partial mask, keeps blocking release. The
 rescan reuses the same detectors, so it cannot reveal what they missed:
 `benchmarks/results/tagger/release-gate-*.json` measures how often approved

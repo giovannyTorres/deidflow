@@ -13,10 +13,15 @@
 - Added `scripts/train_span_tagger.py`, span JSONL corpora, `CombinedNER` and
   CLI `--tagger`, `--tagger-sha256`, `--review-margin` and `--version`; CLI
   errors now report the exception class (never its message).
-- Verification rescans ignore findings made only of DeidFlow replacement tokens
-  (placeholders, pseudonyms, redaction blocks); previously the rules re-detected
-  `Domicilio: [ADDRESS]` and blocked every such document. Findings that still
-  cover source letters or digits keep blocking.
+- Verification rescans ignore findings made only of DeidFlow replacement output:
+  exact applied ranges during `deidentify_text`, otherwise known placeholder,
+  pseudonym, redaction and mask formats. Previously the rules re-detected
+  `Domicilio: [ADDRESS]` and blocked every such document. Bracketed source values
+  (`[JUAN]`, `[GODE561231GR8]`) and findings that cover source letters or digits
+  keep blocking.
+- `EntityType` adds `INSURANCE_ID`, `MEDICAL_FACILITY`, `ORGANIZATION`,
+  `IP_ADDRESS` and `OTHER_SENSITIVE`, which detectors and corpora already used.
+- RAG bundle publication supports macOS (`renamex_np(RENAME_EXCL)`).
 - Added `scripts/benchmark_release_gate.py` measuring release decisions and
   output leakage: on MEDDOCAN test, 40 of 149 approved documents still leaked at
   least one sensitive character (11 of 76 with `review_margin=60`).

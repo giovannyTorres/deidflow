@@ -132,10 +132,10 @@ handling follows the local backend's pipe-based processing. Candidate PDF,
 JSONL and audit files are held together until every document-level gate finishes.
 
 Publication renames the entire directory atomically without replacing an
-existing destination: Windows exclusive directory rename and Linux
-`renameat2(RENAME_NOREPLACE)`. If the platform cannot supply exclusive atomic
-publication, export fails closed. macOS/other platforms currently require a
-separately implemented publication primitive. A destination created concurrently
+existing destination: Windows exclusive directory rename, Linux
+`renameat2(RENAME_NOREPLACE)` and macOS `renamex_np(RENAME_EXCL)` (since 0.4.0).
+If the platform cannot supply exclusive atomic publication, export fails closed.
+Other platforms require a separately implemented publication primitive. A destination created concurrently
 is preserved. Failures clean only the exact staging directory created by this
 operation after verifying its parent, name and filesystem identity; persistent
 user directories/files are never removed.

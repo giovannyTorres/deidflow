@@ -24,6 +24,7 @@ from deidflow.detectors import RuleDetector, fuse
 from deidflow.policies import Policy
 from deidflow.structured import dataframe_columns, profile_column, profile_table, scan_cell
 from deidflow.transformations import (
+    SAFE_REPLACEMENT_ACTIONS,
     IncompleteTransformationError,
     SourceMap,
     replacement_only,
@@ -359,7 +360,16 @@ class DeidEngine:
         except IncompleteTransformationError:
             return Result(ReleaseStatus.BLOCKED, issues=["INCOMPLETE_TRANSFORMATION"])
         rescanned = self.scan_text(transformed)
-        residual = [f for f in rescanned if not replacement_only(transformed, f.start, f.end)]
+        applied = [
+            (m.output_start, m.output_end)
+            for m in mappings
+            if m.action in SAFE_REPLACEMENT_ACTIONS and m.output_end > m.output_start
+        ]
+        residual = [
+            f
+            for f in rescanned
+            if not replacement_only(transformed, f.start, f.end, ranges=applied)
+        ]
         result = self._gate(policy=policy, residual=residual, original=findings, domain=domain)
         result.audit["replacement_only_rescan_findings"] = len(rescanned) - len(residual)
         result.output_text, result.mappings, result.records = transformed, mappings, 1
