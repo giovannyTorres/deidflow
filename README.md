@@ -5,7 +5,8 @@ Working experimental development release **0.3.0**, with genuine tests and bench
 not certified production privacy infrastructure, a guarantee of anonymity, or a
 compliance claim. [Current engineering/release assessment](docs/RELEASE_REPORT_v030.md),
 [performance](docs/PERFORMANCE.md), [detection quality](docs/DETECTION_QUALITY.md),
-[v0.2 OCR/PDF report](docs/pdf-ocr-report.md) and the
+[v0.2 OCR/PDF report](docs/pdf-ocr-report.md), the
+[2026-11 metrics audit and production plan (Spanish)](docs/AUDITORIA_Y_PLAN_PRODUCCION.md) and the
 [v0.1 baseline report](docs/engineering-report.md) record evidence
 and remaining work. Source code is published on [GitHub](https://github.com/giovannyTorres/deidflow).
 No package is uploaded to PyPI. The current [license](LICENSE) reserves all rights;

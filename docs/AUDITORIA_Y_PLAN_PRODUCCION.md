@@ -12,6 +12,9 @@ transformación, *release gate*, benchmarks, empaquetado y adecuación al caso d
 > mismo detector no las vio. (3) No existe la funcionalidad central que pide el caso de uso:
 > marcadores numerados y consistentes (`[PERSONA_1]`) con una bóveda reversible.
 > Además, la licencia actual ("todos los derechos reservados") impide que terceros la usen.
+> La buena noticia: un NER de dominio entrenado en esta auditoría en unos 35 minutos de CPU
+> sube la cobertura de identificadores directos de 0.65 a 0.98 y distingue paciente y médico
+> con F1 ≥ 0.97 (§6). El camino a producción es claro y está detallado en §5.
 
 ---
 
@@ -100,11 +103,11 @@ Otras pruebas representativas en español de México, con la política solo-regl
 | Reglas v0.3 | 0.693 | 0.402 | 0.509 (0.500–0.518) | 0.923 | 0.538 | 0.459 | 0.650 | **250/250** | 0.2 % | 2 |
 | Reglas + `es_core_news_sm` (GPL) | 0.415 | 0.537 | 0.468 | 0.526 | 0.759 | 0.668 | 0.800 | 233/250 | 3.9 % | 49 |
 | Reglas + `es_core_news_md` (GPL) | 0.492 | 0.615 | 0.546 (0.540–0.553) | 0.609 | 0.809 | 0.723 | 0.858 | 202/250 | 2.7 % | 54 |
-| **Reglas + NER spaCy entrenado en MEDDOCAN-train** (checkpoint intermedio, 1 época)† | 0.734 | 0.888 | 0.804 | 0.780 | — | 0.959 | **0.976** | **43/250** | 0.9 % | 111‡ |
-<!-- TRAINED_NER_ROWS -->
+| NER spaCy entrenado en MEDDOCAN-train, solo†| 0.872 | 0.853 | 0.862 (0.854–0.870) | **0.976** | 0.962 | 0.957 | 0.970 | 58/250 | 0.5 % | 108 |
+| **Reglas + NER entrenado en MEDDOCAN-train**† | 0.765 | **0.914** | 0.833 (0.827–0.839) | 0.805 | **0.966** | **0.964** | **0.979** | **42/250** | 0.7 % | 110 |
 
 \* Latencia medida en esta máquina, en una sola pasada. Es solo orientativa.
-† Experimento de esta auditoría (§6). No se distribuye. ‡ Medido mientras el entrenamiento ocupaba un núcleo.
+† Experimento de esta auditoría (§6). No se distribuye.
 
 ### 2.3 Desglose por tipo (reglas v0.3, MEDDOCAN test)
 
@@ -186,21 +189,21 @@ genérico marca términos clínicos como lugares. Eso destruye contexto útil pa
 Se miden en **tres conjuntos**: MEDDOCAN test, un holdout mexicano multidominio
 anotado (nuevo, ver F3) y una suite de aceptación LLM (nueva, ver F0).
 
-| KPI | Definición | Hoy (reglas / mejor híbrido) | Meta GA |
-|---|---|---|---|
-| Recall de fuga de identificadores directos | Menciones de PERSON, ID, teléfono, correo y dirección cubiertas al 100 % | 0.650 / 0.858 | **≥ 0.99** |
-| Recall de cuasi-identificadores | LOCATION, FACILITY, ORG, DATE, AGE cubiertos al 100 % | 0.20 / 0.56 | ≥ 0.95 |
-| Documentos sin fuga directa | % de documentos con 0 caracteres de identificador directo expuestos | 0 % / 19 % | **≥ 95 %** |
-| Precisión tipada | Predicciones correctas en tipo, por solapamiento | 0.92 / 0.61 | ≥ 0.90 |
-| Sobre-redacción | % de caracteres no sensibles ocultados | 0.2 % / 2.7 % | ≤ 2 % |
-| Exactitud de rol en PERSON | paciente / personal sanitario / familiar / otro | no existe | ≥ 0.90 |
-| Consistencia de correferencia | Mismo referente = mismo marcador (B³ F1) dentro del documento o sesión | no existe | ≥ 0.95 |
-| Round-trip de re-identificación | Marcadores válidos en la respuesta del LLM restaurados correctamente | no existe | 100 % (0 restauraciones de tokens ajenos) |
-| Utilidad del LLM | Caída de la métrica de la tarea (extracción, resumen, QA) con texto anonimizado frente al original | no medida | ≤ 3 puntos |
-| Falsos `APPROVED` | Documentos aprobados con al menos 1 identificador directo según el gold | 100 % en el ejemplo | ≤ 1 % |
-| Tasa de revisión humana | % de `REVIEW_REQUIRED` en el holdout | no medida | ≤ 10 % |
-| Latencia | p95 por documento de 1,000 tokens, CPU de 4 núcleos, reglas + NER | 2 ms reglas / 54 ms con spaCy md (media por doc) | ≤ 150 ms |
-| Calibración | ECE de la confianza por tipo | `null` | ≤ 0.05 |
+| KPI | Definición | Hoy: reglas / reglas + `es_core_news_md` | Experimento §6: reglas + NER de dominio | Meta GA |
+|---|---|---|---|---|
+| Recall de fuga de identificadores directos | Menciones de PERSON, ID, teléfono, correo y dirección cubiertas al 100 % | 0.650 / 0.858 | 0.979 | **≥ 0.99** |
+| Recall de cuasi-identificadores | LOCATION, FACILITY, ORG, DATE, AGE cubiertos al 100 % | 0.20 / 0.56 | 0.95 | ≥ 0.95 |
+| Documentos sin fuga directa | % de documentos con 0 caracteres de identificador directo expuestos | 0 % / 19 % | 83 % | **≥ 95 %** |
+| Precisión tipada | Predicciones correctas en tipo, por solapamiento | 0.92 / 0.61 | 0.80 (0.98 solo el modelo) | ≥ 0.90 |
+| Sobre-redacción | % de caracteres no sensibles ocultados | 0.2 % / 2.7 % | 0.7 % | ≤ 2 % |
+| Exactitud de rol en PERSON | paciente / personal sanitario / familiar / otro | no existe | F1 paciente 0.99, sanitario 0.98, familiar 0.68 | ≥ 0.90 por rol |
+| Consistencia de correferencia | Mismo referente = mismo marcador (B³ F1) dentro del documento o sesión | no existe | — | ≥ 0.95 |
+| Round-trip de re-identificación | Marcadores válidos en la respuesta del LLM restaurados correctamente | no existe | — | 100 % (0 restauraciones de tokens ajenos) |
+| Utilidad del LLM | Caída de la métrica de la tarea (extracción, resumen, QA) con texto anonimizado frente al original | no medida | — | ≤ 3 puntos |
+| Falsos `APPROVED` | Documentos aprobados con al menos 1 identificador directo según el gold | 100 % en el ejemplo | — | ≤ 1 % |
+| Tasa de revisión humana | % de `REVIEW_REQUIRED` en el holdout | no medida | — | ≤ 10 % |
+| Latencia | p95 por documento de 1,000 tokens, CPU de 4 núcleos, reglas + NER | 2 ms / 54 ms (media por doc) | 110 ms (media, 1 hilo) | ≤ 150 ms (p95) |
+| Calibración | ECE de la confianza por tipo | `null` | — | ≤ 0.05 |
 
 **Regla de salida:** todos los KPI de fuga deben cumplirse en *ambos* holdouts, con el
 límite inferior del IC 95 % por encima de la meta. Ningún KPI de utilidad puede compensar
@@ -311,7 +314,7 @@ F2.1). Round-trip 100 % en la suite. Consistencia ≥ 0.95 en la suite.
   - Entrenar un clasificador de tokens con MEDDOCAN-train (CC-BY-4.0), datos sintéticos
     mexicanos (plantillas y generación con LLM, solo para entrenamiento) y el corpus
     mexicano anotado de F3.
-  - Primer paso, barato: spaCy CNN. Esta auditoría lo midió (ver §6): tras una sola época, la cobertura completa de identificadores directos pasa de 0.650 a 0.976 y los documentos con fuga directa bajan de 250 a 43. <!-- TRAINED_NER_INLINE -->
+  - Primer paso, barato: spaCy CNN. Esta auditoría lo midió (ver §6): en unos 35 minutos de CPU, la cobertura completa de identificadores directos pasa de 0.650 a 0.979 y los documentos con fuga directa bajan de 250 a 42.
   - Paso de producción: un encoder *transformer* en español (familia RoBERTa-BNE / BETO /
     mDeBERTa, verificando la licencia de cada checkpoint), exportado a **ONNX int8** para CPU.
     La literatura de MEDDOCAN reporta F1 > 0.95 con este tipo de modelos.
@@ -402,35 +405,53 @@ MEDDOCAN-dev para la parada temprana y evalué una sola vez en MEDDOCAN-test, si
 umbral. Los pesos no se distribuyen: los vectores base son GPL, así que esto es solo un
 experimento.
 
-Resultado del checkpoint intermedio (1 época, dev F1 = 0.890 sobre las 21 etiquetas finas de
-MEDDOCAN), combinado con las reglas actuales:
+Entrenamiento: unos 3,000 pasos (6 épocas, unos 35 min en 1 hilo de CPU). El mejor
+checkpoint (paso 2500) obtuvo dev F1 = 0.944 y **test F1 = 0.943** sobre las 21 etiquetas finas
+de MEDDOCAN (P = 0.953, R = 0.932, puntuador de spaCy). Resultados en test con el
+mapeo a la taxonomía de DeidFlow:
 
-| Tipo | Gold | Cobertura completa: reglas | Cobertura completa: reglas + NER entrenado | Precisión tipada |
+| Tipo | Gold | Cobertura completa: reglas | Cobertura completa: reglas + NER de dominio | Precisión tipada (híbrido) |
 |---|---:|---:|---:|---:|
-| LOCATION | 1,319 | 0.002 | **0.970** | 0.982 |
-| PERSON | 1,084 | 0.383 | **0.979** | 0.971 |
-| DATE | 611 | 0.838 | 0.949 | 0.987 |
-| AGE | 518 | 0.044 | **0.985** | 0.864 |
-| DEMOGRAPHIC | 461 | 0.896 | 0.993 | 0.973 |
-| ADDRESS | 413 | 0.598 | **0.942** | 0.877 |
-| PATIENT_ID | 322 | 0.947 | 0.969 | 0.988 |
-| MEDICAL_FACILITY | 136 | 0.007 | **0.838** | 0.958 |
-| ORGANIZATION | 67 | 0.000 | 0.149 | — |
-| PHONE | 33 | 0.121 | 0.909 | 0.113 |
+| LOCATION | 1,319 | 0.002 | **0.968** | 0.970 |
+| PERSON | 1,084 | 0.383 | **0.983** | 0.976 |
+| DATE | 611 | 0.838 | 0.992 | 0.981 |
+| AGE | 518 | 0.044 | **0.931** | 0.993 |
+| DEMOGRAPHIC | 461 | 0.896 | 0.996 | 0.986 |
+| ADDRESS | 413 | 0.598 | **0.942** | 0.984 |
+| PATIENT_ID | 322 | 0.947 | 0.972 | 0.947 |
+| EMAIL / REGIONAL_ID / INSURANCE_ID | 681 | 0.98–0.99 | 1.000 | 0.99 |
+| MEDICAL_FACILITY | 136 | 0.007 | **0.912** | 0.961 |
+| ORGANIZATION | 67 | 0.000 | 0.343 | 0.733 |
+| PHONE | 33 | 0.121 | 0.909 | 0.126 |
+
+**Roles de persona** (base de los marcadores `[PACIENTE_n]`, `[MEDICO_n]`, `[FAMILIAR_n]`),
+F1 en test:
+
+| Rol MEDDOCAN | P | R | F1 |
+|---|---:|---:|---:|
+| Paciente (`NOMBRE_SUJETO_ASISTENCIA`) | 0.996 | 0.992 | 0.994 |
+| Personal sanitario (`NOMBRE_PERSONAL_SANITARIO`) | 0.978 | 0.978 | 0.978 |
+| Familiar (`FAMILIARES_SUJETO_ASISTENCIA`) | 0.652 | 0.716 | 0.682 |
+
+Cuando una persona se detecta, su rol entre estos tres es correcto en el 99.8 % de los
+casos (1,074/1,076). El rol de familiar es el más débil. Sus errores vienen de la detección o los límites del span, no de confundirlo con otro rol.
 
 Conclusiones:
 
-1. **La brecha principal es de datos y modelo, no de arquitectura.** Un NER de dominio barato
-   resuelve la mayor parte de LOCATION, PERSON, AGE, ADDRESS y FACILITY. Las reglas siguen
+1. **La brecha principal es de datos y de modelo, no de arquitectura.** Un NER de dominio
+   barato resuelve casi todo LOCATION, PERSON, AGE, ADDRESS y FACILITY. Las reglas siguen
    aportando los identificadores validados (CURP, RFC, CLABE, DNI) y la trazabilidad.
-2. **Aun así, no alcanza la meta.** Todavía quedan 43/250 documentos con alguna fuga
-   directa, ORGANIZATION casi no se aprende (pocas muestras) y la precisión de PHONE es mala
-   por conflicto con identificadores. Hacen falta el *transformer* (F2.2), la fusión (F2.4)
-   y datos mexicanos (F3).
-3. **MEDDOCAN no es México.** Este resultado es un techo optimista *dentro de dominio*.
+2. **El rol es aprendible.** Paciente y personal sanitario quedan por encima de 0.97 de F1.
+   Esto hace viable la salida "la señora [PACIENTE_1] … el doctor [MEDICO_1]" que pide el producto.
+3. **Aun así, no alcanza la meta de GA.** Quedan 42/250 documentos con alguna fuga directa,
+   ORGANIZATION e INSTITUCIÓN casi no se aprenden (67 ejemplos en test), y la fusión
+   ingenua con reglas baja la precisión: 215 predicciones PHONE (precisión 0.13) que son NHC o
+   NASS, y edades duplicadas. Hacen falta el *transformer* (F2.2), la fusión (F2.4), más datos
+   de instituciones y datos mexicanos (F3).
+4. **MEDDOCAN no es México.** Este resultado es un techo optimista *dentro de dominio*: entrena y
+   evalúa con la misma distribución, comparte artículos fuente entre splits (ver
+   `public-split-integrity.json`) y el split test ya se había consultado antes en el repositorio.
    La suite LLM y el holdout mexicano decidirán la salida a producción.
-
-<!-- TRAINED_NER_SECTION -->
 
 ---
 
