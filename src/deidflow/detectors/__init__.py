@@ -13,6 +13,7 @@ from deidflow.validators import (
     validate_card,
     validate_clabe,
     validate_curp,
+    validate_iban,
     validate_rfc,
 )
 
@@ -115,6 +116,11 @@ _LABELLED_REGIONAL = (
         validate_clabe,
     ),
 )
+# Uppercase IBAN, compact or in groups of four; bounded repetition keeps it linear.
+_IBAN_RE = re.compile(
+    r"(?<![A-Za-z0-9])[A-Z]{2}[0-9]{2}(?:[ ]?[A-Z0-9]{4}){2,7}(?:[ ]?[A-Z0-9]{1,4})?(?![A-Za-z0-9])"
+)
+_IBAN_LABEL = re.compile(r"\bIBAN\s*(?:n[úu]m(?:ero)?\.?|no\.?)?\s*[:=]?\s*$", _FLAGS)
 _DIGITS = re.compile(r"(?<![\w+])(?:[0-9][ \t-]*){12,18}[0-9](?!\w|[ \t-]*[0-9])")
 _PHONE = re.compile(
     r"(?<![\w])(?:\+?52[ .-]?)?(?:\(?[0-9]{2,3}\)?[ .-]?)?[0-9]{3,4}[ .-]?[0-9]{4}(?!\w)"
@@ -246,7 +252,21 @@ class RuleDetector:
                         context=("explicit_identifier_label",),
                     )
         numeric_spans: list[tuple[int, int]] = []
+        for match in _IBAN_RE.finditer(text):
+            check = validate_iban(match.group())
+            labelled = bool(_IBAN_LABEL.search(text[max(0, match.start() - 24) : match.start()]))
+            if check or labelled:
+                add(
+                    "BANK_ACCOUNT",
+                    *match.span(),
+                    0.99 if check else 0.55,
+                    validation=check.status,
+                    context=("iban",) + (("explicit_identifier_label",) if labelled else ()),
+                )
+                numeric_spans.append(match.span())
         for match in _DIGITS.finditer(text):
+            if any(start <= match.start() and match.end() <= end for start, end in numeric_spans):
+                continue
             compact = re.sub(r"[ \t-]", "", match.group())
             if len(compact) == 18:
                 check = validate_clabe(compact)

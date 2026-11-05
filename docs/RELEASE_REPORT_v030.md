@@ -1,5 +1,8 @@
 # DeidFlow v0.3: local engineering and release assessment
 
+> Licensing note: from 0.4.0 DeidFlow is licensed under Apache-2.0. Statements
+> below about a reserved-rights license describe the 0.3.0 snapshot.
+
 Date: 2026-11-02. The implementation is suitable for supervised technical
 evaluation. The measured coverage does not support describing it as an
 unattended production anonymizer. Public/private/synthetic evidence remains

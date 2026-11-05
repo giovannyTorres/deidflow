@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "source": "gretel_finance",
+  "repository": "https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual",
+  "license": "Apache-2.0",
+  "license_url": "https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual",
+  "provenance_kind": "synthetic_financial",
+  "already_anonymized": "Synthetic documents generated with Gretel Navigator; no real customer data",
+  "attribution": "Gretel.ai, synthetic_pii_finance_multilingual (Apache-2.0)",
+  "gold": true,
+  "text_field": "generated_text",
+  "spans_field": "pii_spans",
+  "language_field": "language",
+  "revision": "7b844d16738527a04264f50214cb426a4cea0897",
+  "files_source": "https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual/resolve/<revision>/data/",
+  "files": {
+    "README.md": "1818d7f7cd27101ee9f8c932baf5183482e49e54e4b108a1ba9138db60a3e8c8",
+    "Spanish_test-00000-of-00001.parquet": "89ff0e5b6cfd14119d299a17ce08d4bc46ce69b32cfb3740ec3bdef64de1f427",
+    "Spanish_train-00000-of-00001.parquet": "39954d0931f3d3771af1200f0255016bbe29905dcd0fec539864d3b01ea63b7b"
+  },
+  "file_digest_manifest_sha256": "4226f8df4df63ba3bae639d9b18dc4c9e39a7fcbf27c99117409b4365b237c97",
+  "raw_documents_committed": false
+}

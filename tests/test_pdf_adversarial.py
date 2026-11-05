@@ -86,6 +86,7 @@ def test_partial_text_layer_blank_page_and_hidden_text_use_actual_rasters(tmp_pa
             for p in (
                 Path("C:/Windows/Fonts/arial.ttf"),
                 Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+                Path("/System/Library/Fonts/Supplemental/Arial.ttf"),
             )
             if p.is_file()
         ),

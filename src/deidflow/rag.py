@@ -151,6 +151,19 @@ def _publish(stage: Path, target: Path) -> None:
             if code in {errno.EEXIST, errno.ENOTEMPTY}:
                 raise FileExistsError("Output bundle already exists")
             raise RAGExportError("Atomic directory publication failed")
+    elif sys.platform == "darwin":
+        # renamex_np(RENAME_EXCL) fails with EEXIST instead of replacing a target.
+        library = ctypes.CDLL(None, use_errno=True)
+        rename = getattr(library, "renamex_np", None)
+        if rename is None:
+            raise RAGExportError("Exclusive atomic directory publication is unavailable")
+        rename.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint]
+        rename.restype = ctypes.c_int
+        if rename(os.fsencode(stage), os.fsencode(target), 0x00000004) != 0:
+            code = ctypes.get_errno()
+            if code in {errno.EEXIST, errno.ENOTEMPTY}:
+                raise FileExistsError("Output bundle already exists")
+            raise RAGExportError("Atomic directory publication failed")
     else:
         raise RAGExportError(
             "Exclusive atomic directory publication is unsupported on this platform"

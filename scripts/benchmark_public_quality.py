@@ -28,14 +28,31 @@ from deidflow.benchmarks.runner import (
     machine_metadata,
     offline_network,
 )
+from deidflow.benchmarks.span_corpus import (
+    GRETEL_FINANCE,
+    gretel_files,
+    load_gretel_finance,
+    verify_registered_files,
+)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("source", choices=["meddocan", "tab"])
+    parser.add_argument("source", choices=["meddocan", "tab", "gretel_finance"])
     parser.add_argument("--corpus", type=Path, required=True)
-    parser.add_argument("--baseline", type=Path, required=True)
+    parser.add_argument(
+        "--baseline", type=Path, help="Frozen v0.2.0 source tree; omit to skip that comparison"
+    )
     parser.add_argument("--split", choices=["dev", "test"], default="test")
+    parser.add_argument("--language", default="Spanish", help="gretel_finance language")
+    parser.add_argument(
+        "--tagger",
+        action="append",
+        default=[],
+        metavar="NAME=MODEL",
+        help="Span tagger to evaluate (model path or builtin:<name>); repeat for several. "
+        "With several, their combination is also evaluated.",
+    )
     parser.add_argument("--spacy-model", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--repeats", type=int, default=1)
@@ -47,8 +64,18 @@ def main() -> None:
         help="MEDDOCAN test articles absent from official train/dev; metadata-only selection",
     )
     args = parser.parse_args()
-    integrity = verify_acquired_corpus(args.corpus, args.source)
-    corpus = load_public(args.corpus, args.source, args.split)
+    if args.source == "gretel_finance":
+        integrity = verify_registered_files(args.corpus, args.source)
+        if args.split != "test":
+            parser.error("gretel_finance publishes train and test only; evaluate --split test")
+        corpus = load_gretel_finance(
+            gretel_files(args.corpus, "test"), language=args.language, split="test"
+        )
+        source_description = GRETEL_FINANCE
+    else:
+        integrity = verify_acquired_corpus(args.corpus, args.source)
+        corpus = load_public(args.corpus, args.source, args.split)
+        source_description = SOURCES[args.source]
     keep_indices = None
     if args.source_group_holdout:
         if args.source != "meddocan" or args.split != "test":
@@ -79,7 +106,7 @@ def main() -> None:
     result = {
         "schema_version": 1,
         "machine": machine_metadata(),
-        "source": SOURCES[args.source],
+        "source": source_description,
         "integrity": integrity,
         "corpus": corpus.metadata,
         "split": args.split,
@@ -91,25 +118,26 @@ def main() -> None:
         ).hexdigest(),
         "pipelines": [],
     }
-    frozen, meta = snapshot_predictions(args.baseline, args.corpus, args.source, args.split)
-    if keep_indices is not None:
-        frozen = [p for i, p in enumerate(frozen) if i in keep_indices]
-    baseline_latency = [
-        latency
-        for i, latency in enumerate(meta["latency_seconds"])
-        if keep_indices is None or i in keep_indices
-    ]
-    predictions = [map_predictions(args.source, p) for p in frozen]
-    result["pipelines"].append(
-        {
-            "name": "deidflow_v0.2.0_rules",
-            "status": "measured",
-            "snapshot_commit": meta["commit"],
-            "source_sha256": meta["source_sha256"],
-            "p50_seconds": statistics.median(baseline_latency),
-            "metrics": quality_metrics(corpus, predictions, ci_repeats=args.ci_repeats),
-        }
-    )
+    if args.baseline is not None:
+        frozen, meta = snapshot_predictions(args.baseline, args.corpus, args.source, args.split)
+        if keep_indices is not None:
+            frozen = [p for i, p in enumerate(frozen) if i in keep_indices]
+        baseline_latency = [
+            latency
+            for i, latency in enumerate(meta["latency_seconds"])
+            if keep_indices is None or i in keep_indices
+        ]
+        predictions = [map_predictions(args.source, p) for p in frozen]
+        result["pipelines"].append(
+            {
+                "name": "deidflow_v0.2.0_rules",
+                "status": "measured",
+                "snapshot_commit": meta["commit"],
+                "source_sha256": meta["source_sha256"],
+                "p50_seconds": statistics.median(baseline_latency),
+                "metrics": quality_metrics(corpus, predictions, ci_repeats=args.ci_repeats),
+            }
+        )
     with offline_network() as guard:
         current, _ = evaluate_detector(
             "deidflow_candidate_rules",
@@ -119,7 +147,48 @@ def main() -> None:
             ci_repeats=args.ci_repeats,
         )
         result["pipelines"].append(current)
-        if args.source == "meddocan" and args.spacy_model and not args.rules_only:
+        if args.tagger:
+            from deidflow.nlp import CombinedNER
+            from deidflow.nlp.tagger import BUILTIN_MODELS, SpanTagger
+
+            taggers = []
+            result["tagger_models"] = {}
+            for item in args.tagger:
+                name, _, model = item.rpartition("=")
+                name = name or "tagger"
+                if model.startswith("builtin:"):
+                    tagger = SpanTagger.builtin(model[8:])
+                    digest = BUILTIN_MODELS[model[8:]][1]
+                else:
+                    tagger = SpanTagger.load(model)
+                    digest = hashlib.sha256(Path(model).read_bytes()).hexdigest()
+                result["tagger_models"][name] = {
+                    "sha256": digest,
+                    "version": tagger.model_version,
+                    "accelerated": tagger.accelerated,
+                    "training_data": tagger.metadata.get("training_data"),
+                }
+                taggers.append((name, tagger))
+            runs = []
+            for name, tagger in taggers:
+                runs.append(("deidflow_" + name, tagger.detect))
+                runs.append(("deidflow_rules_plus_" + name, DeidEngine(nlp=tagger).scan_text))
+            if len(taggers) > 1:
+                combined = CombinedNER(*(tagger for _, tagger in taggers))
+                label = "+".join(name for name, _ in taggers)
+                runs.append(("deidflow_" + label, combined.detect))
+                runs.append(("deidflow_rules_plus_" + label, DeidEngine(nlp=combined).scan_text))
+            for name, detector in runs:
+                measured, _ = evaluate_detector(
+                    name, detector, corpus, repeats=args.repeats, ci_repeats=args.ci_repeats
+                )
+                result["pipelines"].append(measured)
+        if (
+            args.source == "meddocan"
+            and args.spacy_model
+            and not args.rules_only
+            and args.baseline is not None
+        ):
             from deidflow.nlp import SpacyNER
 
             prior, prior_meta = snapshot_predictions(

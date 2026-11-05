@@ -1,0 +1,278 @@
+{
+  "labels": [
+    "O",
+    "B-ADDRESS",
+    "I-ADDRESS",
+    "B-AGE",
+    "I-AGE",
+    "B-DATE",
+    "I-DATE",
+    "B-DEMOGRAPHIC",
+    "I-DEMOGRAPHIC",
+    "B-EMAIL",
+    "I-EMAIL",
+    "B-INSURANCE_ID",
+    "I-INSURANCE_ID",
+    "B-LOCATION",
+    "I-LOCATION",
+    "B-MEDICAL_FACILITY",
+    "I-MEDICAL_FACILITY",
+    "B-OCCUPATION",
+    "I-OCCUPATION",
+    "B-ORGANIZATION",
+    "I-ORGANIZATION",
+    "B-OTHER_SENSITIVE",
+    "I-OTHER_SENSITIVE",
+    "B-PATIENT_ID",
+    "I-PATIENT_ID",
+    "B-PERSON",
+    "I-PERSON",
+    "B-PHONE",
+    "I-PHONE",
+    "B-REGIONAL_ID",
+    "I-REGIONAL_ID"
+  ],
+  "train_documents": 500,
+  "validation_documents": 250,
+  "train_tokens": 267279,
+  "features_kept": 22196,
+  "stored_features": 13507,
+  "stored_weight_entries": 68088,
+  "prune_below": 0.0,
+  "min_feature_docs": 10,
+  "train_alignment": {
+    "unaligned_spans": 7,
+    "spans_of_unknown_type": 0
+  },
+  "validation_alignment": {
+    "unaligned_spans": 3,
+    "spans_of_unknown_type": 1
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_documents_with_errors": 465,
+      "precision": 0.92079940784604,
+      "recall": 0.8579310344827586,
+      "f1": 0.888254194930382
+    },
+    {
+      "epoch": 2,
+      "train_documents_with_errors": 392,
+      "precision": 0.9379575402635432,
+      "recall": 0.8836206896551724,
+      "f1": 0.9099786931818181
+    },
+    {
+      "epoch": 3,
+      "train_documents_with_errors": 334,
+      "precision": 0.945339366515837,
+      "recall": 0.9005172413793103,
+      "f1": 0.9223841059602648
+    },
+    {
+      "epoch": 4,
+      "train_documents_with_errors": 301,
+      "precision": 0.9459507990662597,
+      "recall": 0.9082758620689655,
+      "f1": 0.9267305831647462
+    },
+    {
+      "epoch": 5,
+      "train_documents_with_errors": 305,
+      "precision": 0.95029501162167,
+      "recall": 0.9163793103448276,
+      "f1": 0.9330290529272359
+    },
+    {
+      "epoch": 6,
+      "train_documents_with_errors": 267,
+      "precision": 0.9545616535994298,
+      "recall": 0.9236206896551724,
+      "f1": 0.9388363126533472
+    },
+    {
+      "epoch": 7,
+      "train_documents_with_errors": 263,
+      "precision": 0.9561965811965812,
+      "recall": 0.9258620689655173,
+      "f1": 0.9407848633496847
+    },
+    {
+      "epoch": 8,
+      "train_documents_with_errors": 237,
+      "precision": 0.9572877736252002,
+      "recall": 0.9274137931034483,
+      "f1": 0.9421140204921622
+    },
+    {
+      "epoch": 9,
+      "train_documents_with_errors": 232,
+      "precision": 0.9596731213359389,
+      "recall": 0.9313793103448276,
+      "f1": 0.9453145507043486
+    },
+    {
+      "epoch": 10,
+      "train_documents_with_errors": 250,
+      "precision": 0.960603371783496,
+      "recall": 0.9332758620689655,
+      "f1": 0.9467424573677305
+    },
+    {
+      "epoch": 11,
+      "train_documents_with_errors": 228,
+      "precision": 0.9624246721020915,
+      "recall": 0.9362068965517242,
+      "f1": 0.9491347666491874
+    },
+    {
+      "epoch": 12,
+      "train_documents_with_errors": 200,
+      "precision": 0.96260854155591,
+      "recall": 0.9365517241379311,
+      "f1": 0.9494013807567946
+    },
+    {
+      "epoch": 13,
+      "train_documents_with_errors": 208,
+      "precision": 0.9620903454384411,
+      "recall": 0.9363793103448276,
+      "f1": 0.9490607252075142
+    },
+    {
+      "epoch": 14,
+      "train_documents_with_errors": 163,
+      "precision": 0.9619334277620396,
+      "recall": 0.9367241379310345,
+      "f1": 0.9491614255765198
+    },
+    {
+      "epoch": 15,
+      "train_documents_with_errors": 165,
+      "precision": 0.9617969579059074,
+      "recall": 0.9375862068965517,
+      "f1": 0.9495372795529945
+    },
+    {
+      "epoch": 16,
+      "train_documents_with_errors": 173,
+      "precision": 0.9618172176065052,
+      "recall": 0.9381034482758621,
+      "f1": 0.9498123417997731
+    },
+    {
+      "epoch": 17,
+      "train_documents_with_errors": 133,
+      "precision": 0.9618441971383148,
+      "recall": 0.9387931034482758,
+      "f1": 0.9501788674635722
+    },
+    {
+      "epoch": 18,
+      "train_documents_with_errors": 181,
+      "precision": 0.9622508378902804,
+      "recall": 0.9405172413793104,
+      "f1": 0.9512599180399337
+    },
+    {
+      "epoch": 19,
+      "train_documents_with_errors": 158,
+      "precision": 0.9619249074563723,
+      "recall": 0.9408620689655173,
+      "f1": 0.9512769110084547
+    },
+    {
+      "epoch": 20,
+      "train_documents_with_errors": 155,
+      "precision": 0.9617890473674943,
+      "recall": 0.9417241379310345,
+      "f1": 0.9516508406655632
+    },
+    {
+      "epoch": 21,
+      "train_documents_with_errors": 119,
+      "precision": 0.9617755856966708,
+      "recall": 0.9413793103448276,
+      "f1": 0.9514681536987016
+    },
+    {
+      "epoch": 22,
+      "train_documents_with_errors": 126,
+      "precision": 0.961639978884392,
+      "recall": 0.9422413793103448,
+      "f1": 0.9518418531742576
+    },
+    {
+      "epoch": 23,
+      "train_documents_with_errors": 103,
+      "precision": 0.9612948627726953,
+      "recall": 0.9420689655172414,
+      "f1": 0.9515848136537791
+    },
+    {
+      "epoch": 24,
+      "train_documents_with_errors": 83,
+      "precision": 0.9609704641350211,
+      "recall": 0.9424137931034483,
+      "f1": 0.9516016713091922
+    },
+    {
+      "epoch": 25,
+      "train_documents_with_errors": 116,
+      "precision": 0.9606326889279437,
+      "recall": 0.9424137931034483,
+      "f1": 0.9514360313315927
+    },
+    {
+      "epoch": 26,
+      "train_documents_with_errors": 83,
+      "precision": 0.960456942003515,
+      "recall": 0.9422413793103448,
+      "f1": 0.9512619669277633
+    }
+  ],
+  "selected_epoch": 22,
+  "selected_validation_exact_f1": 0.9518418531742576,
+  "calibration": {
+    "method": "platt",
+    "feature": "log1p_margin",
+    "a": 1.603282,
+    "b": -4.047154,
+    "fitted_on": "validation",
+    "target": "exact span (type and boundaries) correctness",
+    "spans": 5683
+  },
+  "seconds": 173.319,
+  "model_file_bytes": 398357,
+  "model_sha256": "dc824100552ddb5bae036d128da9cfe4e31aba68b7cb74c2ab1252ddc0952da9",
+  "training_data": {
+    "source": "meddocan",
+    "repository": "https://github.com/PlanTL-GOB-ES/SPACCC_MEDDOCAN",
+    "commit": "783a6df385c975b328c99bcffb54196a9ba4078a",
+    "license": "CC-BY-4.0",
+    "license_url": "https://github.com/PlanTL-GOB-ES/SPACCC_MEDDOCAN/blob/783a6df385c975b328c99bcffb54196a9ba4078a/LICENSE",
+    "attribution": "SPACCC MEDDOCAN; 2019 Secretaria de Estado para el Avance Digital (SEAD)",
+    "file_digest_manifest_sha256": "ba4823b70e231902fe7d865c1193607631eb0a2d1f30c8591a6fc523388d4cdc",
+    "splits": {
+      "weights": "train",
+      "epoch_selection_and_calibration": "dev"
+    },
+    "changes": "Gold labels mapped to DeidFlow categories; no source text edits",
+    "provenance_kind": "semi_synthetic_clinical"
+  },
+  "selection": {
+    "candidates_dev_exact_f1": {
+      "min_feature_docs=5": 0.9533,
+      "min_feature_docs=10": 0.9518
+    },
+    "earlier_feature_set_dev_exact_f1": {
+      "min_feature_docs=2": 0.9527,
+      "min_feature_docs=3": 0.9539,
+      "min_feature_docs=5": 0.9541
+    },
+    "rule": "Highest dev exact F1; within 0.002 prefer the larger min_feature_docs (fewer, more common features).",
+    "selected": "min_feature_docs=10",
+    "test_split_used": false
+  }
+}

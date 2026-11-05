@@ -1,0 +1,52 @@
+DeidFlow
+Copyright 2026 Giovanny Torres
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+-------------------------------------------------------------------------------
+Bundled model: src/deidflow/models/es-clinical-meddocan-1.json.gz
+-------------------------------------------------------------------------------
+
+The built-in Spanish clinical span tagger was trained by DeidFlow on the
+training split of the SPACCC MEDDOCAN corpus, with its development split used
+for epoch selection and calibration:
+
+  SPACCC MEDDOCAN (Medical Document Anonymization corpus)
+  Copyright 2019 Secretaria de Estado para el Avance Digital (SEAD), Plan TL
+  https://github.com/PlanTL-GOB-ES/SPACCC_MEDDOCAN
+  commit 783a6df385c975b328c99bcffb54196a9ba4078a
+  Licensed under the Creative Commons Attribution 4.0 International License
+  https://creativecommons.org/licenses/by/4.0/
+
+Changes: the corpus gold labels were mapped to DeidFlow entity categories and
+used to fit model weights. The model file contains numeric weights keyed by
+hashed features; it does not contain the corpus text. No source text was
+modified. MEDDOCAN contains synthetic personal data inserted into published
+clinical case reports; it is not a collection of real patient records.
+
+-------------------------------------------------------------------------------
+Bundled model: src/deidflow/models/es-finance-gretel-1.json.gz
+-------------------------------------------------------------------------------
+
+The built-in Spanish financial span tagger was trained by DeidFlow on the
+Spanish training file of:
+
+  synthetic_pii_finance_multilingual, Gretel.ai
+  https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual
+  revision 7b844d16738527a04264f50214cb426a4cea0897
+  Licensed under the Apache License, Version 2.0
+
+Changes: the published PII labels were mapped to DeidFlow entity categories
+and used to fit model weights; 10% of the training file (selected by a hash
+of each document's text) was held out for epoch selection and calibration.
+The model file contains numeric weights keyed by hashed features, not the
+corpus text. The corpus is synthetic and contains no real customer data.
+
+-------------------------------------------------------------------------------
+Third-party software
+-------------------------------------------------------------------------------
+
+The base package has no runtime dependencies. Optional extras install
+third-party packages under their own licenses; see docs/third-party-licenses.md.
+No third-party source code, native binary, OCR language file or spaCy model is
+redistributed in this package.

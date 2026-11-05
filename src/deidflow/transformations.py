@@ -9,12 +9,13 @@ import base64
 import hashlib
 import hmac
 import math
+import re
 import unicodedata
-from collections.abc import Callable
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
 from datetime import date, timedelta
 
-from deidflow.core import Finding
+from deidflow.core import EntityType, Finding
 from deidflow.policies import Policy, Rule
 
 
@@ -169,3 +170,54 @@ def transform_text(
         cursor = end
     parts.append(text[cursor:])
     return "".join(parts), mappings
+
+
+# Output of the constant/keyed operators in their known formats: typed
+# placeholders for taxonomy categories, HMAC pseudonyms ([DF_TYPE_<32 base32>]),
+# the default generalization marker, redaction blocks and fully masked values.
+# Arbitrary bracketed text such as "[JUAN]" or "[GODE561231GR8]" is NOT a
+# replacement: source values in brackets must stay detectable.
+_PLACEHOLDER_TYPES = "|".join(
+    sorted((re.escape(t.value) for t in EntityType), key=len, reverse=True)
+)
+_REPLACEMENT_TOKEN = re.compile(
+    r"\[(?:" + _PLACEHOLDER_TYPES + r")\]"
+    r"|\[DF_[A-Z][A-Z0-9_]{0,63}_[A-Z2-7]{32}\]"
+    r"|\[GENERALIZED\]|\u2588+|\*+"
+)
+SAFE_REPLACEMENT_ACTIONS = frozenset(
+    {"redact", "suppress", "placeholder", "pseudonym", "generalize"}
+)
+
+
+def replacement_only(
+    text: str,
+    start: int,
+    end: int,
+    *,
+    ranges: Sequence[tuple[int, int]] | None = None,
+) -> bool:
+    """True when every letter or digit in ``text[start:end]`` lies in replacement output.
+
+    With ``ranges`` (output offsets of applied constant/keyed transformations,
+    from :class:`SourceMap`), only those exact ranges count. Without them, only
+    the known replacement formats above count. A rescan finding that covers just
+    replacements and separators carries no source text, so it is not a residual
+    disclosure; partial masks keep their visible digits outside any token.
+    """
+    covered = bytearray(end - start)
+    hit = False
+    if ranges is not None:
+        spans: Iterable[tuple[int, int]] = ranges
+    else:
+        window = _REPLACEMENT_TOKEN.finditer(text, max(0, start - 80), min(len(text), end + 80))
+        spans = (match.span() for match in window)
+    for span_start, span_end in spans:
+        low, high = max(span_start, start), min(span_end, end)
+        if low < high:
+            covered[low - start : high - start] = b"\x01" * (high - low)
+            hit = True
+    return hit and all(
+        flag or not character.isalnum()
+        for flag, character in zip(covered, text[start:end], strict=True)
+    )

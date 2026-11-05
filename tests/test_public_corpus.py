@@ -115,3 +115,81 @@ def test_benchmark_integrity_refuses_modified_or_extra_corpus(tmp_path, monkeypa
     (root / "echr_test.json").write_text("changed")
     with pytest.raises(ValueError, match="differs"):
         verify_acquired_corpus(root, "tab")
+
+
+def _git_fixture(tmp_path):
+    import shutil
+    import subprocess
+
+    if shutil.which("git") is None:
+        pytest.skip("git is not installed")
+    origin = tmp_path / "origin"
+    (origin / "corpus/train/brat").mkdir(parents=True)
+    (origin / "corpus/dev/brat").mkdir(parents=True)
+    (origin / "corpus/test/brat").mkdir(parents=True)
+    for split in ("train", "dev", "test"):
+        (origin / f"corpus/{split}/brat/a.txt").write_bytes(b"Nombre: Ana Ruiz\r\n")
+        # Bytes, not text mode: Windows would translate newlines and change digests.
+        (origin / f"corpus/{split}/brat/a.ann").write_bytes(
+            b"T1\tNOMBRE_SUJETO_ASISTENCIA 8 16\tAna Ruiz\n"
+        )
+    (origin / "README.md").write_bytes(b"synthetic fixture\n")
+    (origin / "unrelated.py").write_bytes(b"print('not extracted')\n")
+
+    def git(*args):
+        return subprocess.run(
+            ["git", "-c", "core.autocrlf=false", *args],
+            cwd=origin,
+            check=True,
+            capture_output=True,
+            env={
+                "GIT_AUTHOR_NAME": "t",
+                "GIT_AUTHOR_EMAIL": "t@example.test",
+                "GIT_COMMITTER_NAME": "t",
+                "GIT_COMMITTER_EMAIL": "t@example.test",
+                "PATH": __import__("os").environ["PATH"],
+                "HOME": str(tmp_path),
+            },
+        ).stdout.decode()
+
+    git("init", "-q")
+    git("add", "-A")
+    git("commit", "-q", "-m", "fixture")
+    git("config", "uploadpack.allowAnySHA1InWant", "true")
+    return origin, git("rev-parse", "HEAD").strip()
+
+
+def test_git_acquisition_pins_commit_and_digest_manifest(tmp_path, monkeypatch):
+    import hashlib
+
+    from deidflow.benchmarks.public_corpus import acquire_git
+
+    origin, commit = _git_fixture(tmp_path)
+    digests = {}
+    for split in ("train", "dev", "test"):
+        digests[f"meddocan/{split}/a.txt"] = hashlib.sha256(b"Nombre: Ana Ruiz\r\n").hexdigest()
+        digests[f"meddocan/{split}/a.ann"] = hashlib.sha256(
+            b"T1\tNOMBRE_SUJETO_ASISTENCIA 8 16\tAna Ruiz\n"
+        ).hexdigest()
+    digests["meddocan/README.md"] = hashlib.sha256(b"synthetic fixture\n").hexdigest()
+    pinned = hashlib.sha256(json.dumps(digests, sort_keys=True).encode()).hexdigest()
+    monkeypatch.setitem(SOURCES["meddocan"], "repository", origin.as_uri())
+    monkeypatch.setitem(SOURCES["meddocan"], "commit", commit)
+    monkeypatch.setitem(SOURCES["meddocan"], "file_digest_manifest_sha256", pinned)
+    destination = tmp_path / "verified"
+    manifest = acquire_git("meddocan", destination)
+    assert manifest["extracted_files"] == 7
+    # CRLF bytes are read from git objects, not a converted working tree.
+    assert (destination / "meddocan/train/a.txt").read_bytes().endswith(b"\r\n")
+    assert not (destination / "meddocan/unrelated.py").exists()
+    assert (
+        verify_acquired_corpus(destination / "meddocan", "meddocan")["verified_corpus_files"] == 6
+    )
+    assert load_meddocan(destination / "meddocan", "train").examples[0].spans[0].end == 16
+    (destination / "meddocan/test/extra.txt").write_text("x", encoding="utf-8")
+    with pytest.raises(ValueError, match="digest"):
+        verify_acquired_corpus(destination / "meddocan", "meddocan")
+    monkeypatch.setitem(SOURCES["meddocan"], "file_digest_manifest_sha256", "0" * 64)
+    with pytest.raises(ValueError, match="digest"):
+        acquire_git("meddocan", tmp_path / "other")
+    assert not (tmp_path / "other/meddocan").exists()

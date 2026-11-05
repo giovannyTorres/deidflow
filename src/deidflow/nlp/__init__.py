@@ -151,4 +151,35 @@ class SpacyNER:
         return self.detect_batch([text])[0]
 
 
-__all__ = ["SpacyNER"]
+class CombinedNER:
+    """Run several local adapters on the same batch and fuse their findings."""
+
+    def __init__(self, *adapters: Any) -> None:
+        if not adapters or any(not hasattr(a, "detect_batch") for a in adapters):
+            raise ValueError("CombinedNER needs one or more adapters with detect_batch")
+        self.adapters = adapters
+
+    def detect_batch(self, texts: list[str]) -> list[list[Finding]]:
+        combined: list[list[Finding]] = [[] for _ in texts]
+        for adapter in self.adapters:
+            predicted = adapter.detect_batch(texts)
+            if len(predicted) != len(texts):
+                raise ValueError("NLP adapter returned an invalid batch length")
+            for index, items in enumerate(predicted):
+                combined[index].extend(items)
+        return [fuse(items) for items in combined]
+
+    def detect(self, text: str) -> list[Finding]:
+        return self.detect_batch([text])[0]
+
+
+def __getattr__(name: str) -> Any:
+    # Lazy import keeps ``import deidflow.nlp`` cheap for spaCy-only users.
+    if name in {"SpanTagger", "TaggedSpan"}:
+        from deidflow.nlp import tagger
+
+        return getattr(tagger, name)
+    raise AttributeError(name)
+
+
+__all__ = ["CombinedNER", "SpacyNER", "SpanTagger", "TaggedSpan"]

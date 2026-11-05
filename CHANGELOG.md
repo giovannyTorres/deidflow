@@ -1,5 +1,43 @@
 # Changelog
 
+## 0.4.0 - 2026-11-05
+
+- Relicensed under Apache-2.0 (`LICENSE`, `NOTICE`); the earlier snapshots
+  reserved all rights.
+- Added `SpanTagger`, a dependency-free averaged-perceptron BIO tagger with JSON
+  model files, hashed features, document-frequency feature pruning, Platt
+  calibration, near-miss review candidates and optional NumPy acceleration.
+- Added the packaged `es-clinical` model trained on MEDDOCAN train (selected and
+  calibrated on dev). Held-out test exact F1 0.958 [0.950, 0.966] versus 0.509
+  for the v0.3 rules; ECE 0.008. See `docs/TAGGER.md`.
+- Added `scripts/train_span_tagger.py`, span JSONL corpora, `CombinedNER` and
+  CLI `--tagger`, `--tagger-sha256`, `--review-margin` and `--version`; CLI
+  errors now report the exception class (never its message).
+- Verification rescans ignore findings made only of DeidFlow replacement output:
+  exact applied ranges during `deidentify_text`, otherwise known placeholder,
+  pseudonym, redaction and mask formats. Previously the rules re-detected
+  `Domicilio: [ADDRESS]` and blocked every such document. Bracketed source values
+  (`[JUAN]`, `[GODE561231GR8]`) and findings that cover source letters or digits
+  keep blocking.
+- `EntityType` adds `INSURANCE_ID`, `MEDICAL_FACILITY`, `ORGANIZATION`,
+  `IP_ADDRESS` and `OTHER_SENSITIVE`, which detectors and corpora already used.
+- RAG bundle publication supports macOS (`renamex_np(RENAME_EXCL)`).
+- Added `scripts/benchmark_release_gate.py` measuring release decisions and
+  output leakage: on MEDDOCAN test, 40 of 149 approved documents still leaked at
+  least one sensitive character (11 of 76 with `review_margin=60`).
+- Added pinned git acquisition (`acquire_git`) verified against the registry's
+  per-file digest manifest, now also checked by archive acquisition.
+- Added the Gretel multilingual financial PII corpus (Apache-2.0, pinned revision
+  and file hashes) and the packaged `es-finance` tagger trained on its Spanish
+  train file. Held-out Spanish test exact F1 0.740 versus 0.308 for the rules;
+  57 of 161 approved test documents still leaked at least one sensitive
+  character (`docs/TAGGER.md`).
+- Added a checksum-validated (ISO 13616 MOD 97-10) IBAN recognizer.
+- CI: Linux/Windows/macOS × Python 3.11-3.13, coverage gate, wheel smoke test
+  without optional dependencies. Release workflow with SBOM, checksums, build
+  provenance attestations and opt-in PyPI trusted publishing. Dependabot,
+  `SECURITY.md`, `CONTRIBUTING.md`, full project metadata, beta classifier.
+
 ## 0.3.0 - 2026-11-02 (local experimental release)
 
 - Added pinned MEDDOCAN/TAB acquisition, verified human gold, frozen v0.2

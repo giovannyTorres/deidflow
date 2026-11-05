@@ -3,6 +3,12 @@
 This delivery prioritizes functioning, verified components. The following are
 explicitly unimplemented or not validated; they are not hidden fallback paths.
 
+v0.4 adds the Apache-2.0 license, a trained dependency-free Spanish span tagger
+(MEDDOCAN test exact F1 0.958), end-to-end release-gate leakage measurement,
+pinned git corpus acquisition, a financial corpus loader and tag-driven release
+automation. The leakage measurement shows that approved clinical documents can
+still contain sensitive characters; the items below remain open.
+
 v0.3 adds pinned public-gold acquisition/comparison, source-disjoint evaluation,
 local private review/annotation, joint PDF+JSONL gates, numeric stage profiling
 and measured bounded OCR workers. These are implemented. Remaining clinical and
@@ -31,9 +37,13 @@ are documented in the current quality/security reports.
 
 ## Accuracy and customer adaptation
 
-- Train/evaluate local token/span NER with BIO conversion and representative
-  Spanish/Mexican customer annotations. CRF, BiLSTM/encoder adaptation and
-  LightGBM/CatBoost alternatives remain experiments, not delivered adapters.
+- Token/span NER with BIO conversion is delivered (`SpanTagger`, trained on
+  public MEDDOCAN). Still open: training and evaluating on representative
+  Mexican clinical/financial annotations, running the Gretel financial
+  evaluation, and encoder (transformer/ONNX) adapters, which remain unvalidated.
+- Reduce misses that survive into `APPROVED` output (an independent second
+  detector for verification, document-level abstention, organization/phone
+  coverage).
 - Expand regional IDs, health terminology and subject relationships, spatial and
   multi-line layout, cross-page references and clinical negation. Current medical
   table association is schema-level; JSON cross-field medical association is not
@@ -54,8 +64,8 @@ are documented in the current quality/security reports.
 - CUDA consumer-GPU and ONNX encoder adapters and parallel file rewriting remain
   unvalidated. OCR workers1/2/4/8 are measured on synthetic fixtures in v0.3;
   representative real collections and repeated full-scale trials remain necessary.
-- Add maintained dependency hash locks by OS/Python, signed artifacts/SBOMs,
-  protected key/model storage, process isolation and platform-specific installation.
-  CI is configured locally; it has not run on a remote hosting service.
-- Resolve name/trademark and license strategy before any separately authorized
-  public repository or package publication.
+- SBOM, checksums and build-provenance attestations are produced by the release
+  workflow. Still open: hash-pinned dependency locks per OS/Python, protected
+  key/model storage, process isolation and platform-specific installation.
+- License resolved (Apache-2.0). Name/trademark clearance and enabling PyPI
+  trusted publishing remain the owner's decision.

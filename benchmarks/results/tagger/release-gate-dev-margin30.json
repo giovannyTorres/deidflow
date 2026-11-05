@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "machine": {
+    "platform": "Linux-6.18.44-fc-v236-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "machine": "x86_64",
+    "processor": "x86_64",
+    "logical_cpu_count": 4,
+    "versions": {
+      "deidflow": "0.3.0",
+      "psutil": "7.2.2",
+      "spacy": "3.8.18",
+      "presidio-analyzer": null,
+      "DataProfiler": null,
+      "numpy": "2.5.4",
+      "scikit-learn": "1.8.0"
+    },
+    "execution": "CPU",
+    "gpu_memory_bytes": null,
+    "physical_memory_bytes": 16867418112,
+    "physical_cpu_count": 4
+  },
+  "corpus": "meddocan",
+  "split": "dev",
+  "integrity": {
+    "file_digest_manifest_sha256": "ba4823b70e231902fe7d865c1193607631eb0a2d1f30c8591a6fc523388d4cdc",
+    "verified_corpus_files": 2000,
+    "corpus_file_digest_sha256": "c1040f3756553a80ca7501ea6ec6e38f8004dcc56358e3aab81110711ab402a5",
+    "method": "Read-only SHA256 per-file digest manifest equal to the registry pin; no source files modified"
+  },
+  "tagger": {
+    "version": "es-clinical-meddocan-1",
+    "review_margin": 30.0
+  },
+  "policy": "Policy.strict() defaults: placeholder for every category, review_below=0.75",
+  "pipelines": {
+    "rules_only_explicit": {
+      "documents": 250,
+      "status_counts": {
+        "REVIEW_REQUIRED": 248,
+        "APPROVED": 2
+      },
+      "issue_counts": {
+        "UNCERTAIN_SOURCE_FINDINGS": 248
+      },
+      "approved_rate": 0.008,
+      "review_or_blocked_rate": 0.992,
+      "approved_documents_with_leaked_gold_characters": 2,
+      "approved_leak_rate": 1.0,
+      "documents_with_leaked_gold_characters_by_status": {
+        "REVIEW_REQUIRED": 248,
+        "APPROVED": 2
+      },
+      "leaked_gold_characters_by_status": {
+        "REVIEW_REQUIRED": 32650,
+        "APPROVED": 237
+      },
+      "output_sensitive_character_recall": 0.5195751891781342,
+      "p50_seconds": 0.004966589999980897,
+      "definition": "A gold character leaks when no applied transformation covers its source offset"
+    },
+    "rules_plus_tagger": {
+      "documents": 250,
+      "status_counts": {
+        "APPROVED": 92,
+        "REVIEW_REQUIRED": 122,
+        "BLOCKED": 36
+      },
+      "issue_counts": {
+        "UNCERTAIN_SOURCE_FINDINGS": 136,
+        "RESIDUAL_FINDINGS": 36
+      },
+      "approved_rate": 0.368,
+      "review_or_blocked_rate": 0.632,
+      "approved_documents_with_leaked_gold_characters": 14,
+      "approved_leak_rate": 0.15217391304347827,
+      "documents_with_leaked_gold_characters_by_status": {
+        "APPROVED": 14,
+        "REVIEW_REQUIRED": 57,
+        "BLOCKED": 6
+      },
+      "leaked_gold_characters_by_status": {
+        "APPROVED": 165,
+        "REVIEW_REQUIRED": 1124,
+        "BLOCKED": 51
+      },
+      "output_sensitive_character_recall": 0.9804248108218658,
+      "p50_seconds": 0.051890490000118916,
+      "definition": "A gold character leaks when no applied transformation covers its source offset"
+    }
+  },
+  "network_guard": {
+    "attempts": 0
+  }
+}
