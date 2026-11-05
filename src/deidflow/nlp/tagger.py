@@ -57,6 +57,15 @@ BUILTIN_MODELS: dict[str, tuple[str, str]] = {
 }
 
 
+def builtin_profiles() -> dict[str, dict[str, dict[str, Any]]]:
+    """Packaged operating profiles: ``{model: {profile: {margins and measurements}}}``."""
+    text = resources.files("deidflow.models").joinpath("profiles.json").read_text("utf-8")
+    profiles = json.loads(text)
+    if not isinstance(profiles, dict):
+        raise ValueError("Packaged tagger profiles are malformed")
+    return profiles
+
+
 def tokenize(text: str) -> list[tuple[int, int]]:
     """Word and single-punctuation tokens as half-open character offsets."""
     return [match.span() for match in _TOKEN.finditer(text)]
@@ -231,9 +240,20 @@ class SpanTagger:
     Scores are Platt-calibrated estimates of exact span correctness when the
     model carries a calibration fitted on held-out data, and then also populate
     ``Finding.confidence``. Without calibration every span scores 0.75 and
-    ``confidence`` stays ``None``. ``review_margin`` additionally emits
-    near-miss candidates (score 0.5, below the default review gate) for tokens
-    that were tagged ``O`` by a small margin, trading review load for recall.
+    ``confidence`` stays ``None``.
+
+    Two optional margins act on tokens the model tagged ``O`` by only a small
+    margin (best path score minus the best path that labels the token as an
+    entity), trading utility for recall:
+
+    - ``review_margin``: such tokens become near-miss candidates scored 0.5,
+      below the default review gate, so the document needs human review.
+    - ``redact_margin``: such tokens (outside ``review_margin``) become
+      candidates scored 0.75, at the default gate, so they are transformed
+      without forcing review. This over-redacts on purpose.
+
+    ``profile`` selects packaged, validation-tuned margins for built-in models
+    (see :meth:`builtin`); explicit margins override it.
     """
 
     def __init__(
@@ -242,15 +262,15 @@ class SpanTagger:
         *,
         labels: Mapping[str, str] | None = None,
         review_margin: float | None = None,
+        redact_margin: float | None = None,
         max_segment_tokens: int = 4000,
         accelerate: bool | None = None,
     ) -> None:
         if accelerate not in {None, True, False}:
             raise ValueError("accelerate must be None, True or False")
-        if review_margin is not None and (
-            type(review_margin) not in {int, float} or not 0 < review_margin < 1e6
-        ):
-            raise ValueError("review_margin must be a positive number")
+        for name, value in (("review_margin", review_margin), ("redact_margin", redact_margin)):
+            if value is not None and (type(value) not in {int, float} or not 0 < value < 1e6):
+                raise ValueError(f"{name} must be a positive number")
         if type(max_segment_tokens) is not int or max_segment_tokens < 64:
             raise ValueError("max_segment_tokens must be an integer of at least 64")
         if model.get("format") != FORMAT or model.get("format_version") != FORMAT_VERSION:
@@ -334,6 +354,7 @@ class SpanTagger:
         if labels is not None and not labels:
             raise ValueError("Tagger label mapping must not be empty")
         self.review_margin = review_margin
+        self.redact_margin = redact_margin
         self.max_segment_tokens = max_segment_tokens
         self._cache: dict[str, Any] = {}
         self._numpy: Any = None
@@ -381,12 +402,23 @@ class SpanTagger:
         return cls(model, **options)
 
     @classmethod
-    def builtin(cls, name: str, **options: Any) -> SpanTagger:
-        """Load a model shipped inside the package, verifying its pinned digest."""
+    def builtin(cls, name: str, *, profile: str | None = None, **options: Any) -> SpanTagger:
+        """Load a model shipped inside the package, verifying its pinned digest.
+
+        ``profile`` applies packaged operating margins tuned on validation data
+        (``models/profiles.json``); explicitly passed margins take precedence.
+        """
         if name not in BUILTIN_MODELS:
             raise ValueError(
                 "Unknown built-in tagger; available: " + ", ".join(sorted(BUILTIN_MODELS))
             )
+        if profile is not None:
+            settings = builtin_profiles().get(name, {}).get(profile)
+            if settings is None:
+                raise ValueError(f"Unknown profile {profile!r} for built-in tagger {name!r}")
+            for key in ("review_margin", "redact_margin"):
+                if options.get(key) is None and settings.get(key) is not None:
+                    options[key] = settings[key]
         resource, digest = BUILTIN_MODELS[name]
         payload = resources.files("deidflow.models").joinpath(resource).read_bytes()
         return cls.from_bytes(payload, sha256=digest, **options)
@@ -534,12 +566,18 @@ class SpanTagger:
         probability = min(0.999, max(0.001, _sigmoid(a * math.log1p(margin) + b)))
         return probability, probability
 
-    def predict(self, text: str) -> list[TaggedSpan]:
+    def _candidate_margin(self) -> float | None:
+        margins = [m for m in (self.review_margin, self.redact_margin) if m is not None]
+        return max(margins) if margins else None
+
+    def predict(self, text: str, *, candidate_margin: float | None = None) -> list[TaggedSpan]:
         """Raw model spans with max-marginal margins, before label mapping.
 
-        Spans whose letters and digits all belong to DeidFlow replacement tokens
-        (placeholders, pseudonyms, redaction blocks) are dropped.
+        Near-miss candidates are collected up to ``candidate_margin`` (default:
+        the larger of the configured margins). Spans whose letters and digits
+        all belong to DeidFlow replacement tokens are dropped.
         """
+        threshold = self._candidate_margin() if candidate_margin is None else candidate_margin
         tokens = tokenize(text)
         if not tokens:
             return []
@@ -551,28 +589,43 @@ class SpanTagger:
             else:
                 path, marginals, best = self._decode(self._emissions(features[begin:end]))
             spans.extend(self._path_spans(tokens, begin, path, marginals, best))
-            if self.review_margin is not None:
-                spans.extend(self._near_misses(tokens, begin, path, marginals, best))
+            if threshold is not None:
+                spans.extend(
+                    self._near_misses(tokens, begin, path, marginals, best, float(threshold))
+                )
         spans = [s for s in spans if not replacement_only(text, s.start, s.end)]
         return sorted(spans, key=lambda s: (s.start, s.end, s.entity_type))
 
     def detect(self, text: str) -> list[Finding]:
+        return self.to_findings(self.predict(text))
+
+    def to_findings(self, spans: Iterable[TaggedSpan]) -> list[Finding]:
+        """Map spans to findings under the current label mapping and margins."""
         findings = []
-        for span in self.predict(text):
+        review = self.review_margin or 0.0
+        redact = self.redact_margin or 0.0
+        for span in spans:
             kind = self.labels.get(span.entity_type)
             if kind is None:
                 continue
             risk = "medium" if kind in _MEDIUM_RISK else "high"
             if span.near_miss:
+                context: tuple[str, ...]
+                if span.margin < review:
+                    score, context = 0.5, ("near_miss",)
+                elif span.margin < redact:
+                    score, context = 0.75, ("near_miss", "redact_only")
+                else:
+                    continue
                 findings.append(
                     Finding(
                         kind,
                         span.start,
                         span.end,
-                        0.5,
+                        score,
                         "tagger.local",
                         validation="statistical_candidate",
-                        context=("near_miss",),
+                        context=context,
                         model_version=self.model_version,
                         risk=risk,
                     )
@@ -635,8 +688,8 @@ class SpanTagger:
         path: list[int],
         marginals: list[list[float]],
         best: float,
+        threshold: float,
     ) -> list[TaggedSpan]:
-        threshold = float(self.review_margin or 0.0)
         flagged: list[tuple[int, str, float]] = []
         for t, label in enumerate(path):
             if label != 0:
@@ -719,6 +772,7 @@ def bio_tags(
 __all__ = [
     "BUILTIN_MODELS",
     "FEATURE_SET",
+    "builtin_profiles",
     "FORMAT",
     "FORMAT_VERSION",
     "SpanTagger",
