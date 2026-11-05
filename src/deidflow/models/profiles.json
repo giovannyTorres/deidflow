@@ -1,0 +1,64 @@
+{
+  "es-clinical": {
+    "balanced": {
+      "review_margin": null,
+      "redact_margin": null,
+      "description": "Model spans only; highest throughput"
+    },
+    "assurance": {
+      "review_margin": 5.0,
+      "redact_margin": 40.0,
+      "description": "Most approvals with approved direct-identifier leak <= 2% on validation. The target did not hold on the held-out test set; see docs/TAGGER.md.",
+      "validation": {
+        "split": "official dev",
+        "documents": 250,
+        "approved": 115,
+        "approved_direct_identifier_leak_rate": 0.0174,
+        "approved_leak_rate": 0.1652,
+        "over_redaction_rate": 0.0049
+      },
+      "test": {
+        "documents": 250,
+        "approved": 130,
+        "approved_direct_identifier_leak_rate": 0.0769,
+        "approved_direct_identifier_leak_rate_wilson95": [
+          0.0423,
+          0.1358
+        ],
+        "approved_leak_rate": 0.2077,
+        "over_redaction_rate": 0.0044
+      }
+    }
+  },
+  "es-finance": {
+    "balanced": {
+      "review_margin": null,
+      "redact_margin": null,
+      "description": "Model spans only; highest throughput"
+    },
+    "assurance": {
+      "review_margin": null,
+      "redact_margin": 320.0,
+      "description": "Most approvals with approved direct-identifier leak <= 2% on validation. The target did not hold on the held-out test set; see docs/TAGGER.md.",
+      "validation": {
+        "split": "10% text-hash holdout of the published train file (the tagger's validation set)",
+        "documents": 402,
+        "approved": 22,
+        "approved_direct_identifier_leak_rate": 0.0,
+        "approved_leak_rate": 0.1364,
+        "over_redaction_rate": 0.1793
+      },
+      "test": {
+        "documents": 461,
+        "approved": 22,
+        "approved_direct_identifier_leak_rate": 0.0,
+        "approved_direct_identifier_leak_rate_wilson95": [
+          0.0,
+          0.1487
+        ],
+        "approved_leak_rate": 0.0909,
+        "over_redaction_rate": 0.1757
+      }
+    }
+  }
+}

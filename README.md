@@ -59,6 +59,8 @@ verification gate. It never establishes anonymous data. Always inspect
 - **Built-in Spanish financial tagger** (`SpanTagger.builtin("es-finance")`)
   trained on the Apache-2.0 Gretel synthetic financial corpus: held-out exact
   F1 **0.740** versus 0.308 for the rules. Checksum-validated IBAN recognizer.
+- Domain router (`--tagger builtin:auto`) picks the clinical or financial model
+  per document; `balanced`/`assurance` operating profiles (`--tagger-profile`).
 - Train your own tagger from span JSONL (`scripts/train_span_tagger.py`).
 - Verification no longer blocks on its own placeholders: rescans ignore findings
   made only of replacement tokens, so `APPROVED` is reachable on real text.
@@ -164,6 +166,9 @@ On the Gretel Spanish financial test set (461 documents), `es-finance` reaches
 exact F1 0.740 [0.709, 0.768] and rules + `es-finance` cover 83% of sensitive
 characters; 57 of its 161 approved documents still leaked at least one
 sensitive character. Financial text is not ready for unattended release.
+Validation-tuned `assurance` profiles lower the share of approved documents that
+leak a direct identifier (MEDDOCAN test: 10.1% to 7.7%) but did not reach their
+2% validation target on test; see [operating profiles](docs/TAGGER.md#operating-profiles-domain-routing-and-leak-targets).
 
 ## Public gold evaluation of the v0.3 candidate
 

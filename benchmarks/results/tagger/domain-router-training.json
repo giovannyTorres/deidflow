@@ -1,0 +1,64 @@
+{
+  "model_sha256": "316d2ee699ddee08879d0835df894715ae14b1ae176f1794b45b283d82ff6324",
+  "model_bytes": 124694,
+  "features": 9493,
+  "training_documents": {
+    "clinical": 500,
+    "financial": 3746
+  },
+  "validation": {
+    "clinical": {
+      "documents": 250,
+      "accuracy_without_mixed_fallback": 1.0,
+      "evidence_margin_min": 0.6238811870503751,
+      "evidence_margin_p01": 0.8679365272186382,
+      "evidence_margin_median": 1.6477642263286318
+    },
+    "financial": {
+      "documents": 402,
+      "accuracy_without_mixed_fallback": 0.9626865671641791,
+      "evidence_margin_min": -1.0784800000000008,
+      "evidence_margin_p01": -0.777731555911334,
+      "evidence_margin_median": 1.2924876172438755
+    }
+  },
+  "test_split_used": false,
+  "selection": {
+    "min_evidence_candidates": {
+      "0.0": {
+        "financial_wrongly_single_routed": 15,
+        "financial_mixed": 0,
+        "clinical_mixed": 0
+      },
+      "0.5": {
+        "financial_wrongly_single_routed": 4,
+        "financial_mixed": 29,
+        "clinical_mixed": 0
+      },
+      "0.8": {
+        "financial_wrongly_single_routed": 3,
+        "financial_mixed": 56,
+        "clinical_mixed": 2
+      },
+      "1.1": {
+        "financial_wrongly_single_routed": 0,
+        "financial_mixed": 130,
+        "clinical_mixed": 4
+      }
+    },
+    "validation_documents": {
+      "clinical": 250,
+      "financial": 402
+    },
+    "rule": "Smallest min_evidence with at most 1% of each domain's validation documents routed to the wrong single tagger",
+    "selected_min_evidence": 0.5,
+    "misrouted_financial_document_types_at_0": {
+      "BAI Format": 5,
+      "CSV": 5,
+      "FIX Protocol": 2,
+      "MT940": 1,
+      "SWIFT Message": 1,
+      "EDI": 1
+    }
+  }
+}

@@ -34,6 +34,12 @@
   PyPI opcional mediante trusted publishing, Dependabot, `SECURITY.md` y
   `CONTRIBUTING.md`.
 
+- **Perfiles y enrutador.** `--tagger builtin:auto` elige el modelo clínico o
+  financiero por documento. El perfil `assurance`, ajustado en validación para
+  que como máximo el 2% de los documentos aprobados filtre un identificador
+  directo, logró 1.7% en validación pero 7.7% en la prueba clínica (antes
+  10.1%). La meta no se sostiene: hace falta un mejor modelo o revisión humana.
+
 Pendiente: no existe un corpus público anotado con datos mexicanos (CURP, RFC,
 CLABE, domicilios mexicanos); para producción en México hace falta un conjunto de
 prueba privado anotado con la herramienta local y medir ahí antes de confiar en

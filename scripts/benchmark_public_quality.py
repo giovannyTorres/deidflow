@@ -156,6 +156,18 @@ def main() -> None:
             for item in args.tagger:
                 name, _, model = item.rpartition("=")
                 name = name or "tagger"
+                if model == "builtin:auto":
+                    from deidflow.nlp.router import BUILTIN_ROUTER, DomainRouter, route_counts
+
+                    router = DomainRouter.builtin()
+                    result["tagger_models"][name] = {
+                        "router_sha256": BUILTIN_ROUTER[1],
+                        "min_evidence": router.min_evidence,
+                        "taggers": {d: t.model_version for d, t in router.taggers.items()},
+                        "routes": route_counts(router, (e.text for e in corpus.examples)),
+                    }
+                    taggers.append((name, router))
+                    continue
                 if model.startswith("builtin:"):
                     tagger = SpanTagger.builtin(model[8:])
                     digest = BUILTIN_MODELS[model[8:]][1]
