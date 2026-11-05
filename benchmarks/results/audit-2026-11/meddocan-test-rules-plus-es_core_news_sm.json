@@ -1,0 +1,153 @@
+{
+  "pipeline": "rules_plus_es_core_news_sm-3.8.0",
+  "split": "test",
+  "integrity": {
+    "file_digest_manifest_sha256": "ba4823b70e231902fe7d865c1193607631eb0a2d1f30c8591a6fc523388d4cdc",
+    "verified": true
+  },
+  "seconds_single_pass": 12.272165951000034,
+  "exact": {
+    "precision": 0.41450777202072536,
+    "recall": 0.5370075958311252,
+    "f1": 0.4678722585609849
+  },
+  "overlap": {
+    "precision": 0.5261794382328879,
+    "recall": 0.6816816816816816,
+    "f1": 0.5939207387456713
+  },
+  "exact_f1_ci95": [
+    0.46045737789611935,
+    0.47445972401260256
+  ],
+  "false_redaction_rate": 0.03902376978488686,
+  "coverage_leakage": {
+    "sensitive_character_recall": 0.7592764026527856,
+    "documents_with_uncovered_gold_characters": 250,
+    "character_coverage_document_leakage_rate": 1.0,
+    "entity_value_groups": 3359,
+    "entity_value_complete_coverage_rate": 0.6978267341470675,
+    "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities."
+  },
+  "leakage_breakdown": {
+    "fully_covered_mention_rate": 0.6680798445504328,
+    "direct_fully_covered_mention_rate": 0.7998420844848007,
+    "documents_with_direct_identifier_leak": 233,
+    "documents": 250,
+    "by_type": {
+      "LOCATION": {
+        "gold_mentions": 1319,
+        "fully_covered_rate": 0.5178165276724791,
+        "character_coverage": 0.5883515461520576,
+        "predictions": 2295,
+        "typed_overlap_precision": 0.24880174291938997
+      },
+      "PERSON": {
+        "gold_mentions": 1084,
+        "fully_covered_rate": 0.724169741697417,
+        "character_coverage": 0.7878553125558667,
+        "predictions": 2180,
+        "typed_overlap_precision": 0.4215596330275229
+      },
+      "DATE": {
+        "gold_mentions": 611,
+        "fully_covered_rate": 0.8379705400981997,
+        "character_coverage": 0.8205046817965402,
+        "predictions": 514,
+        "typed_overlap_precision": 0.9961089494163424
+      },
+      "AGE": {
+        "gold_mentions": 518,
+        "fully_covered_rate": 0.055984555984555984,
+        "character_coverage": 0.2740112994350282,
+        "predictions": 473,
+        "typed_overlap_precision": 0.9957716701902748
+      },
+      "DEMOGRAPHIC": {
+        "gold_mentions": 461,
+        "fully_covered_rate": 0.913232104121475,
+        "character_coverage": 0.8421052631578947,
+        "predictions": 407,
+        "typed_overlap_precision": 1.0
+      },
+      "ADDRESS": {
+        "gold_mentions": 413,
+        "fully_covered_rate": 0.6198547215496368,
+        "character_coverage": 0.8062790927998416,
+        "predictions": 288,
+        "typed_overlap_precision": 0.9930555555555556
+      },
+      "PATIENT_ID": {
+        "gold_mentions": 322,
+        "fully_covered_rate": 0.9503105590062112,
+        "character_coverage": 0.9401223776223776,
+        "predictions": 306,
+        "typed_overlap_precision": 0.9967320261437909
+      },
+      "EMAIL": {
+        "gold_mentions": 249,
+        "fully_covered_rate": 0.9959839357429718,
+        "character_coverage": 0.9963396778916545,
+        "predictions": 249,
+        "typed_overlap_precision": 0.9919678714859438
+      },
+      "REGIONAL_ID": {
+        "gold_mentions": 234,
+        "fully_covered_rate": 0.9914529914529915,
+        "character_coverage": 0.9911218724778047,
+        "predictions": 233,
+        "typed_overlap_precision": 0.9957081545064378
+      },
+      "INSURANCE_ID": {
+        "gold_mentions": 198,
+        "fully_covered_rate": 0.9848484848484849,
+        "character_coverage": 0.9934782608695653,
+        "predictions": 195,
+        "typed_overlap_precision": 1.0
+      },
+      "MEDICAL_FACILITY": {
+        "gold_mentions": 136,
+        "fully_covered_rate": 0.5294117647058824,
+        "character_coverage": 0.6210833130920573,
+        "predictions": 0,
+        "typed_overlap_precision": null
+      },
+      "ORGANIZATION": {
+        "gold_mentions": 67,
+        "fully_covered_rate": 0.582089552238806,
+        "character_coverage": 0.6072423398328691,
+        "predictions": 0,
+        "typed_overlap_precision": null
+      },
+      "PHONE": {
+        "gold_mentions": 33,
+        "fully_covered_rate": 0.12121212121212122,
+        "character_coverage": 0.12849162011173185,
+        "predictions": 191,
+        "typed_overlap_precision": 0.015706806282722512
+      },
+      "OCCUPATION": {
+        "gold_mentions": 9,
+        "fully_covered_rate": 0.0,
+        "character_coverage": 0.0,
+        "predictions": 0,
+        "typed_overlap_precision": null
+      },
+      "OTHER_SENSITIVE": {
+        "gold_mentions": 7,
+        "fully_covered_rate": 0.0,
+        "character_coverage": 0.0,
+        "predictions": 0,
+        "typed_overlap_precision": null
+      },
+      "RFC": {
+        "gold_mentions": 0,
+        "fully_covered_rate": null,
+        "character_coverage": null,
+        "predictions": 3,
+        "typed_overlap_precision": 0.0
+      }
+    },
+    "definition": "fully covered = every gold character covered by any prediction, any category; detection coverage only, not transformed-output verification"
+  }
+}
