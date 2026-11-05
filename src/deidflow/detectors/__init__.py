@@ -140,13 +140,13 @@ _NAME_WORD = (
 )
 _NAME_VALUE = _NAME_WORD + r"(?:[ \t]+(?:(?:de|del|la|las|los|y)[ \t]+)?" + _NAME_WORD + r"){1,5}"
 _NAME = re.compile(
-    r"\b(?i:nombre(?:\s+completo)?|paciente|titular|beneficiari[oa]|contacto|name|patient)\s*[:=]\s*(?P<value>"
+    r"\b(?P<label>(?i:nombre(?:\s+completo)?|paciente|titular|beneficiari[oa]|contacto|name|patient))\s*[:=]\s*(?P<value>"
     + _VALUE_NOT_LABEL
     + _NAME_VALUE
     + r")"
 )
 _NAME_FIELD = re.compile(
-    r"\b(?:nombre(?:\s+completo)?|paciente|titular|beneficiari[oa]|name|patient)\s*[:=]\s*"
+    r"\b(?P<label>nombre(?:\s+completo)?|paciente|titular|beneficiari[oa]|name|patient)\s*[:=]\s*"
     r"(?P<value>"
     + _VALUE_NOT_LABEL
     + r"[A-ZÁÉÍÓÚÜÑ][A-ZÁÉÍÓÚÜÑ'-]{0,63}(?:[ \t]+[A-ZÁÉÍÓÚÜÑ][A-ZÁÉÍÓÚÜÑ'-]{0,63}){1,7})"
@@ -345,7 +345,14 @@ class RuleDetector:
                 add(kind, *match.span("value"), 0.85, context=("explicit_field_label",))
             for pattern in (_NAME, _NAME_FIELD, _HONORIFIC):
                 for match in pattern.finditer(text):
-                    add("PERSON", *match.span("value"), 0.88, context=("person_label",))
+                    label = (match.groupdict().get("label") or "").casefold()
+                    patient = label in {"paciente", "patient"}
+                    add(
+                        "PERSON",
+                        *match.span("value"),
+                        0.88,
+                        context=("person_label",) + (("role:patient",) if patient else ()),
+                    )
             for pattern in (_ADDRESS, _STREET):
                 for match in pattern.finditer(text):
                     start, end = match.span("value")

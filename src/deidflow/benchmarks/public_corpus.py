@@ -9,7 +9,10 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import os
+import shutil
 import ssl
+import subprocess
 import urllib.request
 import zipfile
 from collections import Counter
@@ -25,6 +28,7 @@ SOURCES: dict[str, dict[str, Any]] = {
         "commit": "783a6df385c975b328c99bcffb54196a9ba4078a",
         "archive_url": "https://codeload.github.com/PlanTL-GOB-ES/SPACCC_MEDDOCAN/zip/783a6df385c975b328c99bcffb54196a9ba4078a",
         "archive_sha256": "555470b36d90d04094aedf1a72bff079cb5dbcef98c8e40627a6beafc205ed1b",
+        "file_digest_manifest_sha256": "ba4823b70e231902fe7d865c1193607631eb0a2d1f30c8591a6fc523388d4cdc",
         "license": "CC-BY-4.0",
         "license_url": "https://github.com/PlanTL-GOB-ES/SPACCC_MEDDOCAN/blob/783a6df385c975b328c99bcffb54196a9ba4078a/LICENSE",
         "language": "es",
@@ -39,6 +43,7 @@ SOURCES: dict[str, dict[str, Any]] = {
         "commit": "558e09e26d6b36f5f78440074e6a233946d98bd9",
         "archive_url": "https://codeload.github.com/NorskRegnesentral/text-anonymization-benchmark/zip/558e09e26d6b36f5f78440074e6a233946d98bd9",
         "archive_sha256": "fc9925949e91b0eaf831fa8df0ad19ddc325d48e3aeae1e947d15872ba3eaa22",
+        "file_digest_manifest_sha256": "cc6e2eac8ac649c0ea7f8b7c940af19e00af38e69fe50f2fa1c646f9de24f613",
         "license": "MIT",
         "license_url": "https://github.com/NorskRegnesentral/text-anonymization-benchmark/blob/558e09e26d6b36f5f78440074e6a233946d98bd9/LICENSE.txt",
         "language": "en",
@@ -115,12 +120,7 @@ def acquire(
     if archive.exists():
         payload = archive.read_bytes()
     else:
-        try:
-            import certifi
-
-            context = ssl.create_default_context(cafile=certifi.where())
-        except ImportError:
-            context = ssl.create_default_context()
+        context = _tls_context()
         request = urllib.request.Request(
             specification["archive_url"],
             headers={"User-Agent": "DeidFlow-explicit-public-acquisition"},
@@ -209,14 +209,123 @@ def acquire(
     return manifest
 
 
+def _tls_context() -> ssl.SSLContext:
+    """Honor an explicitly configured CA bundle (corporate proxies) before certifi."""
+    for variable in ("SSL_CERT_FILE", "REQUESTS_CA_BUNDLE"):
+        cafile = os.environ.get(variable)
+        if cafile and Path(cafile).is_file():
+            return ssl.create_default_context(cafile=cafile)
+    try:
+        import certifi
+
+        return ssl.create_default_context(cafile=certifi.where())
+    except ImportError:
+        return ssl.create_default_context()
+
+
+def file_digest_manifest(root: str | Path) -> dict[str, str]:
+    """Per-file SHA256 digests keyed exactly as ``acquire()`` records them."""
+    root = Path(root)
+    digests = {}
+    for path in sorted(root.rglob("*")):
+        if path.is_file() and (
+            path.suffix in {".txt", ".ann"}
+            or path.name in {"README.md", "LICENSE", "LICENSE.txt", "guidelines.md"}
+            or path.name in {"echr_train.json", "echr_dev.json", "echr_test.json"}
+        ):
+            digests[path.relative_to(root.parent).as_posix()] = hashlib.sha256(
+                path.read_bytes()
+            ).hexdigest()
+    return digests
+
+
+def acquire_from_checkout(
+    source: str, checkout: str | Path, destination: str | Path
+) -> dict[str, Any]:
+    """Build the corpus from a git checkout at the pinned commit.
+
+    GitHub regenerates codeload ZIPs, so archive bytes are not reproducible. The
+    per-file digest manifest pinned at acquisition time is: every extracted file
+    must match it exactly.
+    """
+    if source not in SOURCES:
+        raise ValueError("Unknown approved public source")
+    specification = SOURCES[source]
+    checkout = Path(checkout)
+    git = shutil.which("git")
+    if git is None:
+        raise ValueError("git is required to verify the checkout commit")
+    head = subprocess.run(
+        [git, "-C", str(checkout), "rev-parse", "HEAD"],
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=30,
+    ).stdout.strip()
+    if head != specification["commit"]:
+        raise ValueError("Checkout is not at the pinned public commit")
+    root = _outside_repository(Path(destination))
+    target = root / source
+    if target.exists():
+        raise ValueError("Destination corpus directory already exists")
+    copies: list[tuple[Path, Path]] = []
+    if source == "meddocan":
+        for split in ("train", "dev", "test"):
+            for path in sorted((checkout / "corpus" / split).rglob("*")):
+                if path.suffix in {".txt", ".ann"} and "brat" in path.parts:
+                    copies.append((path, target / split / path.name))
+    else:
+        for path in sorted(checkout.rglob("echr_*.json")):
+            if path.name in {"echr_train.json", "echr_dev.json", "echr_test.json"}:
+                copies.append((path, target / path.name))
+    for name in ("README.md", "LICENSE", "LICENSE.txt", "guidelines.md"):
+        if (checkout / name).is_file():
+            copies.append((checkout / name, target / name))
+    if len({destination for _, destination in copies}) != len(copies):
+        raise ValueError("Duplicate public corpus target")
+    for origin, copy in copies:
+        copy.parent.mkdir(parents=True, exist_ok=True)
+        copy.write_bytes(origin.read_bytes())
+    digests = file_digest_manifest(target)
+    actual = hashlib.sha256(json.dumps(digests, sort_keys=True).encode()).hexdigest()
+    if actual != specification["file_digest_manifest_sha256"]:
+        shutil.rmtree(target)
+        raise ValueError("Checkout files differ from the pinned per-file digest manifest")
+    manifest = {
+        "schema_version": 1,
+        "source": source,
+        **specification,
+        "method": "git_checkout_at_pinned_commit",
+        "extracted_files": len(digests),
+        "file_digest_manifest_sha256": actual,
+        "raw_documents_committed": False,
+    }
+    (root / (source + "-provenance.json")).write_text(
+        json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
+    )
+    return manifest
+
+
 def verify_acquired_corpus(root: str | Path, source: str) -> dict[str, Any]:
-    """Read-only check that benchmark inputs are exactly the pinned archive corpus."""
+    """Read-only check that benchmark inputs are exactly the pinned corpus.
+
+    Uses the pinned archive when present, otherwise the pinned per-file digest
+    manifest (checkout-based acquisition).
+    """
     if source not in SOURCES:
         raise ValueError("Unknown approved public source")
     root = _outside_repository(Path(root))
     archive = root.parent / (source + ".zip")
     if not archive.is_file():
-        raise ValueError("Pinned public archive is required to verify benchmark input")
+        manifest = file_digest_manifest(root)
+        pinned = hashlib.sha256(json.dumps(manifest, sort_keys=True).encode()).hexdigest()
+        if pinned != SOURCES[source].get("file_digest_manifest_sha256"):
+            raise ValueError("Public corpus differs from the pinned per-file digest manifest")
+        return {
+            "file_digest_manifest_sha256": pinned,
+            "verified_corpus_files": len(manifest),
+            "method": "Read-only per-file digests equal to the pinned acquisition manifest",
+        }
     payload = archive.read_bytes()
     if hashlib.sha256(payload).hexdigest() != SOURCES[source]["archive_sha256"]:
         raise ValueError("Pinned public archive integrity mismatch")
@@ -378,6 +487,31 @@ def load_tab(root: str | Path, split: str = "test") -> PublicCorpus:
             "gold_verified_against_text": True,
         },
     )
+
+
+MEDDOCAN_ROLES = {
+    "NOMBRE_SUJETO_ASISTENCIA": "patient",
+    "NOMBRE_PERSONAL_SANITARIO": "clinician",
+    "FAMILIARES_SUJETO_ASISTENCIA": "family",
+}
+
+
+def load_meddocan_roles(root: str | Path, split: str = "test") -> list[list[tuple[int, int, str]]]:
+    """Person-role gold spans per document, aligned with ``load_meddocan`` order."""
+    if split not in {"train", "dev", "test"}:
+        raise ValueError("Unknown public corpus split")
+    documents = []
+    for text_path in sorted((Path(root) / split).glob("*.txt")):
+        spans = []
+        for line in text_path.with_suffix(".ann").read_text(encoding="utf-8").splitlines():
+            if not line.startswith("T"):
+                continue
+            label, coordinates = line.split("\t", 2)[1].split(" ", 1)
+            if label in MEDDOCAN_ROLES and ";" not in coordinates:
+                start, end = map(int, coordinates.split())
+                spans.append((start, end, MEDDOCAN_ROLES[label]))
+        documents.append(spans)
+    return documents
 
 
 def load_public(root: str | Path, source: str, split: str = "test") -> PublicCorpus:

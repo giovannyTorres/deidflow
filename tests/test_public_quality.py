@@ -60,3 +60,46 @@ def test_character_coverage_is_distinct_from_exact_boundary_matching():
     assert result["coverage_leakage"]["character_coverage_document_leakage_rate"] == 0
     assert result["coverage_leakage"]["sensitive_character_recall"] == 1
     assert result["coverage_leakage"]["entity_value_complete_coverage_rate"] == 1
+
+
+def test_leakage_breakdown_requires_complete_character_coverage():
+    from deidflow.benchmarks.public_quality import leakage_breakdown
+
+    example = Example(
+        "d",
+        "Ana Ruiz vive en Lugo",
+        (GoldSpan("PERSON", 0, 8), GoldSpan("LOCATION", 17, 21)),
+        "test",
+        "independent",
+    )
+    corpus = PublicCorpus("meddocan", "es", "semi_synthetic_clinical", (example,), {})
+    # Partial person coverage is a leak even though the span overlaps.
+    partial = leakage_breakdown(corpus, [[Finding("PERSON", 0, 3, 0.9, "t")]])
+    assert partial["documents_with_direct_identifier_leak"] == 1
+    assert partial["by_type"]["PERSON"]["fully_covered_rate"] == 0.0
+    # Any category counts for coverage; typed precision still reports the mismatch.
+    full = leakage_breakdown(
+        corpus, [[Finding("LOCATION", 0, 8, 0.9, "t"), Finding("LOCATION", 17, 21, 0.9, "t")]]
+    )
+    assert full["documents_with_direct_identifier_leak"] == 0
+    assert full["fully_covered_mention_rate"] == 1.0
+    assert full["by_type"]["LOCATION"]["typed_overlap_precision"] == 0.5
+
+
+def test_role_metrics_use_role_context_only():
+    from deidflow.benchmarks.public_quality import role_metrics
+
+    gold = [[(0, 3, "patient"), (10, 14, "clinician"), (20, 24, "family")]]
+    predicted = [
+        [
+            Finding("PERSON", 0, 3, 0.9, "t", context=("role:patient",)),
+            Finding("PERSON", 10, 14, 0.9, "t", context=("role:patient",)),
+            Finding("PERSON", 20, 24, 0.9, "t"),
+        ]
+    ]
+    result = role_metrics(gold, predicted)
+    assert result["patient"]["role_accuracy_when_assigned"] == 1.0
+    assert result["clinician"]["role_accuracy_when_assigned"] == 0.0
+    assert result["family"]["role_assigned_rate"] == 0.0
+    with pytest.raises(ValueError):
+        role_metrics(gold, [])

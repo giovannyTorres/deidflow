@@ -1,109 +1,34 @@
-"""Leakage-oriented per-type breakdown on MEDDOCAN (audit 2026-11).
+"""Leakage-oriented MEDDOCAN evaluation with optional CI thresholds (audit F0).
 
-Reports only aggregate numbers: no corpus text, filenames or entity values.
-The corpus directory uses the acquisition layout ``<root>/{train,dev,test}/*.txt|.ann``.
-When the codeload archive is unavailable, ``--manifest`` verifies the per-file
-digest manifest hash recorded by ``acquire()`` instead of the archive bytes.
+Reports only aggregate numbers: no corpus text, filenames or entity values. The
+corpus must be verified against the pinned archive or per-file digest manifest
+(see ``acquire_public_corpus.py --from-checkout``). Thresholds turn the run into a
+ratchet: the process exits with status 1 when a leakage metric regresses.
 """
 
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
+import sys
 import time
-from collections import Counter
 from pathlib import Path
-from typing import Any
 
 from deidflow import DeidEngine
-from deidflow.benchmarks.public_corpus import MEDDOCAN_LABELS, load_public
-from deidflow.benchmarks.public_quality import map_predictions, quality_metrics
-
-DIRECT = {
-    "PERSON",
-    "ADDRESS",
-    "PATIENT_ID",
-    "EMAIL",
-    "REGIONAL_ID",
-    "INSURANCE_ID",
-    "PHONE",
-    "EMPLOYEE_ID",
-}
-
-
-def file_manifest_hash(root: Path) -> str:
-    """Recompute ``file_digest_manifest_sha256`` exactly as ``acquire()`` records it."""
-    digests = {}
-    base = root.parent
-    for path in sorted(root.rglob("*")):
-        if path.is_file() and (
-            path.suffix in {".txt", ".ann"}
-            or path.name in {"README.md", "LICENSE", "LICENSE.txt", "guidelines.md"}
-        ):
-            digests[path.relative_to(base).as_posix()] = hashlib.sha256(
-                path.read_bytes()
-            ).hexdigest()
-    return hashlib.sha256(json.dumps(digests, sort_keys=True).encode()).hexdigest()
-
-
-def breakdown(corpus: Any, predictions: list[list[Any]]) -> dict[str, Any]:
-    gold_n: Counter[str] = Counter()
-    full: Counter[str] = Counter()
-    chars: Counter[str] = Counter()
-    chars_hit: Counter[str] = Counter()
-    pred_n: Counter[str] = Counter()
-    pred_typed: Counter[str] = Counter()
-    docs_direct_leak = 0
-    for example, predicted in zip(corpus.examples, predictions, strict=True):
-        covered = bytearray(len(example.text))
-        for finding in predicted:
-            covered[finding.start : finding.end] = b"\x01" * (finding.end - finding.start)
-        leak = False
-        for gold in example.spans:
-            gold_n[gold.entity_type] += 1
-            chars[gold.entity_type] += gold.end - gold.start
-            chars_hit[gold.entity_type] += sum(covered[gold.start : gold.end])
-            complete = all(covered[gold.start : gold.end])
-            full[gold.entity_type] += int(complete)
-            leak |= gold.entity_type in DIRECT and not complete
-        docs_direct_leak += int(leak)
-        for kind, start, end in {(f.entity_type, f.start, f.end) for f in predicted}:
-            pred_n[kind] += 1
-            pred_typed[kind] += int(
-                any(
-                    g.entity_type == kind and g.start < end and g.end > start for g in example.spans
-                )
-            )
-    direct_total = sum(gold_n[k] for k in DIRECT)
-    return {
-        "fully_covered_mention_rate": sum(full.values()) / sum(gold_n.values()),
-        "direct_fully_covered_mention_rate": sum(full[k] for k in DIRECT) / direct_total
-        if direct_total
-        else None,
-        "documents_with_direct_identifier_leak": docs_direct_leak,
-        "documents": len(corpus.examples),
-        "by_type": {
-            kind: {
-                "gold_mentions": gold_n[kind],
-                "fully_covered_rate": full[kind] / gold_n[kind] if gold_n[kind] else None,
-                "character_coverage": chars_hit[kind] / chars[kind] if chars[kind] else None,
-                "predictions": pred_n[kind],
-                "typed_overlap_precision": pred_typed[kind] / pred_n[kind]
-                if pred_n[kind]
-                else None,
-            }
-            for kind in sorted(set(gold_n) | set(pred_n), key=lambda k: -gold_n[k])
-        },
-        "definition": "fully covered = every gold character covered by any prediction, any category; detection coverage only, not transformed-output verification",
-    }
+from deidflow.benchmarks.public_corpus import (
+    MEDDOCAN_LABELS,
+    MEDDOCAN_ROLES,
+    load_meddocan_roles,
+    load_public,
+    verify_acquired_corpus,
+)
+from deidflow.benchmarks.public_quality import map_predictions, quality_metrics, role_metrics
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--corpus", type=Path, required=True)
     parser.add_argument("--split", choices=["dev", "test"], default="test")
-    parser.add_argument("--manifest", type=Path, help="public-sources JSON with digest hash")
     parser.add_argument("--spacy-model", type=Path, help="local spaCy model directory")
     parser.add_argument(
         "--meddocan-labels",
@@ -113,14 +38,11 @@ def main() -> None:
     parser.add_argument("--model-only", action="store_true")
     parser.add_argument("--ci-repeats", type=int, default=200)
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--min-direct-coverage", type=float)
+    parser.add_argument("--min-fully-covered", type=float)
+    parser.add_argument("--max-direct-leak-documents", type=int)
     args = parser.parse_args()
-    integrity = None
-    if args.manifest:
-        expected = json.loads(args.manifest.read_text(encoding="utf-8"))
-        actual = file_manifest_hash(args.corpus)
-        if actual != expected["file_digest_manifest_sha256"]:
-            raise SystemExit("Corpus differs from the pinned per-file digest manifest")
-        integrity = {"file_digest_manifest_sha256": actual, "verified": True}
+    integrity = verify_acquired_corpus(args.corpus, "meddocan")
     corpus = load_public(args.corpus, "meddocan", args.split)
     detect = DeidEngine().scan_text
     name = "deidflow_rules"
@@ -128,15 +50,19 @@ def main() -> None:
         from deidflow.nlp import SpacyNER
 
         ner = SpacyNER(
-            args.spacy_model, labels=dict(MEDDOCAN_LABELS) if args.meddocan_labels else None
+            args.spacy_model,
+            labels=dict(MEDDOCAN_LABELS) if args.meddocan_labels else None,
+            roles=dict(MEDDOCAN_ROLES) if args.meddocan_labels else None,
         )
         detect = ner.detect if args.model_only else DeidEngine(nlp=ner).scan_text
         name = ("model_only_" if args.model_only else "rules_plus_") + args.spacy_model.name
     detect(corpus.examples[0].text)
     started = time.perf_counter()
-    predictions = [map_predictions("meddocan", detect(e.text)) for e in corpus.examples]
+    raw = [detect(e.text) for e in corpus.examples]
     seconds = time.perf_counter() - started
+    predictions = [map_predictions("meddocan", p) for p in raw]
     metrics = quality_metrics(corpus, predictions, ci_repeats=args.ci_repeats)
+    breakdown = metrics["leakage_breakdown"]
     result = {
         "pipeline": name,
         "split": args.split,
@@ -147,13 +73,33 @@ def main() -> None:
         "exact_f1_ci95": metrics["confidence_intervals"].get("intervals", {}).get("f1"),
         "false_redaction_rate": metrics["exact"]["false_redaction_rate"],
         "coverage_leakage": metrics["coverage_leakage"],
-        "leakage_breakdown": breakdown(corpus, predictions),
+        "leakage_breakdown": breakdown,
+        "person_roles": role_metrics(load_meddocan_roles(args.corpus, args.split), raw),
     }
     text = json.dumps(result, indent=2)
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(text + "\n", encoding="utf-8")
     print(text)
+    failures = []
+    if (
+        args.min_direct_coverage is not None
+        and breakdown["direct_fully_covered_mention_rate"] < args.min_direct_coverage
+    ):
+        failures.append("direct identifier coverage regressed")
+    if (
+        args.min_fully_covered is not None
+        and breakdown["fully_covered_mention_rate"] < args.min_fully_covered
+    ):
+        failures.append("fully covered mention rate regressed")
+    if (
+        args.max_direct_leak_documents is not None
+        and breakdown["documents_with_direct_identifier_leak"] > args.max_direct_leak_documents
+    ):
+        failures.append("documents with direct-identifier leaks increased")
+    if failures:
+        print("; ".join(failures), file=sys.stderr)
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

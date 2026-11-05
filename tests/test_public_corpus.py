@@ -115,3 +115,33 @@ def test_benchmark_integrity_refuses_modified_or_extra_corpus(tmp_path, monkeypa
     (root / "echr_test.json").write_text("changed")
     with pytest.raises(ValueError, match="differs"):
         verify_acquired_corpus(root, "tab")
+
+
+def test_checkout_corpus_is_verified_by_pinned_file_digest_manifest(tmp_path, monkeypatch):
+    import hashlib
+    import json
+
+    from deidflow.benchmarks.public_corpus import file_digest_manifest, load_meddocan_roles
+
+    root = tmp_path / "meddocan"
+    (root / "test").mkdir(parents=True)
+    (root / "test" / "a.txt").write_text("Dra. Ana", encoding="utf-8")
+    (root / "test" / "a.ann").write_text(
+        "T1\tNOMBRE_PERSONAL_SANITARIO 5 8\tAna\n", encoding="utf-8"
+    )
+    digest = hashlib.sha256(
+        json.dumps(file_digest_manifest(root), sort_keys=True).encode()
+    ).hexdigest()
+    monkeypatch.setitem(SOURCES["meddocan"], "file_digest_manifest_sha256", digest)
+    assert verify_acquired_corpus(root, "meddocan")["verified_corpus_files"] == 2
+    assert load_meddocan_roles(root, "test") == [[(5, 8, "clinician")]]
+    (root / "test" / "a.txt").write_text("Dra. Eva", encoding="utf-8")
+    with pytest.raises(ValueError, match="digest manifest"):
+        verify_acquired_corpus(root, "meddocan")
+
+
+def test_checkout_acquisition_requires_pinned_commit(tmp_path):
+    from deidflow.benchmarks.public_corpus import acquire_from_checkout
+
+    with pytest.raises(ValueError):
+        acquire_from_checkout("meddocan", tmp_path, tmp_path / "out")

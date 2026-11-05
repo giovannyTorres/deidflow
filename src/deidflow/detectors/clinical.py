@@ -23,7 +23,7 @@ _LETTER = r"[A-ZÁÉÍÓÚÜÑÀÈÌÒÙÇÏ]"
 _WORD = _LETTER + r"[A-ZÁÉÍÓÚÜÑÀÈÌÒÙÇÏ'’·-]{0,63}"
 _STOP = r"(?=[ \t]*(?:N[º°o.]?[ \t]*Col(?:egiad[oa])?[ \t]*:|Nombre[ \t]*:|Apellidos[ \t]*:|[\r\n,;]|\.[ \t]*(?:\r?\n|$)|$))"
 _PERSON = re.compile(
-    r"\b(?:nombre(?:[ \t]+completo)?|apellidos|m[eé]dico|responsable[ \t]+cl[ií]nico|remitido[ \t]+por)[ \t]*:[ \t]*(?:(?:Dr|Dra)\.[ \t]*)?(?P<value>"
+    r"\b(?P<label>nombre(?:[ \t]+completo)?|apellidos|m[eé]dico|responsable[ \t]+cl[ií]nico|remitido[ \t]+por)[ \t]*:[ \t]*(?:(?:Dr|Dra)\.[ \t]*)?(?P<value>"
     + _WORD
     + r"(?:[ \t]+"
     + _WORD
@@ -31,6 +31,7 @@ _PERSON = re.compile(
     + _STOP,
     _FLAGS,
 )
+_PATIENT_SECTION = re.compile(r"\b(?:paciente|patient)\b", _FLAGS)
 _CLINICAL_ID = re.compile(
     r"(?P<label>\bNHC|\bNASS|\bNSS|\bCIPA|\bepisodio|N[º°o.]?[ \t]*Col(?:egiad[oa])?)[ \t]*:[ \t]*(?:nhc-)?(?P<value>[0-9](?:[0-9 \t]{2,26})[0-9])(?![0-9])",
     _FLAGS,
@@ -120,7 +121,15 @@ def contextual_spanish(text: str) -> list[Finding]:
             and re.match(r"[ \t]*:", text[end:])
         ):
             continue
-        add("PERSON", start, end, 0.9, context=("explicit_person_field",))
+        label = match.group("label").casefold()
+        if label.startswith(("nombre", "apellidos")):
+            # A name field inside a patient-data section identifies the patient.
+            window = text[max(0, match.start() - 160) : match.start()]
+            role = "patient" if _PATIENT_SECTION.search(window) else None
+        else:
+            role = "clinician"
+        context = ("explicit_person_field",) + ((f"role:{role}",) if role else ())
+        add("PERSON", start, end, 0.9, context=context)
     for match in _CLINICAL_ID.finditer(text):
         label = match.group("label").casefold()
         kind = (

@@ -233,6 +233,43 @@ def test_span_ruler_overlaps_are_loaded_and_empty_label_map_rejected(tmp_path):
         SpacyNER(model, labels={})
 
 
+def test_span_model_roles_become_role_context(tmp_path):
+    spacy = pytest.importorskip("spacy")
+    nlp = spacy.blank("es")
+    ruler = nlp.add_pipe("span_ruler")
+    ruler.add_patterns([{"label": "NOMBRE_PERSONAL_SANITARIO", "pattern": "Ana López"}])
+    model = tmp_path / "role-model"
+    nlp.to_disk(model)
+    adapter = SpacyNER(
+        model,
+        labels={"NOMBRE_PERSONAL_SANITARIO": "PERSON"},
+        roles={"NOMBRE_PERSONAL_SANITARIO": "clinician"},
+    )
+    (found,) = adapter.detect("Ana López")
+    assert found.entity_type == "PERSON" and "role:clinician" in found.context
+
+
+def test_narrative_titles_places_and_identifiers_with_role_evidence():
+    text = (
+        "La señora Verónica fue vista por el doctor Jiménez en el Hospital Ángeles de "
+        "Guadalajara; su hija Ana trae NSS 12345678901 y vive en Calle Luna 5, Col. Roma, 06700 CDMX."
+    )
+    found = {(f.entity_type, text[f.start : f.end]): f for f in RuleDetector().detect(text)}
+    assert "gender:f" in found[("PERSON", "Verónica")].context
+    assert "role:clinician" in found[("PERSON", "Jiménez")].context
+    assert "role:family" in found[("PERSON", "Ana")].context
+    assert ("MEDICAL_FACILITY", "Hospital Ángeles de Guadalajara") in found
+    assert ("INSURANCE_ID", "12345678901") in found
+    assert ("ADDRESS", "Calle Luna 5, Col. Roma, 06700 CDMX") in found
+
+
+def test_health_terms_need_a_subject_or_named_person():
+    general = RuleDetector().detect("El VIH es una infección estudiada en este artículo.")
+    named = RuleDetector().detect("Verónica tiene VIH.")
+    assert not any(f.entity_type == "MEDICAL_CONDITION" for f in general)
+    assert any(f.entity_type == "MEDICAL_CONDITION" for f in named)
+
+
 def test_checksum_helpers_reject_values_without_plaintext_echo():
     for func in (clabe_check_digit, curp_check_digit, rfc_check_digit):
         with pytest.raises(ValueError):

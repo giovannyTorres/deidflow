@@ -29,6 +29,7 @@ class SpacyNER:
         overlap_chars: int = 512,
         device: str = "cpu",
         labels: dict[str, str] | None = None,
+        roles: dict[str, str] | None = None,
     ) -> None:
         if batch_size < 1 or window_chars < 64 or not 0 <= overlap_chars < window_chars // 2:
             raise ValueError("Invalid NLP batch/window settings")
@@ -52,6 +53,9 @@ class SpacyNER:
                 "ORG": "ORGANIZATION",
             }
         )
+        # Model label -> person role (e.g. a patient/clinician-aware clinical model);
+        # recorded as ``role:<name>`` context for role-aware placeholders.
+        self.roles = dict(roles or {})
         self._nlp: Any = None
         self._lock = Lock()
         self.model_version = "unloaded"
@@ -126,7 +130,12 @@ class SpacyNER:
                                 0.75,
                                 "spacy.local",
                                 validation="statistical",
-                                context=("window_boundary",) if partial else (),
+                                context=(("window_boundary",) if partial else ())
+                                + (
+                                    (f"role:{self.roles[entity.label_]}",)
+                                    if entity.label_ in self.roles
+                                    else ()
+                                ),
                                 model_version=self.model_version,
                                 risk="medium" if kind == "LOCATION" else "high",
                             )
