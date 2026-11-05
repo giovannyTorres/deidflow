@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "deidflow"
-version = "0.3.0"
+version = "0.3.1"
 description = "Local-first Spanish and Mexican sensitive-data detection and verified transformations"
 classifiers = ["Development Status :: 3 - Alpha"]
 readme = "README.md"

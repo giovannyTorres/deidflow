@@ -1,9 +1,11 @@
 # DeidFlow
 
 Local-first Spanish/Mexican sensitive-data detection and verified transformations.
-Working experimental development release **0.3.0**, with genuine tests and benchmarks. This is
+Experimental development version **0.3.1**. This patch preserves source uncertainty
+through structured transformations and corrects JSON key audit counts. This is
 not certified production privacy infrastructure, a guarantee of anonymity, or a
-compliance claim. [Current engineering/release assessment](docs/RELEASE_REPORT_v030.md),
+compliance claim. [Current patch assessment](docs/RELEASE_REPORT_v031.md),
+[historical v0.3.0 engineering assessment](docs/RELEASE_REPORT_v030.md),
 [performance](docs/PERFORMANCE.md), [detection quality](docs/DETECTION_QUALITY.md),
 [v0.2 OCR/PDF report](docs/pdf-ocr-report.md) and the
 [v0.1 baseline report](docs/engineering-report.md) record evidence
@@ -19,7 +21,8 @@ pytest
 
 No mandatory runtime dependencies, generative models, remote inference, telemetry
 or runtime model downloads. Optional assets are explicitly installed and locally
-loaded. Python 3.11+; base wheel additionally smoke-tested on Python 3.13.
+loaded. Python 3.11+; current patch validation includes a clean Python 3.12 wheel
+smoke test. Historical Python 3.13 validation is recorded in the v0.3.0 report.
 
 ```python
 from deidflow import DeidEngine, Policy
@@ -40,6 +43,16 @@ assert result.status == "REVIEW_REQUIRED"  # Semantic coverage is required by de
 `Policy.strict(require_ner=False)` explicitly accepts the narrower rules-only
 verification gate. It never establishes anonymous data. Always inspect
 `release_approved`, not merely the existence of an output path.
+
+Low-confidence source findings and unresolved model-window boundaries require
+review across text, CSV/TSV, JSON/JSONL and DataFrame transformations. A transformed
+JSON key counts toward the audit total and preserves the same review evidence as
+a transformed value. These controls do not detect previously unrecognized data.
+
+The local annotation UI currently saves labels for evaluation/training; it does
+not apply human corrections to regenerate and approve an output. The next
+[planned workflow](docs/roadmap.md#next-milestone-v04-supervised-tabular-workflow)
+closes that loop for CSV/JSONL with a known schema.
 
 ## Implemented
 

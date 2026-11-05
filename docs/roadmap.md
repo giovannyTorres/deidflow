@@ -9,6 +9,33 @@ and measured bounded OCR workers. These are implemented. Remaining clinical and
 English detection gaps, real private evaluation and production acceptance targets
 are documented in the current quality/security reports.
 
+v0.3.1 corrects the propagation of source uncertainty across structured formats,
+inferred-column confidence checks and JSON key transformation counts. It does
+not close the remaining detection gaps. See the [patch assessment](RELEASE_REPORT_v031.md).
+
+## Next milestone: v0.4 supervised tabular workflow
+
+Start with local CSV/JSONL processing for a known schema in one selected domain.
+The existing annotation interface stores labels; applying human corrections and
+approving a revised artifact remain unimplemented.
+
+1. Connect import, detection, original/candidate review, manual corrections,
+   regeneration, verification and explicit export. A newly marked sensitive
+   value must disappear from the exported artifact; a source change must invalidate
+   prior review. Blocked artifacts must never enter the approved export path.
+2. Link the output receipt to source/output hashes, policy and model versions,
+   human changes and the approval decision, without logging original values.
+3. Evaluate an independently annotated, authorized holdout from the selected
+   domain. Set acceptance criteria before tuning; measure residual sensitive
+   content in transformed output, retained useful information, completion rate
+   and total human review time against the manual workflow.
+4. Provide reproducible installation and a safe preflight diagnostic for missing
+   dependencies/assets. Add required integration CI with pinned OCR/NER assets
+   and fail on unexpected skips. Keep candidate and approved outputs separate.
+5. Run a supervised local single-user pilot before expanding formats, connectors
+   or deployment topology. Worker isolation, resource limits, retention and
+   recovery procedures must match the selected deployment.
+
 ## Before commercial use
 
 1. Obtain independently annotated, licensed Mexican clinical, financial,
@@ -56,6 +83,10 @@ are documented in the current quality/security reports.
   representative real collections and repeated full-scale trials remain necessary.
 - Add maintained dependency hash locks by OS/Python, signed artifacts/SBOMs,
   protected key/model storage, process isolation and platform-specific installation.
-  CI is configured locally; it has not run on a remote hosting service.
-- Resolve name/trademark and license strategy before any separately authorized
-  public repository or package publication.
+  [GitHub Actions run 41590013106](https://github.com/giovannyTorres/deidflow/actions/runs/41590013106)
+  passed on v0.3.0 commit `68883a5` across Linux/Windows and Python 3.11/3.13.
+  The inspected Python 3.11 jobs passed 359 tests and skipped 11 asset/dependency
+  integrations; this is not evidence that all real OCR/NER paths ran in CI.
+- Source is already public on GitHub under reserved-rights terms. Resolve
+  name/trademark and recipient license terms before broader distribution or a
+  separately authorized package publication. No PyPI package has been published.

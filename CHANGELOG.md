@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.3.1 - Unreleased (experimental candidate)
+
+- Preserve low-confidence and unresolved model-window evidence through CSV/TSV,
+  JSON/JSONL and DataFrame transformations instead of approving a candidate after
+  its uncertainty disappears from the output rescan.
+- Apply source-confidence review to inferred-column transformations in the schema
+  fast path, matching the configured review threshold.
+- Preserve source review evidence for JSON object keys and include their actual
+  transformations in audit counts.
+- Add synthetic cross-format regressions for release decisions and audit counts.
+  These test orchestration, not real-model detection quality or anonymity.
+- Record the successful historical v0.3.0 GitHub Actions run separately from
+  patch validation; prioritize a complete supervised tabular workflow for v0.4.
+
 ## 0.3.0 - 2026-11-02 (local experimental release)
 
 - Added pinned MEDDOCAN/TAB acquisition, verified human gold, frozen v0.2
