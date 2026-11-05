@@ -16,3 +16,4 @@ private-annotations/
 gmail-token*.json
 oauth-client*.json
 downloaded-corpora/
+.coverage

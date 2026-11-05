@@ -1,15 +1,16 @@
 # DeidFlow
 
 Local-first Spanish/Mexican sensitive-data detection and verified transformations.
-Working experimental development release **0.3.0**, with genuine tests and benchmarks. This is
-not certified production privacy infrastructure, a guarantee of anonymity, or a
-compliance claim. [Current engineering/release assessment](docs/RELEASE_REPORT_v030.md),
+Release **0.4.0** (beta), licensed under [Apache-2.0](LICENSE). It runs fully
+offline, has no mandatory runtime dependencies and now ships a trained Spanish
+span tagger. It is not a guarantee of anonymity or a compliance certification:
+every result carries a release status, and `APPROVED` still needs the
+operational controls described in [the tagger report](docs/TAGGER.md).
+[Engineering/release assessment](docs/RELEASE_REPORT_v030.md),
 [performance](docs/PERFORMANCE.md), [detection quality](docs/DETECTION_QUALITY.md),
-[v0.2 OCR/PDF report](docs/pdf-ocr-report.md) and the
-[v0.1 baseline report](docs/engineering-report.md) record evidence
-and remaining work. Source code is published on [GitHub](https://github.com/giovannyTorres/deidflow).
-No package is uploaded to PyPI. The current [license](LICENSE) reserves all rights;
-this source publication does not grant public reuse rights.
+[public corpora](docs/PUBLIC_CORPORA.md), [v0.2 OCR/PDF report](docs/pdf-ocr-report.md)
+and the [v0.1 baseline report](docs/engineering-report.md) record evidence and
+remaining work. Source: [GitHub](https://github.com/giovannyTorres/deidflow).
 
 ```sh
 python -m pip install -e .
@@ -23,11 +24,16 @@ loaded. Python 3.11+; base wheel additionally smoke-tested on Python 3.13.
 
 ```python
 from deidflow import DeidEngine, Policy
+from deidflow.nlp import SpanTagger
 
-engine = DeidEngine(language="es", country="MX", offline=True)
-findings = engine.scan_text("correo: persona@example.test")
-result = engine.deidentify_text("correo: persona@example.test")
-assert result.status == "REVIEW_REQUIRED"  # Semantic coverage is required by default.
+# Rules plus the packaged Spanish tagger (no downloads, no optional dependency).
+engine = DeidEngine(nlp=SpanTagger.builtin("es-clinical"))
+result = engine.deidentify_text("Paciente: Ernesto Rivera Bueno. NHC: 368503.")
+print(result.status, result.output_text)  # APPROVED / REVIEW_REQUIRED / BLOCKED
+
+# Rules only: semantic coverage is required by default, so this needs review.
+rules_only = DeidEngine(language="es", country="MX", offline=True)
+assert rules_only.deidentify_text("correo: persona@example.test").status == "REVIEW_REQUIRED"
 
 # With an evaluated, explicitly supplied local semantic adapter:
 # from deidflow.nlp import SpacyNER
@@ -40,6 +46,27 @@ assert result.status == "REVIEW_REQUIRED"  # Semantic coverage is required by de
 `Policy.strict(require_ner=False)` explicitly accepts the narrower rules-only
 verification gate. It never establishes anonymous data. Always inspect
 `release_approved`, not merely the existence of an output path.
+
+## New in 0.4.0
+
+- **Apache-2.0 license** with a `NOTICE` file (the previous snapshot reserved all rights).
+- **Built-in Spanish span tagger** (`SpanTagger.builtin("es-clinical")`, CLI
+  `--tagger builtin:es-clinical`): averaged structured perceptron trained on the
+  public MEDDOCAN corpus, pure-Python inference with optional NumPy speed-up,
+  JSON model files (never pickle) with hashed features and calibrated scores.
+  Held-out MEDDOCAN exact F1 **0.958**, up from 0.509 for the v0.3 rules.
+  [Model card and results](docs/TAGGER.md).
+- Train your own tagger from span JSONL (`scripts/train_span_tagger.py`).
+- Verification no longer blocks on its own placeholders: rescans ignore findings
+  made only of replacement tokens, so `APPROVED` is reachable on real text.
+- Measured end-to-end release decisions and output leakage
+  (`scripts/benchmark_release_gate.py`), `review_margin` near-miss review.
+- Pinned git acquisition for public corpora; loader for the Apache-2.0 Gretel
+  multilingual **financial** PII corpus ([public corpora](docs/PUBLIC_CORPORA.md)).
+- Production packaging: CI on Linux/Windows/macOS × Python 3.11–3.13 with a
+  coverage gate and wheel smoke test, tag-driven release workflow with SBOM,
+  checksums and build-provenance attestations, opt-in PyPI trusted publishing,
+  Dependabot, [SECURITY.md](SECURITY.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Implemented
 
@@ -83,7 +110,7 @@ customer model activation exists.
 ## Unsupported or unmeasured
 
 DOCX/XLSX/Parquet output transformation, automatic standalone image release,
-private token-level NER training, cross-page clinical/coreference reasoning,
+transformer-based NER, cross-page clinical/coreference reasoning,
 ONNX acceleration and GPU performance. PDF rotation/cropping, interactive forms,
 encryption/signatures, searchable/vector output and non-removal PDF operators
 remain unsupported. Missing/failed OCR blocks release. DataProfiler was not
@@ -111,6 +138,24 @@ measure all possible leakage. True hybrid NER adds false positives on this corpu
 it is not automatically better. The [methodology](docs/benchmark-methodology.md)
 and [raw results](benchmarks/results) record baseline coverage, per-type metrics,
 latency, sampled memory, calibration and optimization experiments.
+
+## Built-in tagger: held-out results (v0.4)
+
+MEDDOCAN official test, 250 documents / 5,661 gold mentions, evaluated once
+after the model was frozen. Full tables, calibration, per-type recall and the
+source-disjoint subset are in [docs/TAGGER.md](docs/TAGGER.md).
+
+| Pipeline | Exact F1 [95% CI] | Sensitive-character recall | Docs with any uncovered gold character |
+| --- | ---: | ---: | ---: |
+| v0.3.0 rules | 0.509 [0.500, 0.518] | 0.538 | 250 / 250 |
+| Tagger | 0.958 [0.950, 0.966] | 0.966 | 100 / 250 |
+| Rules + tagger | 0.881 [0.875, 0.887] | 0.969 | 91 / 250 |
+
+End to end with `Policy.strict()`, rules + tagger approved 149 of 250 test
+documents, and 40 of those 149 still contained at least one sensitive
+character; with `review_margin=60`, 76 were approved and 11 of them leaked.
+Route `REVIEW_REQUIRED` to people and audit approved samples. MEDDOCAN is
+Spain-Spanish clinical text with synthetic PHI, not Mexican or financial data.
 
 ## Public gold evaluation of the v0.3 candidate
 
@@ -144,6 +189,10 @@ python scripts/benchmark_micro.py --check
 python examples/rag_preprocessing.py
 ```
 
+Tagger options: `--tagger builtin:es-clinical` (packaged, digest-pinned) or
+`--tagger model.json.gz --tagger-sha256 <hex>`, plus `--review-margin <float>`.
+`--model` (spaCy) and `--tagger` can be combined.
+
 CLI exit codes: 0 = scan completed or release approved; 2 = review/blocked/
 unsupported result; 3 = processing error. Scan completion is not release approval.
 Standalone structured verification requires review for sensitive schema fields
@@ -151,7 +200,7 @@ without transformation context. Large CSV users should consume `scan_csv()` as
 an iterator, and choose bounded batches. Default whole-document limits still
 apply to graph-based readers; see [format support](docs/formats.md).
 
-`requirements-lock-windows-py311.txt` is the final tested dependency snapshot.
+`requirements-lock-windows-py311.txt` is the v0.3 tested dependency snapshot.
 Use it as constraints in a matching environment; it is not a cross-platform lock.
 The optional Spanish model used for real baseline comparison is **GPL-3.0** and
 kept outside the repository/package. Select and review model terms independently.
@@ -199,3 +248,10 @@ Their fixture-specific pixel and OCR results do not prove anonymity of new data.
 
 See `docs/architecture.md`, `docs/formats.md`, `docs/training.md`,
 `docs/security.md`, `docs/third-party-licenses.md` and `docs/roadmap.md`.
+
+## License
+
+DeidFlow is licensed under the [Apache License, Version 2.0](LICENSE). See
+[NOTICE](NOTICE) for attribution, including the CC-BY-4.0 MEDDOCAN corpus used
+to train the packaged tagger. Optional third-party packages, OCR assets and
+spaCy models keep their own licenses ([inventory](docs/third-party-licenses.md)).
