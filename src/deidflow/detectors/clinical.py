@@ -19,9 +19,9 @@ _TRIGGER = re.compile(
     r"[:+]|[0-9][ \t]+de[ \t]|[0-9][/.-][0-9]|[0-9][ \t]+a[ñn]os\b|\b(?:DNI|NIF|NIE)\b",
     _FLAGS,
 )
-_LETTER = r"[A-ZÁÉÍÓÚÜÑ]"
-_WORD = _LETTER + r"[A-ZÁÉÍÓÚÜÑ'’-]{0,63}"
-_STOP = r"(?=[ \t]*(?:N[º°o.]?[ \t]*Col(?:egiad[oa])?[ \t]*:|Nombre[ \t]*:|Apellidos[ \t]*:|[\r\n,;]|$))"
+_LETTER = r"[A-ZÁÉÍÓÚÜÑÀÈÌÒÙÇÏ]"
+_WORD = _LETTER + r"[A-ZÁÉÍÓÚÜÑÀÈÌÒÙÇÏ'’·-]{0,63}"
+_STOP = r"(?=[ \t]*(?:N[º°o.]?[ \t]*Col(?:egiad[oa])?[ \t]*:|Nombre[ \t]*:|Apellidos[ \t]*:|[\r\n,;]|\.[ \t]*(?:\r?\n|$)|$))"
 _PERSON = re.compile(
     r"\b(?:nombre(?:[ \t]+completo)?|apellidos|m[eé]dico|responsable[ \t]+cl[ií]nico|remitido[ \t]+por)[ \t]*:[ \t]*(?:(?:Dr|Dra)\.[ \t]*)?(?P<value>"
     + _WORD
@@ -67,7 +67,7 @@ _WRITTEN_DATE = re.compile(
 _SHORT_DATE = re.compile(
     r"(?<![\w/.-])(?P<day>[0-3]?[0-9])(?P<sep>[/.-])(?P<month>[01]?[0-9])(?P=sep)(?P<year>(?:19|20)[0-9]{2}|[0-9]{2})(?![\w/.-])"
 )
-_DOB = re.compile(r"(?:nacimiento|naci[oó]|\bDOB)[ \t]*[:=]?[ \t]*$", _FLAGS)
+_DOB = re.compile(r"(?:nacimiento|naci[oó](?:[ \t]+el)?|\bDOB)[ \t]*[:=]?[ \t]*$", _FLAGS)
 _AGE = re.compile(
     r"\b(?:paciente|var[oó]n|mujer|hombre|niñ[oa])[^\n.;:]{0,35}?[ \t]+(?P<value>[0-9]{1,3})[ \t]+a[ñn]os\b",
     _FLAGS,

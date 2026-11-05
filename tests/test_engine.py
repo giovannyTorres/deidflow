@@ -420,16 +420,25 @@ def test_risk_flags_are_not_probabilities():
 
 def test_structured_standalone_verify_requires_receipt(tmp_path):
     engine = DeidEngine()
+    # A value outside every recognizer still needs a transformation receipt.
     for suffix, content in (
-        (".csv", "nombre,amount\nMaria Perez,42\n"),
-        (".jsonl", '{"nombre":"Maria Perez"}\n'),
-        (".json", '{"nombre":"Maria Perez"}'),
+        (".csv", "nombre,amount\nZoila Quintanar,42\n"),
+        (".jsonl", '{"nombre":"Zoila Quintanar"}\n'),
+        (".json", '{"nombre":"Zoila Quintanar"}'),
     ):
         path = tmp_path / ("input" + suffix)
         path.write_text(content, encoding="utf-8")
         result = engine.verify(path, policy=Policy.strict(require_ner=False))
         assert result.status == ReleaseStatus.REVIEW_REQUIRED
         assert "SCHEMA_TRANSFORMATION_RECEIPT_REQUIRED" in result.issues
+
+
+def test_structured_standalone_verify_blocks_recognized_given_name(tmp_path):
+    path = tmp_path / "input.csv"
+    path.write_text("nombre,amount\nMaria Perez,42\n", encoding="utf-8")
+    result = DeidEngine().verify(path, policy=Policy.strict(require_ner=False))
+    assert result.status == ReleaseStatus.BLOCKED
+    assert "RESIDUAL_FINDINGS" in result.issues
 
 
 def test_medical_schema_requires_subject_association():

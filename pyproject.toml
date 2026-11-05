@@ -24,6 +24,7 @@ training = ["scikit-learn>=1.6,<1.9", "joblib>=1.4,<2"]
 benchmarks = ["psutil>=7,<8", "reportlab>=4.4,<5"]
 baselines = ["presidio-analyzer>=2.2,<3", "spacy>=3.8,<3.9"]
 private-gmail = ["google-auth>=2.40,<3", "google-auth-oauthlib>=1.2,<2"]
+vault = ["cryptography>=46,<51"]
 dev = ["pytest>=8.4,<10", "hypothesis>=6.135,<7", "ruff>=0.12,<1", "mypy>=1.16,<2", "build>=1.2,<2", "pip-audit>=2.9,<3"]
 
 [project.scripts]

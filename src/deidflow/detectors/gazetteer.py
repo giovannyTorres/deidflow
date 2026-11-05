@@ -1,0 +1,371 @@
+"""Small, auditable public-knowledge gazetteers for Spanish narrative text.
+
+Entries are geographic names, institutions and very common given names: general
+public knowledge, not corpus data. Lists are intentionally finite and reviewable;
+completeness comes from a local NER model, not from enlarging these lists.
+"""
+
+from __future__ import annotations
+
+import unicodedata
+
+MX_STATES = (
+    "Aguascalientes",
+    "Baja California",
+    "Baja California Sur",
+    "Campeche",
+    "Chiapas",
+    "Chihuahua",
+    "Ciudad de México",
+    "CDMX",
+    "Coahuila",
+    "Coahuila de Zaragoza",
+    "Colima",
+    "Durango",
+    "Estado de México",
+    "Edomex",
+    "Guanajuato",
+    "Guerrero",
+    "Hidalgo",
+    "Jalisco",
+    "Michoacán",
+    "Morelos",
+    "Nayarit",
+    "Nuevo León",
+    "Oaxaca",
+    "Puebla",
+    "Querétaro",
+    "Quintana Roo",
+    "San Luis Potosí",
+    "Sinaloa",
+    "Sonora",
+    "Tabasco",
+    "Tamaulipas",
+    "Tlaxcala",
+    "Veracruz",
+    "Yucatán",
+    "Zacatecas",
+)
+
+MX_CITIES = (
+    "Acapulco",
+    "Apodaca",
+    "Azcapotzalco",
+    "Campeche",
+    "Cancún",
+    "Celaya",
+    "Chetumal",
+    "Chilpancingo",
+    "Ciudad Juárez",
+    "Ciudad Obregón",
+    "Ciudad Victoria",
+    "Coatzacoalcos",
+    "Coyoacán",
+    "Cuajimalpa",
+    "Cuautitlán",
+    "Cuernavaca",
+    "Culiacán",
+    "Ecatepec",
+    "Ensenada",
+    "Guadalajara",
+    "Hermosillo",
+    "Irapuato",
+    "Iztacalco",
+    "Iztapalapa",
+    "La Paz",
+    "León",
+    "Los Cabos",
+    "Los Mochis",
+    "Matamoros",
+    "Mazatlán",
+    "Mérida",
+    "Mexicali",
+    "Milpa Alta",
+    "Monclova",
+    "Monterrey",
+    "Morelia",
+    "Naucalpan",
+    "Nezahualcóyotl",
+    "Nogales",
+    "Nuevo Laredo",
+    "Orizaba",
+    "Pachuca",
+    "Playa del Carmen",
+    "Puerto Vallarta",
+    "Reynosa",
+    "Saltillo",
+    "San Cristóbal de las Casas",
+    "San Nicolás de los Garza",
+    "San Pedro Garza García",
+    "Tampico",
+    "Tapachula",
+    "Taxco",
+    "Tehuacán",
+    "Tepic",
+    "Tijuana",
+    "Tláhuac",
+    "Tlalnepantla",
+    "Tlalpan",
+    "Tlaquepaque",
+    "Toluca",
+    "Tonalá",
+    "Torreón",
+    "Tulancingo",
+    "Tuxtla Gutiérrez",
+    "Uruapan",
+    "Villahermosa",
+    "Xalapa",
+    "Xochimilco",
+    "Zapopan",
+    "Zamora",
+)
+
+ES_REGIONS = (
+    "A Coruña",
+    "Álava",
+    "Albacete",
+    "Alicante",
+    "Almería",
+    "Andalucía",
+    "Aragón",
+    "Asturias",
+    "Ávila",
+    "Badajoz",
+    "Baleares",
+    "Barcelona",
+    "Bizkaia",
+    "Burgos",
+    "Cáceres",
+    "Cádiz",
+    "Canarias",
+    "Cantabria",
+    "Castellón",
+    "Castilla y León",
+    "Castilla-La Mancha",
+    "Cataluña",
+    "Catalunya",
+    "Ceuta",
+    "Ciudad Real",
+    "Comunidad de Madrid",
+    "Comunidad Valenciana",
+    "Córdoba",
+    "Cuenca",
+    "Euskadi",
+    "Extremadura",
+    "Galicia",
+    "Gerona",
+    "Gipuzkoa",
+    "Girona",
+    "Granada",
+    "Guipúzcoa",
+    "Huelva",
+    "Huesca",
+    "Islas Baleares",
+    "Islas Canarias",
+    "Jaén",
+    "La Coruña",
+    "La Rioja",
+    "Las Palmas",
+    "Lérida",
+    "Lleida",
+    "Lugo",
+    "Madrid",
+    "Málaga",
+    "Melilla",
+    "Murcia",
+    "Navarra",
+    "Orense",
+    "Ourense",
+    "País Vasco",
+    "Palencia",
+    "Pontevedra",
+    "Región de Murcia",
+    "Salamanca",
+    "Santa Cruz de Tenerife",
+    "Segovia",
+    "Sevilla",
+    "Soria",
+    "Tarragona",
+    "Tenerife",
+    "Teruel",
+    "Toledo",
+    "Valencia",
+    "Valladolid",
+    "Vizcaya",
+    "Zaragoza",
+)
+
+ES_CITIES = (
+    "Alcalá de Henares",
+    "Alcorcón",
+    "Algeciras",
+    "Badalona",
+    "Bilbao",
+    "Cartagena",
+    "Donostia",
+    "Elche",
+    "Ferrol",
+    "Fuenlabrada",
+    "Getafe",
+    "Gijón",
+    "Hospitalet de Llobregat",
+    "Jerez de la Frontera",
+    "Leganés",
+    "Logroño",
+    "Marbella",
+    "Mataró",
+    "Móstoles",
+    "Oviedo",
+    "Pamplona",
+    "Reus",
+    "Sabadell",
+    "San Sebastián",
+    "Santander",
+    "Santiago de Compostela",
+    "Terrassa",
+    "Vigo",
+    "Vitoria",
+)
+
+COUNTRIES = (
+    "Alemania",
+    "Argelia",
+    "Argentina",
+    "Australia",
+    "Austria",
+    "Bélgica",
+    "Bolivia",
+    "Brasil",
+    "Bulgaria",
+    "Camerún",
+    "Canadá",
+    "Chile",
+    "China",
+    "Colombia",
+    "Corea del Sur",
+    "Costa Rica",
+    "Cuba",
+    "Dinamarca",
+    "Ecuador",
+    "EE. UU.",
+    "EEUU",
+    "Egipto",
+    "El Salvador",
+    "España",
+    "Estados Unidos",
+    "Filipinas",
+    "Finlandia",
+    "Francia",
+    "Gambia",
+    "Ghana",
+    "Grecia",
+    "Guatemala",
+    "Guinea Ecuatorial",
+    "Haití",
+    "Holanda",
+    "Honduras",
+    "India",
+    "Inglaterra",
+    "Irak",
+    "Irán",
+    "Irlanda",
+    "Israel",
+    "Italia",
+    "Japón",
+    "Mali",
+    "Marruecos",
+    "Mauritania",
+    "México",
+    "Nicaragua",
+    "Nigeria",
+    "Noruega",
+    "Países Bajos",
+    "Pakistán",
+    "Panamá",
+    "Paraguay",
+    "Perú",
+    "Polonia",
+    "Portugal",
+    "Puerto Rico",
+    "Reino Unido",
+    "República Dominicana",
+    "Rumania",
+    "Rumanía",
+    "Rusia",
+    "Senegal",
+    "Siria",
+    "Sudáfrica",
+    "Suecia",
+    "Suiza",
+    "Turquía",
+    "Ucrania",
+    "Uruguay",
+    "Venezuela",
+)
+
+# Health/social-security institutions reveal affiliation in clinical narratives.
+# Regulators and utilities (SAT, CFE, Banxico) are deliberately absent: they are
+# context, not quasi-identifiers of a person.
+INSTITUTIONS = (
+    "IMSS",
+    "IMSS-Bienestar",
+    "ISSSTE",
+    "ISSFAM",
+    "INSABI",
+    "Pemex",
+    "PEMEX",
+    "Sedena",
+    "SEDENA",
+    "Semar",
+    "SEMAR",
+    "DIF",
+    "Seguro Popular",
+    "Cruz Roja",
+    "Cruz Roja Mexicana",
+    "Osakidetza",
+    "SERGAS",
+    "SERMAS",
+)
+
+# Very common given names whose capitalized form is rarely an ordinary word.
+# Names that double as common words (Rosa, Luz, Paz, Dolores, Pilar, Blanca,
+# Mercedes, Esperanza, Victoria, Soledad, Consuelo...) belong in AMBIGUOUS_GIVEN.
+GIVEN_NAMES = (
+    "Adrián Agustín Alberto Alejandra Alejandro Alfonso Alfredo Alicia Álvaro "
+    "Amalia Ana Andrea Andrés Ángel Ángela Antonio Antonia Armando Arturo Beatriz "
+    "Benjamín Brenda Camila Carla Carlos Carmen Carolina Catalina Cecilia César Claudia "
+    "Cristian Cristina Daniel Daniela David Diana Diego Eduardo Elena Elizabeth Emilio "
+    "Enrique Ernesto Esteban Eva Fabiola Federico Felipe Fernanda Fernando Francisco "
+    "Gabriel Gabriela Gerardo Gilberto Gonzalo Graciela Guillermo Gustavo Héctor "
+    "Hugo Ignacio Inés Irene Isabel Iván Jaime Javier Jessica Joaquín Jorge José Josefina "
+    "Juan Juana Julia Julián Julio Karen Karla Laura Leticia Lorena Lucía Luis Luisa "
+    "Manuel Marcos Margarita María Mariana Mario Marta Martha Martín Mateo "
+    "Mauricio Miguel Mónica Natalia Óscar Oscar Pablo Patricia Paula Pedro Rafael "
+    "Ramón Raúl Rebeca Ricardo Roberto Rodrigo Rubén Santiago Sara Sebastián Sergio "
+    "Silvia Sofía Susana Teresa Tomás Valentina Valeria Verónica Vicente Víctor Ximena "
+    "Yolanda"
+).split()
+
+AMBIGUOUS_GIVEN = (
+    "Rosa Luz Paz Dolores Pilar Blanca Esperanza Victoria Soledad Consuelo Amparo "
+    "Rocío Ángeles Socorro Guadalupe Concepción Trinidad Jesús Cruz Reyes Santos "
+    "León Salvador Asunción Inmaculada Montserrat Mercedes Alma Gloria Marco Norma"
+).split()
+
+
+def strip_accents(value: str) -> str:
+    return "".join(
+        c for c in unicodedata.normalize("NFD", value) if unicodedata.category(c) != "Mn"
+    )
+
+
+def variants(names: tuple[str, ...] | list[str]) -> list[str]:
+    """Original spelling plus the accent-less spelling common in typed text."""
+    seen: dict[str, None] = {}
+    for name in names:
+        seen.setdefault(name, None)
+        seen.setdefault(strip_accents(name), None)
+    return sorted(seen, key=lambda n: (-len(n), n))
+
+
+LOCATIONS = MX_STATES + MX_CITIES + ES_REGIONS + ES_CITIES + COUNTRIES

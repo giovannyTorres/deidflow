@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import bisect
 import re
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, replace
@@ -17,6 +18,7 @@ from deidflow.validators import (
 )
 
 from .clinical import contextual_spanish
+from .narrative import ADDRESS_TAIL, narrative_spanish
 
 
 class Detector(Protocol):
@@ -131,7 +133,11 @@ _FIELD_ID = re.compile(
     + r"[A-Z0-9][A-Z0-9_./-]{2,47})",
     _FLAGS,
 )
-_NAME_WORD = r"[A-ZÁÉÍÓÚÜÑ][a-záéíóúüñ]+(?:[-'][A-ZÁÉÍÓÚÜÑa-záéíóúüñ]+)?"
+# Institution words after a connector ("Dr. Ramírez del Hospital Ángeles") end a name.
+_NAME_WORD = (
+    r"(?!(?:Hospital|Cl[ií]nica|Centro|Instituto|Sanatorio|Universidad|Unidad|Servicio)\b)"
+    r"[A-ZÁÉÍÓÚÜÑÀÈÌÒÙÇÏ][a-záéíóúüñàèìòùçï]+(?:[-'][A-ZÁÉÍÓÚÜÑÀÈÌÒÙÇÏa-záéíóúüñàèìòùçï]+)?"
+)
 _NAME_VALUE = _NAME_WORD + r"(?:[ \t]+(?:(?:de|del|la|las|los|y)[ \t]+)?" + _NAME_WORD + r"){1,5}"
 _NAME = re.compile(
     r"\b(?i:nombre(?:\s+completo)?|paciente|titular|beneficiari[oa]|contacto|name|patient)\s*[:=]\s*(?P<value>"
@@ -166,19 +172,46 @@ _PRIVATE_KEY = re.compile(
     r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----[\s\S]*?(?:-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|$)"
 )
 _HEALTH = re.compile(
-    r"\b(?:diabetes(?:\s+(?:mellitus|tipo\s+[12]))?|hipertensi[óo]n(?:\s+arterial)?|VIH|sida|c[áa]ncer|depresi[óo]n|embarazo|asma|insulina|metformina|quimioterapia|hemodi[áa]lisis|alergia(?:s)?)\b",
+    r"\b(?:diabetes(?:\s+(?:mellitus|tipo\s+[12]))?|hipertensi[óo]n(?:\s+arterial)?|VIH|sida|c[áa]ncer|depresi[óo]n|embarazo|asma|insulina|metformina|quimioterapia|hemodi[áa]lisis|alergia(?:s)?"
+    r"|ansiedad|esquizofrenia|trastorno\s+bipolar|bipolaridad|epilepsia|hepatitis(?:\s+[ABC])?|tuberculosis|s[íi]filis|gonorrea|VPH|herpes|aborto|adicci[óo]n|alcoholismo|drogadicci[óo]n|anorexia|bulimia|autismo|TDAH|alzh?eimer|parkinson|demencia|leucemia|linfoma|tumor|insuficiencia\s+renal|cirrosis|infarto|EPOC|lupus|esclerosis\s+m[úu]ltiple|COVID(?:-19)?"
+    r"|antirretrovirales?|antidepresivos?|fluoxetina|sertralina|litio|metadona|radioterapia|di[áa]lisis)\b",
     _FLAGS,
 )
+_MEDICATIONS = {
+    "insulina",
+    "metformina",
+    "antirretroviral",
+    "antirretrovirales",
+    "antidepresivo",
+    "antidepresivos",
+    "fluoxetina",
+    "sertralina",
+    "litio",
+    "metadona",
+}
+_TREATMENTS = {
+    "quimioterapia",
+    "hemodiálisis",
+    "hemodialisis",
+    "radioterapia",
+    "diálisis",
+    "dialisis",
+}
+_SENTENCE_END = re.compile(r"[.!?\n]")
 _HEALTH_SUBJECT = re.compile(
     r"\b(?:paciente\b|patient\b|historia\s+cl[íi]nica\b|diagn[óo]stico\s*[:=]|su\s+diagn[óo]stico\b|padece\b|padezco\b|mi\s+(?:diagn[óo]stico|tratamiento)\b)",
     _FLAGS,
 )
 _AGE = re.compile(r"\b(?:edad|age)\s*[:=]?\s*(?P<value>[0-9]{1,3})(?:\s*a[ñn]os)?\b", _FLAGS)
 _DOB_CONTEXT = re.compile(
-    r"(?:fecha\s+de\s+nacimiento|nacimiento|naci[óo]|dob|date\s+of\s+birth)\s*[:=]?\s*$", _FLAGS
+    r"(?:fecha\s+de\s+nacimiento|nacimiento|naci[óo](?:\s+el)?|dob|date\s+of\s+birth)\s*[:=]?\s*$",
+    _FLAGS,
 )
 _PHONE_CONTEXT = re.compile(
-    r"\b(?:tel[ée]fono|tel\.?|m[óo]vil|celular|phone|contacto|llamar|whatsapp)\s*[:=]?\s*$", _FLAGS
+    r"\b(?:tel[ée]fono|tel\.?|m[óo]vil|celular|cel\.?|phone|contacto|llamar|whatsapp"
+    r"|(?:mi|su|tu|el)\s+n[úu]mero|n[úu]mero\s+de\s+(?:tel[ée]fono|celular|m[óo]vil|contacto)"
+    r"|marca(?:r|me)?\s+al|ll[áa]ma(?:me|r)?\s+al)(?:\s+(?:es|son))?\s*[:=]?\s*$",
+    _FLAGS,
 )
 
 
@@ -318,6 +351,10 @@ class RuleDetector:
                     start, end = match.span("value")
                     while end > start and text[end - 1].isspace():
                         end -= 1
+                    if pattern is _STREET and (tail := ADDRESS_TAIL.match(text, end)):
+                        end = tail.end()
+                        while end > start and text[end - 1] in " \t.,;":
+                            end -= 1
                     add("ADDRESS", start, end, 0.85, context=("address_structure",))
             for match in _DATE.finditer(text):
                 preceding = text[max(0, match.start() - 45) : match.start()]
@@ -329,21 +366,39 @@ class RuleDetector:
                     risk="high" if kind == "DATE_OF_BIRTH" else "medium",
                     protected=kind == "DATE_OF_BIRTH",
                 )
+            findings.extend(narrative_spanish(text))
+            people = [f for f in findings if f.entity_type == "PERSON"]
+            boundaries: list[int] | None = None
             for match in _HEALTH.finditer(text):
                 nearby = text[max(0, match.start() - 120) : min(len(text), match.end() + 60)]
-                if _HEALTH_SUBJECT.search(nearby):
+                # A named person in the same sentence is also a subject association.
+                named = False
+                if people:
+                    if boundaries is None:
+                        boundaries = [m.start() for m in _SENTENCE_END.finditer(text)]
+                    index = bisect.bisect_left(boundaries, match.start())
+                    left = boundaries[index - 1] + 1 if index else 0
+                    right = boundaries[index] if index < len(boundaries) else len(text)
+                    named = any(left <= p.start and p.end <= right for p in people)
+                if named or _HEALTH_SUBJECT.search(nearby):
                     prefix = text[max(0, match.start() - 30) : match.start()]
+                    term = match.group().lower()
                     kind = (
                         "DIAGNOSIS"
                         if re.search(r"diagn[óo]stico\s*[:=]\s*$", prefix, _FLAGS)
                         else "MEDICATION"
-                        if match.group().lower() in {"insulina", "metformina"}
+                        if term in _MEDICATIONS
                         else "TREATMENT"
-                        if match.group().lower()
-                        in {"quimioterapia", "hemodiálisis", "hemodialisis"}
+                        if term in _TREATMENTS
                         else "MEDICAL_CONDITION"
                     )
-                    add(kind, *match.span(), 0.8, context=("patient_association",), risk="high")
+                    add(
+                        kind,
+                        *match.span(),
+                        0.8,
+                        context=("named_subject_association" if named else "patient_association",),
+                        risk="high",
+                    )
             for match in _AGE.finditer(text):
                 add(
                     "AGE",

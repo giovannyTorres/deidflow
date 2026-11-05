@@ -44,7 +44,13 @@ class SpacyNER:
         self.labels = (
             dict(labels)
             if labels is not None
-            else {"PER": "PERSON", "PERSON": "PERSON", "LOC": "LOCATION", "GPE": "LOCATION"}
+            else {
+                "PER": "PERSON",
+                "PERSON": "PERSON",
+                "LOC": "LOCATION",
+                "GPE": "LOCATION",
+                "ORG": "ORGANIZATION",
+            }
         )
         self._nlp: Any = None
         self._lock = Lock()
