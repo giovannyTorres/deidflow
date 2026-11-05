@@ -121,6 +121,34 @@ def validate_card(value: str) -> ValidationResult:
 
 validate_payment_card = validate_card
 
+# ISO 13616 national IBAN lengths (SWIFT IBAN registry). Unlisted countries fall
+# back to the general 15-34 character bound.
+IBAN_LENGTHS = {
+    "AD": 24, "AE": 23, "AL": 28, "AT": 20, "AZ": 28, "BA": 20, "BE": 16, "BG": 22,
+    "BH": 22, "BR": 29, "BY": 28, "CH": 21, "CR": 22, "CY": 28, "CZ": 24, "DE": 22,
+    "DK": 18, "DO": 28, "EE": 20, "EG": 29, "ES": 24, "FI": 18, "FO": 18, "FR": 27,
+    "GB": 22, "GE": 22, "GI": 23, "GL": 18, "GR": 27, "GT": 28, "HR": 21, "HU": 28,
+    "IE": 22, "IL": 23, "IS": 26, "IT": 27, "JO": 30, "KW": 30, "KZ": 20, "LB": 28,
+    "LI": 21, "LT": 20, "LU": 20, "LV": 21, "MC": 27, "MD": 24, "ME": 22, "MK": 19,
+    "MR": 27, "MT": 31, "MU": 30, "NL": 18, "NO": 15, "PK": 24, "PL": 28, "PS": 29,
+    "PT": 25, "QA": 29, "RO": 24, "RS": 22, "SA": 24, "SE": 24, "SI": 19, "SK": 24,
+    "SM": 27, "TN": 24, "TR": 26, "UA": 29, "VA": 22, "VG": 24, "XK": 20,
+}  # fmt: skip
+_IBAN = re.compile(r"[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}", re.ASCII)
+
+
+def validate_iban(value: str) -> ValidationResult:
+    """ISO 13616 IBAN: country length and ISO 7064 MOD 97-10 check digits."""
+    value = normalize_identifier(value)
+    if _IBAN.fullmatch(value) is None:
+        return ValidationResult(False, False)
+    expected = IBAN_LENGTHS.get(value[:2])
+    structural = len(value) == expected if expected else 15 <= len(value) <= 34
+    rearranged = value[4:] + value[:4]
+    number = int("".join(str(int(ch, 36)) for ch in rearranged))
+    return ValidationResult(True, structural, number % 97 == 1)
+
+
 __all__ = [
     "ValidationResult",
     "normalize_identifier",
@@ -129,6 +157,8 @@ __all__ = [
     "validate_clabe",
     "validate_card",
     "validate_payment_card",
+    "validate_iban",
+    "IBAN_LENGTHS",
     "curp_check_digit",
     "rfc_check_digit",
     "clabe_check_digit",

@@ -248,3 +248,21 @@ def test_exact_resolution_scopes_and_no_weak_name_merging():
     assert [g.mention_indices for g in a] == [(0, 1), (2,), (3,)]
     assert set(g.group_id for g in a).isdisjoint(g.group_id for g in b)
     assert "Ana" not in repr(a)
+
+
+def test_iban_checksum_and_grouping():
+    from deidflow import DeidEngine
+    from deidflow.validators import validate_iban
+
+    assert validate_iban("ES91 2100 0418 4502 0005 1332").status == "checksum"
+    assert validate_iban("GB82WEST12345698765432").status == "checksum"
+    assert validate_iban("ES9121000418450200051333").status == "invalid"
+    assert validate_iban("ES912100").status == "invalid"
+    engine = DeidEngine()
+    text = "Transferir a ES91 2100 0418 4502 0005 1332 hoy."
+    found = [(f.entity_type, text[f.start : f.end], f.validation) for f in engine.scan_text(text)]
+    # The grouped digits are not also reported as a card or phone number.
+    assert found == [("BANK_ACCOUNT", "ES91 2100 0418 4502 0005 1332", "checksum")]
+    assert not engine.scan_text("Referencia interna AB12CDEF3456GH sin cuenta.")
+    labelled = engine.scan_text("IBAN: ES0000000000000000000000")
+    assert [(f.validation, f.score < 0.75) for f in labelled] == [("invalid", True)]
