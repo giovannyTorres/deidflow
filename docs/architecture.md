@@ -35,7 +35,7 @@ gates. It is not certified production privacy infrastructure. Python 3.11+;
 ```python
 from deidflow import DeidEngine, Policy, Rule
 
-engine = DeidEngine(language="es", country="MX", offline=True)
+engine = DeidEngine(language="es", country="ALL", offline=True)
 findings = engine.scan_text("correo: persona@example.test")
 result = engine.deidentify_text("correo: persona@example.test")
 assert result.status == "REVIEW_REQUIRED"  # Strict semantic-model gate.

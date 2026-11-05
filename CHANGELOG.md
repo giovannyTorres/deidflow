@@ -33,6 +33,10 @@
   57 of 161 approved test documents still leaked at least one sensitive
   character (`docs/TAGGER.md`).
 - Added a checksum-validated (ISO 13616 MOD 97-10) IBAN recognizer.
+- Added the international identifier pack for 21 Spanish-speaking countries
+  (`docs/COUNTRIES.md`), international phones, IPv4/IPv6 and textual Spanish
+  dates; `DeidEngine(country=...)` now accepts `"ALL"` (default), an ISO code or
+  a list. Adds `TAX_ID`. Validators agree with python-stdnum on random inputs.
 - Added `redact_margin` (silent over-redaction of near-miss tokens), packaged
   `balanced`/`assurance` operating profiles tuned on validation, a domain router
   (`DomainRouter`, CLI `--tagger builtin:auto`) and direct-identifier leak,

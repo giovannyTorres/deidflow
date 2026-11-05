@@ -1,6 +1,7 @@
 # Detection and source fidelity
 
-`RuleDetector` is a reusable, compiled Spanish/Mexican recognizer. It detects
+`RuleDetector` is a reusable, compiled Spanish-language recognizer (Mexican core rules plus
+the international pack in [COUNTRIES.md](COUNTRIES.md)). It detects
 email, phone patterns, RFC, CURP, CLABE, Luhn-compatible payment cards, explicit
 person/address/identifier labels, credentials, dates, ages, and a small medical
 lexicon **only with nearby patient/clinical context**. It does not provide a
