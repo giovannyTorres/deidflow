@@ -30,6 +30,7 @@ from deidflow.benchmarks.runner import (
 )
 from deidflow.benchmarks.span_corpus import (
     GRETEL_FINANCE,
+    gretel_files,
     load_gretel_finance,
     verify_registered_files,
 )
@@ -44,8 +45,14 @@ def main() -> None:
     )
     parser.add_argument("--split", choices=["dev", "test"], default="test")
     parser.add_argument("--language", default="Spanish", help="gretel_finance language")
-    parser.add_argument("--tagger", type=Path, help="Span tagger model to evaluate")
-    parser.add_argument("--tagger-name", default="tagger")
+    parser.add_argument(
+        "--tagger",
+        action="append",
+        default=[],
+        metavar="NAME=MODEL",
+        help="Span tagger to evaluate (model path or builtin:<name>); repeat for several. "
+        "With several, their combination is also evaluated.",
+    )
     parser.add_argument("--spacy-model", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--repeats", type=int, default=1)
@@ -59,10 +66,10 @@ def main() -> None:
     args = parser.parse_args()
     if args.source == "gretel_finance":
         integrity = verify_registered_files(args.corpus, args.source)
+        if args.split != "test":
+            parser.error("gretel_finance publishes train and test only; evaluate --split test")
         corpus = load_gretel_finance(
-            sorted(p for p in args.corpus.iterdir() if p.is_file()),
-            language=args.language,
-            split=args.split,
+            gretel_files(args.corpus, "test"), language=args.language, split="test"
         )
         source_description = GRETEL_FINANCE
     else:
@@ -140,20 +147,38 @@ def main() -> None:
             ci_repeats=args.ci_repeats,
         )
         result["pipelines"].append(current)
-        if args.tagger is not None:
-            from deidflow.nlp.tagger import SpanTagger
+        if args.tagger:
+            from deidflow.nlp import CombinedNER
+            from deidflow.nlp.tagger import BUILTIN_MODELS, SpanTagger
 
-            tagger = SpanTagger.load(args.tagger)
-            result["tagger_model"] = {
-                "sha256": hashlib.sha256(args.tagger.read_bytes()).hexdigest(),
-                "version": tagger.model_version,
-                "accelerated": tagger.accelerated,
-                "training_data": tagger.metadata.get("training_data"),
-            }
-            for name, detector in (
-                ("deidflow_" + args.tagger_name, tagger.detect),
-                ("deidflow_rules_plus_" + args.tagger_name, DeidEngine(nlp=tagger).scan_text),
-            ):
+            taggers = []
+            result["tagger_models"] = {}
+            for item in args.tagger:
+                name, _, model = item.rpartition("=")
+                name = name or "tagger"
+                if model.startswith("builtin:"):
+                    tagger = SpanTagger.builtin(model[8:])
+                    digest = BUILTIN_MODELS[model[8:]][1]
+                else:
+                    tagger = SpanTagger.load(model)
+                    digest = hashlib.sha256(Path(model).read_bytes()).hexdigest()
+                result["tagger_models"][name] = {
+                    "sha256": digest,
+                    "version": tagger.model_version,
+                    "accelerated": tagger.accelerated,
+                    "training_data": tagger.metadata.get("training_data"),
+                }
+                taggers.append((name, tagger))
+            runs = []
+            for name, tagger in taggers:
+                runs.append(("deidflow_" + name, tagger.detect))
+                runs.append(("deidflow_rules_plus_" + name, DeidEngine(nlp=tagger).scan_text))
+            if len(taggers) > 1:
+                combined = CombinedNER(*(tagger for _, tagger in taggers))
+                label = "+".join(name for name, _ in taggers)
+                runs.append(("deidflow_" + label, combined.detect))
+                runs.append(("deidflow_rules_plus_" + label, DeidEngine(nlp=combined).scan_text))
+            for name, detector in runs:
                 measured, _ = evaluate_detector(
                     name, detector, corpus, repeats=args.repeats, ci_repeats=args.ci_repeats
                 )

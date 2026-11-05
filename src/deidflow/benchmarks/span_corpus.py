@@ -254,6 +254,46 @@ def load_gretel_finance(
     )
 
 
+def gretel_files(root: str | Path, split: str) -> list[Path]:
+    """Data files of one published split (``train`` or ``test``) in a registered directory."""
+    if split not in {"train", "test"}:
+        raise ValueError("The Gretel finance corpus publishes only train and test splits")
+    files = sorted(
+        path
+        for path in Path(root).iterdir()
+        if path.is_file()
+        and path.suffix in {".parquet", ".jsonl"}
+        and (path.name.startswith(split + "-") or ("_" + split + "-") in path.name)
+    )
+    if not files:
+        raise ValueError(f"No Gretel finance {split} files found")
+    return files
+
+
+def hash_split(
+    examples: Iterable[Example], *, validation_fraction: float = 0.1, salt: str = "deidflow"
+) -> tuple[list[Example], list[Example]]:
+    """Deterministic train/validation split keyed by a hash of each document's text.
+
+    Identical texts always land on the same side, so exact duplicates cannot leak
+    across the split. Returns ``(train, validation)`` with updated split names.
+    """
+    if not 0 < validation_fraction < 1:
+        raise ValueError("validation_fraction must be between zero and one")
+    from dataclasses import replace
+
+    train, validation = [], []
+    for example in examples:
+        digest = hashlib.sha256((salt + "\0" + example.text).encode()).digest()
+        if int.from_bytes(digest[:8], "big") / 2**64 < validation_fraction:
+            validation.append(replace(example, split="validation"))
+        else:
+            train.append(replace(example, split="train"))
+    if not train or not validation:
+        raise ValueError("Split produced an empty partition")
+    return train, validation
+
+
 def register_local_files(
     source: str,
     files: Iterable[str | Path],
@@ -317,6 +357,8 @@ def verify_registered_files(root: str | Path, source: str) -> dict[str, Any]:
 __all__ = [
     "GRETEL_FINANCE",
     "GRETEL_LABELS",
+    "gretel_files",
+    "hash_split",
     "load_gretel_finance",
     "load_span_jsonl",
     "register_local_files",

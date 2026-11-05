@@ -120,3 +120,31 @@ def test_registered_files_are_pinned_outside_repository(tmp_path):
     (root / "train.jsonl").write_text("changed", "utf-8")
     with pytest.raises(ValueError, match="differ"):
         verify_registered_files(root, "gretel_finance")
+
+
+def test_gretel_files_select_published_split(tmp_path):
+    from deidflow.benchmarks.span_corpus import gretel_files
+
+    for name in ("Spanish_train-00000-of-00001.jsonl", "Spanish_test-00000-of-00001.jsonl"):
+        _write(tmp_path / name, [_gretel("abc", [])])
+    (tmp_path / "README.md").write_text("card", "utf-8")
+    assert [p.name for p in gretel_files(tmp_path, "test")] == ["Spanish_test-00000-of-00001.jsonl"]
+    assert [p.name for p in gretel_files(tmp_path, "train")] == [
+        "Spanish_train-00000-of-00001.jsonl"
+    ]
+    with pytest.raises(ValueError, match="train and test"):
+        gretel_files(tmp_path, "dev")
+
+
+def test_hash_split_is_deterministic_and_keeps_duplicates_together():
+    from deidflow.benchmarks.datasets import Example
+    from deidflow.benchmarks.span_corpus import hash_split
+
+    examples = [Example(str(i), f"documento {i % 50}", (), "train", "t") for i in range(400)]
+    train, validation = hash_split(examples, validation_fraction=0.2)
+    again = hash_split(examples, validation_fraction=0.2)
+    assert [e.id for e in validation] == [e.id for e in again[1]]
+    assert {e.text for e in train}.isdisjoint({e.text for e in validation})
+    assert all(e.split == "validation" for e in validation) and 0 < len(validation) < 400
+    with pytest.raises(ValueError):
+        hash_split(examples, validation_fraction=1.0)
