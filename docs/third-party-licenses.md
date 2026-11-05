@@ -1,13 +1,16 @@
 # Third-party licensing and naming inventory
 
-The base package has **zero runtime dependencies**. Source was published on
-GitHub on 2026-11-03 with the existing reserved-rights `LICENSE`; no public reuse
-grant or PyPI publication was made. This inventory
-documents components; it does not provide trademark or legal clearance.
+The base package has **zero runtime dependencies**. From 0.4.0 DeidFlow itself
+is licensed under Apache-2.0 (`LICENSE`, `NOTICE`); earlier snapshots reserved
+all rights. This inventory documents components; it does not provide trademark
+or legal clearance.
 
 | Component | Use | Declared upstream terms / review boundary |
 | --- | --- | --- |
 | Python | Runtime | PSF terms; local Python 3.11.9 |
+| SPACCC MEDDOCAN corpus | Training data for the packaged `es-clinical` tagger weights | **CC-BY-4.0**; attribution and change notice in `NOTICE`; no corpus text is shipped |
+| Gretel synthetic_pii_finance_multilingual | Optional external evaluation corpus | Apache-2.0; not shipped, not yet used for weights |
+| NumPy | Optional tagger training/acceleration | BSD-3-Clause |
 | spaCy | Optional discriminative adapter | MIT code; model licenses are separate |
 | es_core_news_sm 3.8.0 | Private benchmark asset only | **GPL-3.0 model**, not bundled or selected by default |
 | pypdf | Optional native PDF extraction | BSD-3-Clause; no PyMuPDF dependency |
