@@ -127,7 +127,7 @@ def test_release_gate_metrics_count_direct_identifier_leaks():
         "t",
     )
     assert "PERSON" in DIRECT_IDENTIFIERS and "ORGANIZATION" not in DIRECT_IDENTIFIERS
-    engine = DeidEngine(nlp=CachedTagger(_PersonOnly(), [text], candidate_margin=1.0))
+    engine = DeidEngine(nlp=CachedTagger(_PersonOnly(), [text]))
     metrics = release_gate_metrics(engine, [example], Policy.strict())
     assert metrics["status_counts"] == {"APPROVED": 1}
     assert metrics["approved_leak_rate"] == 1.0  # the organization stayed
@@ -136,7 +136,10 @@ def test_release_gate_metrics_count_direct_identifier_leaks():
 
 
 class _PersonOnly:
-    def predict(self, text, candidate_margin=None):
+    def decode(self, text):
+        return text
+
+    def spans(self, text, decoded):
         # Covers the "Paciente: " label too, so some non-gold text is over-redacted.
         return [(0, 18)] if "Ana Ruiz" in text else []
 
@@ -146,4 +149,27 @@ class _PersonOnly:
         return [Finding("PERSON", s, e, 0.95, "fixed") for s, e in spans]
 
     def detect(self, text):
-        return self.to_findings(self.predict(text))
+        return self.to_findings(self.spans(text, self.decode(text)))
+
+
+@pytest.mark.parametrize("name", ["es-clinical", "es-finance"])
+def test_cached_tagger_matches_live_inference_for_every_margin_pair(name):
+    texts = [
+        "Juan Pérez vive en Madrid y trabaja en Acme Corp. Su teléfono es 5551234567.",
+        "Datos del paciente.\nNombre: Ernesto Rivera Bueno.\nNHC: 368503.\nVive con su hermana.",
+        "Estimado Sr. Carlos Méndez, le escribimos de Banco Ejemplo S.A. sobre su préstamo.",
+    ]
+    tagger = SpanTagger.builtin(name)
+    cached = CachedTagger(tagger, texts)
+    grid = (None, 5.0, 20.0, 40.0, 160.0, 320.0)
+    for review in grid:
+        for redact in grid:
+            tagger.review_margin, tagger.redact_margin = review, redact
+            for text in texts:
+                live = [
+                    (f.entity_type, f.start, f.end, f.score, f.context) for f in tagger.detect(text)
+                ]
+                again = [
+                    (f.entity_type, f.start, f.end, f.score, f.context) for f in cached.detect(text)
+                ]
+                assert again == live, (review, redact, text)

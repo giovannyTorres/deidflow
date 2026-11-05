@@ -224,6 +224,14 @@ def _finite(value: Any) -> float:
 
 
 @dataclass(frozen=True, slots=True)
+class Decoded:
+    """Viterbi decoding of one text: tokens and, per segment, path and max-marginals."""
+
+    tokens: list[tuple[int, int]]
+    segments: tuple[tuple[int, list[int], list[list[float]], float], ...]
+
+
+@dataclass(frozen=True, slots=True)
 class TaggedSpan:
     """A model span with its max-marginal margin (best path minus best alternative)."""
 
@@ -570,31 +578,46 @@ class SpanTagger:
         margins = [m for m in (self.review_margin, self.redact_margin) if m is not None]
         return max(margins) if margins else None
 
-    def predict(self, text: str, *, candidate_margin: float | None = None) -> list[TaggedSpan]:
-        """Raw model spans with max-marginal margins, before label mapping.
-
-        Near-miss candidates are collected up to ``candidate_margin`` (default:
-        the larger of the configured margins). Spans whose letters and digits
-        all belong to DeidFlow replacement tokens are dropped.
-        """
-        threshold = self._candidate_margin() if candidate_margin is None else candidate_margin
+    def decode(self, text: str) -> Decoded:
+        """Tokenize and Viterbi-decode ``text``; independent of the margin settings."""
         tokens = tokenize(text)
-        if not tokens:
-            return []
-        features = token_features(text, tokens)
-        spans: list[TaggedSpan] = []
+        features = token_features(text, tokens) if tokens else []
+        segments = []
         for begin, end in self._segments(text, tokens):
             if self._numpy is not None:
                 path, marginals, best = self._decode_numpy(features[begin:end])
             else:
                 path, marginals, best = self._decode(self._emissions(features[begin:end]))
-            spans.extend(self._path_spans(tokens, begin, path, marginals, best))
+            segments.append((begin, path, marginals, best))
+        return Decoded(tokens, tuple(segments))
+
+    def spans(
+        self, text: str, decoded: Decoded, *, candidate_margin: float | None = None
+    ) -> list[TaggedSpan]:
+        """Spans of a decoded text; near-miss candidates up to ``candidate_margin``."""
+        threshold = self._candidate_margin() if candidate_margin is None else candidate_margin
+        spans: list[TaggedSpan] = []
+        for begin, path, marginals, best in decoded.segments:
+            spans.extend(self._path_spans(decoded.tokens, begin, path, marginals, best))
             if threshold is not None:
                 spans.extend(
-                    self._near_misses(tokens, begin, path, marginals, best, float(threshold))
+                    self._near_misses(
+                        decoded.tokens, begin, path, marginals, best, float(threshold)
+                    )
                 )
         spans = [s for s in spans if not replacement_only(text, s.start, s.end)]
         return sorted(spans, key=lambda s: (s.start, s.end, s.entity_type))
+
+    def predict(self, text: str, *, candidate_margin: float | None = None) -> list[TaggedSpan]:
+        """Raw model spans with max-marginal margins, before label mapping.
+
+        Near-miss candidates are collected up to ``candidate_margin`` (default:
+        the larger of the configured margins); adjacent candidate tokens of the
+        same category merge, so a span's margin is the smallest of its tokens.
+        Spans whose letters and digits all belong to DeidFlow replacement tokens
+        are dropped.
+        """
+        return self.spans(text, self.decode(text), candidate_margin=candidate_margin)
 
     def detect(self, text: str) -> list[Finding]:
         return self.to_findings(self.predict(text))
@@ -775,6 +798,7 @@ __all__ = [
     "builtin_profiles",
     "FORMAT",
     "FORMAT_VERSION",
+    "Decoded",
     "SpanTagger",
     "TaggedSpan",
     "allowed_transition",

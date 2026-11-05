@@ -12,10 +12,10 @@
       "validation": {
         "split": "official dev",
         "documents": 250,
-        "approved": 116,
-        "approved_direct_identifier_leak_rate": 0.0172,
-        "approved_leak_rate": 0.1638,
-        "over_redaction_rate": 0.0054
+        "approved": 115,
+        "approved_direct_identifier_leak_rate": 0.0174,
+        "approved_leak_rate": 0.1652,
+        "over_redaction_rate": 0.0049
       },
       "test": {
         "documents": 250,

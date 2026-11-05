@@ -59,7 +59,7 @@ def main() -> None:
         _, examples = hash_split(published.examples)
         split = "10% text-hash holdout of the published train file (the tagger's validation set)"
     tagger = SpanTagger.builtin(args.tagger)
-    adapter = CachedTagger(tagger, (e.text for e in examples), candidate_margin=max(GRID))
+    adapter = CachedTagger(tagger, (e.text for e in examples))
     engine = DeidEngine(nlp=adapter)
     pairs: list[tuple[float | None, float | None]] = [(None, None)]
     pairs += [(None, redact) for redact in GRID]

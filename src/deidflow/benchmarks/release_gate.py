@@ -125,25 +125,24 @@ def release_gate_metrics(
 
 
 class CachedTagger:
-    """Adapter that reuses one tagger pass per source text across margin settings.
+    """Adapter that reuses one Viterbi decoding per source text across margin settings.
 
-    Spans are predicted once with the widest candidate margin; each call then
-    applies the tagger's *current* ``review_margin``/``redact_margin``. Texts
-    that were not pre-computed (such as transformed output) are predicted live.
-    Evaluation helper only; not part of the release pipeline.
+    The cache holds the decoding (tokens, paths, max-marginals), not spans, so
+    near-miss candidates are re-derived under the tagger's *current*
+    ``review_margin``/``redact_margin`` by the same code as live inference.
+    Texts that were not pre-computed (such as transformed output) are decoded
+    live. Evaluation helper only; not part of the release pipeline.
     """
 
-    def __init__(self, tagger: Any, texts: Iterable[str], candidate_margin: float) -> None:
+    def __init__(self, tagger: Any, texts: Iterable[str]) -> None:
         self.tagger = tagger
-        self.cache = {
-            text: tagger.predict(text, candidate_margin=candidate_margin) for text in texts
-        }
+        self.cache = {text: tagger.decode(text) for text in texts}
 
     def detect(self, text: str) -> list[Finding]:
-        spans = self.cache.get(text)
-        if spans is None:
+        decoded = self.cache.get(text)
+        if decoded is None:
             return list(self.tagger.detect(text))
-        return list(self.tagger.to_findings(spans))
+        return list(self.tagger.to_findings(self.tagger.spans(text, decoded)))
 
     def detect_batch(self, texts: list[str]) -> list[list[Finding]]:
         return [self.detect(text) for text in texts]
