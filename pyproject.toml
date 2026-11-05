@@ -9,7 +9,8 @@ description = "Local-first Spanish and Mexican sensitive-data detection and veri
 classifiers = ["Development Status :: 3 - Alpha"]
 readme = "README.md"
 requires-python = ">=3.11"
-license = "LicenseRef-Proprietary"
+license = "LicenseRef-DeidFlow-Commercial-1.0"
+license-files = ["LICENSE"]
 authors = [{name = "Giovanny Torres"}]
 dependencies = []
 

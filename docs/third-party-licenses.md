@@ -1,8 +1,11 @@
 # Third-party licensing and naming inventory
 
 The base package has **zero runtime dependencies**. Source was published on
-GitHub on 2026-11-03 with the existing reserved-rights `LICENSE`; no public reuse
-grant or PyPI publication was made. This inventory
+GitHub on 2026-11-03 with a reserved-rights `LICENSE`; since 2026-11-05 the
+repository is under the DeidFlow Commercial License 1.0 (free 90-day evaluation,
+signed commercial license for production). No PyPI publication was made. The
+optional dependencies below are permissively licensed and compatible with that
+proprietary distribution model; GPL models are never bundled. This inventory
 documents components; it does not provide trademark or legal clearance.
 
 | Component | Use | Declared upstream terms / review boundary |

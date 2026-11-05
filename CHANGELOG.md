@@ -19,6 +19,12 @@
   documents with a direct-identifier leak 250 -> 128; exact F1 0.509 -> 0.673.
 - A gazetteer name in an untransformed structured file now blocks verification
   (previously it was undetected and only required review).
+- Licensing: the repository moves from reserved rights to the DeidFlow Commercial
+  License 1.0 (free 90-day non-production evaluation; production, redistribution
+  and hosted offerings require a signed commercial license). Package metadata uses
+  `LicenseRef-DeidFlow-Commercial-1.0` and ships the license file.
+- Documented the public corpus search for Mexican medical/financial data
+  (`docs/CORPUS_PUBLICOS_MX.md`): no annotated Mexican PII corpus is public.
 
 ## 0.3.0 - 2026-11-02 (local experimental release)
 

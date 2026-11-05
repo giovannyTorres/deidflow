@@ -71,14 +71,15 @@ con una exactitud de 98.7–100 %. Datos crudos: `benchmarks/results/audit-2026-
 | F2.2 NER transformer con licencia comercial, ONNX | **Pendiente**: hay que elegir el checkpoint y su licencia | — |
 | F2.4 Fusión y límites | **Parcial**: falta resolver PHONE frente a NHC y el AGE con "años" | — |
 | F2.6 Otros países | **Pendiente** | — |
-| F3 Corpus mexicano anotado y calibración | **Pendiente**: requiere datos con consentimiento o licencia | — |
+| F3 Corpus mexicano anotado y calibración | **Pendiente**: no existe un corpus mexicano público con datos personales anotados; el candidato más cercano es un corpus chileno CC BY 4.0 | [`CORPUS_PUBLICOS_MX.md`](CORPUS_PUBLICOS_MX.md) |
 | F4.2–F4.5 Canarios, *red team* con LLM, adversarial, pentest | **Pendiente** | — |
-| F5.1 Licencia | **Decisión del titular**: no la cambié | `LICENSE` |
+| F5.1 Licencia | **Hecho**: Licencia Comercial DeidFlow 1.0, con evaluación gratuita de 90 días y producción bajo contrato. Falta revisión legal | `LICENSE` |
 | F5.2–F5.6 Paquetes, PyPI, servicio REST, SBOM, mapeo normativo | **Pendiente** | — |
 | F6 Piloto y GA | **Pendiente** | — |
 
 **El veredicto sigue siendo "no listo para producción".** Faltan el modelo con licencia
-comercial (sin él quedan 128/250 documentos con fuga), el holdout mexicano y la licencia.
+comercial (sin él quedan 128/250 documentos con fuga), el holdout mexicano y la revisión
+legal de la nueva licencia comercial.
 Lo construido sí permite empezar el piloto en modo sombra (F6.1) con revisión humana.
 
 ---

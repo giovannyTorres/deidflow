@@ -9,8 +9,11 @@ compliance claim. [Current engineering/release assessment](docs/RELEASE_REPORT_v
 [2026-11 metrics audit and production plan (Spanish)](docs/AUDITORIA_Y_PLAN_PRODUCCION.md) and the
 [v0.1 baseline report](docs/engineering-report.md) record evidence
 and remaining work. Source code is published on [GitHub](https://github.com/giovannyTorres/deidflow).
-No package is uploaded to PyPI. The current [license](LICENSE) reserves all rights;
-this source publication does not grant public reuse rights.
+No package is uploaded to PyPI. DeidFlow is distributed under the
+[DeidFlow Commercial License 1.0](LICENSE) (Spanish text governs): free
+**non-production evaluation for 90 days**; production use, redistribution or
+hosted/API offerings require a signed commercial license from the copyright holder.
+It is source-available, not open source.
 
 ```sh
 python -m pip install -e .

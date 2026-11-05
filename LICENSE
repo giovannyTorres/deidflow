@@ -1,5 +1,146 @@
-Copyright (c) 2026 Giovanny Torres. All rights reserved.
+LICENCIA COMERCIAL DE DEIDFLOW
+Versión 1.0 — 5 de noviembre de 2026
 
-No public license grant is made by this development snapshot. Commercial and
-open-source licensing decisions are reserved to the copyright holder.
-Third-party components retain their own licenses; see docs/third-party-licenses.md.
+Copyright (c) 2026 Giovanny Torres. Todos los derechos reservados, salvo los que
+esta licencia concede expresamente.
+
+RESUMEN (informativo, no vinculante)
+- Puede leer el código y evaluarlo gratis durante 90 días, fuera de producción.
+- El uso en producción, la redistribución o la oferta como servicio a terceros
+  requieren una Licencia Comercial firmada con el Titular.
+- El Software se entrega "tal cual". No garantiza anonimización ni cumplimiento
+  normativo: usted sigue siendo responsable de los datos que procesa.
+
+1. DEFINICIONES
+
+1.1 "Software": el código fuente y objeto, la documentación, los catálogos, las
+    pruebas y demás materiales de este repositorio, en esta y en futuras
+    versiones, excluidos los Componentes de Terceros.
+1.2 "Titular": Giovanny Torres, titular de los derechos de autor del Software.
+1.3 "Usted": la persona física o moral que obtiene o usa el Software. Si actúa en
+    nombre de una organización, "Usted" incluye a esa organización.
+1.4 "Uso de Evaluación": uso interno para leer, compilar, ejecutar, probar y
+    modificar el Software, con el único fin de decidir si adquiere una Licencia
+    Comercial, en entornos que no son de producción.
+1.5 "Uso en Producción": todo uso que no sea Uso de Evaluación. Incluye procesar
+    datos para operaciones de negocio, enviar resultados del Software a sistemas o
+    modelos de lenguaje usados en esas operaciones, y prestar servicios a terceros.
+1.6 "Licencia Comercial": contrato por escrito, firmado por el Titular y por Usted,
+    que autoriza el Uso en Producción y fija su alcance, vigencia y contraprestación.
+1.7 "Componentes de Terceros": software, datos, catálogos o modelos de terceros
+    sujetos a sus propias licencias (véase docs/third-party-licenses.md).
+
+2. LICENCIA DE EVALUACIÓN
+
+2.1 Sujeto al cumplimiento de esta licencia, el Titular le otorga una licencia
+    gratuita, no exclusiva, intransferible, no sublicenciable y revocable para
+    Uso de Evaluación durante noventa (90) días naturales, contados desde el primer
+    uso por Usted o su organización.
+2.2 Durante la evaluación puede procesar datos propios, incluidos datos personales
+    bajo su control, siempre que los resultados no se usen en operaciones de
+    producción y que Usted cumpla la legislación de protección de datos aplicable.
+2.3 Al vencer el plazo debe adquirir una Licencia Comercial o dejar de usar el
+    Software. El Titular puede extender el plazo por escrito.
+
+3. LICENCIA COMERCIAL
+
+3.1 El Uso en Producción requiere una Licencia Comercial vigente.
+3.2 Lo que una Licencia Comercial regule prevalece sobre esta licencia.
+3.3 Para solicitar una Licencia Comercial, contacte al Titular a través de
+    https://github.com/giovannyTorres.
+
+4. RESTRICCIONES
+
+Salvo autorización expresa en una Licencia Comercial, Usted no puede:
+(a) usar el Software en producción;
+(b) vender, arrendar, redistribuir, publicar o sublicenciar el Software o sus obras
+    derivadas, total o parcialmente;
+(c) ofrecer el Software, o funciones sustancialmente equivalentes basadas en él,
+    como servicio alojado, API o software como servicio a terceros;
+(d) usar el Software para desarrollar un producto o servicio que compita con él;
+(e) eliminar o alterar avisos de derechos de autor, de licencia o de atribución;
+(f) eludir los límites de esta licencia.
+
+5. CONTRIBUCIONES
+
+Si envía al Titular una contribución (código, documentación, datos o
+sugerencias), Usted declara tener derecho a hacerlo y otorga al Titular una
+licencia perpetua, mundial, irrevocable, gratuita y no exclusiva para usarla,
+modificarla, sublicenciarla y distribuirla bajo cualquier licencia.
+
+6. PROPIEDAD INTELECTUAL
+
+El Titular conserva la titularidad de todos los derechos sobre el Software. Esta
+licencia no transmite derechos de propiedad ni otorga derechos sobre marcas,
+nombres comerciales o logotipos del Titular. Las modificaciones que Usted haga
+solo pueden usarse dentro de los términos de esta licencia.
+
+7. COMPONENTES DE TERCEROS, MODELOS Y CORPUS
+
+7.1 Los Componentes de Terceros se rigen por sus propias licencias, que Usted
+    debe cumplir. Esta licencia no los relicencia.
+7.2 El Software no incluye modelos estadísticos ni corpus de terceros. Los modelos
+    que Usted use con el Software, incluidos los distribuidos bajo GPL u otras
+    licencias restrictivas, son elección y responsabilidad suya.
+7.3 Los corpus públicos usados para medir el Software (por ejemplo, MEDDOCAN bajo
+    CC-BY-4.0) no se distribuyen con él y conservan sus propias condiciones.
+
+8. DATOS PERSONALES Y CUMPLIMIENTO
+
+8.1 Usted es el responsable del tratamiento de los datos que procese con el
+    Software, conforme a la legislación aplicable (incluidas, en su caso, la Ley
+    Federal de Protección de Datos Personales en Posesión de los Particulares, el
+    Reglamento General de Protección de Datos de la Unión Europea u otras).
+8.2 El Software detecta y transforma datos con reglas y modelos que pueden fallar.
+    Su salida puede contener datos personales. Un estado "APPROVED" no es una
+    certificación de anonimidad. Con una bóveda de re-identificación, la salida es
+    seudonimizada, no anónima.
+8.3 Usted debe revisar los resultados marcados "REVIEW_REQUIRED" o "BLOCKED" y
+    aplicar las medidas técnicas, organizativas y contractuales necesarias antes
+    de enviar datos a terceros, incluidos proveedores de modelos de lenguaje.
+
+9. AUSENCIA DE GARANTÍAS
+
+EN LA MÁXIMA MEDIDA PERMITIDA POR LA LEY, EL SOFTWARE SE PROPORCIONA "TAL CUAL" Y
+"SEGÚN DISPONIBILIDAD", SIN GARANTÍAS DE NINGÚN TIPO, EXPRESAS O IMPLÍCITAS,
+INCLUIDAS LAS DE COMERCIABILIDAD, IDONEIDAD PARA UN FIN PARTICULAR, NO INFRACCIÓN,
+EXACTITUD, ANONIMIZACIÓN COMPLETA O CUMPLIMIENTO NORMATIVO.
+
+10. LIMITACIÓN DE RESPONSABILIDAD
+
+EN LA MÁXIMA MEDIDA PERMITIDA POR LA LEY, EL TITULAR NO SERÁ RESPONSABLE POR DAÑOS
+INDIRECTOS, INCIDENTALES, ESPECIALES, CONSECUENCIALES O PUNITIVOS, NI POR PÉRDIDA
+DE DATOS, INGRESOS O REPUTACIÓN, NI POR INCIDENTES DE SEGURIDAD O DE PRIVACIDAD
+DERIVADOS DEL USO DEL SOFTWARE. LA RESPONSABILIDAD TOTAL DEL TITULAR NO EXCEDERÁ
+LO EFECTIVAMENTE PAGADO POR USTED AL TITULAR EN LOS DOCE (12) MESES ANTERIORES AL
+HECHO QUE LA ORIGINE, Y SERÁ DE CERO (0) DURANTE EL USO DE EVALUACIÓN. NADA DE LO
+ANTERIOR LIMITA LA RESPONSABILIDAD QUE LA LEY NO PERMITA LIMITAR.
+
+11. TERMINACIÓN
+
+11.1 Esta licencia termina automáticamente si Usted incumple cualquiera de sus
+     términos. El Titular puede revocar la licencia de evaluación con aviso por
+     escrito.
+11.2 Al terminar, Usted debe dejar de usar el Software y destruir sus copias, salvo
+     lo que una Licencia Comercial vigente permita conservar.
+11.3 Las secciones 5 a 13 sobreviven a la terminación.
+
+12. LEY APLICABLE Y JURISDICCIÓN
+
+Esta licencia se rige por las leyes federales de los Estados Unidos Mexicanos.
+Para su interpretación y cumplimiento, las partes se someten a los tribunales
+federales competentes de la Ciudad de México y renuncian a cualquier otro fuero
+que pudiera corresponderles por razón de su domicilio presente o futuro.
+
+13. DISPOSICIONES GENERALES
+
+13.1 Si alguna disposición resulta inválida, las demás conservan su validez.
+13.2 La omisión del Titular en exigir un derecho no implica renuncia a él.
+13.3 El Titular puede publicar nuevas versiones de esta licencia. Cada versión del
+     Software se rige por la licencia que la acompaña, salvo pacto distinto en una
+     Licencia Comercial.
+13.4 Esta licencia está redactada en español, versión que prevalece sobre cualquier
+     traducción.
+
+Los Componentes de Terceros conservan sus propias licencias; véase
+docs/third-party-licenses.md.
