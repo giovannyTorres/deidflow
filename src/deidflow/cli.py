@@ -8,7 +8,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from deidflow import DeidEngine, Policy
+from deidflow import DeidEngine, Policy, __version__
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -29,12 +29,23 @@ def main(argv: list[str] | None = None) -> int:
             "See docs/PRIVATE_GMAIL_BENCHMARK.md before using private data."
         ),
     )
+    parser.add_argument("--version", action="version", version=f"deidflow {__version__}")
     parser.add_argument("command", choices=["scan", "deidentify", "verify", "profile"])
     parser.add_argument("source", type=Path)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--policy", type=Path)
     parser.add_argument(
         "--model", type=Path, help="Explicit local Spanish spaCy pipeline directory"
+    )
+    parser.add_argument(
+        "--tagger",
+        help="Local span tagger: a model file path, or builtin:<name> for a packaged model",
+    )
+    parser.add_argument("--tagger-sha256", help="Required SHA-256 of a --tagger model file")
+    parser.add_argument(
+        "--review-margin",
+        type=float,
+        help="Also flag near-miss tagger candidates for review (trades review load for recall)",
     )
     parser.add_argument("--batch-size", type=int, default=1024)
     parser.add_argument(
@@ -68,12 +79,38 @@ def main(argv: list[str] | None = None) -> int:
         help="Require review if table relationships cannot be reconstructed",
     )
     args = parser.parse_args(arguments)
+    if args.tagger_sha256 and not args.tagger:
+        parser.error("--tagger-sha256 requires --tagger")
+    if args.review_margin is not None and not args.tagger:
+        parser.error("--review-margin requires --tagger")
     try:
-        nlp = None
+        adapters: list[object] = []
         if args.model:
             from deidflow.nlp import SpacyNER
 
-            nlp = SpacyNER(args.model)
+            adapters.append(SpacyNER(args.model))
+        if args.tagger:
+            from deidflow.nlp.tagger import SpanTagger
+
+            if args.tagger.startswith("builtin:"):
+                if args.tagger_sha256:
+                    parser.error("Built-in taggers are verified against their pinned digest")
+                adapters.append(
+                    SpanTagger.builtin(args.tagger[8:], review_margin=args.review_margin)
+                )
+            else:
+                adapters.append(
+                    SpanTagger.load(
+                        args.tagger, sha256=args.tagger_sha256, review_margin=args.review_margin
+                    )
+                )
+        nlp = None
+        if len(adapters) == 1:
+            nlp = adapters[0]
+        elif adapters:
+            from deidflow.nlp import CombinedNER
+
+            nlp = CombinedNER(*adapters)
         ocr = None
         if args.ocr_executable:
             from deidflow.ocr import TesseractOCR
@@ -146,12 +183,14 @@ def main(argv: list[str] | None = None) -> int:
             result = engine.verify(args.source, policy=policy)
         print(json.dumps(result.audit_dict()))
         return 0 if result.release_approved else 2
-    except Exception:
+    except Exception as error:
+        # The exception class is safe to report; its message may contain document text.
         print(
             json.dumps(
                 {
                     "status": "BLOCKED",
                     "error": "Processing failed; inspect input, dependencies and configuration locally",
+                    "error_type": type(error).__name__,
                 }
             ),
             file=sys.stderr,

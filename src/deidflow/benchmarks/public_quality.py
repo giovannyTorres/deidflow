@@ -52,6 +52,18 @@ _CODE_TYPES = {
 }
 
 
+_GRETEL_PREDICTION_ALIASES = {
+    "CLABE": "BANK_ACCOUNT",
+    "RFC": "NATIONAL_ID",
+    "CURP": "NATIONAL_ID",
+    "REGIONAL_ID": "NATIONAL_ID",
+    "AUTH_TOKEN": "CREDENTIAL",
+    "INTERNAL_ID": "CUSTOMER_ID",
+    "CONTRACT_ID": "CUSTOMER_ID",
+    "PATIENT_ID": "CUSTOMER_ID",
+}
+
+
 def map_predictions(source: str, findings: Sequence[Finding]) -> list[Finding]:
     result = []
     for finding in findings:
@@ -64,6 +76,8 @@ def map_predictions(source: str, findings: Sequence[Finding]) -> list[Finding]:
                 "NATIONAL_ID": "PATIENT_ID",
                 "PASSPORT": "PATIENT_ID",
             }.get(kind, kind)
+        elif source == "gretel_finance":
+            kind = _GRETEL_PREDICTION_ALIASES.get(kind, kind)
         elif source == "tab":
             if kind in _CODE_TYPES:
                 kind = "CODE"
@@ -160,11 +174,10 @@ def quality_metrics(
     exact = evaluate(examples, predictions)
     overlap = evaluate(examples, predictions, exact=False)
     person_examples, person_predictions = _subset(examples, predictions, {"PERSON"})
-    comparable = (
-        {"PERSON", "LOCATION", "EMAIL", "PHONE", "DATE"}
-        if corpus.source == "meddocan"
-        else {"PERSON", "LOCATION", "DATE"}
-    )
+    comparable = {
+        "meddocan": {"PERSON", "LOCATION", "EMAIL", "PHONE", "DATE"},
+        "gretel_finance": {"PERSON", "EMAIL", "PHONE", "DATE", "BANK_ACCOUNT", "PAYMENT_CARD"},
+    }.get(corpus.source, {"PERSON", "LOCATION", "DATE"})
     comparable_examples, comparable_predictions = _subset(examples, predictions, comparable)
     frequencies = Counter(e.text[s.start : s.end].casefold() for e in examples for s in e.spans)
     frequency_strata = {}
@@ -382,8 +395,14 @@ Path(sys.argv[2]).write_text(json.dumps({"predictions":predictions,"latency_seco
 
 
 def taxonomy_description(source: str) -> dict[str, Any]:
+    from .span_corpus import GRETEL_LABELS
+
     return {
-        "gold_label_mapping": MEDDOCAN_LABELS if source == "meddocan" else TAB_LABELS,
+        "gold_label_mapping": {
+            "meddocan": MEDDOCAN_LABELS,
+            "tab": TAB_LABELS,
+            "gretel_finance": GRETEL_LABELS,
+        }[source],
         "prediction_aliases": {
             "meddocan": {
                 "DATE_OF_BIRTH": "DATE",
@@ -391,6 +410,7 @@ def taxonomy_description(source: str) -> dict[str, Any]:
                 "PASSPORT": "PATIENT_ID",
             },
             "tab": "regional/document/contact identifiers -> CODE; AGE/OCCUPATION -> DEMOGRAPHIC",
+            "gretel_finance": _GRETEL_PREDICTION_ALIASES,
         },
         "excluded_prediction_categories": sorted(_CLINICAL_NOT_ANNOTATED),
         "exclusion_reason": "These clinical attributes are outside the PHI/masking gold annotation task, so unlabeled medical spans cannot be asserted false positives",

@@ -9,6 +9,7 @@ import base64
 import hashlib
 import hmac
 import math
+import re
 import unicodedata
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -169,3 +170,30 @@ def transform_text(
         cursor = end
     parts.append(text[cursor:])
     return "".join(parts), mappings
+
+
+# Output of the constant/keyed operators: typed placeholders, HMAC pseudonyms
+# ([DF_TYPE_BASE32]), the default generalization marker, redaction blocks and
+# fully masked values. None of them contains source characters.
+_REPLACEMENT_TOKEN = re.compile(r"\[[A-Z][A-Z0-9_]{0,63}\]|\u2588+|\*+")
+
+
+def replacement_only(text: str, start: int, end: int) -> bool:
+    """True when every letter or digit in ``text[start:end]`` lies in a replacement token.
+
+    A rescan finding that covers only placeholders, pseudonyms, redaction blocks
+    and separators carries no source text, so it is not a residual disclosure.
+    Partial masks keep their visible digits outside any token and stay residual.
+    """
+    window_start = max(0, start - 80)
+    covered = bytearray(end - start)
+    hit = False
+    for match in _REPLACEMENT_TOKEN.finditer(text, window_start, min(len(text), end + 80)):
+        low, high = max(match.start(), start), min(match.end(), end)
+        if low < high:
+            covered[low - start : high - start] = b"\x01" * (high - low)
+            hit = True
+    return hit and all(
+        flag or not character.isalnum()
+        for flag, character in zip(covered, text[start:end], strict=True)
+    )

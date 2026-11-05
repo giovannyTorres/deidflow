@@ -23,7 +23,12 @@ from deidflow.core import DocumentGraph, Finding
 from deidflow.detectors import RuleDetector, fuse
 from deidflow.policies import Policy
 from deidflow.structured import dataframe_columns, profile_column, profile_table, scan_cell
-from deidflow.transformations import IncompleteTransformationError, SourceMap, transform_text
+from deidflow.transformations import (
+    IncompleteTransformationError,
+    SourceMap,
+    replacement_only,
+    transform_text,
+)
 
 
 class ReleaseStatus(StrEnum):
@@ -190,6 +195,13 @@ class DeidEngine:
                 results[i] = fuse(results[i] + items)
         return results
 
+    def _rescan_texts(self, texts: list[str]) -> list[list[Finding]]:
+        """Verification rescan: ignore findings made only of replacement tokens."""
+        return [
+            [f for f in items if not replacement_only(text, f.start, f.end)]
+            for text, items in zip(texts, self.scan_texts(texts), strict=True)
+        ]
+
     def read(self, source: str | Path) -> DocumentGraph:
         from deidflow.readers import read_document
 
@@ -346,8 +358,10 @@ class DeidEngine:
             )
         except IncompleteTransformationError:
             return Result(ReleaseStatus.BLOCKED, issues=["INCOMPLETE_TRANSFORMATION"])
-        residual = self.scan_text(transformed)
+        rescanned = self.scan_text(transformed)
+        residual = [f for f in rescanned if not replacement_only(transformed, f.start, f.end)]
         result = self._gate(policy=policy, residual=residual, original=findings, domain=domain)
+        result.audit["replacement_only_rescan_findings"] = len(rescanned) - len(residual)
         result.output_text, result.mappings, result.records = transformed, mappings, 1
         result.audit["transformations"] = len(mappings)
         result.audit["sha256"] = hashlib.sha256(
@@ -381,7 +395,9 @@ class DeidEngine:
         graph = self.read(source)
         findings: list[Finding] = []
         for batch in _batches(graph.fragments, 32):
-            findings.extend(f for items in self.scan_texts([x.text for x in batch]) for f in items)
+            findings.extend(
+                f for items in self._rescan_texts([x.text for x in batch]) for f in items
+            )
         result = self._gate(
             policy=policy,
             residual=findings,
@@ -420,7 +436,7 @@ class DeidEngine:
 
         def consume(values: Iterable[str]) -> None:
             for cells in _batches(values, 128):
-                for items in self.scan_texts(cells):
+                for items in self._rescan_texts(cells):
                     for f in items:
                         if (
                             len(findings) < 100
@@ -709,7 +725,7 @@ class DeidEngine:
             output_frame = pl.DataFrame(transformed, schema=headers, orient="row", strict=False)
         residual: list[Finding] = []
         for cells in _batches((str(v) for row in transformed for v in row if v is not None), 128):
-            residual.extend(f for items in self.scan_texts(cells) for f in items)
+            residual.extend(f for items in self._rescan_texts(cells) for f in items)
         # Headers and pandas indices may themselves disclose identities.
         metadata = list(headers)
         if module == "pandas":
@@ -761,7 +777,7 @@ class DeidEngine:
                     return Result(ReleaseStatus.BLOCKED, issues=["SCHEMA_MISMATCH"])
                 reread += len(batch)
                 for cells in _batches((v for row in batch for v in row if v), 128):
-                    found = [f for items in self.scan_texts(cells) for f in items]
+                    found = [f for items in self._rescan_texts(cells) for f in items]
                     disallowed = [
                         f
                         for f in found

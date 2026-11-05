@@ -1,0 +1,957 @@
+{
+  "schema_version": 1,
+  "machine": {
+    "platform": "Linux-6.18.44-fc-v236-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "machine": "x86_64",
+    "processor": "x86_64",
+    "logical_cpu_count": 4,
+    "versions": {
+      "deidflow": "0.3.0",
+      "psutil": "7.2.2",
+      "spacy": "3.8.18",
+      "presidio-analyzer": null,
+      "DataProfiler": null,
+      "numpy": "2.5.4",
+      "scikit-learn": "1.8.0"
+    },
+    "execution": "CPU",
+    "gpu_memory_bytes": null,
+    "physical_memory_bytes": 16867418112,
+    "physical_cpu_count": 4
+  },
+  "source": {
+    "repository": "https://github.com/PlanTL-GOB-ES/SPACCC_MEDDOCAN",
+    "commit": "783a6df385c975b328c99bcffb54196a9ba4078a",
+    "archive_url": "https://codeload.github.com/PlanTL-GOB-ES/SPACCC_MEDDOCAN/zip/783a6df385c975b328c99bcffb54196a9ba4078a",
+    "archive_sha256": "555470b36d90d04094aedf1a72bff079cb5dbcef98c8e40627a6beafc205ed1b",
+    "license": "CC-BY-4.0",
+    "license_url": "https://github.com/PlanTL-GOB-ES/SPACCC_MEDDOCAN/blob/783a6df385c975b328c99bcffb54196a9ba4078a/LICENSE",
+    "language": "es",
+    "format": "UTF-8 text + BRAT standoff",
+    "gold": true,
+    "provenance_kind": "semi_synthetic_clinical",
+    "already_anonymized": "Released synthetic/enriched PHI, not original private patient records",
+    "attribution": "SPACCC MEDDOCAN; 2019 Secretaria de Estado para el Avance Digital (SEAD)",
+    "file_digest_manifest_sha256": "ba4823b70e231902fe7d865c1193607631eb0a2d1f30c8591a6fc523388d4cdc"
+  },
+  "integrity": {
+    "file_digest_manifest_sha256": "ba4823b70e231902fe7d865c1193607631eb0a2d1f30c8591a6fc523388d4cdc",
+    "verified_corpus_files": 2000,
+    "corpus_file_digest_sha256": "c1040f3756553a80ca7501ea6ec6e38f8004dcc56358e3aab81110711ab402a5",
+    "method": "Read-only SHA256 per-file digest manifest equal to the registry pin; no source files modified"
+  },
+  "corpus": {
+    "official_split": "test",
+    "selection": "Source article IDs absent from train/dev; selection does not use predictions or gold errors",
+    "official_documents": 250,
+    "retained_documents": 226,
+    "gold_span_count": 5131,
+    "gold_verified_against_text": true
+  },
+  "split": "test",
+  "documents": 226,
+  "scope": "Independent public human annotations; semi-synthetic clinical and real public judicial corpora remain separate",
+  "taxonomy": {
+    "gold_label_mapping": {
+      "CORREO_ELECTRONICO": "EMAIL",
+      "NUMERO_TELEFONO": "PHONE",
+      "NUMERO_FAX": "PHONE",
+      "NOMBRE_PERSONAL_SANITARIO": "PERSON",
+      "NOMBRE_SUJETO_ASISTENCIA": "PERSON",
+      "FAMILIARES_SUJETO_ASISTENCIA": "PERSON",
+      "CALLE": "ADDRESS",
+      "PAIS": "LOCATION",
+      "TERRITORIO": "LOCATION",
+      "FECHAS": "DATE",
+      "EDAD_SUJETO_ASISTENCIA": "AGE",
+      "SEXO_SUJETO_ASISTENCIA": "DEMOGRAPHIC",
+      "ID_SUJETO_ASISTENCIA": "PATIENT_ID",
+      "ID_CONTACTO_ASISTENCIAL": "PATIENT_ID",
+      "ID_ASEGURAMIENTO": "INSURANCE_ID",
+      "ID_TITULACION_PERSONAL_SANITARIO": "REGIONAL_ID",
+      "ID_EMPLEO_PERSONAL_SANITARIO": "EMPLOYEE_ID",
+      "HOSPITAL": "MEDICAL_FACILITY",
+      "CENTRO_SALUD": "MEDICAL_FACILITY",
+      "INSTITUCION": "ORGANIZATION",
+      "PROFESION": "OCCUPATION",
+      "OTROS_SUJETO_ASISTENCIA": "OTHER_SENSITIVE"
+    },
+    "prediction_aliases": {
+      "meddocan": {
+        "DATE_OF_BIRTH": "DATE",
+        "NATIONAL_ID": "PATIENT_ID",
+        "PASSPORT": "PATIENT_ID"
+      },
+      "tab": "regional/document/contact identifiers -> CODE; AGE/OCCUPATION -> DEMOGRAPHIC",
+      "gretel_finance": {
+        "CLABE": "BANK_ACCOUNT",
+        "RFC": "NATIONAL_ID",
+        "CURP": "NATIONAL_ID",
+        "REGIONAL_ID": "NATIONAL_ID",
+        "AUTH_TOKEN": "CREDENTIAL",
+        "INTERNAL_ID": "CUSTOMER_ID",
+        "CONTRACT_ID": "CUSTOMER_ID",
+        "PATIENT_ID": "CUSTOMER_ID"
+      }
+    },
+    "excluded_prediction_categories": [
+      "CLINICAL_OBSERVATION",
+      "DIAGNOSIS",
+      "MEDICAL_ATTRIBUTE",
+      "MEDICAL_CONDITION",
+      "MEDICAL_HISTORY",
+      "MEDICATION",
+      "TREATMENT"
+    ],
+    "exclusion_reason": "These clinical attributes are outside the PHI/masking gold annotation task, so unlabeled medical spans cannot be asserted false positives"
+  },
+  "corpus_sha256": "be800321523331b441029a1217fe93a9f67c618506f284f55cbb5c6168fc556c",
+  "pipelines": [
+    {
+      "name": "deidflow_v0.2.0_rules",
+      "status": "measured",
+      "snapshot_commit": "0b79d3d",
+      "source_sha256": "1d3c299fbbbc06223943a6060c08751e3786eae44c62b7596ae8c2b8c27bafaf",
+      "p50_seconds": 0.0020217295000293234,
+      "metrics": {
+        "exact": {
+          "precision": 0.533288948069241,
+          "recall": 0.15610992009354901,
+          "f1": 0.24151967435549523,
+          "true_positives": 801,
+          "false_positives": 701,
+          "false_negatives": 4330,
+          "document_leakage_rate": 1.0,
+          "false_redaction_rate": 0.0020826471576523976,
+          "entity_level_recall": 0.24907425453128046,
+          "recall_by_type": {
+            "ADDRESS": 0.002688172043010753,
+            "AGE": 0.03648068669527897,
+            "DATE": 0.8064516129032258,
+            "DEMOGRAPHIC": 0.0,
+            "EMAIL": 0.9910313901345291,
+            "INSURANCE_ID": 0.0,
+            "LOCATION": 0.0,
+            "MEDICAL_FACILITY": 0.0,
+            "OCCUPATION": 0.0,
+            "ORGANIZATION": 0.0,
+            "OTHER_SENSITIVE": 0.0,
+            "PATIENT_ID": 0.0,
+            "PERSON": 0.11257606490872211,
+            "PHONE": 0.03333333333333333,
+            "REGIONAL_ID": 0.0
+          },
+          "recall_by_format": {
+            "text": 0.15610992009354901
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 226
+        },
+        "overlap": {
+          "precision": 0.8508655126498003,
+          "recall": 0.24907425453128046,
+          "f1": 0.38534599728629587,
+          "true_positives": 1278,
+          "false_positives": 224,
+          "false_negatives": 3853,
+          "document_leakage_rate": 1.0,
+          "false_redaction_rate": 0.0020826471576523976,
+          "entity_level_recall": 0.24907425453128046,
+          "recall_by_type": {
+            "ADDRESS": 0.5994623655913979,
+            "AGE": 0.47854077253218885,
+            "DATE": 0.8064516129032258,
+            "DEMOGRAPHIC": 0.0,
+            "EMAIL": 0.9910313901345291,
+            "INSURANCE_ID": 0.0,
+            "LOCATION": 0.0,
+            "MEDICAL_FACILITY": 0.0,
+            "OCCUPATION": 0.0,
+            "ORGANIZATION": 0.0,
+            "OTHER_SENSITIVE": 0.0,
+            "PATIENT_ID": 0.0,
+            "PERSON": 0.16227180527383367,
+            "PHONE": 0.03333333333333333,
+            "REGIONAL_ID": 0.0
+          },
+          "recall_by_format": {
+            "text": 0.24907425453128046
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "overlap",
+          "documents": 226
+        },
+        "confidence_intervals": {
+          "status": "measured",
+          "unit": "document bootstrap",
+          "seed": 1729,
+          "repeats": 500,
+          "confidence": 0.95,
+          "intervals": {
+            "precision": [
+              0.5211724717919967,
+              0.5446804551418998
+            ],
+            "recall": [
+              0.1514404505995036,
+              0.16115031564462784
+            ],
+            "f1": [
+              0.23480319456615914,
+              0.24815471168658107
+            ],
+            "document_leakage_rate": [
+              1.0,
+              1.0
+            ]
+          }
+        },
+        "person_only_exact": {
+          "precision": 0.6568047337278107,
+          "recall": 0.11257606490872211,
+          "f1": 0.19220779220779224,
+          "true_positives": 111,
+          "false_positives": 58,
+          "false_negatives": 875,
+          "document_leakage_rate": 1.0,
+          "false_redaction_rate": 0.001974735772609563,
+          "entity_level_recall": 0.16227180527383367,
+          "recall_by_type": {
+            "PERSON": 0.11257606490872211
+          },
+          "recall_by_format": {
+            "text": 0.11257606490872211
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 226
+        },
+        "common_scope_exact": {
+          "precision": 0.7699115044247787,
+          "recall": 0.2616104243234213,
+          "f1": 0.3905236907730673,
+          "true_positives": 783,
+          "false_positives": 234,
+          "false_negatives": 2210,
+          "document_leakage_rate": 1.0,
+          "false_redaction_rate": 0.005158939689538391,
+          "entity_level_recall": 0.27798195790177077,
+          "recall_by_type": {
+            "DATE": 0.8064516129032258,
+            "EMAIL": 0.9910313901345291,
+            "LOCATION": 0.0,
+            "PERSON": 0.11257606490872211,
+            "PHONE": 0.03333333333333333
+          },
+          "recall_by_format": {
+            "text": 0.2616104243234213
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 226
+        },
+        "common_scope_types": [
+          "DATE",
+          "EMAIL",
+          "LOCATION",
+          "PERSON",
+          "PHONE"
+        ],
+        "frequency_strata": {
+          "once": {
+            "gold_mentions": 2482,
+            "exact_recall": 0.2594681708299758
+          },
+          "two_to_five": {
+            "gold_mentions": 1238,
+            "exact_recall": 0.1260096930533118
+          },
+          "more_than_five": {
+            "gold_mentions": 1411,
+            "exact_recall": 0.0007087172218284905
+          }
+        },
+        "coverage_leakage": {
+          "sensitive_character_recall": 0.3477125495907196,
+          "documents_with_uncovered_gold_characters": 226,
+          "character_coverage_document_leakage_rate": 1.0,
+          "entity_value_groups": 3087,
+          "entity_value_complete_coverage_rate": 0.2925170068027211,
+          "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities."
+        },
+        "uncertain_candidate_document_rate": 0.995575221238938,
+        "review_rate_definition": "candidate uncertainty proxy only; no transformation or semantic-model release gating evaluated",
+        "strata": {
+          "source": "meddocan",
+          "language": "es",
+          "source_format": "text",
+          "scanned": false,
+          "domain": "semi_synthetic_clinical",
+          "structure": "unstructured"
+        },
+        "ocr_cer": null,
+        "ocr_wer": null,
+        "table_reconstruction_quality": null,
+        "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated"
+      }
+    },
+    {
+      "name": "deidflow_candidate_rules",
+      "status": "measured",
+      "documents": 226,
+      "repeats": 1,
+      "runs": [
+        {
+          "elapsed_seconds": 0.7780735089997961,
+          "units": 226,
+          "records_per_second": 290.46098779345436,
+          "mb_per_second": 0.8689821619414332,
+          "peak_rss_bytes": 37249024,
+          "peak_process_tree_rss_bytes": 37249024,
+          "cpu_percent_one_core_scale": 97.67714633762183,
+          "cpu_accounting_note": "Process CPU only; excludes child CPU"
+        }
+      ],
+      "p50_seconds": 0.003077004000147099,
+      "p95_seconds": 0.0063154052501204205,
+      "metrics": {
+        "exact": {
+          "precision": 0.6916329284750338,
+          "recall": 0.39953225492106803,
+          "f1": 0.506485484867202,
+          "true_positives": 2050,
+          "false_positives": 914,
+          "false_negatives": 3081,
+          "document_leakage_rate": 1.0,
+          "false_redaction_rate": 0.0021258970187538052,
+          "entity_level_recall": 0.5330344961995712,
+          "recall_by_type": {
+            "ADDRESS": 0.002688172043010753,
+            "AGE": 0.03648068669527897,
+            "DATE": 0.8297491039426523,
+            "DEMOGRAPHIC": 0.8798076923076923,
+            "EMAIL": 0.9910313901345291,
+            "INSURANCE_ID": 0.9835164835164835,
+            "LOCATION": 0.0,
+            "MEDICAL_FACILITY": 0.0,
+            "OCCUPATION": 0.0,
+            "ORGANIZATION": 0.0,
+            "OTHER_SENSITIVE": 0.0,
+            "PATIENT_ID": 0.9377162629757786,
+            "PERSON": 0.3265720081135903,
+            "PHONE": 0.03333333333333333,
+            "REGIONAL_ID": 0.990521327014218
+          },
+          "recall_by_format": {
+            "text": 0.39953225492106803
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 226
+        },
+        "overlap": {
+          "precision": 0.9227395411605938,
+          "recall": 0.5330344961995712,
+          "f1": 0.6757257566399011,
+          "true_positives": 2735,
+          "false_positives": 229,
+          "false_negatives": 2396,
+          "document_leakage_rate": 1.0,
+          "false_redaction_rate": 0.0021258970187538052,
+          "entity_level_recall": 0.5330344961995712,
+          "recall_by_type": {
+            "ADDRESS": 0.5994623655913979,
+            "AGE": 0.907725321888412,
+            "DATE": 0.8297491039426523,
+            "DEMOGRAPHIC": 0.8798076923076923,
+            "EMAIL": 0.9910313901345291,
+            "INSURANCE_ID": 0.9835164835164835,
+            "LOCATION": 0.0,
+            "MEDICAL_FACILITY": 0.0,
+            "OCCUPATION": 0.0,
+            "ORGANIZATION": 0.0,
+            "OTHER_SENSITIVE": 0.0,
+            "PATIENT_ID": 0.9411764705882353,
+            "PERSON": 0.3813387423935091,
+            "PHONE": 0.1,
+            "REGIONAL_ID": 0.990521327014218
+          },
+          "recall_by_format": {
+            "text": 0.5330344961995712
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "overlap",
+          "documents": 226
+        },
+        "confidence_intervals": {
+          "status": "measured",
+          "unit": "document bootstrap",
+          "seed": 1729,
+          "repeats": 500,
+          "confidence": 0.95,
+          "intervals": {
+            "precision": [
+              0.6850054954480183,
+              0.697801304610344
+            ],
+            "recall": [
+              0.38932806973589995,
+              0.4109121006003616
+            ],
+            "f1": [
+              0.4974784253555487,
+              0.5161459402664219
+            ],
+            "document_leakage_rate": [
+              1.0,
+              1.0
+            ]
+          }
+        },
+        "person_only_exact": {
+          "precision": 0.8320413436692506,
+          "recall": 0.3265720081135903,
+          "f1": 0.46904588492352506,
+          "true_positives": 322,
+          "false_positives": 65,
+          "false_negatives": 664,
+          "document_leakage_rate": 1.0,
+          "false_redaction_rate": 0.0021172265107115866,
+          "entity_level_recall": 0.3813387423935091,
+          "recall_by_type": {
+            "PERSON": 0.3265720081135903
+          },
+          "recall_by_format": {
+            "text": 0.3265720081135903
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 226
+        },
+        "common_scope_exact": {
+          "precision": 0.8056,
+          "recall": 0.3364517206815904,
+          "f1": 0.47466415272213064,
+          "true_positives": 1007,
+          "false_positives": 243,
+          "false_negatives": 1986,
+          "document_leakage_rate": 1.0,
+          "false_redaction_rate": 0.005308890317496527,
+          "entity_level_recall": 0.35516204477113267,
+          "recall_by_type": {
+            "DATE": 0.8297491039426523,
+            "EMAIL": 0.9910313901345291,
+            "LOCATION": 0.0,
+            "PERSON": 0.3265720081135903,
+            "PHONE": 0.03333333333333333
+          },
+          "recall_by_format": {
+            "text": 0.3364517206815904
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 226
+        },
+        "common_scope_types": [
+          "DATE",
+          "EMAIL",
+          "LOCATION",
+          "PERSON",
+          "PHONE"
+        ],
+        "frequency_strata": {
+          "once": {
+            "gold_mentions": 2482,
+            "exact_recall": 0.5116841257050766
+          },
+          "two_to_five": {
+            "gold_mentions": 1238,
+            "exact_recall": 0.3247172859450727
+          },
+          "more_than_five": {
+            "gold_mentions": 1411,
+            "exact_recall": 0.2678951098511694
+          }
+        },
+        "coverage_leakage": {
+          "sensitive_character_recall": 0.5340732185004771,
+          "documents_with_uncovered_gold_characters": 226,
+          "character_coverage_document_leakage_rate": 1.0,
+          "entity_value_groups": 3087,
+          "entity_value_complete_coverage_rate": 0.5461613216715258,
+          "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities."
+        },
+        "uncertain_candidate_document_rate": 0.995575221238938,
+        "review_rate_definition": "candidate uncertainty proxy only; no transformation or semantic-model release gating evaluated",
+        "strata": {
+          "source": "meddocan",
+          "language": "es",
+          "source_format": "text",
+          "scanned": false,
+          "domain": "semi_synthetic_clinical",
+          "structure": "unstructured"
+        },
+        "ocr_cer": null,
+        "ocr_wer": null,
+        "table_reconstruction_quality": null,
+        "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated"
+      },
+      "prediction_sha256": "9f675026993d6c27c27618747265169474ff1dbb1b78f0a85de8720e997909e9"
+    },
+    {
+      "name": "deidflow_tagger",
+      "status": "measured",
+      "documents": 226,
+      "repeats": 1,
+      "runs": [
+        {
+          "elapsed_seconds": 7.723014439000053,
+          "units": 226,
+          "records_per_second": 29.263184962951023,
+          "mb_per_second": 0.08754768042199115,
+          "peak_rss_bytes": 133771264,
+          "peak_process_tree_rss_bytes": 133771264,
+          "cpu_percent_one_core_scale": 105.39925911434574,
+          "cpu_accounting_note": "Process CPU only; excludes child CPU"
+        }
+      ],
+      "p50_seconds": 0.02963703600005374,
+      "p95_seconds": 0.0673086775000229,
+      "metrics": {
+        "exact": {
+          "precision": 0.9657847622836682,
+          "recall": 0.9462093159228221,
+          "f1": 0.9558968300846623,
+          "true_positives": 4855,
+          "false_positives": 172,
+          "false_negatives": 276,
+          "document_leakage_rate": 0.5221238938053098,
+          "false_redaction_rate": 0.0009681315061930474,
+          "entity_level_recall": 0.9627752874683297,
+          "recall_by_type": {
+            "ADDRESS": 0.9435483870967742,
+            "AGE": 0.9678111587982833,
+            "DATE": 0.9802867383512545,
+            "DEMOGRAPHIC": 0.9807692307692307,
+            "EMAIL": 0.9775784753363229,
+            "INSURANCE_ID": 0.9945054945054945,
+            "LOCATION": 0.9573578595317725,
+            "MEDICAL_FACILITY": 0.782258064516129,
+            "OCCUPATION": 0.0,
+            "ORGANIZATION": 0.21875,
+            "OTHER_SENSITIVE": 0.0,
+            "PATIENT_ID": 0.9550173010380623,
+            "PERSON": 0.9462474645030426,
+            "PHONE": 0.7666666666666667,
+            "REGIONAL_ID": 1.0
+          },
+          "recall_by_format": {
+            "text": 0.9462093159228221
+          },
+          "expected_calibration_error": 0.007920693629396439,
+          "calibration_count": 5027,
+          "matching": "exact",
+          "documents": 226
+        },
+        "overlap": {
+          "precision": 0.9826934553411577,
+          "recall": 0.9627752874683297,
+          "f1": 0.9726324079543217,
+          "true_positives": 4940,
+          "false_positives": 87,
+          "false_negatives": 191,
+          "document_leakage_rate": 0.40707964601769914,
+          "false_redaction_rate": 0.0009681315061930474,
+          "entity_level_recall": 0.9627752874683297,
+          "recall_by_type": {
+            "ADDRESS": 0.989247311827957,
+            "AGE": 0.9678111587982833,
+            "DATE": 0.9946236559139785,
+            "DEMOGRAPHIC": 0.9831730769230769,
+            "EMAIL": 0.9955156950672646,
+            "INSURANCE_ID": 0.9945054945054945,
+            "LOCATION": 0.9657190635451505,
+            "MEDICAL_FACILITY": 0.9032258064516129,
+            "OCCUPATION": 0.0,
+            "ORGANIZATION": 0.390625,
+            "OTHER_SENSITIVE": 0.0,
+            "PATIENT_ID": 0.9550173010380623,
+            "PERSON": 0.9634888438133874,
+            "PHONE": 0.8333333333333334,
+            "REGIONAL_ID": 1.0
+          },
+          "recall_by_format": {
+            "text": 0.9627752874683297
+          },
+          "expected_calibration_error": 0.016414582713044152,
+          "calibration_count": 5027,
+          "matching": "overlap",
+          "documents": 226
+        },
+        "confidence_intervals": {
+          "status": "measured",
+          "unit": "document bootstrap",
+          "seed": 1729,
+          "repeats": 500,
+          "confidence": 0.95,
+          "intervals": {
+            "precision": [
+              0.959181415034606,
+              0.9718551692513019
+            ],
+            "recall": [
+              0.9344187234821194,
+              0.956024111588467
+            ],
+            "f1": [
+              0.9475075863657738,
+              0.9637347057852799
+            ],
+            "document_leakage_rate": [
+              0.46017699115044247,
+              0.584070796460177
+            ]
+          }
+        },
+        "person_only_exact": {
+          "precision": 0.9790136411332634,
+          "recall": 0.9462474645030426,
+          "f1": 0.962351727694688,
+          "true_positives": 933,
+          "false_positives": 20,
+          "false_negatives": 53,
+          "document_leakage_rate": 0.14601769911504425,
+          "false_redaction_rate": 8.053824327505668e-05,
+          "entity_level_recall": 0.9634888438133874,
+          "recall_by_type": {
+            "PERSON": 0.9462474645030426
+          },
+          "recall_by_format": {
+            "text": 0.9462474645030426
+          },
+          "expected_calibration_error": 0.007140883118751297,
+          "calibration_count": 953,
+          "matching": "exact",
+          "documents": 226
+        },
+        "common_scope_exact": {
+          "precision": 0.970209884901828,
+          "recall": 0.9575676578683595,
+          "f1": 0.9638473179754498,
+          "true_positives": 2866,
+          "false_positives": 88,
+          "false_negatives": 127,
+          "document_leakage_rate": 0.3008849557522124,
+          "false_redaction_rate": 0.0008757754760533633,
+          "entity_level_recall": 0.9712662880053458,
+          "recall_by_type": {
+            "DATE": 0.9802867383512545,
+            "EMAIL": 0.9775784753363229,
+            "LOCATION": 0.9573578595317725,
+            "PERSON": 0.9462474645030426,
+            "PHONE": 0.7666666666666667
+          },
+          "recall_by_format": {
+            "text": 0.9575676578683595
+          },
+          "expected_calibration_error": 0.008431801300076078,
+          "calibration_count": 2954,
+          "matching": "exact",
+          "documents": 226
+        },
+        "common_scope_types": [
+          "DATE",
+          "EMAIL",
+          "LOCATION",
+          "PERSON",
+          "PHONE"
+        ],
+        "frequency_strata": {
+          "once": {
+            "gold_mentions": 2482,
+            "exact_recall": 0.9307010475423045
+          },
+          "two_to_five": {
+            "gold_mentions": 1238,
+            "exact_recall": 0.9434571890145396
+          },
+          "more_than_five": {
+            "gold_mentions": 1411,
+            "exact_recall": 0.9759036144578314
+          }
+        },
+        "coverage_leakage": {
+          "sensitive_character_recall": 0.9639431527143072,
+          "documents_with_uncovered_gold_characters": 94,
+          "character_coverage_document_leakage_rate": 0.415929203539823,
+          "entity_value_groups": 3087,
+          "entity_value_complete_coverage_rate": 0.9439585357952704,
+          "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities."
+        },
+        "uncertain_candidate_document_rate": 0.37168141592920356,
+        "review_rate_definition": "candidate uncertainty proxy only; no transformation or semantic-model release gating evaluated",
+        "strata": {
+          "source": "meddocan",
+          "language": "es",
+          "source_format": "text",
+          "scanned": false,
+          "domain": "semi_synthetic_clinical",
+          "structure": "unstructured"
+        },
+        "ocr_cer": null,
+        "ocr_wer": null,
+        "table_reconstruction_quality": null,
+        "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated"
+      },
+      "prediction_sha256": "a05f049d3d32097346301fc1f0f1becf9ce3118ea70b30be8c60d774637f7583"
+    },
+    {
+      "name": "deidflow_rules_plus_tagger",
+      "status": "measured",
+      "documents": 226,
+      "repeats": 1,
+      "runs": [
+        {
+          "elapsed_seconds": 8.906686333999914,
+          "units": 226,
+          "records_per_second": 25.3741954667562,
+          "mb_per_second": 0.07591285632446372,
+          "peak_rss_bytes": 136900608,
+          "peak_process_tree_rss_bytes": 136900608,
+          "cpu_percent_one_core_scale": 104.41593709771355,
+          "cpu_accounting_note": "Process CPU only; excludes child CPU"
+        }
+      ],
+      "p50_seconds": 0.03643246599995109,
+      "p95_seconds": 0.07354061824992186,
+      "metrics": {
+        "exact": {
+          "precision": 0.8184718723761545,
+          "recall": 0.9499122977977003,
+          "f1": 0.8793072343496302,
+          "true_positives": 4874,
+          "false_positives": 1081,
+          "false_negatives": 257,
+          "document_leakage_rate": 0.504424778761062,
+          "false_redaction_rate": 0.0028827695880284383,
+          "entity_level_recall": 0.9639446501656597,
+          "recall_by_type": {
+            "ADDRESS": 0.9435483870967742,
+            "AGE": 0.9678111587982833,
+            "DATE": 0.996415770609319,
+            "DEMOGRAPHIC": 0.9807692307692307,
+            "EMAIL": 0.9910313901345291,
+            "INSURANCE_ID": 0.9945054945054945,
+            "LOCATION": 0.9573578595317725,
+            "MEDICAL_FACILITY": 0.782258064516129,
+            "OCCUPATION": 0.0,
+            "ORGANIZATION": 0.21875,
+            "OTHER_SENSITIVE": 0.0,
+            "PATIENT_ID": 0.9550173010380623,
+            "PERSON": 0.9523326572008114,
+            "PHONE": 0.8,
+            "REGIONAL_ID": 1.0
+          },
+          "recall_by_format": {
+            "text": 0.9499122977977003
+          },
+          "expected_calibration_error": 0.011436437774126796,
+          "calibration_count": 3606,
+          "matching": "exact",
+          "documents": 226
+        },
+        "overlap": {
+          "precision": 0.8305625524769101,
+          "recall": 0.9639446501656597,
+          "f1": 0.8922965902940646,
+          "true_positives": 4946,
+          "false_positives": 1009,
+          "false_negatives": 185,
+          "document_leakage_rate": 0.40707964601769914,
+          "false_redaction_rate": 0.0028827695880284383,
+          "entity_level_recall": 0.9639446501656597,
+          "recall_by_type": {
+            "ADDRESS": 0.989247311827957,
+            "AGE": 0.9699570815450643,
+            "DATE": 1.0,
+            "DEMOGRAPHIC": 0.9831730769230769,
+            "EMAIL": 0.9955156950672646,
+            "INSURANCE_ID": 0.9945054945054945,
+            "LOCATION": 0.9657190635451505,
+            "MEDICAL_FACILITY": 0.9032258064516129,
+            "OCCUPATION": 0.0,
+            "ORGANIZATION": 0.390625,
+            "OTHER_SENSITIVE": 0.0,
+            "PATIENT_ID": 0.9550173010380623,
+            "PERSON": 0.9634888438133874,
+            "PHONE": 0.9,
+            "REGIONAL_ID": 1.0
+          },
+          "recall_by_format": {
+            "text": 0.9639446501656597
+          },
+          "expected_calibration_error": 0.12007160896058221,
+          "calibration_count": 3606,
+          "matching": "overlap",
+          "documents": 226
+        },
+        "confidence_intervals": {
+          "status": "measured",
+          "unit": "document bootstrap",
+          "seed": 1729,
+          "repeats": 500,
+          "confidence": 0.95,
+          "intervals": {
+            "precision": [
+              0.812113780493102,
+              0.8240170275166014
+            ],
+            "recall": [
+              0.9379637205188383,
+              0.9597887980867095
+            ],
+            "f1": [
+              0.8722616716733205,
+              0.8855617069679147
+            ],
+            "document_leakage_rate": [
+              0.4469026548672566,
+              0.5663716814159292
+            ]
+          }
+        },
+        "person_only_exact": {
+          "precision": 0.9178885630498533,
+          "recall": 0.9523326572008114,
+          "f1": 0.9347934295669488,
+          "true_positives": 939,
+          "false_positives": 84,
+          "false_negatives": 47,
+          "document_leakage_rate": 0.11946902654867257,
+          "false_redaction_rate": 0.002176081380797205,
+          "entity_level_recall": 0.9634888438133874,
+          "recall_by_type": {
+            "PERSON": 0.9523326572008114
+          },
+          "recall_by_format": {
+            "text": 0.9523326572008114
+          },
+          "expected_calibration_error": 0.016345709254600355,
+          "calibration_count": 636,
+          "matching": "exact",
+          "documents": 226
+        },
+        "common_scope_exact": {
+          "precision": 0.8981942714819428,
+          "recall": 0.963915803541597,
+          "f1": 0.9298952457695406,
+          "true_positives": 2885,
+          "false_positives": 327,
+          "false_negatives": 108,
+          "document_leakage_rate": 0.252212389380531,
+          "false_redaction_rate": 0.0060458817017162965,
+          "entity_level_recall": 0.9729368526561978,
+          "recall_by_type": {
+            "DATE": 0.996415770609319,
+            "EMAIL": 0.9910313901345291,
+            "LOCATION": 0.9573578595317725,
+            "PERSON": 0.9523326572008114,
+            "PHONE": 0.8
+          },
+          "recall_by_format": {
+            "text": 0.963915803541597
+          },
+          "expected_calibration_error": 0.008994047685998693,
+          "calibration_count": 2195,
+          "matching": "exact",
+          "documents": 226
+        },
+        "common_scope_types": [
+          "DATE",
+          "EMAIL",
+          "LOCATION",
+          "PERSON",
+          "PHONE"
+        ],
+        "frequency_strata": {
+          "once": {
+            "gold_mentions": 2482,
+            "exact_recall": 0.9359387590652699
+          },
+          "two_to_five": {
+            "gold_mentions": 1238,
+            "exact_recall": 0.9483037156704361
+          },
+          "more_than_five": {
+            "gold_mentions": 1411,
+            "exact_recall": 0.9759036144578314
+          }
+        },
+        "coverage_leakage": {
+          "sensitive_character_recall": 0.9665545121277558,
+          "documents_with_uncovered_gold_characters": 86,
+          "character_coverage_document_leakage_rate": 0.3805309734513274,
+          "entity_value_groups": 3087,
+          "entity_value_complete_coverage_rate": 0.9501133786848073,
+          "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities."
+        },
+        "uncertain_candidate_document_rate": 0.37610619469026546,
+        "review_rate_definition": "candidate uncertainty proxy only; no transformation or semantic-model release gating evaluated",
+        "strata": {
+          "source": "meddocan",
+          "language": "es",
+          "source_format": "text",
+          "scanned": false,
+          "domain": "semi_synthetic_clinical",
+          "structure": "unstructured"
+        },
+        "ocr_cer": null,
+        "ocr_wer": null,
+        "table_reconstruction_quality": null,
+        "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated"
+      },
+      "prediction_sha256": "b412b92d5a69df7d9369a5fd037417cee33341dc0bc39ea0a465b80a244eda23"
+    }
+  ],
+  "tagger_model": {
+    "sha256": "dc824100552ddb5bae036d128da9cfe4e31aba68b7cb74c2ab1252ddc0952da9",
+    "version": "es-clinical-meddocan-1",
+    "accelerated": true,
+    "training_data": {
+      "attribution": "SPACCC MEDDOCAN; 2019 Secretaria de Estado para el Avance Digital (SEAD)",
+      "changes": "Gold labels mapped to DeidFlow categories; no source text edits",
+      "commit": "783a6df385c975b328c99bcffb54196a9ba4078a",
+      "file_digest_manifest_sha256": "ba4823b70e231902fe7d865c1193607631eb0a2d1f30c8591a6fc523388d4cdc",
+      "license": "CC-BY-4.0",
+      "license_url": "https://github.com/PlanTL-GOB-ES/SPACCC_MEDDOCAN/blob/783a6df385c975b328c99bcffb54196a9ba4078a/LICENSE",
+      "provenance_kind": "semi_synthetic_clinical",
+      "repository": "https://github.com/PlanTL-GOB-ES/SPACCC_MEDDOCAN",
+      "source": "meddocan",
+      "splits": {
+        "epoch_selection_and_calibration": "dev",
+        "weights": "train"
+      }
+    }
+  },
+  "network_guard": {
+    "attempts": 0,
+    "dns_and_connect": "denied"
+  },
+  "limitations": [
+    "MEDDOCAN is not real private patient data and is predominantly Spain Spanish, not a Mexican enterprise holdout",
+    "TAB uses the first reviewed annotator, DIRECT/QUASI mask decisions and a different English judicial task",
+    "No corpus text, source filenames or entity values are in this report",
+    "Text corpora do not measure OCR/layout/table accuracy or real output-transformation leakage",
+    "Confidence intervals resample documents and do not account for source/provider template correlations"
+  ]
+}

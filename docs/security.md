@@ -104,7 +104,20 @@ Exact repeated mention grouping does not establish person identity or resolve
 ambiguous aliases. Quasi-identifier flags are heuristics, not measured attack risk.
 
 Training/model files can retain private n-grams. Joblib/pickle assets can execute
-code; load only authenticated, trusted local files. Hashes detect modification,
+code; load only authenticated, trusted local files. `SpanTagger` model files are
+JSON only: loading validates the schema, dimensions, finite weights, size
+(256 MiB, also after decompression) and an optional SHA-256, and never executes
+code. Their features are keyed 64-bit BLAKE2b digests and rare features are
+dropped (`min_feature_docs`), but a dictionary attack can still confirm whether a
+common token was a feature, so treat privately trained tagger files as sensitive.
+
+Verification rescans ignore a finding only when every letter and digit it covers
+lies inside a DeidFlow replacement token (`[TYPE]`, `[DF_TYPE_...]`, redaction
+blocks or full masks). A finding that still covers any source letter or digit,
+including the visible digits of a partial mask, keeps blocking release. The
+rescan reuses the same detectors, so it cannot reveal what they missed:
+`benchmarks/results/tagger/release-gate-*.json` measures how often approved
+documents still contain gold sensitive characters. Hashes detect modification,
 not publisher identity. Critical recall promotion gates depend on representative,
 honest held-out metrics and never activate models by themselves.
 

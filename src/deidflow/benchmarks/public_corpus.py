@@ -9,7 +9,10 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import os
+import shutil
 import ssl
+import subprocess
 import urllib.request
 import zipfile
 from collections import Counter
@@ -33,6 +36,7 @@ SOURCES: dict[str, dict[str, Any]] = {
         "provenance_kind": "semi_synthetic_clinical",
         "already_anonymized": "Released synthetic/enriched PHI, not original private patient records",
         "attribution": "SPACCC MEDDOCAN; 2019 Secretaria de Estado para el Avance Digital (SEAD)",
+        "file_digest_manifest_sha256": "ba4823b70e231902fe7d865c1193607631eb0a2d1f30c8591a6fc523388d4cdc",
     },
     "tab": {
         "repository": "https://github.com/NorskRegnesentral/text-anonymization-benchmark",
@@ -47,6 +51,7 @@ SOURCES: dict[str, dict[str, Any]] = {
         "provenance_kind": "public_judicial",
         "already_anonymized": "Public ECHR judgments; masking decisions identify DIRECT/QUASI mentions",
         "attribution": "TAB; Copyright 2021-2026 Norsk Regnesentral; Pilan et al. 2022",
+        "file_digest_manifest_sha256": "cc6e2eac8ac649c0ea7f8b7c940af19e00af38e69fe50f2fa1c646f9de24f613",
     },
 }
 
@@ -190,6 +195,8 @@ def acquire(
             if not output.exists():
                 output.write_bytes(content)
             files += 1
+    if _digest_manifest(digests) != specification["file_digest_manifest_sha256"]:
+        raise ValueError("Extracted public corpus differs from the pinned digest manifest")
     manifest = {
         "schema_version": 1,
         "source": source,
@@ -209,14 +216,208 @@ def acquire(
     return manifest
 
 
+def _digest_manifest(digests: dict[str, str]) -> str:
+    return hashlib.sha256(json.dumps(digests, sort_keys=True).encode()).hexdigest()
+
+
+def _member_target(source: str, parts: tuple[str, ...]) -> PurePosixPath | None:
+    """Map a repository-relative member to its extraction path, or ``None`` to skip it."""
+    if not parts:
+        return None
+    path = PurePosixPath(*parts)
+    if (
+        source == "meddocan"
+        and "corpus" in parts
+        and "brat" in parts
+        and path.suffix in {".txt", ".ann"}
+    ):
+        split = parts[parts.index("corpus") + 1]
+        if split not in {"train", "dev", "test"}:
+            raise ValueError("Unknown public corpus split")
+        return PurePosixPath(source, split, path.name)
+    if source == "tab" and path.name in {"echr_train.json", "echr_dev.json", "echr_test.json"}:
+        return PurePosixPath(source, path.name)
+    if len(parts) == 1 and path.name in {"README.md", "LICENSE", "LICENSE.txt", "guidelines.md"}:
+        return PurePosixPath(source, path.name)
+    return None
+
+
+def _git(git: str, *args: str, cwd: Path, timeout: int, stdin: bytes | None = None) -> bytes:
+    environment = {**os.environ, "GIT_TERMINAL_PROMPT": "0", "GIT_ASKPASS": ""}
+    try:
+        completed = subprocess.run(
+            [git, "-c", "core.autocrlf=false", *args],
+            cwd=cwd,
+            input=stdin,
+            capture_output=True,
+            timeout=timeout,
+            env=environment,
+            check=True,
+        )
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        raise ValueError("Pinned public git acquisition failed") from None
+    return completed.stdout
+
+
+def _read_git_blobs(git: str, repository: Path, names: list[str], timeout: int) -> dict[str, bytes]:
+    """Read committed bytes directly, bypassing working-tree filters and checkouts."""
+    request = "".join("FETCH_HEAD:" + name + "\n" for name in names).encode()
+    payload = _git(git, "cat-file", "--batch", cwd=repository, timeout=timeout, stdin=request)
+    blobs: dict[str, bytes] = {}
+    position = 0
+    for name in names:
+        header_end = payload.index(b"\n", position)
+        fields = payload[position:header_end].split()
+        if len(fields) != 3 or fields[1] != b"blob":
+            raise ValueError("Pinned public git object is missing or not a file")
+        size = int(fields[2])
+        start = header_end + 1
+        blobs[name] = payload[start : start + size]
+        position = start + size + 1
+    return blobs
+
+
+def acquire_git(
+    source: str,
+    destination: str | Path,
+    *,
+    max_bytes: int = 128 * 1024**2,
+    timeout: int = 600,
+) -> dict[str, Any]:
+    """Acquire a registry corpus by its pinned Git commit instead of the archive URL.
+
+    Useful where the code-archive host is unavailable. Every selected file is read
+    from the commit object and the whole selection must reproduce the registry's
+    pinned SHA-256 digest manifest before anything is written.
+    """
+    if source not in SOURCES or max_bytes < 1 or timeout < 1:
+        raise ValueError("Unknown approved public source or invalid limits")
+    specification = SOURCES[source]
+    git = shutil.which("git")
+    if git is None:
+        raise ValueError("Git is required for pinned git acquisition")
+    root = _outside_repository(Path(destination))
+    root.mkdir(parents=True, exist_ok=True)
+    repository = root / (source + "-git")
+    repository.mkdir(exist_ok=True)
+    if not (repository / ".git").is_dir():
+        _git(git, "init", "-q", cwd=repository, timeout=timeout)
+    _git(
+        git,
+        "fetch",
+        "-q",
+        "--depth",
+        "1",
+        specification["repository"],
+        specification["commit"],
+        cwd=repository,
+        timeout=timeout,
+    )
+    head = _git(git, "rev-parse", "FETCH_HEAD", cwd=repository, timeout=timeout).decode().strip()
+    if head != specification["commit"]:
+        raise ValueError("Fetched public commit differs from the pinned commit")
+    listing = _git(
+        git, "ls-tree", "-r", "-z", "--name-only", "FETCH_HEAD", cwd=repository, timeout=timeout
+    )
+    selected: dict[str, PurePosixPath] = {}
+    for name in sorted(filter(None, listing.decode("utf-8").split("\0"))):
+        parts = PurePosixPath(name).parts
+        if ".." in parts or PurePosixPath(name).is_absolute():
+            raise ValueError("Unsafe public repository path")
+        target = _member_target(source, parts)
+        if target is not None:
+            selected[name] = target
+    if not selected or len(selected) > 5000:
+        raise ValueError("Unexpected public repository layout")
+    blobs = _read_git_blobs(git, repository, list(selected), timeout)
+    total = sum(len(content) for content in blobs.values())
+    if total > max_bytes * 4:
+        raise ValueError("Expanded public corpus exceeds limit")
+    digests: dict[str, str] = {}
+    for name, target in selected.items():
+        key = target.as_posix()
+        if key in digests:
+            raise ValueError("Duplicate public archive target")
+        digests[key] = hashlib.sha256(blobs[name]).hexdigest()
+    if _digest_manifest(digests) != specification["file_digest_manifest_sha256"]:
+        raise ValueError("Pinned public corpus digest manifest mismatch")
+    for name, target in selected.items():
+        output = root / target
+        output.parent.mkdir(parents=True, exist_ok=True)
+        if (
+            output.exists()
+            and hashlib.sha256(output.read_bytes()).hexdigest() != digests[target.as_posix()]
+        ):
+            raise ValueError("Existing public corpus file differs from pinned source")
+        if not output.exists():
+            output.write_bytes(blobs[name])
+    manifest = {
+        "schema_version": 1,
+        "source": source,
+        **specification,
+        "acquisition": "git commit objects; archive URL not used",
+        "extracted_files": len(selected),
+        "extracted_bytes": total,
+        "file_digest_manifest_sha256": _digest_manifest(digests),
+        "raw_documents_committed": False,
+        "changes": "No source text edits; source annotation labels mapped only at evaluation time",
+    }
+    (root / (source + "-provenance.json")).write_text(
+        json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
+    )
+    return manifest
+
+
+def _verify_by_digest_manifest(root: Path, source: str) -> dict[str, Any]:
+    """Hash every file a benchmark could read, so extra or edited inputs fail."""
+    digests: dict[str, str] = {}
+    for path in sorted(p for p in root.rglob("*") if p.is_file()):
+        parts = path.relative_to(root).parts
+        if len(parts) == 1:
+            included = path.name.startswith("echr_") and path.suffix == ".json"
+            included = included or _member_target(source, parts) is not None
+        else:
+            included = (
+                source == "meddocan"
+                and len(parts) == 2
+                and parts[0] in {"train", "dev", "test"}
+                and path.suffix in {".txt", ".ann"}
+            )
+        if included:
+            key = PurePosixPath(source, *parts).as_posix()
+            digests[key] = hashlib.sha256(path.read_bytes()).hexdigest()
+    if _digest_manifest(digests) != SOURCES[source]["file_digest_manifest_sha256"]:
+        raise ValueError("Extracted public corpus differs from pinned digest manifest")
+    corpus = {
+        key.split("/", 1)[1]: value for key, value in digests.items() if _is_corpus_key(source, key)
+    }
+    return {
+        "file_digest_manifest_sha256": SOURCES[source]["file_digest_manifest_sha256"],
+        "verified_corpus_files": len(corpus),
+        "corpus_file_digest_sha256": _digest_manifest(corpus),
+        "method": "Read-only SHA256 per-file digest manifest equal to the registry pin; no source files modified",
+    }
+
+
+def _is_corpus_key(source: str, key: str) -> bool:
+    name = key.rsplit("/", 1)[-1]
+    if source == "meddocan":
+        return key.count("/") == 2 and name.endswith((".txt", ".ann"))
+    return name.startswith("echr_") and name.endswith(".json")
+
+
 def verify_acquired_corpus(root: str | Path, source: str) -> dict[str, Any]:
-    """Read-only check that benchmark inputs are exactly the pinned archive corpus."""
+    """Read-only check that benchmark inputs are exactly the pinned corpus.
+
+    Uses the pinned archive when present, otherwise the pinned digest manifest
+    (for example after :func:`acquire_git`).
+    """
     if source not in SOURCES:
         raise ValueError("Unknown approved public source")
     root = _outside_repository(Path(root))
     archive = root.parent / (source + ".zip")
     if not archive.is_file():
-        raise ValueError("Pinned public archive is required to verify benchmark input")
+        return _verify_by_digest_manifest(root, source)
     payload = archive.read_bytes()
     if hashlib.sha256(payload).hexdigest() != SOURCES[source]["archive_sha256"]:
         raise ValueError("Pinned public archive integrity mismatch")

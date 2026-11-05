@@ -90,6 +90,8 @@ PowerShell from the repository, with the workspace environment, frozen baseline 
 ```powershell
 $python = '..\..\.venv\Scripts\python.exe'
 & $python scripts/acquire_public_corpus.py meddocan --destination ../../work/public-corpora/verified --manifest benchmarks/public-sources/meddocan.json
+# Where the archive host is unreachable, add --git: the pinned commit is fetched and
+# every extracted file must match the same pinned SHA-256 digest manifest.
 & $python scripts/acquire_public_corpus.py tab --destination ../../work/public-corpora/verified --manifest benchmarks/public-sources/tab.json
 & $python scripts/benchmark_public_quality.py meddocan --corpus ../../work/public-corpora/verified/meddocan --baseline ../../work/deidflow-v0.2.0 --split test --spacy-model ../../work/models/es_core_news_sm-3.8.0/es_core_news_sm/es_core_news_sm-3.8.0 --output benchmarks/results/public-meddocan-test.json --ci-repeats 500
 & $python scripts/benchmark_public_quality.py meddocan --corpus ../../work/public-corpora/verified/meddocan --baseline ../../work/deidflow-v0.2.0 --split test --rules-only --source-group-holdout --output benchmarks/results/public-meddocan-source-disjoint.json --ci-repeats 500
