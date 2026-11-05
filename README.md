@@ -42,6 +42,38 @@ assert result.status == "REVIEW_REQUIRED"  # Semantic coverage is required by de
 verification gate. It never establishes anonymous data. Always inspect
 `release_approved`, not merely the existence of an output path.
 
+## Context-preserving text for LLMs
+
+`Policy.llm()` replaces identifiers with indexed, role-aware placeholders. A
+`DeidSession` keeps them stable across turns and restores originals in the model's
+answer from a local vault; only placeholders leave the process.
+
+```python
+from deidflow import DeidEngine, Policy
+from deidflow.llm import SYSTEM_PROMPT_ES, DeidSession
+
+session = DeidSession(DeidEngine(), policy=Policy.llm(require_ner=False))
+safe = session.deidentify(
+    "La señora Verónica Herrera fue diagnosticada por el doctor Jiménez "
+    "antes de la cita del señor González."
+)
+safe.output_text
+# 'La señora [PERSONA_1] fue diagnosticada por el doctor [MEDICO_1] antes de la cita del señor [PERSONA_2].'
+if safe.status != "BLOCKED":            # REVIEW_REQUIRED still needs a human decision
+    answer = call_llm(SYSTEM_PROMPT_ES, safe.output_text)
+    session.reidentify(answer).text     # restores only placeholders this session issued
+```
+
+Coreference is conservative: mentions merge only on unambiguous token subsets with
+compatible role and grammatical gender ("Juan Pérez Gómez" … "el señor Pérez").
+Clinical content is kept by default once the subject is replaced
+(`Policy.llm(keep_clinical=False)` replaces it too); ages are bucketed. An
+independent orthographic check sends output with residual proper nouns to
+`REVIEW_REQUIRED`, so a name missed by every detector cannot be silently approved.
+`EncryptedVault` (`deidflow[vault]`) stores values with AES-256-GCM. A vault makes
+the output **pseudonymized**, not anonymous. See the
+[audit and production plan](docs/AUDITORIA_Y_PLAN_PRODUCCION.md).
+
 ## Implemented
 
 - Typed document graph, source locations, taxonomy, provenance and span mappings.
@@ -62,8 +94,13 @@ verification gate. It never establishes anonymous data. Always inspect
   streams/metadata/attachments/text are never copied. See [PDF guide](docs/pdf-redaction.md).
 - Local column-model training, annotation import, active-learning selection,
   weak-label export, versioned staged models and critical-recall promotion gates.
-- Pinned public-gold acquisition, independent baseline comparisons and held-out
-  Spanish clinical-field improvements with explicit negative English results.
+- Pinned public-gold acquisition (archive or verified git checkout), independent
+  baseline comparisons, leak-oriented per-type metrics, person-role metrics and a
+  CI leakage ratchet on MEDDOCAN; explicit negative English results.
+- Spanish narrative recognizers: titles and family relations with role/gender
+  evidence, common given names, Mexican/Spanish places, health facilities,
+  institutions, companies, NSS, INE keys, professional licenses, postal codes and
+  Spanish street forms; indexed placeholders, sessions, vaults and re-identification.
 - Bounded local PDF OCR workers and numeric stage time/memory profiling.
 - Jointly gated PDF/JSONL/audit export for RAG, derived from actual sanitized pixels.
   Lines and chunks are preserved; merged/multi-page table reconstruction is unsupported.
@@ -92,6 +129,10 @@ measured. Safe unsupported statuses replace misleading successful outputs.
 
 ## Measured evidence
 
+The synthetic detection rows below are regression fixtures, **not quality
+indicators**: they share templates with the code they test. Use the public gold
+results in the next section to judge detection quality.
+
 The following are retained **v0.1 baseline** measurements on an 8-core Ryzen 7
 5700G, 16.96 GB RAM, Windows, Python 3.11.9. Current v0.2 OCR/PDF measurements and
 validation are recorded in [the dedicated report](docs/pdf-ocr-report.md).
@@ -113,7 +154,21 @@ it is not automatically better. The [methodology](docs/benchmark-methodology.md)
 and [raw results](benchmarks/results) record baseline coverage, per-type metrics,
 latency, sampled memory, calibration and optimization experiments.
 
-## Public gold evaluation of the v0.3 candidate
+## Public gold evaluation
+
+v0.4 development (after the [2026-11 audit](docs/AUDITORIA_Y_PLAN_PRODUCCION.md)),
+MEDDOCAN test, 250 documents, rules tuned on dev only and measured once on test:
+
+| Pipeline | Exact F1 | Direct identifiers fully covered | Documents with a direct-identifier leak |
+|---|---:|---:|---:|
+| v0.3 rules | 0.509 | 0.650 | 250 |
+| v0.4 rules | 0.673 | 0.911 | 128 |
+| v0.4 rules + local NER trained on MEDDOCAN train (experiment, not distributed) | 0.785 | 0.984 | 30 |
+
+A leak-free document rate of 88 % in-domain is still not production-grade
+anonymization. Mexican operational holdouts remain unmeasured.
+
+### v0.3 candidate
 
 Independent human gold exposes substantially lower accuracy than the easy
 synthetic fixtures above. On MEDDOCAN's 250 held-out Spanish clinical documents,

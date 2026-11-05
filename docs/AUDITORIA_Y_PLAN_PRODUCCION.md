@@ -18,6 +18,71 @@ transformación, *release gate*, benchmarks, empaquetado y adecuación al caso d
 
 ---
 
+## 0. Estado de implementación (actualizado el 2026-11-05)
+
+Tras la auditoría implementé en esta misma rama todo lo que se puede hacer en código
+sin decisiones del titular ni datos nuevos. Las secciones 1–8 conservan el diagnóstico
+original de v0.3.0 como registro.
+
+**Tu ejemplo ahora:**
+
+```text
+La señora [PERSONA_1] fue diagnosticada por el doctor [MEDICO_1] antes de la cita del señor [PERSONA_2].
+```
+
+Esta salida exacta está fijada en `tests/test_llm_acceptance.py`, junto con 14 casos más
+de español mexicano y de España, consistencia multi-turno y re-identificación.
+
+**Antes y después en MEDDOCAN test** (250 documentos). Las reglas se ajustaron solo con dev
+y se midieron una sola vez en test.
+
+| Pipeline | F1 exacta | Identificadores directos 100 % cubiertos | Menciones 100 % cubiertas | Docs con fuga directa | Sobre-redacción | ms/doc |
+|---|---:|---:|---:|---:|---:|---:|
+| Reglas v0.3 | 0.509 | 0.650 | 0.459 | 250 | 0.2 % | 2 |
+| **Reglas v0.4** | **0.673** | **0.911** | **0.800** | **128** | 0.3 % | 6 |
+| Reglas v0.4 + `es_core_news_md` (GPL) | 0.537 | 0.926 | 0.831 | 115 | 3.5 % | 71 |
+| Reglas v0.4 + NER entrenado en MEDDOCAN-train (experimento §6) | 0.785 | **0.984** | **0.971** | **30** | 0.7 % | 134 |
+
+Por tipo, solo reglas v0.4: LOCATION 0.002 → 0.866, PERSON 0.383 → 0.899,
+MEDICAL_FACILITY 0.007 → 0.853 y ADDRESS 0.598 → 0.847. Roles con reglas: el médico se
+asigna en el 83 % de los casos con 100 % de exactitud y el paciente en el 56 % con 100 %.
+Con el NER entrenado, paciente, médico y familiar se asignan en el 94–100 % de los casos
+con una exactitud de 98.7–100 %. Datos crudos: `benchmarks/results/audit-2026-11/after-*.json`.
+
+| Paso del plan | Estado | Dónde |
+|---|---|---|
+| F0.1 Métricas de fuga como principales | Hecho | `public_quality.leakage_breakdown`, incluido en `quality_metrics` |
+| F0.2 Exactitud de rol | Hecho | `public_corpus.load_meddocan_roles`, `public_quality.role_metrics` |
+| F0.3 Suite de aceptación LLM | Hecho (15 casos + sesión + verificador + 1 *xfail* estricto) | `tests/test_llm_acceptance.py` |
+| F0.4 Adquisición reproducible | Hecho | `acquire_public_corpus.py --from-checkout`, verificación por manifiesto, `SSL_CERT_FILE` |
+| F0.5 Ratchet en CI | Hecho | job `public-quality` en `.github/workflows/ci.yml` |
+| F0.6 Sintético fuera del tablero | Hecho | README |
+| F1.1 Marcadores indexados con rol | Hecho | acción `indexed`, `deidflow.placeholders` |
+| F1.2 Correferencia conservadora | Hecho (sin texto plano, hashes con clave por sesión) | `PlaceholderAllocator` |
+| F1.3 Bóveda reversible | Hecho | `MemoryVault`, `EncryptedVault` (AES-256-GCM, TTL, archivo 0600) |
+| F1.4 `reidentify` | Hecho | `DeidSession.reidentify`: solo restaura tokens emitidos y reporta los desconocidos |
+| F1.5 Sesiones multi-turno | Hecho | `deidflow.llm.DeidSession` |
+| F1.6 Fechas y edades | Hecho | `date_shift` en formatos españoles; `bucket` conserva la unidad; preset `Policy.llm()` |
+| F1.7 Instrucción de sistema | Hecho | `deidflow.llm.SYSTEM_PROMPT_ES` |
+| F2.1 Reglas rápidas | Hecho | `detectors/narrative.py`, `detectors/gazetteer.py` |
+| F2.3 Roles desde el modelo | Hecho en el adaptador | `SpacyNER(roles=...)` |
+| F2.5 Salud con sujeto nombrado | Hecho (léxico ampliado; política clínica en `Policy.llm`) | `detectors/__init__.py` |
+| F4.1 Verificador independiente | Hecho (ortográfico; desacuerdo → `REVIEW_REQUIRED`) | `deidflow.verification` |
+| F2.2 NER transformer con licencia comercial, ONNX | **Pendiente**: hay que elegir el checkpoint y su licencia | — |
+| F2.4 Fusión y límites | **Parcial**: falta resolver PHONE frente a NHC y el AGE con "años" | — |
+| F2.6 Otros países | **Pendiente** | — |
+| F3 Corpus mexicano anotado y calibración | **Pendiente**: requiere datos con consentimiento o licencia | — |
+| F4.2–F4.5 Canarios, *red team* con LLM, adversarial, pentest | **Pendiente** | — |
+| F5.1 Licencia | **Decisión del titular**: no la cambié | `LICENSE` |
+| F5.2–F5.6 Paquetes, PyPI, servicio REST, SBOM, mapeo normativo | **Pendiente** | — |
+| F6 Piloto y GA | **Pendiente** | — |
+
+**El veredicto sigue siendo "no listo para producción".** Faltan el modelo con licencia
+comercial (sin él quedan 128/250 documentos con fuga), el holdout mexicano y la licencia.
+Lo construido sí permite empezar el piloto en modo sombra (F6.1) con revisión humana.
+
+---
+
 ## 1. Caso de uso objetivo y lo que hace hoy la librería
 
 Entrada (ejemplo del producto):

@@ -1,5 +1,25 @@
 # Changelog
 
+## Unreleased (v0.4 development, after the 2026-11 audit)
+
+- Added `Policy.llm()`, the `indexed` action and `DeidSession`: role-aware
+  placeholders (`[PERSONA_1]`, `[MEDICO_1]`, `[LUGAR_1]`), conservative
+  coreference without stored plaintext, multi-turn sessions, `MemoryVault`,
+  AES-256-GCM `EncryptedVault` (`deidflow[vault]`) and session-scoped
+  re-identification of LLM answers.
+- Added Spanish narrative recognizers (titles, relations, given names, places,
+  facilities, institutions, companies, NSS, INE, professional licenses, postal
+  codes, Spanish street forms and address tails), named-subject health
+  association, role evidence from field labels and spaCy labels, and ORG mapping.
+- Added an optional detector-independent proper-noun check to the release gate.
+- `date_shift` handles dd/mm/yyyy and Spanish written dates; `bucket` keeps units.
+- Added leak-oriented and role metrics, checkout-based corpus acquisition with
+  per-file manifest verification, CA-bundle support and a CI leakage ratchet.
+- MEDDOCAN test, rules only: direct identifiers fully covered 0.650 -> 0.911;
+  documents with a direct-identifier leak 250 -> 128; exact F1 0.509 -> 0.673.
+- A gazetteer name in an untransformed structured file now blocks verification
+  (previously it was undetected and only required review).
+
 ## 0.3.0 - 2026-11-02 (local experimental release)
 
 - Added pinned MEDDOCAN/TAB acquisition, verified human gold, frozen v0.2
