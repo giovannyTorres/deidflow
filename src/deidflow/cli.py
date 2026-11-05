@@ -39,9 +39,19 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--tagger",
-        help="Local span tagger: a model file path, or builtin:<name> for a packaged model",
+        help="Local span tagger: a model file path, builtin:<name> for a packaged model, "
+        "or builtin:auto to route each document to the clinical or financial model",
     )
     parser.add_argument("--tagger-sha256", help="Required SHA-256 of a --tagger model file")
+    parser.add_argument(
+        "--tagger-profile",
+        help="Packaged operating profile for built-in taggers (see docs/TAGGER.md)",
+    )
+    parser.add_argument(
+        "--redact-margin",
+        type=float,
+        help="Also redact near-miss tagger candidates without forcing review (over-redacts)",
+    )
     parser.add_argument(
         "--review-margin",
         type=float,
@@ -81,8 +91,10 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(arguments)
     if args.tagger_sha256 and not args.tagger:
         parser.error("--tagger-sha256 requires --tagger")
-    if args.review_margin is not None and not args.tagger:
-        parser.error("--review-margin requires --tagger")
+    if (
+        args.review_margin is not None or args.redact_margin is not None or args.tagger_profile
+    ) and not args.tagger:
+        parser.error("--review-margin, --redact-margin and --tagger-profile require --tagger")
     try:
         adapters: list[object] = []
         if args.model:
@@ -92,18 +104,24 @@ def main(argv: list[str] | None = None) -> int:
         if args.tagger:
             from deidflow.nlp.tagger import SpanTagger
 
+            margins = {"review_margin": args.review_margin, "redact_margin": args.redact_margin}
             if args.tagger.startswith("builtin:"):
                 if args.tagger_sha256:
                     parser.error("Built-in taggers are verified against their pinned digest")
-                adapters.append(
-                    SpanTagger.builtin(args.tagger[8:], review_margin=args.review_margin)
-                )
-            else:
-                adapters.append(
-                    SpanTagger.load(
-                        args.tagger, sha256=args.tagger_sha256, review_margin=args.review_margin
+                if args.tagger == "builtin:auto":
+                    from deidflow.nlp.router import DomainRouter
+
+                    if any(value is not None for value in margins.values()):
+                        parser.error("builtin:auto takes --tagger-profile, not explicit margins")
+                    adapters.append(DomainRouter.builtin(profile=args.tagger_profile))
+                else:
+                    adapters.append(
+                        SpanTagger.builtin(args.tagger[8:], profile=args.tagger_profile, **margins)
                     )
-                )
+            else:
+                if args.tagger_profile:
+                    parser.error("--tagger-profile applies to built-in taggers only")
+                adapters.append(SpanTagger.load(args.tagger, sha256=args.tagger_sha256, **margins))
         nlp = None
         if len(adapters) == 1:
             nlp = adapters[0]

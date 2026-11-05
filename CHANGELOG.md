@@ -33,6 +33,12 @@
   57 of 161 approved test documents still leaked at least one sensitive
   character (`docs/TAGGER.md`).
 - Added a checksum-validated (ISO 13616 MOD 97-10) IBAN recognizer.
+- Added `redact_margin` (silent over-redaction of near-miss tokens), packaged
+  `balanced`/`assurance` operating profiles tuned on validation, a domain router
+  (`DomainRouter`, CLI `--tagger builtin:auto`) and direct-identifier leak,
+  over-redaction and Wilson-interval metrics in the release-gate benchmark. The
+  `assurance` target (<= 2% approved direct-identifier leak) held on validation
+  but measured 7.7% on the MEDDOCAN test set (`docs/TAGGER.md`).
 - CI: Linux/Windows/macOS × Python 3.11-3.13, coverage gate, wheel smoke test
   without optional dependencies. Release workflow with SBOM, checksums, build
   provenance attestations and opt-in PyPI trusted publishing. Dependabot,

@@ -177,3 +177,58 @@ rules-only gate for free-form financial text. Mexican financial identifiers
 (CLABE, RFC, CURP) come from the deterministic rules; IBANs are now also
 validated by checksum. The corpus is LLM-generated and European in style, so
 evaluate on your own documents before relying on these numbers.
+
+## Operating profiles, domain routing and leak targets
+
+Three controls were added to trade review load and over-redaction for fewer
+leaks, then measured end to end. Every choice below was made on validation data
+(MEDDOCAN dev, the Gretel train holdout); test sets were evaluated once.
+
+- `redact_margin`: tokens the model tagged `O` by less than this margin are
+  redacted without forcing review (`context` contains `redact_only`).
+- `review_margin`: the same, but the document goes to `REVIEW_REQUIRED`.
+- Packaged profiles: `SpanTagger.builtin(name, profile="balanced" | "assurance")`
+  or CLI `--tagger-profile`. `assurance` is the margin pair that approved the most
+  validation documents while keeping the approved **direct-identifier** leak rate
+  at or below 2% (`scripts/tune_operating_points.py`, grid in
+  `operating-points-*.json`).
+- Domain router: `DomainRouter.builtin()` or CLI `--tagger builtin:auto`. A
+  Naive Bayes document classifier (hashed features, trained on the training
+  splits only) sends each document to `es-clinical` or `es-finance` and runs both
+  when the evidence margin is below 0.5. That threshold was chosen on validation
+  as the smallest with at most 1% of documents routed to the wrong single model;
+  the misrouted ones were machine formats (BAI, CSV, FIX, MT940, SWIFT, EDI).
+
+Direct identifiers are names, contact data, addresses, dates of birth and every
+ID, account, card or credential category (`DIRECT_IDENTIFIERS` in
+`deidflow.benchmarks.release_gate`). Dates, ages, places, organizations,
+occupations and other quasi-identifiers are counted in the any-category leak.
+On validation, organizations were the largest share of leaked spans in the
+financial set, and most leaks were whole missed entities, not boundary slivers.
+
+Routing on the held-out test sets (`public-*-test-router.json`): all 250
+MEDDOCAN documents went to `es-clinical` (identical results); of 461 Gretel
+documents, 433 went to `es-finance`, 24 to both and 4 to `es-clinical`, giving
+exact F1 0.707, versus 0.740 when the domain is known and 0.496 when both models
+always run.
+
+Held-out release decisions (`release-gate-v2-*.json`, rules + tagger):
+
+| Test set / profile | APPROVED | Approved docs leaking a direct identifier [95% CI] | Approved docs leaking any category | Over-redaction | Output sensitive-character recall |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| MEDDOCAN, balanced | 149 / 250 | 15 (10.1%) [6.2, 15.9] | 40 (26.8%) | 0.36% | 0.968 |
+| MEDDOCAN, assurance | 130 / 250 | 10 (7.7%) [4.2, 13.6] | 27 (20.8%) | 0.44% | 0.976 |
+| MEDDOCAN, router + assurance | 130 / 250 | 10 (7.7%) [4.2, 13.6] | 27 (20.8%) | 0.44% | 0.976 |
+| Gretel, balanced | 161 / 461 | 24 (14.9%) [10.2, 21.2] | 57 (35.4%) | 2.40% | 0.831 |
+| Gretel, assurance | 22 / 461 | 0 (0.0%) [0.0, 14.9] | 2 (9.1%) | 17.6% | 0.973 |
+| Gretel, router + assurance | 24 / 461 | 2 (8.3%) [2.3, 25.8] | 4 (16.7%) | 17.5% | 0.970 |
+
+**The 2% target held on validation (1.7% clinical) but not on test (7.7%).**
+Validation had about ten leaking approved documents, too few to set a threshold
+that generalizes. The financial `assurance` profile reaches zero direct leaks
+only by redacting about 18% of non-sensitive text and approving about 5% of
+documents, which is rarely usable. Margins and routing cannot fix the misses
+the models are confident about: lowering leaks substantially needs better
+models (more and in-domain training data, stronger architectures) or human
+review. Until a representative holdout shows otherwise, treat every profile as
+assisted de-identification.
