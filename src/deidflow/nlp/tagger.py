@@ -50,6 +50,10 @@ BUILTIN_MODELS: dict[str, tuple[str, str]] = {
         "es-clinical-meddocan-1.json.gz",
         "dc824100552ddb5bae036d128da9cfe4e31aba68b7cb74c2ab1252ddc0952da9",
     ),
+    "es-finance": (
+        "es-finance-gretel-1.json.gz",
+        "f7a28b8fef3ccc1090d171b693f744098b4032008a48b56530c5aabdf371679c",
+    ),
 }
 
 

@@ -25,6 +25,24 @@ modified. MEDDOCAN contains synthetic personal data inserted into published
 clinical case reports; it is not a collection of real patient records.
 
 -------------------------------------------------------------------------------
+Bundled model: src/deidflow/models/es-finance-gretel-1.json.gz
+-------------------------------------------------------------------------------
+
+The built-in Spanish financial span tagger was trained by DeidFlow on the
+Spanish training file of:
+
+  synthetic_pii_finance_multilingual, Gretel.ai
+  https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual
+  revision 7b844d16738527a04264f50214cb426a4cea0897
+  Licensed under the Apache License, Version 2.0
+
+Changes: the published PII labels were mapped to DeidFlow entity categories
+and used to fit model weights; 10% of the training file (selected by a hash
+of each document's text) was held out for epoch selection and calibration.
+The model file contains numeric weights keyed by hashed features, not the
+corpus text. The corpus is synthetic and contains no real customer data.
+
+-------------------------------------------------------------------------------
 Third-party software
 -------------------------------------------------------------------------------
 

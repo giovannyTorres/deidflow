@@ -56,6 +56,9 @@ verification gate. It never establishes anonymous data. Always inspect
   JSON model files (never pickle) with hashed features and calibrated scores.
   Held-out MEDDOCAN exact F1 **0.958**, up from 0.509 for the v0.3 rules.
   [Model card and results](docs/TAGGER.md).
+- **Built-in Spanish financial tagger** (`SpanTagger.builtin("es-finance")`)
+  trained on the Apache-2.0 Gretel synthetic financial corpus: held-out exact
+  F1 **0.740** versus 0.308 for the rules. Checksum-validated IBAN recognizer.
 - Train your own tagger from span JSONL (`scripts/train_span_tagger.py`).
 - Verification no longer blocks on its own placeholders: rescans ignore findings
   made only of replacement tokens, so `APPROVED` is reachable on real text.
@@ -156,6 +159,11 @@ documents, and 40 of those 149 still contained at least one sensitive
 character; with `review_margin=60`, 76 were approved and 11 of them leaked.
 Route `REVIEW_REQUIRED` to people and audit approved samples. MEDDOCAN is
 Spain-Spanish clinical text with synthetic PHI, not Mexican or financial data.
+
+On the Gretel Spanish financial test set (461 documents), `es-finance` reaches
+exact F1 0.740 [0.709, 0.768] and rules + `es-finance` cover 83% of sensitive
+characters; 57 of its 161 approved documents still leaked at least one
+sensitive character. Financial text is not ready for unattended release.
 
 ## Public gold evaluation of the v0.3 candidate
 

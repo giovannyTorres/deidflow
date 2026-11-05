@@ -9,7 +9,7 @@ or legal clearance.
 | --- | --- | --- |
 | Python | Runtime | PSF terms; local Python 3.11.9 |
 | SPACCC MEDDOCAN corpus | Training data for the packaged `es-clinical` tagger weights | **CC-BY-4.0**; attribution and change notice in `NOTICE`; no corpus text is shipped |
-| Gretel synthetic_pii_finance_multilingual | Optional external evaluation corpus | Apache-2.0; not shipped, not yet used for weights |
+| Gretel synthetic_pii_finance_multilingual | Training data for the packaged `es-finance` tagger weights (Spanish train file) and held-out evaluation | Apache-2.0; attribution and change notice in `NOTICE`; no corpus text is shipped |
 | NumPy | Optional tagger training/acceleration | BSD-3-Clause |
 | spaCy | Optional discriminative adapter | MIT code; model licenses are separate |
 | es_core_news_sm 3.8.0 | Private benchmark asset only | **GPL-3.0 model**, not bundled or selected by default |

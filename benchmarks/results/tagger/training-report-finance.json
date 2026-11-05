@@ -1,0 +1,309 @@
+{
+  "labels": [
+    "O",
+    "B-ADDRESS",
+    "I-ADDRESS",
+    "B-API_KEY",
+    "I-API_KEY",
+    "B-BANK_ACCOUNT",
+    "I-BANK_ACCOUNT",
+    "B-CREDENTIAL",
+    "I-CREDENTIAL",
+    "B-CUSTOMER_ID",
+    "I-CUSTOMER_ID",
+    "B-DATE",
+    "I-DATE",
+    "B-DATE_OF_BIRTH",
+    "I-DATE_OF_BIRTH",
+    "B-EMAIL",
+    "I-EMAIL",
+    "B-EMPLOYEE_ID",
+    "I-EMPLOYEE_ID",
+    "B-IP_ADDRESS",
+    "I-IP_ADDRESS",
+    "B-LOCATION",
+    "I-LOCATION",
+    "B-NATIONAL_ID",
+    "I-NATIONAL_ID",
+    "B-ORGANIZATION",
+    "I-ORGANIZATION",
+    "B-PASSPORT",
+    "I-PASSPORT",
+    "B-PAYMENT_CARD",
+    "I-PAYMENT_CARD",
+    "B-PERSON",
+    "I-PERSON",
+    "B-PHONE",
+    "I-PHONE"
+  ],
+  "train_documents": 3746,
+  "validation_documents": 402,
+  "train_tokens": 984306,
+  "features_kept": 103055,
+  "stored_features": 65899,
+  "stored_weight_entries": 302330,
+  "prune_below": 0.0,
+  "min_feature_docs": 5,
+  "train_alignment": {
+    "unaligned_spans": 440,
+    "spans_of_unknown_type": 0
+  },
+  "validation_alignment": {
+    "unaligned_spans": 61,
+    "spans_of_unknown_type": 0
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_documents_with_errors": 3326,
+      "precision": 0.5446960667461264,
+      "recall": 0.26204128440366975,
+      "f1": 0.3538521099496709
+    },
+    {
+      "epoch": 2,
+      "train_documents_with_errors": 3017,
+      "precision": 0.6620416253716551,
+      "recall": 0.3830275229357798,
+      "f1": 0.4852887758808572
+    },
+    {
+      "epoch": 3,
+      "train_documents_with_errors": 2934,
+      "precision": 0.7443744374437443,
+      "recall": 0.474197247706422,
+      "f1": 0.5793345008756569
+    },
+    {
+      "epoch": 4,
+      "train_documents_with_errors": 2864,
+      "precision": 0.7656903765690377,
+      "recall": 0.5246559633027523,
+      "f1": 0.6226607689690371
+    },
+    {
+      "epoch": 5,
+      "train_documents_with_errors": 2746,
+      "precision": 0.7809983896940419,
+      "recall": 0.5561926605504587,
+      "f1": 0.6496985934360349
+    },
+    {
+      "epoch": 6,
+      "train_documents_with_errors": 2653,
+      "precision": 0.7877838684416602,
+      "recall": 0.5768348623853211,
+      "f1": 0.6660046342270771
+    },
+    {
+      "epoch": 7,
+      "train_documents_with_errors": 2602,
+      "precision": 0.7874617737003058,
+      "recall": 0.5905963302752294,
+      "f1": 0.6749672346002622
+    },
+    {
+      "epoch": 8,
+      "train_documents_with_errors": 2593,
+      "precision": 0.7897513187641296,
+      "recall": 0.6009174311926605,
+      "f1": 0.682513839140345
+    },
+    {
+      "epoch": 9,
+      "train_documents_with_errors": 2623,
+      "precision": 0.7861356932153393,
+      "recall": 0.6112385321100917,
+      "f1": 0.687741935483871
+    },
+    {
+      "epoch": 10,
+      "train_documents_with_errors": 2459,
+      "precision": 0.7811594202898551,
+      "recall": 0.6181192660550459,
+      "f1": 0.6901408450704225
+    },
+    {
+      "epoch": 11,
+      "train_documents_with_errors": 2412,
+      "precision": 0.7850940665701881,
+      "recall": 0.6221330275229358,
+      "f1": 0.6941778630838131
+    },
+    {
+      "epoch": 12,
+      "train_documents_with_errors": 2379,
+      "precision": 0.7869907076483202,
+      "recall": 0.6313073394495413,
+      "f1": 0.7006045179764555
+    },
+    {
+      "epoch": 13,
+      "train_documents_with_errors": 2326,
+      "precision": 0.7865810135617416,
+      "recall": 0.6318807339449541,
+      "f1": 0.7007949125596185
+    },
+    {
+      "epoch": 14,
+      "train_documents_with_errors": 2277,
+      "precision": 0.7852586817859674,
+      "recall": 0.6353211009174312,
+      "f1": 0.7023771790808241
+    },
+    {
+      "epoch": 15,
+      "train_documents_with_errors": 2302,
+      "precision": 0.7851590106007067,
+      "recall": 0.6370412844036697,
+      "f1": 0.7033871478315922
+    },
+    {
+      "epoch": 16,
+      "train_documents_with_errors": 2270,
+      "precision": 0.779020979020979,
+      "recall": 0.6387614678899083,
+      "f1": 0.7019533711405167
+    },
+    {
+      "epoch": 17,
+      "train_documents_with_errors": 2220,
+      "precision": 0.7778551532033426,
+      "recall": 0.6404816513761468,
+      "f1": 0.7025157232704403
+    },
+    {
+      "epoch": 18,
+      "train_documents_with_errors": 2181,
+      "precision": 0.7786259541984732,
+      "recall": 0.643348623853211,
+      "f1": 0.704552590266876
+    },
+    {
+      "epoch": 19,
+      "train_documents_with_errors": 2133,
+      "precision": 0.7781617138908086,
+      "recall": 0.6456422018348624,
+      "f1": 0.7057348793481668
+    },
+    {
+      "epoch": 20,
+      "train_documents_with_errors": 2149,
+      "precision": 0.7772413793103449,
+      "recall": 0.6462155963302753,
+      "f1": 0.7056981840951785
+    },
+    {
+      "epoch": 21,
+      "train_documents_with_errors": 2058,
+      "precision": 0.7754120879120879,
+      "recall": 0.6473623853211009,
+      "f1": 0.7056250000000001
+    },
+    {
+      "epoch": 22,
+      "train_documents_with_errors": 2097,
+      "precision": 0.7772446881425634,
+      "recall": 0.6502293577981652,
+      "f1": 0.7080861692163596
+    },
+    {
+      "epoch": 23,
+      "train_documents_with_errors": 2082,
+      "precision": 0.7778537252221462,
+      "recall": 0.6525229357798165,
+      "f1": 0.709697536638603
+    },
+    {
+      "epoch": 24,
+      "train_documents_with_errors": 1961,
+      "precision": 0.7767918088737201,
+      "recall": 0.6525229357798165,
+      "f1": 0.7092552196946089
+    },
+    {
+      "epoch": 25,
+      "train_documents_with_errors": 2000,
+      "precision": 0.7795221843003413,
+      "recall": 0.6548165137614679,
+      "f1": 0.7117482081645372
+    },
+    {
+      "epoch": 26,
+      "train_documents_with_errors": 1978,
+      "precision": 0.7806539509536785,
+      "recall": 0.6571100917431193,
+      "f1": 0.713574097135741
+    },
+    {
+      "epoch": 27,
+      "train_documents_with_errors": 1986,
+      "precision": 0.7813351498637602,
+      "recall": 0.6576834862385321,
+      "f1": 0.7141967621419677
+    },
+    {
+      "epoch": 28,
+      "train_documents_with_errors": 1862,
+      "precision": 0.7804214819850442,
+      "recall": 0.658256880733945,
+      "f1": 0.7141524105754277
+    },
+    {
+      "epoch": 29,
+      "train_documents_with_errors": 1852,
+      "precision": 0.7808032675289313,
+      "recall": 0.6576834862385321,
+      "f1": 0.7139744786803611
+    },
+    {
+      "epoch": 30,
+      "train_documents_with_errors": 1919,
+      "precision": 0.7804214819850442,
+      "recall": 0.658256880733945,
+      "f1": 0.7141524105754277
+    }
+  ],
+  "selected_epoch": 27,
+  "selected_validation_exact_f1": 0.7141967621419677,
+  "calibration": {
+    "method": "platt",
+    "feature": "log1p_margin",
+    "a": 0.938776,
+    "b": -3.171192,
+    "fitted_on": "validation",
+    "target": "exact span (type and boundaries) correctness",
+    "spans": 1468
+  },
+  "seconds": 493.058,
+  "model_file_bytes": 1921031,
+  "model_sha256": "f7a28b8fef3ccc1090d171b693f744098b4032008a48b56530c5aabdf371679c",
+  "training_data": {
+    "source": "gretel_finance",
+    "repository": "https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual",
+    "revision": "7b844d16738527a04264f50214cb426a4cea0897",
+    "license": "Apache-2.0",
+    "attribution": "Gretel.ai, synthetic_pii_finance_multilingual (Apache-2.0)",
+    "language": "Spanish",
+    "files": {
+      "Spanish_train-00000-of-00001.parquet": "39954d0931f3d3771af1200f0255016bbe29905dcd0fec539864d3b01ea63b7b"
+    },
+    "file_digest_manifest_sha256": "4226f8df4df63ba3bae639d9b18dc4c9e39a7fcbf27c99117409b4365b237c97",
+    "splits": {
+      "weights": "published train minus a 10% text-hash holdout",
+      "epoch_selection_and_calibration": "text-hash holdout of the published train split",
+      "test": "published test split, never read during training"
+    },
+    "changes": "PII labels mapped to DeidFlow categories; no source text edits",
+    "provenance_kind": "synthetic_financial"
+  },
+  "selection": {
+    "candidates_validation_exact_f1": {
+      "min_feature_docs=5": 0.7142,
+      "min_feature_docs=10": 0.706
+    },
+    "rule": "Highest validation exact F1; within 0.002 prefer the larger min_feature_docs.",
+    "selected": "min_feature_docs=5",
+    "test_split_used": false
+  }
+}

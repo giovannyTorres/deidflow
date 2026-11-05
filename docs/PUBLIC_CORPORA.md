@@ -15,39 +15,60 @@ MEDDOCAN inserts synthetic personal data into published clinical case reports,
 so it is realistic clinical Spanish without real patients. It is from Spain,
 not Mexico: identifiers such as NHC/NASS and Spanish addresses dominate.
 
-## Ready to use: financial
+## Integrated and used: financial
 
-| Corpus | Domain / language | Size and gold | License | Status |
+| Corpus | Domain / language | Size and gold | License | Status in DeidFlow |
 | --- | --- | --- | --- | --- |
-| [Gretel `synthetic_pii_finance_multilingual`](https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual) | LLM-generated financial documents (statements, contracts, invoices, loan forms…); English, **Spanish**, French, German, Italian, Dutch, Swedish | ~56k documents (about 4.6k Spanish); 29 PII types with character offsets | Apache-2.0 | Loader, label mapping and evaluation implemented (`load_gretel_finance`, `benchmark_public_quality.py gretel_finance`). **Not yet executed**: the Hugging Face host was not reachable from the build environment |
+| [Gretel `synthetic_pii_finance_multilingual`](https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual) | LLM-generated financial documents (statements, contracts, invoices, loan forms…); English, **Spanish**, French, German, Italian, Dutch, Swedish | ~56k documents; Spanish: train 4,148 / test 461 documents, 29 PII types with character offsets | Apache-2.0 | **Trains the built-in `es-finance` tagger** (Spanish train file, 10% text-hash holdout for selection and calibration) and evaluates it once on the Spanish test file. Revision `7b844d1` and file SHA-256s pinned in `benchmarks/public-sources/gretel_finance.json` |
 
-Steps, from a machine that can reach Hugging Face:
+Results are in [TAGGER.md](TAGGER.md#financial-model-es-finance): exact F1 0.740
+for `es-finance` on the Spanish test file, versus 0.308 for the rules. The corpus
+is synthetic and European in style (IBAN, SWIFT, European addresses), not Mexican.
 
-```sh
-# 1. Download a pinned revision (outside the repository)
-git clone https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual ../work/gretel-raw
-git -C ../work/gretel-raw log -1 --format=%H        # record this revision
+Reproduce, from a machine that can reach `huggingface.co` and its file CDN:
 
-# 2. Register the files: copies them outside the repository and pins their SHA-256
-python - <<'EOF'
-from pathlib import Path
-from deidflow.benchmarks.span_corpus import GRETEL_FINANCE, register_local_files
-files = sorted(Path("../work/gretel-raw").rglob("*.parquet"))
-print(register_local_files("gretel_finance", files, "../work/public-corpora/verified", GRETEL_FINANCE))
-EOF
+1. Download the pinned files outside the repository and compare their SHA-256
+   with `benchmarks/public-sources/gretel_finance.json`:
 
-# 3. Evaluate rules and the tagger on the Spanish documents (needs deidflow[tables])
-python scripts/benchmark_public_quality.py gretel_finance \
-    --corpus ../work/public-corpora/verified/gretel_finance --split test --language Spanish \
-    --tagger src/deidflow/models/es-clinical-meddocan-1.json.gz \
-    --output benchmarks/results/tagger/public-gretel-finance-es.json
-```
+   ```sh
+   REV=7b844d16738527a04264f50214cb426a4cea0897
+   BASE=https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual/resolve/$REV
+   mkdir -p ../work/gretel-raw
+   for f in README.md data/Spanish_train-00000-of-00001.parquet data/Spanish_test-00000-of-00001.parquet; do
+     curl -fL -o "../work/gretel-raw/$(basename "$f")" "$BASE/$f"
+   done
+   sha256sum ../work/gretel-raw/*
+   ```
+
+2. Register them (copies outside the repository and pins their SHA-256):
+
+   ```python
+   from pathlib import Path
+   from deidflow.benchmarks.span_corpus import GRETEL_FINANCE, register_local_files
+
+   files = sorted(Path("../work/gretel-raw").iterdir())
+   spec = {**GRETEL_FINANCE, "revision": "7b844d16738527a04264f50214cb426a4cea0897"}
+   register_local_files("gretel_finance", files, "../work/public-corpora/verified", spec)
+   ```
+
+3. Train on the train file only, then evaluate once on the test file
+   (needs `deidflow[tables,training]`):
+
+   ```sh
+   python scripts/train_span_tagger.py gretel_finance \
+       --corpus ../work/public-corpora/verified/gretel_finance \
+       --version es-finance-gretel-1 --min-feature-docs 5 --output es-finance.json.gz
+   python scripts/benchmark_public_quality.py gretel_finance \
+       --corpus ../work/public-corpora/verified/gretel_finance --split test \
+       --tagger clinical=builtin:es-clinical --tagger finance=builtin:es-finance \
+       --output benchmarks/results/tagger/public-gretel-finance-es-test.json
+   ```
 
 The loader fails closed: a missing field, an unknown PII label or an offset that
 does not match the text raises an error instead of dropping gold spans. To train
-a financial tagger, export disjoint train/validation/test JSONL files (for
-example split by `document_type`) in the span JSONL format below and run
-`scripts/train_span_tagger.py jsonl`. Keep the test file untouched until the
+on your own annotations, export disjoint train/validation/test JSONL files in
+the span JSONL format below and run `scripts/train_span_tagger.py jsonl`. Keep
+the test file untouched until the
 final evaluation.
 
 ## Worth adding (access or licensing needs a decision)

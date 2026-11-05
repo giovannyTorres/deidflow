@@ -200,14 +200,33 @@ def test_platt_fit_is_finite_on_separable_data():
     assert low < 0.5 < high < 1
 
 
-@pytest.mark.skipif(not BUILTIN_MODELS, reason="No built-in tagger is packaged")
-def test_builtin_model_loads_with_pinned_digest():
-    for name in BUILTIN_MODELS:
-        tagger = SpanTagger.builtin(name)
-        text = "Datos del paciente.\nNombre: Ernesto.\nApellidos: Rivera Bueno.\nNHC: 368503.\n"
-        found = {(f.entity_type, text[f.start : f.end]) for f in tagger.detect(text)}
-        assert ("PATIENT_ID", "368503") in found
-        assert tagger.metadata["training_data"]["license"] == "CC-BY-4.0"
+@pytest.mark.parametrize(
+    ("name", "text", "expected", "license_"),
+    [
+        (
+            "es-clinical",
+            "Datos del paciente.\nNombre: Ernesto.\nApellidos: Rivera Bueno.\nNHC: 368503.\n",
+            ("PATIENT_ID", "368503"),
+            "CC-BY-4.0",
+        ),
+        (
+            "es-finance",
+            "Estimado Sr. Carlos Méndez, le escribimos de Banco Ejemplo S.A. sobre su préstamo.",
+            ("ORGANIZATION", "Banco Ejemplo S.A."),
+            "Apache-2.0",
+        ),
+    ],
+)
+def test_builtin_models_load_with_pinned_digest(name, text, expected, license_):
+    assert name in BUILTIN_MODELS
+    tagger = SpanTagger.builtin(name)
+    found = {(f.entity_type, text[f.start : f.end]) for f in tagger.detect(text)}
+    assert expected in found
+    assert tagger.metadata["training_data"]["license"] == license_
+    assert tagger.model_version == BUILTIN_MODELS[name][0].removesuffix(".json.gz")
+
+
+def test_unknown_builtin_model_is_rejected():
     with pytest.raises(ValueError, match="Unknown built-in"):
         SpanTagger.builtin("missing-model")
 

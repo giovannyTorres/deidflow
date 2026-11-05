@@ -1,7 +1,10 @@
-# Built-in span tagger (`es-clinical`)
+# Built-in span taggers (`es-clinical`, `es-finance`)
 
-A local statistical detector for Spanish personal data in free text, packaged
-inside the wheel and usable with no optional dependency:
+Local statistical detectors for Spanish personal data in free text, packaged
+inside the wheel and usable with no optional dependency. `es-clinical` is
+trained on clinical case reports (MEDDOCAN); `es-finance` on synthetic financial
+documents (Gretel). Pick the one that matches your text, or combine both for
+mixed or unknown content (see [financial model](#financial-model-es-finance)).
 
 ```python
 from deidflow import DeidEngine
@@ -16,6 +19,14 @@ if result.release_approved:
 ```sh
 deidflow deidentify note.txt --output note.safe.txt --tagger builtin:es-clinical
 deidflow deidentify note.txt --output note.safe.txt --tagger builtin:es-clinical --review-margin 60
+deidflow deidentify carta.txt --output carta.safe.txt --tagger builtin:es-finance
+```
+
+```python
+from deidflow.nlp import CombinedNER, SpanTagger
+
+both = CombinedNER(SpanTagger.builtin("es-clinical"), SpanTagger.builtin("es-finance"))
+engine = DeidEngine(nlp=both)  # broadest coverage, lower precision
 ```
 
 ## Model
@@ -107,8 +118,62 @@ approved output.
   (CURP, RFC, CLABE) come from the deterministic rules, not this model, and no
   Mexican or financial documents were used for training. Evaluate on your own
   annotated holdout before relying on it.
-- The financial Gretel corpus loader is implemented but was not executed (see
-  [PUBLIC_CORPORA.md](PUBLIC_CORPORA.md)).
+- For financial text use `es-finance` (below); `es-clinical` scores 0.097 exact
+  F1 on the Gretel financial test set.
 - Hashed features can still be confirmed by a dictionary attack. A model you
   train on private data with `scripts/train_span_tagger.py jsonl` is sensitive:
   keep `min_feature_docs` high and store the file like the data itself.
+
+## Financial model (`es-finance`)
+
+| Field | Value |
+| --- | --- |
+| File | `src/deidflow/models/es-finance-gretel-1.json.gz` (1.9 MB) |
+| SHA-256 | `f7a28b8fef3ccc1090d171b693f744098b4032008a48b56530c5aabdf371679c` |
+| Training data | [Gretel `synthetic_pii_finance_multilingual`](https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual), Apache-2.0, revision `7b844d1`, Spanish train file (4,148 LLM-generated financial documents in 60 document types, 17,569 spans). Files pinned by SHA-256 in `benchmarks/public-sources/gretel_finance.json` |
+| Protocol | Weights: 3,746 documents. Epoch selection and calibration: a 10% holdout of the train file chosen by a hash of each text (402 documents). The published Spanish **test** file (461 documents, 1,972 mentions) was evaluated once, after freezing. `min_feature_docs` 5 (0.7142 validation F1) beat 10 (0.7060) by more than the 0.002 tie margin |
+| Labels | `PERSON`, `ORGANIZATION`, `ADDRESS`, `DATE`, `DATE_OF_BIRTH`, `PHONE`, `EMAIL`, `BANK_ACCOUNT` (IBAN, BBAN, routing, SWIFT/BIC), `PAYMENT_CARD`, `NATIONAL_ID`, `PASSPORT`, `CUSTOMER_ID`, `EMPLOYEE_ID`, `CREDENTIAL`, `API_KEY`, `IP_ADDRESS`, `LOCATION` |
+
+There are no identical texts between the train and test files, but 24% of the
+test (category, value) pairs also occur in train, mostly common names and
+company names. 440 of 15,825 training spans (2.8%) overlap another span or do not
+align with token boundaries and were skipped.
+
+Held-out Gretel Spanish test (`public-gretel-finance-es-test.json`):
+
+| Pipeline | Exact P | Exact R | Exact F1 [95% CI] | Sensitive-character recall | Docs with any uncovered gold character |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Rules | 0.427 | 0.241 | 0.308 [0.272, 0.348] | 0.310 | 384 / 461 |
+| `es-clinical` (out of domain) | 0.093 | 0.101 | 0.097 [0.080, 0.114] | 0.321 | 394 |
+| **`es-finance`** | **0.801** | **0.688** | **0.740 [0.709, 0.768]** | 0.790 | 216 |
+| Rules + `es-finance` | 0.606 | 0.725 | 0.660 [0.631, 0.691] | 0.831 | 186 |
+| Rules + both models | 0.353 | 0.728 | 0.475 [0.445, 0.506] | **0.847** | **179** |
+
+- `es-finance` ECE on its own domain: 0.051. Calibration does **not** transfer
+  across domains: `es-clinical` on financial text has ECE 0.69, and
+  `es-finance` on MEDDOCAN 0.20. Use the model that matches the text before
+  trusting scores.
+- Per-type exact recall (`es-finance`): PASSPORT 0.92, PHONE 0.92, IP_ADDRESS
+  0.87, ADDRESS 0.77, BANK_ACCOUNT 0.77, NATIONAL_ID 0.77, PERSON 0.74, EMAIL
+  0.74, ORGANIZATION 0.58, DATE 0.55, PAYMENT_CARD 0.41, CUSTOMER_ID 0.35,
+  EMPLOYEE_ID 0.37, CREDENTIAL 0.47, LOCATION 0.00 (one test mention).
+- On MEDDOCAN test, adding `es-finance` to `es-clinical` raises character
+  recall from 0.966 to 0.971 but lowers exact precision from 0.968 to 0.849
+  (`public-meddocan-test-with-finance.json`).
+
+End-to-end release decisions on the Gretel Spanish test (`release-gate-gretel-test*.json`):
+
+| Configuration | APPROVED | REVIEW_REQUIRED | BLOCKED | Approved docs that still leak ≥1 gold character | Output sensitive-character recall |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Rules only (`require_ner=False`) | 260 | 199 | 2 | 210 of 260 (80.8%) | 0.310 |
+| Rules + `es-finance` | 161 | 287 | 13 | 57 of 161 (35.4%) | 0.831 |
+| Rules + `es-finance`, `review_margin=60` | 118 | 332 | 11 | 31 of 118 (26.3%) | 0.868 |
+
+The margin of 60 was chosen on MEDDOCAN dev and not retuned for finance.
+Financial text is much harder than clinical headers: prose, company names and
+many identifier formats. **Do not run financial documents unattended**; review
+`REVIEW_REQUIRED` output, sample approved output, and never use the explicit
+rules-only gate for free-form financial text. Mexican financial identifiers
+(CLABE, RFC, CURP) come from the deterministic rules; IBANs are now also
+validated by checksum. The corpus is LLM-generated and European in style, so
+evaluate on your own documents before relying on these numbers.

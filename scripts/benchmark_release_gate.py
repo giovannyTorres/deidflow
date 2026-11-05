@@ -23,6 +23,12 @@ from deidflow import DeidEngine, Policy
 from deidflow.benchmarks.datasets import Example
 from deidflow.benchmarks.public_corpus import load_public, verify_acquired_corpus
 from deidflow.benchmarks.runner import machine_metadata, offline_network
+from deidflow.benchmarks.span_corpus import (
+    gretel_files,
+    load_gretel_finance,
+    verify_registered_files,
+)
+from deidflow.nlp import CombinedNER
 from deidflow.nlp.tagger import SpanTagger
 
 
@@ -74,32 +80,50 @@ def evaluate(engine: DeidEngine, examples: Sequence[Example], policy: Policy) ->
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--source", choices=["meddocan", "gretel_finance"], default="meddocan")
     parser.add_argument("--corpus", type=Path, required=True)
     parser.add_argument("--split", choices=["dev", "test"], required=True)
-    parser.add_argument("--tagger", default="builtin:es-clinical")
+    parser.add_argument(
+        "--tagger",
+        action="append",
+        default=[],
+        help="Model path or builtin:<name>; repeat to combine (default builtin:es-clinical)",
+    )
     parser.add_argument("--review-margin", type=float)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    integrity = verify_acquired_corpus(args.corpus, "meddocan")
-    examples = load_public(args.corpus, "meddocan", args.split).examples
-    if args.tagger.startswith("builtin:"):
-        tagger = SpanTagger.builtin(args.tagger[8:], review_margin=args.review_margin)
+    if args.source == "meddocan":
+        integrity = verify_acquired_corpus(args.corpus, "meddocan")
+        examples = load_public(args.corpus, "meddocan", args.split).examples
     else:
-        tagger = SpanTagger.load(args.tagger, review_margin=args.review_margin)
+        if args.split != "test":
+            parser.error("gretel_finance publishes train and test only; use --split test")
+        integrity = verify_registered_files(args.corpus, "gretel_finance")
+        examples = load_gretel_finance(gretel_files(args.corpus, "test"), split="test").examples
+    taggers = []
+    for item in args.tagger or ["builtin:es-clinical"]:
+        if item.startswith("builtin:"):
+            taggers.append(SpanTagger.builtin(item[8:], review_margin=args.review_margin))
+        else:
+            taggers.append(SpanTagger.load(item, review_margin=args.review_margin))
+    nlp = taggers[0] if len(taggers) == 1 else CombinedNER(*taggers)
     report: dict[str, Any] = {
         "schema_version": 1,
         "machine": machine_metadata(),
-        "corpus": "meddocan",
+        "corpus": args.source,
         "split": args.split,
         "integrity": integrity,
-        "tagger": {"version": tagger.model_version, "review_margin": args.review_margin},
+        "tagger": {
+            "versions": [t.model_version for t in taggers],
+            "review_margin": args.review_margin,
+        },
         "policy": "Policy.strict() defaults: placeholder for every category, review_below=0.75",
         "pipelines": {},
     }
     with offline_network() as guard:
         for name, engine, policy in (
             ("rules_only_explicit", DeidEngine(), Policy.strict(require_ner=False)),
-            ("rules_plus_tagger", DeidEngine(nlp=tagger), Policy.strict()),
+            ("rules_plus_tagger", DeidEngine(nlp=nlp), Policy.strict()),
         ):
             report["pipelines"][name] = evaluate(engine, examples, policy)
         report["network_guard"] = {"attempts": guard["attempts"]}

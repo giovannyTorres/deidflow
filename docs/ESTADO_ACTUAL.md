@@ -21,10 +21,13 @@
   carácter sensible; con `review_margin=60` se aprueban 76 y 11 conservan algo.
   `APPROVED` no equivale a anonimización garantizada: la revisión humana de
   `REVIEW_REQUIRED` y el muestreo de aprobados siguen siendo necesarios.
-- **Corpus financiero.** Se implementó el cargador del corpus multilingüe de
-  Gretel (Apache-2.0, documentos financieros sintéticos con unas 4,600 piezas en
-  español). No se pudo ejecutar porque el entorno no tenía acceso a Hugging Face;
-  los pasos están en `PUBLIC_CORPORA.md`.
+- **Modelo financiero (`es-finance`).** Entrenado con el corpus multilingüe de
+  Gretel (Apache-2.0, documentos financieros sintéticos; 4,148 en español para
+  entrenar y 461 para la prueba). En la prueba, evaluada una sola vez, el F1
+  exacto es 0.740 frente a 0.308 de las reglas, y la cobertura de caracteres
+  sensibles con reglas + modelo es 83%. Es más difícil que el texto clínico: de
+  161 documentos aprobados, 57 aún conservaban algún carácter sensible. También
+  se agregó un validador de IBAN con dígito de control.
 - **Entrega a producción.** CI en Linux, Windows y macOS con Python 3.11 a 3.13,
   umbral de cobertura, prueba del wheel sin dependencias opcionales, flujo de
   release con SBOM, sumas SHA-256 y atestaciones de procedencia, publicación en

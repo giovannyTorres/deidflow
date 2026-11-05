@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "machine": {
+    "platform": "Linux-6.18.44-fc-v236-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "machine": "x86_64",
+    "processor": "x86_64",
+    "logical_cpu_count": 4,
+    "versions": {
+      "deidflow": "0.4.0",
+      "psutil": "7.2.2",
+      "spacy": "3.8.18",
+      "presidio-analyzer": null,
+      "DataProfiler": null,
+      "numpy": "2.5.4",
+      "scikit-learn": "1.8.0"
+    },
+    "execution": "CPU",
+    "gpu_memory_bytes": null,
+    "physical_memory_bytes": 16867418112,
+    "physical_cpu_count": 4
+  },
+  "corpus": "gretel_finance",
+  "split": "test",
+  "integrity": {
+    "file_digest_manifest_sha256": "4226f8df4df63ba3bae639d9b18dc4c9e39a7fcbf27c99117409b4365b237c97",
+    "verified_corpus_files": 3,
+    "method": "SHA256 per file equal to the manifest recorded at registration"
+  },
+  "tagger": {
+    "versions": [
+      "es-finance-gretel-1"
+    ],
+    "review_margin": 60.0
+  },
+  "policy": "Policy.strict() defaults: placeholder for every category, review_below=0.75",
+  "pipelines": {
+    "rules_only_explicit": {
+      "documents": 461,
+      "status_counts": {
+        "REVIEW_REQUIRED": 199,
+        "APPROVED": 260,
+        "BLOCKED": 2
+      },
+      "issue_counts": {
+        "UNCERTAIN_SOURCE_FINDINGS": 200,
+        "RESIDUAL_FINDINGS": 2
+      },
+      "approved_rate": 0.5639913232104121,
+      "review_or_blocked_rate": 0.4360086767895879,
+      "approved_documents_with_leaked_gold_characters": 210,
+      "approved_leak_rate": 0.8076923076923077,
+      "documents_with_leaked_gold_characters_by_status": {
+        "REVIEW_REQUIRED": 172,
+        "APPROVED": 210,
+        "BLOCKED": 2
+      },
+      "leaked_gold_characters_by_status": {
+        "REVIEW_REQUIRED": 10549,
+        "APPROVED": 13760,
+        "BLOCKED": 156
+      },
+      "output_sensitive_character_recall": 0.3101844019624429,
+      "p50_seconds": 0.0023664760001338436,
+      "definition": "A gold character leaks when no applied transformation covers its source offset"
+    },
+    "rules_plus_tagger": {
+      "documents": 461,
+      "status_counts": {
+        "REVIEW_REQUIRED": 332,
+        "APPROVED": 118,
+        "BLOCKED": 11
+      },
+      "issue_counts": {
+        "UNCERTAIN_SOURCE_FINDINGS": 343,
+        "RESIDUAL_FINDINGS": 11
+      },
+      "approved_rate": 0.2559652928416486,
+      "review_or_blocked_rate": 0.7440347071583514,
+      "approved_documents_with_leaked_gold_characters": 31,
+      "approved_leak_rate": 0.2627118644067797,
+      "documents_with_leaked_gold_characters_by_status": {
+        "REVIEW_REQUIRED": 121,
+        "APPROVED": 31,
+        "BLOCKED": 7
+      },
+      "leaked_gold_characters_by_status": {
+        "REVIEW_REQUIRED": 3567,
+        "APPROVED": 939,
+        "BLOCKED": 171
+      },
+      "output_sensitive_character_recall": 0.8681272204364744,
+      "p50_seconds": 0.02393440399987412,
+      "definition": "A gold character leaks when no applied transformation covers its source offset"
+    }
+  },
+  "network_guard": {
+    "attempts": 0
+  }
+}

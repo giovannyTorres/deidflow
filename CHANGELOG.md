@@ -27,8 +27,12 @@
   least one sensitive character (11 of 76 with `review_margin=60`).
 - Added pinned git acquisition (`acquire_git`) verified against the registry's
   per-file digest manifest, now also checked by archive acquisition.
-- Added the Gretel multilingual financial PII corpus loader and evaluation path
-  (Apache-2.0); not executed yet because the host was unreachable.
+- Added the Gretel multilingual financial PII corpus (Apache-2.0, pinned revision
+  and file hashes) and the packaged `es-finance` tagger trained on its Spanish
+  train file. Held-out Spanish test exact F1 0.740 versus 0.308 for the rules;
+  57 of 161 approved test documents still leaked at least one sensitive
+  character (`docs/TAGGER.md`).
+- Added a checksum-validated (ISO 13616 MOD 97-10) IBAN recognizer.
 - CI: Linux/Windows/macOS × Python 3.11-3.13, coverage gate, wheel smoke test
   without optional dependencies. Release workflow with SBOM, checksums, build
   provenance attestations and opt-in PyPI trusted publishing. Dependabot,

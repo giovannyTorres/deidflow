@@ -121,7 +121,9 @@ def main() -> None:
         metadata={
             "version": args.version,
             "language": "es",
-            "domain": "financial" if args.source == "gretel_finance" else "clinical",
+            # Only the financial model records a domain, so the packaged clinical
+            # model (trained before this field existed) rebuilds byte for byte.
+            **({"domain": "financial"} if args.source == "gretel_finance" else {}),
             "training_data": provenance,
         },
         log=lambda line: print(line, file=sys.stderr, flush=True),
