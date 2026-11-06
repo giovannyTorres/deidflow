@@ -472,14 +472,7 @@ def _read_eml(
     ocr: OCREngine | None,
     performance: str,
 ) -> None:
-    from deidflow.mail import (
-        ATTACHMENT_SUFFIXES,
-        MAX_DEPTH,
-        STRUCTURE_HEADERS,
-        attachment_bytes,
-        header_text,
-        parse,
-    )
+    from deidflow.mail import ATTACHMENT_SUFFIXES, MAX_DEPTH, attachment_bytes, header_text, parse
 
     counter = [0]
 
@@ -487,10 +480,19 @@ def _read_eml(
         if depth > MAX_DEPTH:
             raise DocumentError("E-mail nesting limit exceeded")
         for name, value in part.items():
-            if name.lower() in STRUCTURE_HEADERS:
-                continue  # MIME structure; boundaries are random digits, file names below
-            _fragment(graph, header_text(value), part="header", kind="email_header",
-                      metadata={"name": name.lower()})  # fmt: skip
+            text = header_text(value)
+            if name.lower() == "content-type":
+                # Boundaries are random digit runs; every other parameter is scanned.
+                text = "; ".join(
+                    f"{key}={item}" for key, item in (part.get_params() or [])[1:]
+                    if key.lower() != "boundary" and isinstance(item, str)
+                )  # fmt: skip
+            if text.strip():
+                _fragment(graph, text, part="header", kind="email_header",
+                          metadata={"name": name.lower()})  # fmt: skip
+        for extra in (getattr(part, "preamble", None), getattr(part, "epilogue", None)):
+            if isinstance(extra, str) and extra.strip():
+                _fragment(graph, extra, part="body", kind="email_body")
         filename = part.get_filename()
         for value in (filename, part.get_param("name"), part.get("content-id")):
             if isinstance(value, str) and value.strip():

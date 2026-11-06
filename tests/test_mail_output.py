@@ -82,12 +82,22 @@ SECRETS = (
 )
 
 
+def test_address_parsing_is_linear_on_adversarial_headers():
+    import time
+
+    for value in ("a" + " " * 200000 + "b", '"' * 200000, "<" * 200000, "a," * 100000):
+        start = time.perf_counter()
+        split_addresses(value)
+        assert time.perf_counter() - start < 2, value[:10]
+
+
 def test_split_addresses_handles_quotes_groups_and_placeholders():
     assert split_addresses('"Ruiz, Ana" <ana@example.com>, b@example.com') == [
         ("Ruiz, Ana", "ana@example.com"),
         ("", "b@example.com"),
     ]
     assert split_addresses('"[PERSON]" <[EMAIL]>') == [("[PERSON]", "[EMAIL]")]
+    assert split_addresses("  Ana Ruiz   <ana@example.com>  ") == [("Ana Ruiz", "ana@example.com")]
 
 
 def test_eml_output_removes_identity_from_headers_bodies_and_attachments(tmp_path):
@@ -171,3 +181,52 @@ def test_docx_attachment_is_rewritten(tmp_path):
     attachment = next(p for p in parsed.iter_attachments())
     assert attachment.get_filename() == "adjunto-1.docx"
     assert b"12345678Z" not in attachment.get_content()
+
+
+def test_preamble_epilogue_and_structure_parameters_are_not_kept(tmp_path):
+    message = EmailMessage()
+    message["From"] = "ana@example.com"
+    message["Subject"] = "Informe"
+    message.set_content("Hola.\n")
+    message.add_alternative("<p>Hola.</p>", subtype="html")
+    message.preamble = "Contacto alice@example.com"
+    message.epilogue = "Contacto bob@example.com"
+    message.set_param("private", "carol@example.com")
+    del message["MIME-Version"]
+    message["MIME-Version"] = "1.0 (dave@example.com)"
+    source = tmp_path / "estructura.eml"
+    source.write_bytes(message.as_bytes(policy=email.policy.default))
+    graph = read_document(source)
+    scanned = "\n".join(f.text for f in graph.fragments)
+    assert all(v in scanned for v in ("alice@", "bob@", "carol@", "dave@"))
+    result = DeidEngine(country="ES").deidentify(
+        source, output=tmp_path / "out.eml", policy=Policy.strict(require_ner=False)
+    )
+    assert result.output_path is not None, result.issues
+    raw = result.output_path.read_bytes().decode()
+    for value in ("alice@", "bob@", "carol@", "dave@", "private="):
+        assert value not in raw, value
+
+
+def test_indexed_placeholders_are_shared_with_attachments(tmp_path):
+    from deidflow.policies import Rule
+
+    message = EmailMessage()
+    message["From"] = "remitente@example.com"
+    message["Subject"] = "Contactos"
+    message.set_content("Contacto alice@example.com\n")
+    message.add_attachment(
+        b"Contacto bob@example.com\n", maintype="text", subtype="plain", filename="c.txt"
+    )
+    source = tmp_path / "indices.eml"
+    source.write_bytes(message.as_bytes(policy=email.policy.default))
+    policy = Policy(default=Rule("indexed"), require_ner=False)
+    result = DeidEngine(country="ES").deidentify(source, output=tmp_path / "out.eml", policy=policy)
+    assert result.output_path is not None, result.issues
+    parsed = email.message_from_bytes(result.output_path.read_bytes(), policy=email.policy.default)
+    body = parsed.get_body(preferencelist=("plain",)).get_content()
+    attached = next(parsed.iter_attachments()).get_content()
+    sender = re.search(r"^From: (.*)$", result.output_path.read_text(), re.MULTILINE)
+    assert sender is not None
+    tokens = set(re.findall(r"\[[A-Z_]+_\d+\]", body + attached + sender.group(1)))
+    assert len(tokens) == 3, (body, attached, sender.group(1))  # three distinct people

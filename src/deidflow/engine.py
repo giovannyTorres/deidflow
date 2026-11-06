@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextvars
 import csv
 import hashlib
 import itertools
@@ -32,6 +33,13 @@ from deidflow.transformations import (
     transform_text,
 )
 from deidflow.verification import residual_proper_nouns
+
+# Set while an e-mail is rewritten, so its attachments share one pseudonym scope and
+# one indexed-placeholder allocator with the message (distinct people never share
+# an index, and the same person keeps it across body and attachments).
+_SHARED_DOCUMENT: contextvars.ContextVar[tuple[str, PlaceholderAllocator, str] | None] = (
+    contextvars.ContextVar("deidflow_shared_document", default=None)
+)
 
 
 class ReleaseStatus(StrEnum):
@@ -329,6 +337,14 @@ class DeidEngine:
                     _rules_batch_worker, tasks, [self.countries] * len(tasks), chunksize=1
                 ):
                     yield from results
+
+    def _document(self, policy: Policy) -> tuple[str, PlaceholderAllocator, str]:
+        """(scope, allocator, document id) for one output file, shared inside an e-mail."""
+        shared = _SHARED_DOCUMENT.get()
+        if shared is not None:
+            return shared
+        document_id = secrets.token_hex(16)
+        return self._scope(policy, document_id), PlaceholderAllocator(), document_id
 
     def _scope(self, policy: Policy, document_id: str) -> str:
         if policy.token_scope == "tenant":
@@ -789,8 +805,7 @@ class DeidEngine:
             raise ValueError("Batch size must be positive")
         rows = zip(*(columns[h] for h in headers), strict=True)
         transformed, issues, count = [], [], 0
-        scope = self._scope(policy, secrets.token_hex(16))
-        allocator = PlaceholderAllocator()
+        scope, allocator, _ = self._document(policy)
         for header in headers:
             allocator.reserve_source(header)
         if module == "pandas":
@@ -846,8 +861,7 @@ class DeidEngine:
         self, source: Path, output: Path, policy: Policy, batch_size: int, domain: str | None
     ) -> Result:
         delimiter = "\t" if source.suffix.lower() == ".tsv" else ","
-        scope = self._scope(policy, secrets.token_hex(16))
-        allocator = PlaceholderAllocator()
+        scope, allocator, _ = self._document(policy)
         records, count, issues = 0, 0, []
         with (
             source.open(encoding="utf-8-sig", newline="") as inp,
@@ -1015,11 +1029,12 @@ class DeidEngine:
             elif suffix in {".txt", ".text", ".md", ".log"}:
                 if source.stat().st_size > self.max_bytes:
                     raise ValueError("Text exceeds configured size limit")
-                allocator = PlaceholderAllocator()
+                _, allocator, document_id = self._document(policy)
                 result = self.deidentify_text(
                     source.read_bytes().decode("utf-8"),
                     policy=policy,
                     domain=domain,
+                    document_id=document_id,
                     placeholders=allocator,
                 )
                 if result.status == ReleaseStatus.BLOCKED:
@@ -1059,8 +1074,7 @@ class DeidEngine:
 
         if source.stat().st_size > self.max_bytes:
             raise ValueError("Document exceeds configured size limit")
-        scope = self._scope(policy, secrets.token_hex(16))
-        allocator = PlaceholderAllocator()
+        scope, allocator, _ = self._document(policy)
         originals: list[Finding] = []
         office_issues: list[str] = []
 
@@ -1129,8 +1143,7 @@ class DeidEngine:
 
         if source.stat().st_size > self.max_bytes:
             raise ValueError("Document exceeds configured size limit")
-        scope = self._scope(policy, secrets.token_hex(16))
-        allocator = PlaceholderAllocator()
+        scope, allocator, _ = self._document(policy)
         originals: list[Finding] = []
 
         def rewrite(text: str) -> tuple[str, list[tuple[int, int, str]]]:
@@ -1184,8 +1197,7 @@ class DeidEngine:
 
         if source.stat().st_size > self.max_bytes:
             raise ValueError("Message exceeds configured size limit")
-        scope = self._scope(policy, secrets.token_hex(16))
-        allocator = PlaceholderAllocator()
+        scope, allocator, document_id = self._document(policy)
         originals: list[Finding] = []
 
         def rewrite(text: str) -> tuple[str, list[tuple[int, int, str]]]:
@@ -1227,6 +1239,7 @@ class DeidEngine:
             )
             return str(result.status), list(result.issues)
 
+        shared = _SHARED_DOCUMENT.set((scope, allocator, document_id))
         try:
             data, report = rewrite_message(
                 source.read_bytes(),
@@ -1241,6 +1254,8 @@ class DeidEngine:
             graph = self.read(output)
         except (DocumentError, ValueError, LookupError):
             return Result(ReleaseStatus.BLOCKED, issues=["MALFORMED_INPUT"])
+        finally:
+            _SHARED_DOCUMENT.reset(shared)
         residual: list[Finding] = []
         for batch in _batches(graph.fragments, 32):
             residual.extend(
@@ -1366,8 +1381,7 @@ class DeidEngine:
 
     def _json_file(self, source: Path, output: Path, policy: Policy, domain: str | None) -> Result:
         issues, count, records = [], 0, 0
-        scope = self._scope(policy, secrets.token_hex(16))
-        allocator = PlaceholderAllocator()
+        scope, allocator, _ = self._document(policy)
 
         def pairs(items: list[tuple[str, Any]]) -> dict[str, Any]:
             if len({k for k, _ in items}) != len(items):
