@@ -208,3 +208,16 @@ def test_unquoted_url_with_query_string_is_supported(tmp_path: Path):
     assert "<a href=https://example.test/p?x=1&amp;y=2>Ver</a>" in output  # unchanged
     assert "12345678Z" not in output
     assert '<a href="https://example.test/p?dni=[NATIONAL_ID]&amp;x=1">Ficha</a>' in output
+
+
+def test_unquoted_url_with_literal_quote_is_quoted_safely(tmp_path: Path):
+    source = tmp_path / "comilla.html"
+    source.write_text('<p><a href=https://example.test/a"b?email=uno@example.test>Texto.</a></p>\n')
+    result = DeidEngine(country="ES").deidentify(
+        source, output=tmp_path / "salida.html", policy=Policy.strict(require_ner=False)
+    )
+    assert result.output_path is not None, result.issues
+    output = result.output_path.read_text()
+    assert "uno@example.test" not in output
+    # The quote is kept as a reference inside the newly quoted value.
+    assert '<a href="https://example.test/a&quot;' in output and '[EMAIL]">Texto.</a>' in output

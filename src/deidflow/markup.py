@@ -597,7 +597,9 @@ def rewrite_html(source: str, rewrite: Rewrite) -> tuple[str, MarkupReport]:
             else:
                 escaped = html.escape(output, quote=True)
             if source[start - 1] not in "\"'":
-                escaped = '"' + escaped + '"'
+                # An unquoted value may hold literal quotes; once quoted they
+                # would end the attribute, so they become references.
+                escaped = '"' + escaped.replace('"', "&quot;") + '"'
             edits.append((start, end, escaped))
     for start, end, value in markup.css:
         output, mappings = rewrite(value)
