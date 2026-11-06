@@ -31,6 +31,10 @@
   character recall 0.842 to 0.947), Gretel test F1 0.707 to 0.740; MEDDOCAN
   unchanged. `DomainRouter(mixed=...)` chooses the taggers for low-evidence
   documents. The benchmark and tuning scripts accept the synthetic corpus.
+- Unlabelled street addresses: Colombian grid nomenclature (`Calle 45 # 12-30`),
+  addresses after residence words (`domicilio en`, `vivo en`), street type +
+  name + number with floors and units, and Mexican colonia/C.P. tails
+  (`docs/COUNTRIES.md`). Overlapping address candidates become one finding.
 - E-mail input and output (`.eml`): an allowlist of headers is kept, with display
   names and addresses transformed and message IDs replaced by keyed pseudonyms
   so threads survive; `Received`, `X-*`, DKIM, authentication and `Date`

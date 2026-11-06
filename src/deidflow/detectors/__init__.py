@@ -7,6 +7,7 @@ addresses and dates for every Spanish-speaking country.
 
 from __future__ import annotations
 
+import bisect
 import re
 from collections.abc import Callable, Collection, Iterable
 from dataclasses import dataclass, replace
@@ -22,6 +23,7 @@ from deidflow.validators import (
     validate_rfc,
 )
 
+from .addresses import AddressCandidate, address_candidates
 from .clinical import contextual_spanish
 from .international import (
     SUPPORTED_COUNTRIES,
@@ -386,12 +388,31 @@ class RuleDetector:
             for pattern in (_NAME, _NAME_FIELD, _HONORIFIC):
                 for match in pattern.finditer(text):
                     add("PERSON", *match.span("value"), 0.88, context=("person_label",))
+            labelled_addresses: list[tuple[int, int]] = []
+            candidates = list(address_candidates(text))
             for pattern in (_ADDRESS, _STREET):
                 for match in pattern.finditer(text):
                     start, end = match.span("value")
                     while end > start and text[end - 1].isspace():
                         end -= 1
-                    add("ADDRESS", start, end, 0.85, context=("address_structure",))
+                    if pattern is _ADDRESS:
+                        add("ADDRESS", start, end, 0.85, context=("address_structure",))
+                        labelled_addresses.append((start, end))
+                    else:
+                        candidates.append(
+                            AddressCandidate(start, end, 0.85, ("address_structure",))
+                        )
+            # Unlabelled addresses: the longest of overlapping candidates, and none
+            # wholly inside an address a field label already delimited (one that
+            # extends it, such as a house number on the next line, is kept).
+            for address in _select_addresses(candidates, labelled_addresses):
+                add(
+                    "ADDRESS",
+                    address.start,
+                    address.end,
+                    address.score,
+                    context=address.context,
+                )
             dates = {match.span() for match in _DATE.finditer(text)}
             dates.update(date_candidates(text))
             for date_start, date_end in sorted(dates):
@@ -437,6 +458,35 @@ class RuleDetector:
 
     def detect_batch(self, texts: list[str]) -> list[list[Finding]]:
         return [self.detect(text) for text in texts]
+
+
+def _select_addresses(
+    candidates: list[AddressCandidate], labelled: list[tuple[int, int]]
+) -> list[AddressCandidate]:
+    """Longest-first non-overlapping candidates, in O(n log n) plus list inserts."""
+    covering = sorted(labelled)
+    furthest: list[int] = []  # furthest end of a labelled span starting at or before i
+    for _, end in covering:
+        furthest.append(max(end, furthest[-1]) if furthest else end)
+    starts = [start for start, _ in covering]
+    chosen_starts: list[int] = []
+    chosen_ends: list[int] = []
+    selected: list[AddressCandidate] = []
+    for address in sorted(candidates, key=lambda a: (-(a.end - a.start), -a.score, a.start)):
+        if address.end <= address.start:
+            continue
+        index = bisect.bisect_right(starts, address.start) - 1
+        if index >= 0 and furthest[index] >= address.end:
+            continue  # wholly inside a labelled address
+        position = bisect.bisect_left(chosen_starts, address.start)
+        if position < len(chosen_starts) and chosen_starts[position] < address.end:
+            continue
+        if position > 0 and chosen_ends[position - 1] > address.start:
+            continue
+        chosen_starts.insert(position, address.start)
+        chosen_ends.insert(position, address.end)
+        selected.append(address)
+    return selected
 
 
 def fuse(findings: Iterable[Finding]) -> list[Finding]:
