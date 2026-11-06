@@ -11,6 +11,8 @@ is accepted here; evaluate the returned model separately, once.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import math
 import random
 import time
@@ -224,8 +226,17 @@ def train_span_tagger(
     entity_types: Sequence[str] | None = None,
     metadata: Mapping[str, Any] | None = None,
     log: Callable[[str], None] | None = None,
+    initial_model: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    """Return ``(model, report)``. ``model`` is the JSON object for :class:`SpanTagger`."""
+    """Return ``(model, report)``. ``model`` is the JSON object for :class:`SpanTagger`.
+
+    ``initial_model`` warm-starts from an existing model's averaged weights, not
+    its original optimizer state. Existing labels and features are retained;
+    additional features come only from training documents. Validation still
+    selects the epoch and calibration, so it must be independent of training.
+    Use :mod:`deidflow.training.adaptation` for enforced partition checks,
+    provenance, staged artifacts and a separate held-out promotion gate.
+    """
     if not train or not validation:
         raise ValueError("Training and validation examples are required")
     if any(example.split == "test" for example in (*train, *validation)):
@@ -234,17 +245,27 @@ def train_span_tagger(
         raise ValueError("Invalid tagger training configuration")
     np = _require_numpy()
     started = time.perf_counter()
+    baseline = SpanTagger(initial_model) if initial_model is not None else None
     kinds = sorted(
         set(entity_types)
         if entity_types is not None
         else {span.entity_type for example in train for span in example.spans}
     )
+    if baseline is not None:
+        kinds = sorted(set(kinds) | {tag[2:] for tag in baseline.tags if tag != "O"})
     if not kinds:
         raise ValueError("Training examples contain no entity spans")
     tags = ["O"] + [prefix + kind for kind in kinds for prefix in ("B-", "I-")]
+    if baseline is not None:
+        tags = list(baseline.tags) + [tag for tag in tags if tag not in baseline.tags]
     tag_index = {tag: index for index, tag in enumerate(tags)}
     size = len(tags)
     train_docs, features, train_stats = _encode(np, train, tag_index, None, min_feature_docs)
+    if initial_model is not None:
+        features = {
+            key: i for i, key in enumerate(sorted(set(features) | set(initial_model["weights"])))
+        }
+        train_docs, _, train_stats = _encode(np, train, tag_index, features, min_feature_docs)
     validation_docs, _, validation_stats = _encode(
         np, validation, tag_index, features, min_feature_docs
     )
@@ -256,6 +277,19 @@ def train_span_tagger(
     transitions_sum = np.zeros_like(transitions)
     start = np.zeros(size)
     start_sum = np.zeros_like(start)
+    if initial_model is not None:
+        old_labels = initial_model["labels"]
+        for key, row in initial_model["weights"].items():
+            for label, value in row:
+                weights[features[key], tag_index[old_labels[label]]] += value
+        for i, previous in enumerate(old_labels):
+            if not previous.startswith("I-"):
+                start[tag_index[previous]] = initial_model["start"][i]
+            for j, current in enumerate(old_labels):
+                if allowed_transition(previous, current):
+                    transitions[tag_index[previous], tag_index[current]] = initial_model[
+                        "transitions"
+                    ][i][j]
     counter = 1
     rng = random.Random(seed)
     order = list(range(len(train_docs)))
@@ -341,6 +375,11 @@ def train_span_tagger(
         "weights": dict(sorted(stored.items())),
         "calibration": None,
         "metadata": {
+            **(
+                {"parent_metadata": dict(initial_model.get("metadata", {}))}
+                if initial_model is not None
+                else {}
+            ),
             **dict(metadata or {}),
             "algorithm": "averaged structured perceptron, first-order BIO transitions",
             "feature_hashing": "keyed BLAKE2b-64; no plaintext feature strings",
@@ -350,6 +389,8 @@ def train_span_tagger(
             "entity_types": kinds,
         },
     }
+    if initial_model is not None:
+        model["metadata"]["adaptation"] = "warm-start from averaged weights; new averaging state"
     # Calibrate with the shipped pure-Python inference path, on validation only.
     tagger = SpanTagger(model)
     margins: list[float] = []
@@ -370,6 +411,13 @@ def train_span_tagger(
             "target": "exact span (type and boundaries) correctness",
             "spans": len(margins),
         }
+    if baseline is not None:
+        learned = {key: value for key, value in model.items() if key != "metadata"}
+        fingerprint = hashlib.sha256(
+            json.dumps(learned, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+        ).hexdigest()
+        model["metadata"]["parent_version"] = baseline.model_version
+        model["metadata"]["version"] = "es-adapt-" + fingerprint[:24]
     report = {
         "labels": tags,
         "train_documents": len(train_docs),

@@ -58,14 +58,18 @@ message:
   other address headers each display name is transformed as a person and each
   address as an e-mail; `Subject`, `Comments` and `Keywords` are scanned as text;
   `Message-ID`, `In-Reply-To`, `References` and `Content-ID` become keyed
-  pseudonyms (`<df…@deidflow>`), so replies still thread. Trace and vendor
+  pseudonyms (`<df…@deidflow>`). Thread IDs are stable within a message; pass the
+  same explicit engine key to preserve threading across separate messages.
+  Without a key, each rewrite uses a fresh key. Trace and vendor
   headers (`Received`, `X-*`, `DKIM-Signature`, `Authentication-Results`…),
   which carry IP addresses, host names and mailbox details, and `Date` are
   removed.
-- **MIME structure** headers are rebuilt from validated values only: media type
-  (with `charset` for text and `type` for `multipart/related`), transfer
-  encoding, disposition type, language tags and `MIME-Version: 1.0`; other
-  parameters, comments and file names are dropped and boundaries regenerated.
+- **MIME structure** headers are rebuilt from known media types, validated
+  transfer encoding, disposition and `MIME-Version: 1.0`. Text is decoded strictly
+  and rewritten as UTF-8. Unknown multipart subtypes are normalized to
+  `multipart/mixed`; sanitized attachments receive the canonical type for their
+  output format. Language tags, related-type metadata, other parameters,
+  comments and file names are dropped and boundaries regenerated.
   Multipart preambles and epilogues (never displayed) are removed.
 - **Bodies**: `text/plain` is rewritten as text and `text/html` as HTML (above).
 - **Attachments** are renamed `adjunto-<n><ext>` and de-identified with the same
@@ -79,25 +83,58 @@ pseudonym scope and indexed-placeholder allocator, so `[CORREO_1]` in the body
 and in an attachment is the same address and different people never share an
 index.
 
+Malformed transfer encodings, unsupported charsets and malformed encapsulated
+messages block output rather than silently dropping undecodable bytes. Parsing
+is bounded before recursive rewriting: eight levels, 512 parts, 8,192 headers,
+65,536 characters per header value, 128 per header name, the configured
+input byte limit and a cumulative decoded-payload limit. Headers, rewritten bodies
+and expanded attachments share an output byte budget; the serialized message is
+checked again. Extracted attachment text shares the reader's byte budget.
+
 The output is reread (headers, bodies and attachments) and rescanned like
-other formats; `audit["email_removed"]` counts what was removed.
+other formats; `audit["email_removed"]` counts what was removed. E-mail output
+and standalone verification always require human review (`EMAIL_REVIEW_REQUIRED`).
+Retaining uninspected media still blocks release; this review requirement does
+not waive incomplete coverage.
+During the writer's immediate rescan, exact message-ID and MIME-boundary spans
+minted by that invocation are recognized only in their matching structural header
+locations. This private, temporary provenance is not a public authorization
+receipt or a syntax-based exemption. Body text, other header fields, and standalone
+verification receive the full scan, including source values that look like
+generated IDs or boundaries. Standalone verification can therefore conservatively
+block a real output when its model flags these structural tokens; it cannot infer
+their origin from their spelling.
 
 ## HTML output
 
-`engine.deidentify("page.html", output="page.safe.html")` edits values at their
-source offsets, so every tag, attribute order, whitespace and style is kept.
+`engine.deidentify("page.html", output="page.safe.html")` rewrites a conservative
+static HTML subset at source offsets. Ordinary text, headings, tables and inline
+formatting retain their layout; unsupported content is removed or rejected.
 Visible text is scanned as one stream (block elements start new lines, table
 cells are separated by spaces), so `<td>Nombre:</td><td>Ana</td>` keeps its label
 context; a value split by inline tags (`<b>María</b> López`) or written with
 character references (`L&oacute;pez`) is replaced across them, references whole.
-Content and URL attributes (`alt`, `title`, `href`, `src`, `srcset`, `value`,
-`content`, `data-*`...) are scanned one by one (`href="mailto:..."` becomes
-`mailto:[EMAIL]`), and so are CSS string literals and `url()` values in
-`<style>` and `style=""` (generated `content: "..."` is visible text).
-Comments, `<script>` elements, `data:` URLs with a payload (images, SVG,
-documents, in any attribute or stylesheet) and `<iframe srcdoc>` are removed;
-the rest of `<style>` is kept. The output is reread and
-rescanned like other formats. Input must be UTF-8.
+Known content attributes (`alt`, `title`, `href`, `value`, `content`,
+`placeholder`, `aria-label`...) are scanned one by one (`href="mailto:..."`
+becomes `mailto:[EMAIL]`). URL percent escapes are decoded before scanning.
+Unknown attributes, event handlers, `id`, `class`, `data-*`, resource/loading
+attributes (`src`, `srcset`, `action`, `srcdoc`...), comments, scripts, declarations
+and processing instructions are removed, including their names. Structural
+attributes use bounded numeric values or finite enumerations. Unknown element
+names, malformed attribute syntax and unclosed script/style elements block output.
+
+CSS is retained only when the complete block matches a small static formatting
+grammar: known HTML tag selectors; bounded lengths; fixed colors, font families
+and layout keywords. CSS comments, escapes, class/ID selectors, URLs, generated
+content, custom properties and extension syntax cause the entire affected
+stylesheet or style attribute to be removed. This deliberately loses some styling
+and remote images; it does not claim general CSS or browser execution coverage.
+
+The output is reread and rescanned. Both output and standalone verification require
+human review (`HTML_REVIEW_REQUIRED`); unsupported retained source channels mark
+coverage incomplete and block release. Input must be UTF-8. These fictional
+regression tests establish handling of the documented channels, not universal
+anonymity or completeness for every HTML extension or obfuscated identifier.
 
 ## DOCX output
 

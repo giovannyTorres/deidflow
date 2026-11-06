@@ -12,20 +12,26 @@ path, or removed when their format is unsupported or their result is blocked.
 
 from __future__ import annotations
 
+import base64
+import binascii
 import codecs
 import email
 import email.policy
 import hashlib
 import hmac
 import mimetypes
+import quopri
 import re
 import tempfile
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from email.feedparser import BytesFeedParser
 from email.header import decode_header, make_header
 from email.message import EmailMessage
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
+
+from deidflow.core import Fragment
 
 # rewrite(text) -> (output, [(source_start, source_end, replacement), ...])
 Rewrite = Callable[[str], tuple[str, list[tuple[int, int, str]]]]
@@ -54,7 +60,12 @@ ATTACHMENT_SUFFIXES = frozenset(
      ".docx", ".xlsx", ".pdf"}
 )  # fmt: skip
 MAX_DEPTH = 8
+MAX_PARTS = 512
+MAX_BYTES = 64 * 1024 * 1024
+MAX_HEADER_BYTES = 65_536
+MAX_HEADERS = 8192
 _ID = re.compile(r"<[^<>\s]*>")
+_BOUNDARY_PARAMETER = re.compile(r';\s*boundary\s*=\s*"([^"\r\n]*)"', re.IGNORECASE)
 # Applied to a stripped item. Each part is a single reading (the name excludes "<",
 # quotes and commas; spaces before "<" belong to the name and are stripped later), so
 # a failed match is linear even on very long headers.
@@ -68,6 +79,10 @@ class MailReport:
     transformations: int = 0
     removed: dict[str, int] = field(default_factory=dict)
     issues: list[str] = field(default_factory=list)
+    # Ephemeral provenance from this rewrite only. Never included in Result.audit,
+    # serialized as a public receipt or inferred from the spelling of source text.
+    _generated_ids: set[str] = field(default_factory=set, repr=False)
+    _generated_boundaries: set[str] = field(default_factory=set, repr=False)
 
     def count(self, what: str, n: int = 1) -> None:
         if n:
@@ -77,21 +92,102 @@ class MailReport:
         if name not in self.issues:
             self.issues.append(name)
 
+    def _generated_spans(self, fragment: Fragment) -> list[tuple[int, int]]:
+        """Exact minted spans in their structural header location, never body text."""
+        if fragment.kind != "email_header" or fragment.location.part != "header":
+            return []
+        name = fragment.metadata.get("name")
+        if name in ID_HEADERS:
+            return [
+                (match.start(), match.end())
+                for match in _ID.finditer(fragment.text)
+                if match.group() in self._generated_ids
+            ]
+        if name == "content-type":
+            return [
+                (match.start(1), match.end(1))
+                for match in _BOUNDARY_PARAMETER.finditer(fragment.text)
+                if match.group(1) in self._generated_boundaries
+            ]
+        return []
 
-def parse(data: bytes) -> EmailMessage:
-    message = email.message_from_bytes(data, policy=email.policy.default)
+
+@dataclass
+class _OutputBudget:
+    remaining: int
+
+    def consume(self, size: int) -> None:
+        if size > self.remaining:
+            raise ValueError("E-mail output size limit exceeded")
+        self.remaining -= size
+
+
+class _BoundedParser(BytesFeedParser):
+    """Stop the stdlib parser before it recursively enters excess MIME parts."""
+
+    _msgstack: list[EmailMessage]  # stdlib parser state, not exposed by typeshed
+
+    def __init__(self, max_parts: int, max_depth: int) -> None:
+        super().__init__(policy=email.policy.default)
+        self._part_limit, self._depth_limit, self._parts_seen = max_parts, max_depth, 0
+
+    def _new_message(self) -> None:
+        self._parts_seen += 1
+        if self._parts_seen > self._part_limit or len(self._msgstack) > self._depth_limit:
+            raise ValueError("E-mail structure limit exceeded")
+        super()._new_message()  # type: ignore[misc]  # stdlib recursion hook
+
+
+def parse(
+    data: bytes,
+    *,
+    max_bytes: int = MAX_BYTES,
+    max_parts: int = MAX_PARTS,
+    max_depth: int = MAX_DEPTH,
+    max_decoded_bytes: int | None = None,
+) -> EmailMessage:
+    if max_bytes < 1 or max_parts < 1 or max_depth < 0 or len(data) > max_bytes:
+        raise ValueError("E-mail size limit exceeded")
+    parser = _BoundedParser(max_parts, max_depth)
+    try:
+        parser.feed(data)
+        message = parser.close()
+    except (RecursionError, UnicodeError) as exc:
+        raise ValueError("Malformed e-mail message") from exc
     if not isinstance(message, EmailMessage):
         raise ValueError("Unsupported e-mail message")
+    decoded_limit = max_bytes if max_decoded_bytes is None else max_decoded_bytes
+    if decoded_limit < 1:
+        raise ValueError("E-mail decoded size limit exceeded")
+    _validate_payloads(message, max_bytes=decoded_limit)
     return message
 
 
 def header_text(raw: Any) -> str:
     """A header value with RFC 2047 encoded words decoded, as a reader sees it."""
-    value = str(raw)
+    value = re.sub(r"\r?\n[ \t]+", " ", str(raw))
     try:
+        value.encode("utf-8", errors="strict")
+        if "\r" in value or "\n" in value:
+            raise ValueError("Malformed e-mail header")
+        words = re.compile(r"=\?([^?\s]+)\?([bBqQ])\?([^?]*)\?=")
+        if "=?" in words.sub("", value):
+            raise ValueError("Malformed encoded e-mail header")
+        for word in words.finditer(value):
+            charset, encoding, encoded = word.groups()
+            codecs.lookup(charset)
+            if encoding.lower() == "b":
+                base64.b64decode(encoded.encode("ascii"), validate=True).decode(charset)
+            else:
+                if re.search(r"=(?![0-9a-fA-F]{2})", encoded):
+                    raise ValueError("Malformed encoded e-mail header")
+                quopri.decodestring(encoded.replace("_", " ").encode("ascii")).decode(charset)
+        for chunk, charset in decode_header(value):
+            if isinstance(chunk, bytes):
+                chunk.decode(charset or "ascii", errors="strict")
         return str(make_header(decode_header(value)))
-    except (ValueError, LookupError, UnicodeError):
-        return value
+    except (ValueError, LookupError, UnicodeError, binascii.Error):
+        raise ValueError("Malformed encoded e-mail header") from None
 
 
 def split_addresses(value: str) -> list[tuple[str, str]]:
@@ -147,18 +243,142 @@ def rewrite_message(
     rewrite_html: Callable[[str], str],
     key: bytes,
     remove_media: bool = True,
+    max_bytes: int = MAX_BYTES,
+    max_parts: int = MAX_PARTS,
+    max_depth: int = MAX_DEPTH,
+    max_decoded_bytes: int | None = None,
 ) -> tuple[bytes, MailReport]:
     report = MailReport()
-    message = parse(data)
-    _rewrite_part(message, report, rewrite, whole, attachment, rewrite_html, key, remove_media, 0)
-    return message.as_bytes(policy=email.policy.default), report
+    message = parse(
+        data,
+        max_bytes=max_bytes,
+        max_parts=max_parts,
+        max_depth=max_depth,
+        max_decoded_bytes=max_decoded_bytes,
+    )
+    if not _rewrite_part(
+        message,
+        report,
+        rewrite,
+        whole,
+        attachment,
+        rewrite_html,
+        key,
+        remove_media,
+        0,
+        _OutputBudget(max_bytes),
+    ):
+        raise ValueError("Unsupported e-mail root content")
+    output = message.as_bytes(policy=email.policy.default)
+    if len(output) > max_bytes:
+        raise ValueError("E-mail output size limit exceeded")
+    # The serializer chooses new boundaries after _rewrite_headers has removed
+    # every source boundary. Record the actual values it minted, not a pattern.
+    report._generated_boundaries.update(
+        boundary for part in message.walk() if (boundary := part.get_boundary()) is not None
+    )
+    return output, report
 
 
 _ENCODINGS = frozenset({"7bit", "8bit", "binary", "base64", "quoted-printable"})
-_MIME_TYPE = re.compile(r"[a-z0-9][a-z0-9!#$&^_.+-]{0,63}/[a-z0-9][a-z0-9!#$&^_.+-]{0,126}")
-_LANGUAGES = re.compile(
-    r"[A-Za-z]{1,8}(?:-[A-Za-z0-9]{1,8})*(?:\s*,\s*[A-Za-z]{1,8}(?:-[A-Za-z0-9]{1,8})*)*"
+_MULTIPART_TYPES = frozenset({"multipart/mixed", "multipart/alternative", "multipart/related"})
+_MEDIA_TYPES = frozenset(
+    {
+        "image/png",
+        "image/jpeg",
+        "image/gif",
+        "image/webp",
+        "image/bmp",
+        "image/tiff",
+        "audio/mpeg",
+        "audio/wav",
+        "audio/ogg",
+        "video/mp4",
+        "video/webm",
+    }
 )
+_ATTACHMENT_TYPES = {
+    ".txt": "text/plain",
+    ".text": "text/plain",
+    ".md": "text/plain",
+    ".log": "text/plain",
+    ".csv": "text/csv",
+    ".tsv": "text/tab-separated-values",
+    ".json": "application/json",
+    ".jsonl": "application/x-ndjson",
+    ".html": "text/html",
+    ".htm": "text/html",
+    ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ".pdf": "application/pdf",
+}
+
+
+def _decoded_bytes(part: EmailMessage) -> bytes:
+    """Strict decoding: never silently ignore malformed trailing payload bytes."""
+    encoding = str(part.get("content-transfer-encoding", "7bit")).strip().lower()
+    if encoding not in _ENCODINGS:
+        raise ValueError("Unsupported e-mail transfer encoding")
+    payload = part.get_payload()
+    if not isinstance(payload, str):
+        raise ValueError("Invalid e-mail leaf payload")
+    if encoding in {"base64", "quoted-printable"}:
+        try:
+            encoded = payload.encode("ascii")
+            if encoding == "base64":
+                return base64.b64decode(re.sub(rb"[ \t\r\n]", b"", encoded), validate=True)
+            if re.search(rb"=(?![0-9a-fA-F]{2}|\r?\n)", encoded):
+                raise ValueError("Invalid quoted-printable payload")
+            return quopri.decodestring(encoded)
+        except (UnicodeError, binascii.Error):
+            raise ValueError("Malformed encoded e-mail payload") from None
+    raw = part.get_payload(decode=True)
+    if not isinstance(raw, bytes) or (encoding == "7bit" and any(b > 127 for b in raw)):
+        raise ValueError("Malformed e-mail payload")
+    return raw
+
+
+def _text_content(part: EmailMessage) -> str:
+    try:
+        return _decoded_bytes(part).decode(part.get_content_charset() or "ascii", errors="strict")
+    except (UnicodeError, LookupError):
+        raise ValueError("Unsupported e-mail text encoding") from None
+
+
+def _validate_payloads(message: EmailMessage, *, max_bytes: int) -> None:
+    decoded_total = 0
+    header_count = 0
+    pending = [message]
+    while pending:
+        part = pending.pop()
+        for name, value in part.raw_items():
+            header_count += 1
+            if header_count > MAX_HEADERS or len(name) > 128 or len(value) > MAX_HEADER_BYTES:
+                raise ValueError("E-mail header limit exceeded")
+        if part.defects:
+            raise ValueError("Malformed MIME message")
+        payload = part.get_payload()
+        content_type = part.get_content_type()
+        if isinstance(payload, list):
+            if content_type == "message/rfc822":
+                encoding = str(part.get("content-transfer-encoding", "7bit")).strip().lower()
+                if len(payload) != 1 or encoding not in {"7bit", "8bit", "binary"}:
+                    raise ValueError("Unsupported encapsulated message")
+            elif not content_type.startswith("multipart/"):
+                raise ValueError("Unsupported structured MIME payload")
+            if not payload or any(not isinstance(child, EmailMessage) for child in payload):
+                raise ValueError("Invalid multipart message")
+            pending.extend(cast(list[EmailMessage], payload))
+        else:
+            if content_type.startswith("multipart/") or content_type == "message/rfc822":
+                raise ValueError("Malformed multipart message")
+            decoded_total += len(_decoded_bytes(part))
+            if decoded_total > max_bytes:
+                raise ValueError("E-mail decoded size limit exceeded")
+            if content_type in {"text/plain", "text/html"} and (
+                part.get_content_disposition() != "attachment"
+            ):
+                _text_content(part)
 
 
 @dataclass(frozen=True)
@@ -179,11 +399,13 @@ class _Structure:
                 codecs.lookup(charset)
         except LookupError:
             charset = None
-        related = part.get_param("type") if part.get_content_type() == "multipart/related" else None
+        content_type = part.get_content_type()
+        if content_type.startswith("multipart/") and content_type not in _MULTIPART_TYPES:
+            content_type = "multipart/mixed"
         return cls(
-            part.get_content_type(),
+            content_type,
             charset if charset and re.fullmatch(r"[\w.:-]{1,40}", charset) else None,
-            related if isinstance(related, str) and _MIME_TYPE.fullmatch(related.lower()) else None,
+            None,
             part.get_content_disposition(),
             part.get_filename(),
         )
@@ -206,8 +428,8 @@ class _Structure:
         if name == "content-disposition":
             return self.disposition if self.disposition in {"inline", "attachment"} else None
         if name == "content-language":
-            text = value.strip()
-            return text if _LANGUAGES.fullmatch(text) else None
+            # Language tags are free-form caller input, not trusted metadata.
+            return None
         return None
 
 
@@ -218,17 +440,21 @@ def _rewrite_headers(
     whole: Whole,
     key: bytes,
     structure: _Structure,
+    budget: _OutputBudget,
 ) -> None:
     spelled: dict[str, str] = {}
-    for original in part.keys():
+    raw_values: dict[str, list[str]] = {}
+    for original, raw in part.raw_items():
         spelled.setdefault(original.lower(), original)
+        raw_values.setdefault(original.lower(), []).append(raw)
     for name, original in spelled.items():
-        values = [header_text(v) for v in part.get_all(name, [])]
+        values = raw_values[name]
         del part[name]
         if name not in KEPT_HEADERS:
             report.count("trace_and_vendor_headers" if name != "date" else "date", len(values))
             continue
         for value in values:
+            value = header_text(value)
             if name in ADDRESS_HEADERS:
                 rendered = []
                 for display, address in split_addresses(value):
@@ -246,9 +472,10 @@ def _rewrite_headers(
                 report.transformations += len(mappings)
                 value = new
             elif name in ID_HEADERS:
-                value = _ID.sub(lambda m: _pseudonymous_id(m.group(), key), value)
-                if "<" not in value:
-                    value = _pseudonymous_id(value, key)
+                identifiers = _ID.findall(value)
+                generated = [_pseudonymous_id(item, key) for item in identifiers or [value]]
+                report._generated_ids.update(generated)
+                value = " ".join(generated)
             elif name in STRUCTURE_HEADERS:
                 rebuilt = structure.header(name, value)
                 if rebuilt is None:
@@ -257,6 +484,7 @@ def _rewrite_headers(
                 if rebuilt != value:
                     report.count("structure_parameters")
                 value = rebuilt
+            budget.consume(len(value.encode("utf-8")) + len(original) + 4)
             part[original] = value
 
 
@@ -284,12 +512,17 @@ def _rewrite_part(
     key: bytes,
     remove_media: bool,
     depth: int,
+    budget: _OutputBudget,
 ) -> bool:
     """Rewrite ``part`` in place; False when the part must be removed."""
     if depth > MAX_DEPTH:
         raise ValueError("E-mail nesting limit exceeded")
     structure = _Structure.of(part)
-    _rewrite_headers(part, report, rewrite, whole, key, structure)
+    if part.get_content_type().startswith("multipart/") and (
+        part.get_content_type() not in _MULTIPART_TYPES
+    ):
+        report.issue("EMAIL_MULTIPART_NORMALIZED")
+    _rewrite_headers(part, report, rewrite, whole, key, structure, budget)
     content_type = structure.content_type
     if part.is_multipart():
         # Text before the first and after the last boundary is never displayed.
@@ -313,34 +546,40 @@ def _rewrite_part(
                 key,
                 remove_media,
                 depth + 1,
+                budget,
             )  # fmt: skip
         ]
         payload[:] = kept
-        return True
+        return bool(kept)
     if content_type == "message/rfc822":
         inner = part.get_payload()
         if isinstance(inner, list) and inner and isinstance(inner[0], EmailMessage):
             _rewrite_part(
                 inner[0], report, rewrite, whole, attachment, rewrite_html, key, remove_media,
                 depth + 1,
+                budget,
             )  # fmt: skip
-        return True
+        raise ValueError("Malformed encapsulated message")
     disposition = part.get_content_disposition()
     if content_type in {"text/plain", "text/html"} and disposition != "attachment":
-        text = part.get_content()
+        text = _text_content(part)
         if content_type == "text/plain":
             new, mappings = rewrite(text)
             report.transformations += len(mappings)
         else:
             new = rewrite_html(text)
+        budget.consume(len(new.encode("utf-8")))
         # Always reset the content headers: a body part may carry a file name.
         part.set_content(new, subtype=content_type.split("/", 1)[1], charset="utf-8")
         return True
     if content_type.startswith(("image/", "audio/", "video/")):
-        if remove_media:
+        if remove_media or content_type not in _MEDIA_TYPES:
             report.count("media")
+            if not remove_media:
+                report.issue("EMAIL_ATTACHMENT_REMOVED")
             return False
         report.issue("email_media_requires_review")
+        budget.consume(len(_decoded_bytes(part)))
         return True
     suffix = _filename_suffix(part, structure.filename)
     if suffix not in ATTACHMENT_SUFFIXES:
@@ -353,16 +592,17 @@ def _rewrite_part(
         output = Path(folder) / ("adjunto.safe" + suffix)
         source.write_bytes(raw)
         status, issues = attachment(source, output)
-        if not output.exists() or status == "BLOCKED":
+        if not output.exists() or status not in {"APPROVED", "REVIEW_REQUIRED"}:
             report.count("blocked_attachments")
             report.issue("EMAIL_ATTACHMENT_REMOVED")
             return False
+        budget.consume(output.stat().st_size)
         safe = output.read_bytes()
     if status != "APPROVED":
         report.issue("EMAIL_ATTACHMENT_REVIEW_REQUIRED")
     index = report.removed.get("attachments_renamed", 0) + 1
     report.count("attachments_renamed")
-    maintype, subtype = content_type.split("/", 1)
+    maintype, subtype = _ATTACHMENT_TYPES[suffix].split("/", 1)
     filename = f"adjunto-{index}{suffix}"
     params = {"charset": "utf-8"} if maintype == "text" else None
     part.set_content(safe, maintype=maintype, subtype=subtype, filename=filename, params=params)
@@ -371,8 +611,7 @@ def _rewrite_part(
 
 def attachment_bytes(part: EmailMessage) -> bytes:
     """The attachment's bytes as sent (transfer encoding removed, no charset guess)."""
-    payload = part.get_payload(decode=True)
-    return payload if isinstance(payload, bytes) else b""
+    return _decoded_bytes(part)
 
 
 __all__ = [

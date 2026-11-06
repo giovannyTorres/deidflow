@@ -121,6 +121,25 @@ def test_weak_annotations_mark_source():
     assert records[0]["spans"]
 
 
+def test_schema_provenance_changes_only_for_rule_derived_profiles():
+    from deidflow.detectors import CORE_RULES_VERSION, RuleDetector
+    from deidflow.structured import profile_column, scan_cell
+    from deidflow.training import ScoreCalibrator
+
+    detector = RuleDetector()
+    exact = profile_column("nombre", ["Ana"], detector)
+    assert exact.model_version == "rules-0.2"
+    unchanged = scan_cell("Ana", exact, detector, row=0, column="nombre")[0]
+    assert ScoreCalibrator(unchanged.detector, "rules-0.2", 1.0, 0.0, 10).apply(unchanged)
+    values = ["Calle Norte 10", "Calle Sur 11", "Calle Este 12"]
+    inferred = profile_column("ubicacion", values, detector)
+    assert inferred.evidence == ("value_pattern_rate",)
+    assert inferred.model_version == f"schema-{CORE_RULES_VERSION}"
+    changed = scan_cell(values[0], inferred, detector, row=0, column="ubicacion")[0]
+    with pytest.raises(ValueError, match="provenance"):
+        ScoreCalibrator(changed.detector, "rules-0.2", 1.0, 0.0, 10).apply(changed)
+
+
 def test_calibration_never_discards_and_rejects_mixed_scores(tmp_path):
     pytest.importorskip("sklearn")
     from deidflow.core import Finding

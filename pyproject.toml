@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "deidflow"
-version = "0.5.0b1"
+version = "0.6.0b1"
 description = "Local-first Spanish and Mexican sensitive-data detection and verified transformations"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -76,8 +76,15 @@ include = [
     "/examples",
     "/scripts",
     "/benchmarks/public-sources",
+    "/benchmarks/results",
+    "/benchmarks/context-cases-es.jsonl",
+    "/AGENTS.md",
+    "/CLAUDE.md",
     "/README.md",
     "/CHANGELOG.md",
+    "/CONTRIBUTING.md",
+    "/requirements-constraints-windows-py311.txt",
+    "/requirements-lock-windows-py311.txt",
     "/SECURITY.md",
     "/LICENSE",
     "/NOTICE",

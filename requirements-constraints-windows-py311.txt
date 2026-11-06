@@ -28,7 +28,7 @@ cymem==2.0.16
 defusedxml==0.7.1
 faker==40.44.0
 filelock==4.2.9
-google-auth==2.62.0
+google-auth==2.62.1
 google-auth-oauthlib==1.5.0
 h11==0.16.0
 httpcore==1.0.9
@@ -64,7 +64,7 @@ platformdirs==4.14.3
 pluggy==1.7.0
 polars==1.44.2
 polars-runtime-32==1.44.2
-preshed==3.0.13
+preshed==3.0.15
 presidio-analyzer==2.2.366
 psutil==7.2.2
 py-serializable==2.1.0

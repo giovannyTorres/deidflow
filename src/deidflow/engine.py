@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Any
 
 from deidflow.core import DocumentGraph, Finding
-from deidflow.detectors import RuleDetector, fuse
+from deidflow.detectors import CORE_RULES_VERSION, RuleDetector, fuse
 from deidflow.placeholders import PLACEHOLDER, PlaceholderAllocator, canonical_placeholder
 from deidflow.policies import Policy
 from deidflow.structured import dataframe_columns, profile_column, profile_table, scan_cell
@@ -106,17 +106,26 @@ def _countries(country: str | Iterable[str]) -> frozenset[str] | None:
 
 def _source_review_issues(findings: Iterable[Finding], policy: Policy) -> list[str]:
     """Retain source uncertainty without keeping sensitive spans across batches."""
-    uncertain = boundary = False
+    uncertain = boundary = refined = context_refined = coordinated = False
     for finding in findings:
         uncertain |= finding.score < policy.review_below
         boundary |= "window_boundary" in finding.context
-        if uncertain and boundary:
+        refined |= "domain_boundary_refinement" in finding.context
+        context_refined |= "domain_context_refinement" in finding.context
+        coordinated |= "person_coordination_split" in finding.context
+        if uncertain and boundary and refined and context_refined and coordinated:
             break
     issues = []
     if uncertain:
         issues.append("UNCERTAIN_SOURCE_FINDINGS")
     if boundary:
         issues.append("UNRESOLVED_MODEL_WINDOW_BOUNDARY")
+    if refined:
+        issues.append("DOMAIN_BOUNDARY_REFINED")
+    if context_refined:
+        issues.append("DOMAIN_CONTEXT_REFINED")
+    if coordinated:
+        issues.append("PERSON_COORDINATION_SPLIT")
     return issues
 
 
@@ -145,6 +154,7 @@ class DeidEngine:
         performance: str = "balanced",
         offline: bool = True,
         nlp: Any = None,
+        model_digest: str | None = None,
         recognizers: Iterable[Any] = (),
         key: bytes | None = None,
         tenant_id: str | None = None,
@@ -161,6 +171,13 @@ class DeidEngine:
     ) -> None:
         if language != "es":
             raise ValueError("Only Spanish-language detection is implemented")
+        if model_digest is not None and (
+            not isinstance(model_digest, str)
+            or len(model_digest) != 64
+            or any(character not in "0123456789abcdef" for character in model_digest)
+        ):
+            raise ValueError("Model digest must be a lowercase SHA-256 identifier")
+        self.model_digest = model_digest
         self.countries = _countries(country)
         if offline is not True:
             raise ValueError("DeidFlow supports only local offline inference")
@@ -369,8 +386,11 @@ class DeidEngine:
         issues: list[str] | None = None,
         domain: str | None = None,
         independent_check_checked: bool = False,
+        human_reviewed: bool = False,
     ) -> Result:
         problems = list(issues or [])
+        if policy.require_human_review and human_reviewed is not True:
+            problems.append("HUMAN_REVIEW_REQUIRED")
         if policy.independent_check != "none" and not independent_check_checked:
             problems.append("INDEPENDENT_CHECK_REQUIRES_REVIEW")
         if not complete:
@@ -403,6 +423,8 @@ class DeidEngine:
             audit={
                 "verification": "reread_and_rescan",
                 "model": "rules+adapter" if self.nlp else "rules_only",
+                "model_sha256": self.model_digest,
+                "rules_version": CORE_RULES_VERSION,
                 "policy": policy.name,
                 "policy_sha256": policy.fingerprint(),
                 "domain": domain,
@@ -652,6 +674,7 @@ class DeidEngine:
                         len(text),
                         profile.score,
                         "schema.column",
+                        model_version=profile.model_version,
                         protected=True,
                     )
                     transformed, mappings = transform_text(
@@ -1164,11 +1187,11 @@ class DeidEngine:
                 for m in mappings
             ]
 
-        output_text, report = rewrite_html(source.read_bytes().decode("utf-8"), rewrite)
-        output.write_bytes(output_text.encode("utf-8"))
         try:
+            output_text, report = rewrite_html(source.read_bytes().decode("utf-8"), rewrite)
+            output.write_bytes(output_text.encode("utf-8"))
             graph = self.read(output)
-        except DocumentError:
+        except (DocumentError, ValueError):
             return Result(ReleaseStatus.BLOCKED, issues=["MALFORMED_INPUT"])
         residual: list[Finding] = []
         for batch in _batches(graph.fragments, 32):
@@ -1249,6 +1272,7 @@ class DeidEngine:
                 rewrite_html=lambda text: rewrite_html(text, rewrite)[0],
                 key=self.key or secrets.token_bytes(32),
                 remove_media=office_media == "remove",
+                max_bytes=self.max_bytes,
             )
             output.write_bytes(data)
             graph = self.read(output)
@@ -1258,9 +1282,16 @@ class DeidEngine:
             _SHARED_DOCUMENT.reset(shared)
         residual: list[Finding] = []
         for batch in _batches(graph.fragments, 32):
-            residual.extend(
-                f for items in self._rescan_texts([x.text for x in batch], allocator) for f in items
-            )
+            rescanned = self._rescan_texts([fragment.text for fragment in batch], allocator)
+            for fragment, findings in zip(batch, rescanned, strict=True):
+                generated = report._generated_spans(fragment)
+                residual.extend(
+                    finding
+                    for finding in findings
+                    if not any(
+                        start <= finding.start and finding.end <= end for start, end in generated
+                    )
+                )
         result = self._gate(
             policy=policy,
             residual=residual,
@@ -1338,6 +1369,7 @@ class DeidEngine:
                         len(value),
                         profile.score,
                         "schema.column",
+                        model_version=profile.model_version,
                         protected=True,
                     )
                     originals.append(finding)

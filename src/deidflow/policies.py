@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import asdict, dataclass, field, fields
+from dataclasses import asdict, dataclass, field, fields, replace
 from pathlib import Path
 from typing import Any
 
@@ -65,6 +65,7 @@ class Policy:
     allow_residual_types: tuple[str, ...] = ()
     token_scope: str = "document"
     independent_check: str = "none"
+    require_human_review: bool = False
 
     def __post_init__(self) -> None:
         if not isinstance(self.name, str) or not self.name or len(self.name) > 128:
@@ -78,6 +79,7 @@ class Policy:
             raise ValueError("Invalid token scope")
         if (
             type(self.require_ner) is not bool
+            or type(self.require_human_review) is not bool
             or type(self.review_below) not in {int, float}
             or not 0 <= self.review_below <= 1
         ):
@@ -116,23 +118,28 @@ class Policy:
         return cls(name="strict_pdf", default=Rule("redact"), require_ner=require_ner)
 
     @classmethod
-    def llm(
+    def context(
         cls,
         *,
         require_ner: bool = True,
         keep_clinical: bool = True,
         verify_proper_nouns: bool = True,
     ) -> Policy:
-        """Context-preserving preset for sending text to an LLM.
+        """Local context-preserving pseudonymization with Spanish placeholders.
 
         Identifiers become indexed, role-aware placeholders (``[PERSONA_1]``,
         ``[MEDICO_1]``, ``[LUGAR_1]``); ages are bucketed; sex/gender mentions are
         kept. With ``keep_clinical`` the clinical content itself (diagnoses,
-        conditions, treatments, medications) is kept so the model can reason about
-        it once the subject is de-identified; set it to ``False`` to replace it too.
+        conditions, treatments, medications) is retained for analysis; set it to
+        ``False`` to replace it too. Retained health information and relationships
+        remain sensitive: pseudonymization does not establish anonymity.
         ``verify_proper_nouns`` adds a text-only review heuristic. Other formats
         require review instead of silently bypassing this check.
         """
+        if any(
+            type(value) is not bool for value in (require_ner, keep_clinical, verify_proper_nouns)
+        ):
+            raise ValueError("Context policy switches must be booleans")
         keep = Rule("keep")
         entities = {"DEMOGRAPHIC": keep, "AGE": Rule("bucket", width=10)}
         if keep_clinical:
@@ -151,12 +158,36 @@ class Policy:
                 }
             )
         return cls(
-            name="llm",
+            name="context",
             default=Rule("indexed"),
             entities=entities,
             require_ner=require_ner,
             token_scope="session",
             independent_check="proper_nouns" if verify_proper_nouns else "none",
+            require_human_review=True,
+        )
+
+    @classmethod
+    def llm(
+        cls,
+        *,
+        require_ner: bool = True,
+        keep_clinical: bool = True,
+        verify_proper_nouns: bool = True,
+    ) -> Policy:
+        """Compatibility preset; no LLM is loaded or called.
+
+        New applications should use :meth:`context`. The legacy name and policy
+        fingerprint are preserved for existing callers and encrypted vaults.
+        """
+        return replace(
+            cls.context(
+                require_ner=require_ner,
+                keep_clinical=keep_clinical,
+                verify_proper_nouns=verify_proper_nouns,
+            ),
+            name="llm",
+            require_human_review=False,
         )
 
     def rule(self, entity_type: str, domain: str | None = None) -> Rule:
@@ -165,9 +196,14 @@ class Policy:
         return self.entities.get(entity_type, self.default)
 
     def fingerprint(self) -> str:
+        configuration = asdict(self)
+        # Preserve fingerprints for pre-0.6 policies that had no human-review
+        # setting. Supervised policies carry the new setting in their identity.
+        if not self.require_human_review:
+            configuration.pop("require_human_review")
         return hashlib.sha256(
             json.dumps(
-                asdict(self), sort_keys=True, separators=(",", ":"), ensure_ascii=True
+                configuration, sort_keys=True, separators=(",", ":"), ensure_ascii=True
             ).encode()
         ).hexdigest()
 

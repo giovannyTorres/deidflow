@@ -1,13 +1,13 @@
-"""Read and rewrite HTML documents by source offsets, keeping the markup intact.
+"""Read and rewrite a conservative static HTML subset by source offsets.
 
 Visible text is scanned as one stream (block elements separate lines, table
 cells are separated by spaces), so ``<td>Nombre:</td><td>Ana</td>`` gives the
 rules their label context. Replacements are placed in the original source at
 exact offsets; character references inside a replaced value are replaced whole.
-Attribute values that carry content (``alt``, ``title``, ``value``, ``href``,
-``content``, ``placeholder``, ``aria-label``, ``data-*``...) are scanned and
-rewritten one by one. Comments, scripts, embedded ``data:`` images and
-``<iframe srcdoc>`` are removed by the writer, since none can be verified.
+Content attributes are scanned and rewritten one by one. Unsupported names,
+active/resource attributes, declarations and CSS outside a small static grammar
+are removed. Unknown elements and ambiguous raw-text syntax are rejected. This
+module does not claim the semantics of a browser or a general CSS parser.
 """
 
 from __future__ import annotations
@@ -17,6 +17,7 @@ import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from html.parser import HTMLParser
+from urllib.parse import unquote, urlsplit
 
 # rewrite(text) -> (output, [(source_start, source_end, replacement), ...])
 Rewrite = Callable[[str], tuple[str, list[tuple[int, int, str]]]]
@@ -28,14 +29,51 @@ BLOCK = frozenset(
      "tbody", "tfoot", "thead", "title", "tr", "ul"}
 )  # fmt: skip
 CELL = frozenset({"td", "th", "option", "label"})
+# This is a static document subset, not a browser/CSS execution engine. Unknown
+# names are not harmless metadata: they can themselves contain identifiers.
+TAGS = BLOCK | CELL | frozenset(
+    {"a", "abbr", "b", "bdi", "bdo", "caption", "code", "col", "colgroup", "data",
+     "del", "details", "dfn", "em", "i", "img", "input", "ins", "kbd", "legend",
+     "mark", "meta", "q", "s", "samp", "select", "small", "span", "strong", "sub",
+     "summary", "sup", "textarea", "time", "u", "var", "wbr", "script", "style",
+     "iframe", "object", "embed", "link"}
+)  # fmt: skip
 CONTENT_ATTRIBUTES = frozenset(
-    {"alt", "title", "value", "href", "content", "placeholder", "aria-label", "label",
-     "summary", "abbr", "cite", "action", "srcset", "poster", "download", "src", "data",
-     "background", "longdesc", "formaction", "ping", "manifest", "codebase", "xlink:href",
-     "imagesrcset", "style"}
+    {"alt", "title", "value", "content", "placeholder", "aria-label", "label", "summary",
+     "abbr", "href", "cite", "longdesc"}
+)  # fmt: skip
+_NUMERIC_ATTRIBUTES = frozenset({"width", "height", "colspan", "rowspan", "span", "size"})
+_BOOLEAN_ATTRIBUTES = frozenset({"checked", "disabled", "selected", "multiple", "readonly"})
+_ENUM_ATTRIBUTES = {
+    "dir": {"ltr", "rtl", "auto"},
+    "lang": {"es", "en", "fr", "de", "it", "pt", "ca", "eu", "gl"},
+    "charset": {"utf-8"},
+    "type": {
+        "text",
+        "password",
+        "email",
+        "tel",
+        "number",
+        "date",
+        "checkbox",
+        "radio",
+        "submit",
+        "reset",
+        "button",
+        "hidden",
+    },
+    "align": {"left", "right", "center", "justify"},
+    "valign": {"top", "middle", "bottom", "baseline"},
+    "scope": {"row", "col", "rowgroup", "colgroup"},
+}
+_URL_ATTRIBUTES = frozenset({"href", "cite", "longdesc"})
+_ACTIVE_ATTRIBUTES = frozenset(
+    {"src", "srcset", "poster", "data", "background", "action", "formaction", "ping",
+     "manifest", "codebase", "xlink:href", "imagesrcset", "srcdoc", "http-equiv"}
 )  # fmt: skip
 # A data: URL with a payload (images, SVG, documents) cannot be verified by text scanning.
 _DATA_SCHEME = re.compile(r"(?<![\w-])data:", re.IGNORECASE)
+_COMMENT_CLOSE = re.compile(r"--!?>")
 
 
 def has_data_payload(value: str) -> bool:
@@ -72,6 +110,129 @@ _ATTRIBUTE = re.compile(
 )
 
 
+def _safe_css(css: str, *, stylesheet: bool) -> bool:
+    """Recognize a small static formatting grammar; do not interpret arbitrary CSS.
+
+    Escapes, comments, identifiers in selectors, URLs, generated content, custom
+    properties and extension syntax are removed as a unit. Regex extraction of
+    string literals cannot establish coverage of a CSS document.
+    """
+    if len(css) > 65_536 or any(token in css for token in ("\\", "/*", "@", '"', "'")):
+        return False
+    lengths = {
+        "padding",
+        "padding-top",
+        "padding-bottom",
+        "padding-left",
+        "padding-right",
+        "margin",
+        "margin-top",
+        "margin-bottom",
+        "margin-left",
+        "margin-right",
+        "width",
+        "height",
+        "min-width",
+        "max-width",
+        "font-size",
+        "line-height",
+        "border-width",
+        "border-spacing",
+        "text-indent",
+    }
+    enums = {
+        "text-align": {"left", "right", "center", "justify"},
+        "font-weight": {
+            "normal",
+            "bold",
+            "100",
+            "200",
+            "300",
+            "400",
+            "500",
+            "600",
+            "700",
+            "800",
+            "900",
+        },
+        "font-style": {"normal", "italic", "oblique"},
+        "font-family": {
+            "serif",
+            "sans-serif",
+            "monospace",
+            "arial",
+            "times new roman",
+            "verdana",
+            "helvetica",
+        },
+        "display": {"block", "inline", "inline-block", "table", "table-cell", "none"},
+        "border-collapse": {"collapse", "separate"},
+        "border-style": {"none", "solid", "dotted", "dashed", "double"},
+        "white-space": {"normal", "nowrap", "pre", "pre-wrap", "pre-line"},
+        "vertical-align": {"top", "middle", "bottom", "baseline"},
+        "text-decoration": {"none", "underline", "line-through", "overline"},
+    }
+    colors = {
+        "black",
+        "white",
+        "red",
+        "green",
+        "blue",
+        "gray",
+        "grey",
+        "yellow",
+        "orange",
+        "purple",
+        "navy",
+        "teal",
+        "transparent",
+        "inherit",
+    }
+
+    def declarations(value: str) -> bool:
+        for declaration in value.split(";"):
+            if not declaration.strip():
+                continue
+            name, separator, raw = declaration.partition(":")
+            name, raw = name.strip().lower(), raw.strip().lower()
+            if not separator:
+                return False
+            if name in lengths and re.fullmatch(
+                r"(?:0|[0-9]{1,4}(?:\.[0-9]{1,3})?(?:px|pt|em|rem|%))(?:\s+(?:0|[0-9]{1,4}(?:\.[0-9]{1,3})?(?:px|pt|em|rem|%))){0,3}",
+                raw,
+            ):
+                continue
+            if name in enums and raw in enums[name]:
+                continue
+            if name in {"color", "background-color", "border-color"} and (
+                raw in colors or re.fullmatch(r"#[0-9a-f]{3}(?:[0-9a-f]{3})?", raw)
+            ):
+                continue
+            return False
+        return True
+
+    if not stylesheet:
+        return declarations(css)
+    cursor = 0
+    rule = re.compile(r"([^{}]+)\{([^{}]*)\}")
+    while cursor < len(css):
+        while cursor < len(css) and css[cursor].isspace():
+            cursor += 1
+        if cursor == len(css):
+            return True
+        match = rule.match(css, cursor)
+        if match is None:
+            return False
+        cursor = match.end()
+        for selector in match.group(1).split(","):
+            tags = selector.strip().split()
+            if not tags or any(tag not in TAGS for tag in tags):
+                return False
+        if not declarations(match.group(2)):
+            return False
+    return True
+
+
 @dataclass
 class Segment:
     start: int  # raw source offsets
@@ -90,6 +251,7 @@ class Markup:
     css: list[tuple[int, int, str]] = field(default_factory=list)  # <style> values, raw span
     comments: list[str] = field(default_factory=list)
     scripts: list[str] = field(default_factory=list)
+    canonical: list[tuple[int, int, str]] = field(default_factory=list)
 
     def text(self) -> str:
         return "".join(s if isinstance(s, str) else s.text for s in self.segments)
@@ -106,10 +268,27 @@ class _Parser(HTMLParser):
         self.result = Markup()
         self.raw_mode: str | None = None  # script/style element being read
         self.raw_start = 0
+        self.events = 0
 
     def _offset(self) -> int:
         line, column = self.getpos()
         return self.lines[line - 1] + column
+
+    def parse_comment(self, i: int, report: bool = True) -> int:
+        # Older supported CPython patch releases do not recognize HTML's --!>
+        # terminator. Own this boundary so they neither expose comment bodies as
+        # visible text nor consume following prose until a later --> comment.
+        raw = self.rawdata
+        if not raw.startswith("<!--", i) or raw.startswith(("<!-->", "<!--->"), i):
+            raise ValueError("Unsupported HTML comment boundary")
+        closing = _COMMENT_CLOSE.search(raw, i + 4)
+        if closing is None:
+            # parse() supplies the entire source in one feed; incomplete input
+            # must not fall back to HTMLParser's final handle_data callback.
+            raise ValueError("Unclosed HTML comment")
+        if report:
+            self.handle_comment(raw[i + 4 : closing.start()])
+        return closing.end()
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         start = self._offset()
@@ -119,16 +298,25 @@ class _Parser(HTMLParser):
             self.raw_mode, self.raw_start = tag, start
 
     def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag in {"script", "style"}:
+            raise ValueError("Unsupported self-closing raw-text element")
         start = self._offset()
         self._tag(tag, start, self.get_starttag_text() or "")
 
     def _tag(self, tag: str, start: int, raw: str) -> None:
+        self.events += 1
+        if self.events > 100_000 or tag not in TAGS:
+            raise ValueError("Unsupported HTML element or element limit exceeded")
         if tag in BLOCK:
             self.result.segments.append("\n")
         elif tag in CELL:
             self.result.segments.append(" ")
         name_end = len(tag) + 1
+        cursor = name_end
         for match in _ATTRIBUTE.finditer(raw, name_end, max(name_end, len(raw) - 1)):
+            if raw[cursor : match.start()].strip():
+                raise ValueError("Unsupported HTML attribute syntax")
+            cursor = match.end()
             name = match.group(1).lower()
             for group in (2, 3, 4):
                 if match.group(group) is not None:
@@ -136,18 +324,57 @@ class _Parser(HTMLParser):
                     value_end = start + match.end(group)
                     break
             else:
+                if name not in _BOOLEAN_ATTRIBUTES:
+                    self.result.removable.append(
+                        (start + match.start(), start + match.end(), "attribute")
+                    )
                 continue
             value = html.unescape(self.source[value_start:value_end])
-            if has_data_payload(value):
-                self.result.removable.append((value_start, value_end, "embedded_data"))
-            elif tag == "iframe" and name == "srcdoc":
-                self.result.removable.append((value_start, value_end, "iframe_srcdoc"))
-            elif name in CONTENT_ATTRIBUTES or name.startswith("data-"):
+            attribute_span = (start + match.start(), start + match.end())
+            if name in _ACTIVE_ATTRIBUTES or name.startswith("on"):
+                reason = "embedded_data" if has_data_payload(value) else "attribute"
+                if name == "srcdoc":
+                    reason = "iframe_srcdoc"
+                self.result.removable.append((*attribute_span, reason))
+            elif name == "style":
+                if not _safe_css(value, stylesheet=False):
+                    self.result.removable.append((*attribute_span, "css"))
+            elif name in CONTENT_ATTRIBUTES:
+                if name in _URL_ATTRIBUTES:
+                    for _ in range(3):
+                        decoded = unquote(value, errors="strict")
+                        if decoded == value:
+                            break
+                        value = decoded
+                    # Browser URL parsing ignores embedded ASCII whitespace and
+                    # controls; inspect the same normalized scheme before keeping it.
+                    value = re.sub(r"[\x00-\x20\x7f]", "", value)
+                    if re.search(r"%[0-9a-fA-F]{2}", value) or urlsplit(
+                        value
+                    ).scheme.lower() not in {"", "http", "https", "mailto", "tel"}:
+                        self.result.removable.append((*attribute_span, "attribute"))
+                        continue
                 self.result.attributes.append((value_start, value_end, name, value))
+            elif name in _ENUM_ATTRIBUTES and value.lower() in _ENUM_ATTRIBUTES[name]:
+                self.result.canonical.append((value_start, value_end, value.lower()))
+            elif name in _NUMERIC_ATTRIBUTES and re.fullmatch(r"[0-9]{1,4}%?", value):
+                pass
+            elif name in _BOOLEAN_ATTRIBUTES and value in {"", name}:
+                pass
+            else:
+                self.result.removable.append((*attribute_span, "attribute"))
+        if raw[cursor:-1].strip() not in {"", "/"}:
+            raise ValueError("Unsupported HTML attribute syntax")
 
     def handle_endtag(self, tag: str) -> None:
+        if tag not in TAGS:
+            raise ValueError("Unsupported HTML element")
+        start = self._offset()
+        end = self.source.find(">", start) + 1
+        if end <= start:
+            raise ValueError("Malformed HTML end tag")
+        self.result.canonical.append((start, end, f"</{tag}>"))
         if self.raw_mode == tag:
-            end = self.source.find(">", self._offset()) + 1
             if tag == "script":
                 self.result.removable.append((self.raw_start, end, "script"))
             self.raw_mode = None
@@ -162,14 +389,8 @@ class _Parser(HTMLParser):
             self.result.scripts.append(data)
             return
         if self.raw_mode == "style":
-            for match in _CSS_VALUE.finditer(data):
-                group = next(g for g in (1, 2, 3) if match.group(g) is not None)
-                value = match.group(group)
-                begin, end = start + match.start(group), start + match.end(group)
-                if has_data_payload(value):
-                    self.result.removable.append((begin, end, "embedded_data"))
-                else:
-                    self.result.css.append((begin, end, value))
+            if not _safe_css(data, stylesheet=True):
+                self.result.removable.append((start, start + len(data), "css"))
             return
         self.result.segments.append(Segment(start, start + len(data), data, True))
 
@@ -199,15 +420,48 @@ class _Parser(HTMLParser):
 
     def handle_comment(self, data: str) -> None:
         start = self._offset()
-        end = self.source.find("-->", start) + 3
+        if self.source.startswith("<!--", start):
+            body_end = start + 4 + len(data)
+            if self.source.startswith("-->", body_end):
+                end = body_end + 3
+            elif self.source.startswith("--!>", body_end):
+                end = body_end + 4
+            else:
+                raise ValueError("Unsupported HTML comment boundary")
+        else:
+            # HTMLParser reports bogus <! ... > and </ ... > declarations as
+            # comments. Derive their exact boundary from the callback's data,
+            # never search onward and accidentally erase clinical prose.
+            end = start + 2 + len(data)
+            if self.source[end : end + 1] != ">":
+                raise ValueError("Unsupported HTML comment boundary")
+            end += 1
         self.result.comments.append(data)
-        self.result.removable.append((start, end if end > 2 else len(self.source), "comment"))
+        self.result.removable.append((start, end, "comment"))
+
+    def handle_decl(self, decl: str) -> None:
+        self._discard_declaration()
+
+    def unknown_decl(self, data: str) -> None:
+        self._discard_declaration()
+
+    def handle_pi(self, data: str) -> None:
+        self._discard_declaration()
+
+    def _discard_declaration(self) -> None:
+        start = self._offset()
+        end = self.source.find(">", start) + 1
+        if end <= start:
+            raise ValueError("Malformed HTML declaration")
+        self.result.removable.append((start, end, "declaration"))
 
 
 def parse(source: str) -> Markup:
     parser = _Parser(source)
     parser.feed(source)
     parser.close()
+    if parser.raw_mode is not None:
+        raise ValueError("Unclosed HTML raw-text element")
     return parser.result
 
 
@@ -218,10 +472,10 @@ class MarkupReport:
 
 
 def rewrite_html(source: str, rewrite: Rewrite) -> tuple[str, MarkupReport]:
-    """Transformed copy of ``source``; markup outside the edited values is unchanged."""
+    """Transform content and strip unsupported channels from static markup."""
     report = MarkupReport()
     markup = parse(source)
-    edits: list[tuple[int, int, str]] = []
+    edits: list[tuple[int, int, str]] = list(markup.canonical)
     # Visible text as one stream, mapped back to raw offsets.
     spans: list[tuple[Segment, int, int]] = []
     cursor = 0
@@ -257,7 +511,7 @@ def rewrite_html(source: str, rewrite: Rewrite) -> tuple[str, MarkupReport]:
         else:
             output, mappings = rewrite(value)
             count = len(mappings)
-        if count:
+        if count or source[start:end] != html.escape(output, quote=True):
             report.transformations += count
             edits.append((start, end, html.escape(output, quote=True)))
     for start, end, value in markup.css:
@@ -266,8 +520,7 @@ def rewrite_html(source: str, rewrite: Rewrite) -> tuple[str, MarkupReport]:
             report.transformations += len(mappings)
             edits.append((start, end, _css_escape(output)))
     for start, end, reason in markup.removable:
-        replacement = "" if reason in {"comment", "script", "iframe_srcdoc"} else "data:,"
-        edits.append((start, end, replacement))
+        edits.append((start, end, ""))
         report.removed[reason] = report.removed.get(reason, 0) + 1
     return _apply(source, edits), report
 

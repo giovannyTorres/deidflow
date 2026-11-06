@@ -117,9 +117,11 @@ def test_legitimate_values_on_following_line_remain_detected(text, kind):
 
 
 def test_updated_rules_refuse_old_calibration_provenance():
+    from deidflow.detectors import CORE_RULES_VERSION
     from deidflow.training import ScoreCalibrator
 
     finding = DeidEngine().scan_text("a@example.test")[0]
-    assert finding.model_version == "rules-0.2"
-    with pytest.raises(ValueError, match="provenance"):
-        ScoreCalibrator("rules.es_MX", "rules-0.1", 1.0, 0.0, 100).apply(finding)
+    assert finding.model_version == CORE_RULES_VERSION == "rules-0.6"
+    for version in ("rules-0.1", "rules-0.2"):
+        with pytest.raises(ValueError, match="provenance"):
+            ScoreCalibrator("rules.es_MX", version, 1.0, 0.0, 100).apply(finding)

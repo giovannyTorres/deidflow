@@ -32,6 +32,9 @@ from .international import (
     network_candidates,
     phone_candidates,
 )
+from .narrative import coordinated_person_spans
+
+CORE_RULES_VERSION = "rules-0.6"
 
 
 class Detector(Protocol):
@@ -168,10 +171,45 @@ _NAME_FIELD = re.compile(
     _FLAGS,
 )
 _HONORIFIC = re.compile(r"\b(?:Sr\.?|Sra\.?|Dr\.?|Dra\.?)\s+(?P<value>" + _NAME_VALUE + r")")
+_NEXT_FORM_FIELD = (
+    r"\b(?:nombre(?:[ \t]+completo)?|apellidos|paciente(?:[ \t]+id)?|cliente(?:[ \t]+id)?|"
+    r"titular|beneficiari[oa]|domicilio|direcci[oó]n|address|"
+    r"tel[eé]fono|tel\.?|m[oó]vil|celular|phone|fax|correo(?:[ \t]+electr[oó]nico)?|e-?mail|"
+    r"tipo[ \t]+de[ \t]+sangre|grupo[ \t]+sangu[ií]neo|factor[ \t]+rh|"
+    r"fecha[ \t]+de[ \t]+nacimiento|nacimiento|edad|sexo|g[eé]nero|"
+    r"diagn[oó]stico|medicaci[oó]n|tratamiento|alergias|importe|monto|saldo|"
+    r"cuenta(?:[ \t]+bancaria)?|clabe|rfc|curp|pasaporte|expediente|contrato)[ \t]*[:=]"
+)
+_FORM_FIELD = re.compile(_NEXT_FORM_FIELD, _FLAGS)
+
+
+def address_field_boundary(text: str, start: int, end: int) -> int:
+    """Bound an address before an explicit next field, even a clipped header.
+
+    The short lookahead verifies the entire header and colon in source text;
+    it never cuts on a period or an unlabelled capitalized street word alone.
+    """
+    for match in _FORM_FIELD.finditer(text, start, min(len(text), end + 80)):
+        if match.start() >= end:
+            break
+        if match.start() > start:
+            boundary = match.start()
+            while boundary > start and text[boundary - 1] in " \t\r\n.,;":
+                boundary -= 1
+            if boundary > start:
+                return boundary
+    return end
+
+
+# An explicit next field ends this address. Periods inside Av., C.P., street
+# names and apartment designations remain part of it, as do postal/locality
+# continuation fields. A tempered bounded pattern also permits finding a second
+# address label on the same line instead of consuming it in the first match.
+_ADDRESS_CHAR = rf"(?:(?!{_NEXT_FORM_FIELD})[^\n;])"
 _ADDRESS = re.compile(
     r"\b(?:domicilio|direcci[óo]n|address)\s*[:=]\s*(?P<value>"
     + _VALUE_NOT_LABEL
-    + r"[^\n;]{4,180}(?:\r?\n[ \t]*(?:(?:col(?:onia)?\.?|C\.?\s*P\.?|c[óo]digo\s+postal|alcald[íi]a|municipio|ciudad|estado)\b[^\n;]{1,120})){0,4})",
+    + rf"{_ADDRESS_CHAR}{{4,180}}(?:\r?\n[ \t]*(?:(?:col(?:onia)?\.?|C\.?\s*P\.?|c[óo]digo\s+postal|alcald[íi]a|municipio|ciudad|estado)\b{_ADDRESS_CHAR}{{1,120}})){{0,4}})",
     _FLAGS,
 )
 _STREET = re.compile(
@@ -196,6 +234,11 @@ _HEALTH_SUBJECT = re.compile(
 _AGE = re.compile(r"\b(?:edad|age)\s*[:=]?\s*(?P<value>[0-9]{1,3})(?:\s*a[ñn]os)?\b", _FLAGS)
 _DOB_CONTEXT = re.compile(
     r"(?:fecha\s+de\s+nacimiento|nacimiento|naci[óo]|dob|date\s+of\s+birth)\s*[:=]?\s*$", _FLAGS
+)
+_BLOOD_TYPE = re.compile(
+    r"\b(?:tipo[ \t]+de[ \t]+sangre|grupo[ \t]+sangu[ií]neo)[ \t]*[:=][ \t]*"
+    r"(?P<value>(?:AB|A|B|O|0)(?:[ \t]*(?:[+-]|positivo|negativo))?)(?!\w)",
+    _FLAGS,
 )
 _PHONE_CONTEXT = re.compile(
     r"\b(?:tel[ée]fono|tel\.?|m[óo]vil|celular|phone|contacto|llamar|whatsapp)\s*[:=]?\s*$", _FLAGS
@@ -246,6 +289,7 @@ class RuleDetector:
                     "rules.es_MX",
                     validation,
                     context,
+                    model_version=CORE_RULES_VERSION,
                     risk=risk,
                     protected=protected,
                     labels=labels,
@@ -384,17 +428,51 @@ class RuleDetector:
                     if label in {"nss", "ine"}
                     else "INTERNAL_ID"
                 )
-                add(kind, *match.span("value"), 0.85, context=("explicit_field_label",))
+                start, end = match.span("value")
+                # Sentence periods are delimiters, while internal dots remain
+                # part of the identifier (for example CLI.2026.17).
+                while end > start and text[end - 1] == ".":
+                    end -= 1
+                if (
+                    kind == "CUSTOMER_ID"
+                    and text[start:end].casefold() in {"sí", "si", "no", "gracias"}
+                    and re.fullmatch(r"[ \t]*:[ \t]*", text[match.end("label") : start])
+                    and not re.search(
+                        r"(?i:(?:n[úu]mero|id|identificador)(?:[ \t]+de)?[ \t]+)$",
+                        text[max(0, match.start() - 40) : match.start()],
+                    )
+                    and re.match(r"[ \t]*[,;.!?…]", text[end:])
+                ):
+                    # A bare customer speaker label can introduce a response.
+                    # Explicit ID/number labels and longer values stay sensitive.
+                    add(
+                        "DEMOGRAPHIC",
+                        start,
+                        end,
+                        0.85,
+                        protected=False,
+                        risk="medium",
+                        context=("explicit_speaker_response", "domain_context_refinement"),
+                    )
+                    continue
+                add(kind, start, end, 0.85, context=("explicit_field_label",))
             for pattern in (_NAME, _NAME_FIELD, _HONORIFIC):
                 for match in pattern.finditer(text):
-                    add("PERSON", *match.span("value"), 0.88, context=("person_label",))
+                    spans = coordinated_person_spans(text, *match.span("value"))
+                    context = ("person_label",) + (
+                        ("person_coordination_split",) if len(spans) > 1 else ()
+                    )
+                    for start, end in spans:
+                        add("PERSON", start, end, 0.88, context=context)
             labelled_addresses: list[tuple[int, int]] = []
             candidates = list(address_candidates(text))
             for pattern in (_ADDRESS, _STREET):
                 for match in pattern.finditer(text):
                     start, end = match.span("value")
-                    while end > start and text[end - 1].isspace():
+                    while end > start and text[end - 1] in " \t\r.,":
                         end -= 1
+                    if end <= start:
+                        continue
                     if pattern is _ADDRESS:
                         add("ADDRESS", start, end, 0.85, context=("address_structure",))
                         labelled_addresses.append((start, end))
@@ -405,6 +483,10 @@ class RuleDetector:
             # Unlabelled addresses: the longest of overlapping candidates, and none
             # wholly inside an address a field label already delimited (one that
             # extends it, such as a house number on the next line, is kept).
+            candidates = [
+                replace(address, end=address_field_boundary(text, address.start, address.end))
+                for address in candidates
+            ]
             for address in _select_addresses(candidates, labelled_addresses):
                 add(
                     "ADDRESS",
@@ -450,6 +532,15 @@ class RuleDetector:
                     protected=False,
                     context=("age_label",),
                 )
+            for match in _BLOOD_TYPE.finditer(text):
+                add(
+                    "MEDICAL_ATTRIBUTE",
+                    *match.span("value"),
+                    0.9,
+                    risk="medium",
+                    protected=False,
+                    context=("explicit_blood_type",),
+                )
         for recognizer in self.recognizers:
             findings.extend(recognizer.detect(text))
         if self.contextual:
@@ -463,14 +554,19 @@ class RuleDetector:
 def _select_addresses(
     candidates: list[AddressCandidate], labelled: list[tuple[int, int]]
 ) -> list[AddressCandidate]:
-    """Longest-first non-overlapping candidates, in O(n log n) plus list inserts."""
+    """Longest-first non-overlapping candidates in O(n log n).
+
+    A compressed prefix-max index detects any already selected interval whose
+    start is before the candidate end and whose end exceeds its start. Updates
+    and queries are logarithmic, including adversarial longest-first order.
+    """
     covering = sorted(labelled)
     furthest: list[int] = []  # furthest end of a labelled span starting at or before i
     for _, end in covering:
         furthest.append(max(end, furthest[-1]) if furthest else end)
     starts = [start for start, _ in covering]
-    chosen_starts: list[int] = []
-    chosen_ends: list[int] = []
+    coordinates = sorted({address.start for address in candidates})
+    selected_end = [0] * (len(coordinates) + 1)
     selected: list[AddressCandidate] = []
     for address in sorted(candidates, key=lambda a: (-(a.end - a.start), -a.score, a.start)):
         if address.end <= address.start:
@@ -478,13 +574,17 @@ def _select_addresses(
         index = bisect.bisect_right(starts, address.start) - 1
         if index >= 0 and furthest[index] >= address.end:
             continue  # wholly inside a labelled address
-        position = bisect.bisect_left(chosen_starts, address.start)
-        if position < len(chosen_starts) and chosen_starts[position] < address.end:
+        position = bisect.bisect_left(coordinates, address.end)
+        furthest_selected = 0
+        while position:
+            furthest_selected = max(furthest_selected, selected_end[position])
+            position -= position & -position
+        if furthest_selected > address.start:
             continue
-        if position > 0 and chosen_ends[position - 1] > address.start:
-            continue
-        chosen_starts.insert(position, address.start)
-        chosen_ends.insert(position, address.end)
+        position = bisect.bisect_left(coordinates, address.start) + 1
+        while position < len(selected_end):
+            selected_end[position] = max(selected_end[position], address.end)
+            position += position & -position
         selected.append(address)
     return selected
 
@@ -552,4 +652,11 @@ def non_overlapping(findings: Iterable[Finding]) -> list[Finding]:
     return result
 
 
-__all__ = ["Detector", "RegexRecognizer", "RuleDetector", "fuse", "non_overlapping"]
+__all__ = [
+    "CORE_RULES_VERSION",
+    "Detector",
+    "RegexRecognizer",
+    "RuleDetector",
+    "fuse",
+    "non_overlapping",
+]

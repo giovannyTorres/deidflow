@@ -1,0 +1,59 @@
+{
+  "schema": "deidflow.environment-audit.v1",
+  "audit_scope": "Installed integration environment; editable project excluded from vulnerability service; source changes pending",
+  "python_version": "3.11.17",
+  "platform_system": "Linux",
+  "platform_machine": "x86_64",
+  "source_head": "cc28541fcff0bdd1415a40a9f973606ae62b608a",
+  "working_tree_dirty": true,
+  "tool_versions": {
+    "pip": "26.3",
+    "pip-audit": "2.10.1",
+    "build": "1.6.1",
+    "ruff": "0.17.4",
+    "mypy": "1.20.2",
+    "pytest": "9.2.0",
+    "cryptography": "50.0.2",
+    "numpy": "2.4.6",
+    "spacy": "3.8.18",
+    "pandas": "3.1.1",
+    "scikit-learn": "1.9.1",
+    "filelock": "4.2.9",
+    "thinc": "8.3.14",
+    "google-auth": "2.62.1",
+    "preshed": "3.0.15",
+    "polars": "1.44.2",
+    "polars-runtime-32": "1.44.2"
+  },
+  "environment_deidflow_distribution_version": "0.6.0b1",
+  "source_declared_version": "0.6.0b1",
+  "commands": [
+    "python -m pip check",
+    "python -m pip_audit --skip-editable --format json --output <external-audit>/dependency-audit.json",
+    "cd <external-audit> && python <checkout>/scripts/audit_licenses.py"
+  ],
+  "artifacts": {
+    "dependency-audit.json": {
+      "sha256": "60d47ecb67c132a796e359890d07a44e36190e3e24c56de5f23e9b140f9b2702",
+      "bytes": 6050
+    },
+    "docs/license-inventory.json": {
+      "sha256": "efb40fd5c11953a05d5d710d33da54066755b2a1f4cad0db29ce5c3f6cec2126",
+      "bytes": 97123
+    }
+  },
+  "result": {
+    "pip_check": "passed",
+    "known_vulnerabilities": 0,
+    "distributions_inventoried": 106,
+    "audited_dependency_entries": 106,
+    "editable_projects_skipped": [
+      "deidflow"
+    ]
+  },
+  "limits": [
+    "Package metadata inventory is not legal clearance.",
+    "Known-vulnerability service does not cover unknown vulnerabilities, native binaries or project source.",
+    "This Linux environment audit does not replace the Windows/macOS CI matrix."
+  ]
+}

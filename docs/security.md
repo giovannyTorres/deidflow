@@ -179,3 +179,23 @@ licenses are recorded separately; pip-audit does not audit those binaries.
 Faces, handwritten signatures and barcode/QR payloads are outside current text/OCR
 detection coverage. Use separately evaluated detectors or private visual review;
 successful removal of detected text does not cover these visual identifiers.
+## Context and persistent-session controls (0.6)
+
+`Policy.context()` and the domain packs require explicit human review by default.
+The review API binds decisions to the original text, policy, declared/bound model
+configuration and rebuilt output; `approve` and `source_complete` must both be
+explicitly supplied. Residual, coverage and configuration failures still prevent
+approval. Receipts can be HMAC authenticated with a caller-managed key; this
+authenticates key possession, not a reviewer's real-world identity.
+
+Session snapshots authenticate the allocator, values, graph, policy, model
+binding and expiry together. Wrong keys, unknown fields, inconsistent mappings,
+expired states and dangling graph references are rejected. Public graphs omit
+original values but remain linkable and potentially sensitive. Exact equality
+and compatible missing role/gender metadata do not prove two mentions refer to
+one real-world person; explicit conflicts and ambiguity are not silently merged.
+Keys and restored outputs must remain in the trusted local environment. Expiry
+is an API policy, not erasure or revocation of copies held with the encryption key.
+
+See [sessions](SESSIONS.md), [review](REVIEW_WORKFLOW.md) and
+[audit guide](AUDIT_GUIDE.md) for trust boundaries and reproducible checks.

@@ -66,7 +66,13 @@ def test_html_output_keeps_markup_and_removes_values(tmp_path):
     assert 'href="mailto:[EMAIL]"' in output
     assert read_document(result.output_path).complete
     removed = result.audit["markup_removed"]
-    assert removed == {"comment": 1, "embedded_data": 1, "script": 1}
+    assert removed == {
+        "attribute": 2,
+        "comment": 1,
+        "declaration": 1,
+        "embedded_data": 1,
+        "script": 1,
+    }
 
 
 def test_character_references_are_replaced_whole():

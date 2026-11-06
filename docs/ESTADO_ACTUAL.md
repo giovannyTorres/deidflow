@@ -1,6 +1,39 @@
-# DeidFlow: estado del proyecto (candidata beta v0.5.0b1)
+# DeidFlow: estado del proyecto (candidata v0.6.0b1)
 
-## Consolidación de ramas, 6 de noviembre de 2026
+## Producto en español con contexto e identidad
+
+La candidata 0.6 incorpora paquetes clínico, financiero, jurídico inicial y
+general; marcadores españoles; sesiones cifradas reanudables; grafos de menciones
+y relaciones explícitas; revisión humana con recibos verificables; y
+postentrenamiento local con evaluación de regresiones antes de promoción.
+Los paquetes y `Policy.context()` exigen revisión humana por código. Todo se
+ejecuta localmente, sin LLMs ni servicios de pago, manteniendo Apache-2.0.
+
+La identidad se conserva por valor exacto con contexto compatible, sin adivinar
+alias ni unir personas con roles explícitamente contradictorios. Las correcciones
+de contexto conservan marcadores de incertidumbre hasta la revisión. El paquete
+jurídico usa el modelo general y reglas específicas; no se presenta como un
+especialista validado con expedientes jurídicos reales.
+
+El modelo general se incorporó tras reproducir la evaluación publicada en el
+PR #25. También se conserva el trabajo concurrente de HTML y correo de los PR #26 y #28,
+con controles adicionales sobre sintaxis, atributos, cabeceras y adjuntos.
+También se incorporan las direcciones de #27 y el rendimiento HTML de #29,
+con correcciones de límites y pruebas adversariales. La
+[revisión actual de 24 ramas](BRANCH_REVIEW_v060.md) incluye las decisiones de
+compatibilidad de dependencias.
+La integración posterior de #30 actualiza el modelo general a su segunda
+revisión; los paquetes general y jurídico pasan a 1.1.0, con hash verificado
+y comparación sobre los mismos textos de regresión.
+
+Para comprobar la entrega: [contrato de producto](PRODUCT_ACCEPTANCE.md),
+[sesiones](SESSIONS.md), [paquetes](DOMAIN_PACKS.md),
+[revisión](REVIEW_WORKFLOW.md), [postentrenamiento](POST_TRAINING.md) y
+[guía de auditoría](AUDIT_GUIDE.md). Los resultados de regresión y su separación
+de evidencia representativa se documentan en [evaluación de contexto](CONTEXT_BENCHMARK.md).
+Los registros de versiones anteriores que siguen son históricos.
+
+## Consolidación de las 19 ramas (versión 0.5)
 
 Se revisaron las 19 ramas remotas existentes. La rama principal sigue siendo
 `master`; no se renombra ni se crea una publicación de PyPI al integrar código.

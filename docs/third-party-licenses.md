@@ -7,12 +7,12 @@ or legal clearance.
 
 | Component | Use | Declared upstream terms / review boundary |
 | --- | --- | --- |
-| Python | Runtime | PSF terms; local Python 3.11.9 |
-| SPACCC MEDDOCAN corpus | Training data for the packaged `es-clinical` tagger weights | **CC-BY-4.0**; attribution and change notice in `NOTICE`; no corpus text is shipped |
-| Gretel synthetic_pii_finance_multilingual | Training data for the packaged `es-finance` tagger weights (Spanish train file) and held-out evaluation | Apache-2.0; attribution and change notice in `NOTICE`; no corpus text is shipped |
+| Python | Runtime | PSF terms; current integration uses Python 3.11.17 |
+| SPACCC MEDDOCAN corpus | Training data for the packaged `es-clinical` and mixed `es-general` tagger weights | **CC-BY-4.0**; attribution and change notice in `NOTICE`; no corpus text is shipped |
+| Gretel synthetic_pii_finance_multilingual | Training data for the packaged `es-finance` and mixed `es-general` tagger weights (Spanish train file) and held-out evaluation | Apache-2.0; attribution and change notice in `NOTICE`; no corpus text is shipped |
 | NumPy | Optional tagger training/acceleration | BSD-3-Clause |
 | spaCy | Optional discriminative adapter | MIT code; model licenses are separate |
-| es_core_news_sm 3.8.0 | Private benchmark asset only | **GPL-3.0 model**, not bundled or selected by default |
+| es_core_news_sm 3.8.0 | Explicit external validation asset | **GPL-3.0 model**, not bundled or selected by default |
 | pypdf | Optional native PDF extraction | BSD-3-Clause; no PyMuPDF dependency |
 | pypdfium2 / PDFium | Optional rasterization | Apache-2.0/BSD-3-Clause wrapper; PDFium/Bundled third-party notices separately |
 | Pillow 13.0.0 | Optional image processing | MIT-CMU and bundled codec notices; see installed package licenses |
@@ -24,9 +24,9 @@ or legal clearance.
 | Joblib | Optional local model storage | BSD-3-Clause; only trusted private assets |
 | Presidio Analyzer | Optional external evaluation | MIT code; local NLP asset terms remain separate |
 | psutil / ReportLab | Benchmark measurement and generated PDFs | BSD-family terms |
-| google-auth 2.62.0 / google-auth-oauthlib 1.5.0 | Optional explicit personal-Gmail OAuth | Apache-2.0; OAuth permission scope and Google API terms are separate from the library license |
+| google-auth 2.62.1 / google-auth-oauthlib 1.5.0 | Optional explicit personal-Gmail OAuth | Apache-2.0; OAuth permission scope and Google API terms are separate from the library license |
 | requests-oauthlib 2.0.0 / OAuthlib 4.0.1 | Optional OAuth transport | ISC / BSD-3-Clause respectively |
-| cryptography 50.0.2 / cffi 2.1.1 / pycparser 3.12 | Optional Google authentication transitives | Apache-2.0 OR BSD-3-Clause / MIT-0 / BSD-3-Clause, as declared by installed distributions; preserve native component notices |
+| cryptography 50.0.2 / cffi 2.1.1 / pycparser 3.12 | Optional `vault` encryption and Google authentication dependencies | Apache-2.0 OR BSD-3-Clause / MIT-0 / BSD-3-Clause, as declared by installed distributions; preserve native component notices |
 | pyasn1 0.6.5 / pyasn1_modules 0.4.2 | Optional Google authentication transitives | BSD-2-Clause / BSD declaration with installed LICENSE.txt; preserve each upstream notice |
 | Requests 2.34.2 / urllib3 2.8.0 / charset-normalizer 3.5.2 / idna 3.20 | OAuth HTTP stack | Apache-2.0 / MIT / MIT / BSD-3-Clause |
 | certifi 2026.10.23 | TLS trust roots | MPL-2.0; distinct from the Requests/OAuth licenses |
@@ -38,7 +38,14 @@ installed license-file paths for the whole validation environment. This includes
 transitive and native distributions rather than asserting that a top-level
 license settles all redistribution obligations. Preserve the applicable license
 texts/notices if shipping a binary or vendored environment. `requirements-lock-windows-py311.txt`
-records the exact final tested environment, not a universal cross-platform lock.
+records the historical Windows environment, not a universal cross-platform lock.
+
+For 0.6, the current inventory covers 106 installed distributions in the Linux
+integration environment. [Environment metadata](environment-audit-metadata.json)
+records exact versions and audit scope. The active Windows pins are in
+`requirements-constraints-windows-py311.txt`. Optional OCR validation uses the
+available Tesseract 5.5.0 binary and explicitly pinned Spanish/English language
+assets; it does not claim to reproduce the separate 5.5.4 Windows native build.
 
 For v0.3, the inventory was regenerated from the root Windows Python 3.11
 validation environment: 108 installed distributions. The lock was regenerated
