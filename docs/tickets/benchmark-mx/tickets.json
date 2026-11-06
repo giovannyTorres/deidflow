@@ -471,10 +471,13 @@
       "draft_file": "11-corpus-contextual.md",
       "github_title": "[DF-EVAL-MX][BMX-11] Evaluar nombres, direcciones, clínica y homónimos con referencia adjudicada",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-11 -->",
-      "body_sha256": "8d885a8365ed9ef1202ccc2320830605ca971f5868d36c2efb05f14bd59c5fff",
+      "body_sha256": "b5fe51be3b33e407824e0c9f025a2d1f83d44b7317c4cfbe938668328a336bb4",
       "github_issue_number": null,
       "github_issue_url": null,
-      "implementation_status": "ready_for_implementation"
+      "implementation_status": "implemented_and_reviewed",
+      "integrated_validation_pending": true,
+      "implementation_evidence": "../../audit/BMX-11.md",
+      "reviewed_code_commit": "9b76cea6098f9d114ce94010f1a7e99a1663855e"
     },
     {
       "id": "BMX-12",
@@ -512,7 +515,7 @@
       "body_sha256": "1b8754d3977d33dd8dd4429640ab834b87b889bbcf5bd0ab6063e78cc82a4f64",
       "github_issue_number": null,
       "github_issue_url": null,
-      "implementation_status": "blocked_by_BMX-10_and_BMX-11"
+      "implementation_status": "ready_for_implementation"
     },
     {
       "id": "BMX-13",

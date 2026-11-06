@@ -85,3 +85,20 @@ con los digests finales después de la corrección de guía.
 
 La revisión fresca de Spec/Standards del código se registrará por el coordinador
 después del commit. Este acta no inventa su resultado ni cierra BMX-12.
+
+## Standards
+
+Primera revisión /root/bmx11_standards:0 infracciones y1P3 por regla de acción
+duplicada. Se compartió _action_for sin cambiar referencia/paquetes. Tras el
+arranque del entorno, revisión fresca /root/bmx11_final_standards confirmó
+0 infracciones/heurísticas y150 comparaciones equivalentes.
+
+## Spec
+
+/root/bmx11_final_spec:0 faltantes/parciales/ampliaciones/errores.29pruebas
+propias y388 expectativas cotejadas con referencia, sin discrepancias.
+
+Código final9b76cea6098f9d114ce94010f1a7e99a1663855e. Salud del paso:280
+pruebas focalizadas antes del refactor;29propias tras él, Ruff/formato270
+archivos y mypy78 pasan. Se formateó un bloque Python de documentación de10
+al ejecutar el formato global. Suite completa al integrar12.

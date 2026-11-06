@@ -5,6 +5,9 @@
 
 **Estado de publicación:** borrador; no existe número/URL de issue verificado.
 
+**Estado de implementación:** implementada y revisada; integración final del lote pendiente.
+Evidencia: [acta BMX-11](../../audit/BMX-11.md).
+
 **Tipo:** tarea técnica. **Etiqueta propuesta:** `ready-for-agent`; no aplicada.
 
 **Bloqueado por:** BMX-05, BMX-08, BMX-09.
@@ -21,7 +24,7 @@ Los IDs BMX son referencias locales, no números de GitHub. Al publicar, enlazar
 
 BMX-09 ratificada y revisada: se inicia la continuación secuencial autorizada
 del lote. Se conservan las dependencias y los criterios originales.
-[Revisión humana pendiente](../../audit/BMX-09-decisions-for-review.md).
+[Decisión operativa ratificada](../../audit/BMX-09-decisions-for-review.md).
 
 ## Qué entrega
 
@@ -29,21 +32,21 @@ Preparar casos ficticios contextuales que permitan medir tanto detección como c
 
 ## Criterios de aceptación
 
-- [ ] Cubrir nombres/direcciones mexicanos, formularios/narrativa, negaciones, dosis/cantidades y relaciones requeridas.
+- [x] Cubrir nombres/direcciones mexicanos, formularios/narrativa, negaciones, dosis/cantidades y relaciones requeridas.
 
-- [ ] Conservar spans anidados/cruzados y evidencia de límites; separar panel ambiguo no resuelto de métricas primarias.
+- [x] Conservar spans anidados/cruzados y evidencia de límites; separar panel ambiguo no resuelto de métricas primarias.
 
-- [ ] Homónimos se evalúan por mención; vinculación entre documentos solo donde la entrada aporta evidencia suficiente.
+- [x] Homónimos se evalúan por mención; vinculación entre documentos solo donde la entrada aporta evidencia suficiente.
 
-- [ ] Registrar adjudicación y guías reales; no inventar revisores ni usar al candidato como anotador de referencia.
+- [x] Registrar adjudicación y guías reales; no inventar revisores ni usar al candidato como anotador de referencia.
 
 ## Pruebas y evidencia exigidas
 
-- [ ] Casos con/sin punto en narrativa clínica, nombres que son lugares/palabras comunes y roles incompatibles.
+- [x] Casos con/sin punto en narrativa clínica, nombres que son lugares/palabras comunes y roles incompatibles.
 
-- [ ] Mismo nombre para personas distintas, continuidad explícita y alias indeterminado.
+- [x] Mismo nombre para personas distintas, continuidad explícita y alias indeterminado.
 
-- [ ] Transformación aislada comprueba contexto; auditoría impide cruce de familias/identidades vinculadas entre particiones.
+- [x] Transformación aislada comprueba contexto; auditoría impide cruce de familias/identidades vinculadas entre particiones.
 
 ## Trazabilidad
 
@@ -51,7 +54,7 @@ AC-05, AC-08 de DF-EVAL-MX v0.1.0.
 
 ## Restricciones y fuera de alcance
 
-- Esta creación de tareas no inicia la implementación.
+- La solicitud actual autorizó implementar este incremento dentro del lote BMX-03 a BMX-12.
 - El trabajo futuro se limita al sistema de evaluación; no corregir detectores, políticas ni transformadores de producción para hacer pasar el benchmark.
 - Solo datos ficticios o fuentes públicas no personales con permisos comprobados; nunca documentos personales reales ni envío a servicios externos.
 - Evaluación local, sin descargas/inferencia/telemetría remotas ni dependencias obligatorias nuevas. Cualquier adquisición o publicación requiere autorización de su tarea.

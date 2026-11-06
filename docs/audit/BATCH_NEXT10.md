@@ -1,3 +1,9 @@
+> Actualización de continuación: BMX-09 ratificada y revisada con objetivo
+> automático/global/reentrenamiento local fácil; BMX-10 y BMX-11 implementadas
+> y revisadas. BMX-12 sigue en ejecución. Las cifras que siguen son el recibo
+> histórico de la integración03–08; la continuación se verificará al final.
+> [Decisión vigente](BMX-09.md), [BMX-10](BMX-10.md), [BMX-11](BMX-11.md).
+
 # Lote solicitado BMX-03 a BMX-12
 
 **BMX-03 a BMX-08 implementadas, revisadas e integradas: seis tareas técnicas.**
