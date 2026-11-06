@@ -5,6 +5,9 @@
 
 **Estado de publicación:** borrador; no existe número/URL de issue verificado.
 
+**Estado de implementación:** implementada y revisada; integración final del lote pendiente.
+Evidencia: [acta BMX-04](../../audit/BMX-04.md).
+
 **Tipo:** tarea técnica. **Etiqueta propuesta:** `ready-for-agent`; no aplicada.
 
 **Bloqueado por:** BMX-03.
@@ -23,21 +26,21 @@ Añadir la pista local de patrón, estructura y checksum de RFC, CURP, CLABE y t
 
 ## Criterios de aceptación
 
-- [ ] Separar los tres atributos y distinguir invalid, valid, not_applicable y unknown.
+- [x] Separar los tres atributos y distinguir invalid, valid, not_applicable y unknown.
 
-- [ ] Mantener sensibilidad de referencia independiente de la validez; un checksum malo no transforma automáticamente el caso en negativo de detección.
+- [x] Mantener sensibilidad de referencia independiente de la validez; un checksum malo no transforma automáticamente el caso en negativo de detección.
 
-- [ ] Registrar origen/versión de los vectores y su comprobación independiente; no consultar titularidad ni registros reales.
+- [x] Registrar origen/versión de los vectores y su comprobación independiente; no consultar titularidad ni registros reales.
 
-- [ ] El informe mantiene métricas de validación separadas de detección y transformación.
+- [x] El informe mantiene métricas de validación separadas de detección y transformación.
 
 ## Pruebas y evidencia exigidas
 
-- [ ] Vectores válidos y alteraciones de un dígito con respuestas esperadas calculadas por referencia independiente.
+- [x] Vectores válidos y alteraciones de un dígito con respuestas esperadas calculadas por referencia independiente.
 
-- [ ] Fechas imposibles, truncados, longitudes y separadores; not_applicable no cuenta como checksum fallido.
+- [x] Fechas imposibles, truncados, longitudes y separadores; not_applicable no cuenta como checksum fallido.
 
-- [ ] El mismo valor inválido se evalúa como sensible o distractor según la referencia explícita, sin usar el score del candidato.
+- [x] El mismo valor inválido se evalúa como sensible o distractor según la referencia explícita, sin usar el score del candidato.
 
 ## Trazabilidad
 
@@ -45,7 +48,7 @@ AC-04 de DF-EVAL-MX v0.1.0.
 
 ## Restricciones y fuera de alcance
 
-- Esta creación de tareas no inicia la implementación.
+- La solicitud actual autorizó implementar este incremento dentro del lote BMX-03 a BMX-12.
 - El trabajo futuro se limita al sistema de evaluación; no corregir detectores, políticas ni transformadores de producción para hacer pasar el benchmark.
 - Solo datos ficticios o fuentes públicas no personales con permisos comprobados; nunca documentos personales reales ni envío a servicios externos.
 - Evaluación local, sin descargas/inferencia/telemetría remotas ni dependencias obligatorias nuevas. Cualquier adquisición o publicación requiere autorización de su tarea.

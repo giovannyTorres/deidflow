@@ -163,9 +163,13 @@
       "draft_file": "04-validez-independiente.md",
       "github_title": "[DF-EVAL-MX][BMX-04] Medir validez de identificadores con vectores independientes",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-04 -->",
-      "body_sha256": "119d1c584e4d35d692658fc16501f85422a6025b47d288f46a3988c730580353",
+      "body_sha256": "7ef84a007005d1edd2ec5ca628fb3c07214f0966e26fd30cc8b3baee44d95f43",
       "github_issue_number": null,
-      "github_issue_url": null
+      "github_issue_url": null,
+      "implementation_status": "implemented_and_reviewed",
+      "integrated_validation_pending": true,
+      "implementation_evidence": "../../audit/BMX-04.md",
+      "reviewed_code_commit": "5393abe64bde30c3cbf7218c9056d16ff46c856f"
     },
     {
       "id": "BMX-05",

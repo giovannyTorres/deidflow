@@ -24,7 +24,7 @@ los cambios previos de AGENTS.md, CLAUDE.md y docs/agents/.
 | Tarea | Estado del lote |
 | --- | --- |
 | BMX-03 | Implementada y revisada; 151 pruebas focalizadas pasan |
-| BMX-04 | Implementada; 177 pruebas focalizadas pasan, revisión en curso |
+| BMX-04 | Implementada y revisada; 177 pruebas focalizadas pasan |
 | BMX-05 | Pendiente |
 | BMX-06 | Pendiente |
 | BMX-07 | Pendiente |

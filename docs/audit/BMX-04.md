@@ -1,6 +1,7 @@
 # BMX-04: validez de identificadores con referencia independiente
 
-Estado: implementación focalizada verificada; revisión en curso.
+Estado: implementación focalizada y dos revisiones verificadas; integración final pendiente.
+Código revisado: `5393abe64bde30c3cbf7218c9056d16ff46c856f`.
 Base: `c95967f67014d39cc9c1050ef8d594de2aa70daf`.
 Ticket: [BMX-04](../tickets/benchmark-mx/04-validez-independiente.md).
 Contrato/uso: [pista de validez](../BENCHMARK_MX_VALIDATION.md).
@@ -29,11 +30,15 @@ inválido. Todo el material es fixture conocido; no evaluación ciega.
 
 ## Standards
 
-Pendiente revisión independiente Matt Pocock.
+Revisor independiente `/root/batch04_standards`: 0 hallazgos iniciales/finales,
+peor severidad ninguna. Verificó localmente ejemplo, canario en excepción,
+referencias inválidas, offsets booleanos y sanitización, sin editar código.
 
 ## Spec
 
-Pendiente revisión del ticket y AC-04.
+Revisor independiente `/root/batch04_spec`: 0 hallazgos iniciales/finales,
+peor severidad ninguna. Contrastó ticket/AC-04 y ejecutó los 16 vectores: dos
+discrepancias RFC declaradas y PHONE sin denominador aplicable. Sin scope creep.
 
 No se modifica API de producción, algoritmos evaluados, dependencias ni versión.
 No se ratifican D1–D3. Los formatos obligatorios de primera versión se acordaron
