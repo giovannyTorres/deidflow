@@ -204,3 +204,5 @@ verifica las revisiones exactas predeterminadas. Los manifiestos, helpers,
 fuentes, modelos y dependencias quedan fijados en el recibo. Tiempos operativos
 y hashes de informes con fecha pueden cambiar entre repeticiones; los hashes de
 las suites, anotaciones y resultados tipados deterministas conservan su contrato.
+
+El cierre integrado posterior del responsable del lote está en [INTEGRATION_CHECKS.md](INTEGRATION_CHECKS.md), con [recibo de salud](integration-health.json), intermitencias históricas conservadas y requisitos pendientes.
