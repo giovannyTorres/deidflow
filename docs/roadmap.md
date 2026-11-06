@@ -39,16 +39,22 @@ are documented in the current quality/security reports.
 
 ## Supervised tabular release workflow
 
-The local annotation interface currently stores labels for evaluation and
-training. It is not yet a complete human-correction and output-approval workflow.
-The next operational milestone is a local, single-user workflow for a known
-CSV/JSONL schema and one independently evaluated domain:
+The bounded [CSV review CLI](CSV_REVIEW.md) now connects cell/header plans,
+explicit corrections, canonical regeneration, serialized reread checks and
+authenticated source/output receipts. Candidate and approved exports are
+separate. It uses text detection per cell, not automatic schema priors, and
+requires a complete explicit human review. It has synthetic regression coverage;
+an independently evaluated operational domain is still needed.
 
-1. Connect import, detection, original/candidate comparison, manual corrections,
-   regeneration, verification and explicit export. Newly marked sensitive values
-   must disappear from the exported artifact; source changes invalidate review.
-2. Link the approval receipt to source/output hashes, policy and model versions,
-   human corrections and the reviewer without recording original values in logs.
+The next operational milestone is a local, single-user workflow for a known
+schema and one independently evaluated domain, including broader tabular use:
+
+1. Extend the bounded CSV correction/export path to the required operational
+   sizes and JSONL schema. Connect it to a private comparison/review surface;
+   preserve file and cell provenance rather than flattening structured input.
+2. Integrate authenticated reviewer identity, key lifecycle and receipt storage
+   in the host application. HMAC records authenticate key holders; their opaque
+   reviewer IDs do not independently authenticate a human.
 3. Measure residual sensitive content, retained utility and total review time
    on an authorized, independently annotated holdout. Fix acceptance thresholds
    before tuning and compare with the manual workflow.

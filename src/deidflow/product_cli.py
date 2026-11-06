@@ -19,6 +19,7 @@ from deidflow.private.security import protect
 
 _MAX_TEXT = 8 * 1024 * 1024
 _MAX_JSON = 4 * 1024 * 1024
+_MAX_CSV_JSON = 16 * 1024 * 1024
 
 
 class _Parser(argparse.ArgumentParser):
@@ -79,7 +80,7 @@ def _json(value: Any) -> bytes:
     return (json.dumps(value, ensure_ascii=False, allow_nan=False, indent=2) + "\n").encode()
 
 
-def _read_json(path: Path) -> Any:
+def _read_json(path: Path, limit: int = _MAX_JSON) -> Any:
     def pairs(items: list[tuple[str, Any]]) -> dict[str, Any]:
         if len({key for key, _ in items}) != len(items):
             raise ValueError("Duplicate JSON fields")
@@ -88,7 +89,7 @@ def _read_json(path: Path) -> Any:
     def invalid(value: str) -> NoReturn:
         raise ValueError("Nonfinite JSON values are unsupported")
 
-    return json.loads(_read(path, _MAX_JSON), object_pairs_hook=pairs, parse_constant=invalid)
+    return json.loads(_read(path, limit), object_pairs_hook=pairs, parse_constant=invalid)
 
 
 @contextmanager
@@ -148,7 +149,8 @@ def _parser() -> argparse.ArgumentParser:
     for action in ("plan", "apply", "verify"):
         sub = actions.add_parser(action)
         _pack_arguments(sub)
-        sub.add_argument("source", type=Path, help="Original UTF-8 text file")
+        sub.add_argument("source", type=Path, help="Original UTF-8 text or CSV file")
+        sub.add_argument("--format", choices=("text", "csv"), default="text")
         sub.add_argument("--output", type=Path, required=True)
         if action != "plan":
             sub.add_argument("--signing-key-file", type=Path, required=True)
@@ -229,6 +231,8 @@ def _review(args: argparse.Namespace) -> int:
     digest = engine.model_digest
     if digest is None:
         raise ValueError("Review requires a bound model manifest")
+    if args.format == "csv":
+        return _review_csv(args, engine=engine, policy=policy, digest=digest, domain=pack.name)
     source = _text(args.source)
     if args.action == "plan":
         plan = create_review_plan(
@@ -303,6 +307,144 @@ def _review(args: argparse.Namespace) -> int:
                 session.save(stage / "session.df", key=session_key)
                 _write(stage / "graph.json", _json(session.graph()))
     print(json.dumps(result.audit_dict()))
+    return 0 if result.release_approved else 2
+
+
+def _csv_distinct_paths(source: Path, output: Path) -> None:
+    """Never review the source as its own output or follow an output symlink."""
+    if output.is_symlink() or source.resolve() == output.resolve():
+        raise ValueError("CSV output must be a distinct local path")
+    if output.exists() and source.samefile(output):
+        raise ValueError("CSV output must be a distinct local file")
+
+
+def _csv_source_unchanged(path: Path, expected: bytes) -> None:
+    if _read(path, _MAX_TEXT) != expected:
+        raise ValueError("CSV source changed during review")
+
+
+def _review_csv(
+    args: argparse.Namespace, *, engine: Any, policy: Any, digest: str, domain: str
+) -> int:
+    from deidflow.csv_review import (
+        CSVReviewDecision,
+        CSVReviewPlan,
+        apply_csv_review,
+        create_csv_review_plan,
+        verify_csv_review_receipt,
+    )
+    from deidflow.review import ReviewDecision
+
+    if args.action == "apply" and (args.state is not None or args.key_file is not None):
+        raise ValueError("CSV review does not support persisted identity sessions")
+    _csv_distinct_paths(args.source, args.output)
+    source = _read(args.source, _MAX_TEXT)
+    if args.action == "plan":
+        plan = create_csv_review_plan(
+            engine, source, policy=policy, model_digest=digest, domain=domain
+        )
+        raw_plan = (plan.to_json() + "\n").encode("utf-8")
+        if len(raw_plan) > _MAX_CSV_JSON:
+            raise ValueError("CSV plan exceeds the configured limit")
+        _csv_source_unchanged(args.source, source)
+        _write(args.output, raw_plan)
+        print(
+            json.dumps(
+                {
+                    "status": "CSV_REVIEW_PLAN_CREATED",
+                    "rows": plan.row_count,
+                    "columns": plan.column_count,
+                    "spans": sum(len(cell.review.spans) for cell in plan.cells),
+                }
+            )
+        )
+        return 0
+    key = _key(args.signing_key_file)
+    if args.action == "verify":
+        output = _read(args.output, _MAX_TEXT)
+        try:
+            receipt = _read_json(args.receipt, _MAX_CSV_JSON)
+        except (ValueError, UnicodeError):
+            valid = False
+        else:
+            valid = verify_csv_review_receipt(
+                receipt,
+                source=source,
+                output=output,
+                policy=policy,
+                model_digest=digest,
+                domain=domain,
+                signing_key=key,
+            )
+        _csv_source_unchanged(args.source, source)
+        print(json.dumps({"status": "REVIEW_VERIFIED" if valid else "REVIEW_INVALID"}))
+        return 0 if valid else 2
+    plan = CSVReviewPlan.from_json(_read(args.plan, _MAX_CSV_JSON).decode("utf-8"))
+    raw_decisions = _read_json(args.decisions, _MAX_CSV_JSON)
+    if not isinstance(raw_decisions, list) or len(raw_decisions) > 20000:
+        raise ValueError("CSV review decisions must be a bounded list")
+    decisions = []
+    for item in raw_decisions:
+        if (
+            not isinstance(item, dict)
+            or set(item) != {"row", "column", "decision"}
+            or type(item["row"]) is not int
+            or type(item["column"]) is not int
+            or not isinstance(item["decision"], dict)
+        ):
+            raise ValueError("Invalid CSV review decision")
+        decisions.append(
+            CSVReviewDecision(
+                row=item["row"],
+                column=item["column"],
+                decision=ReviewDecision(**item["decision"]),
+            )
+        )
+    reviewed = apply_csv_review(
+        engine,
+        source,
+        plan,
+        decisions,
+        policy=policy,
+        model_digest=digest,
+        reviewer_id=args.reviewer_id,
+        approve=args.approve,
+        source_complete=args.source_complete,
+        signing_key=key,
+        domain=domain,
+    )
+    result = reviewed.result
+    output_bytes = reviewed.output_bytes
+    if not isinstance(output_bytes, bytes) or len(output_bytes) > _MAX_TEXT:
+        raise ValueError("CSV review did not produce a bounded output")
+    if result.release_approved and not (args.approve and args.source_complete):
+        raise ValueError("CSV approval requires explicit human attestations")
+    raw_receipt = _json(reviewed.receipt)
+    if len(raw_receipt) > _MAX_CSV_JSON:
+        raise ValueError("CSV receipt exceeds the configured limit")
+    _csv_source_unchanged(args.source, source)
+    audit = result.audit_dict()
+    audit.update(format="csv", serialized_output_verified=True, source_unchanged=True)
+    filename = "approved.csv" if result.release_approved else "candidate.csv"
+    with _bundle(args.output) as stage:
+        output_path = stage / filename
+        _write(output_path, output_bytes)
+        _write(stage / "receipt.json", raw_receipt)
+        _write(stage / "audit.json", _json(audit))
+        actual_output = _read(output_path, _MAX_TEXT)
+        if actual_output != output_bytes or not verify_csv_review_receipt(
+            _read_json(stage / "receipt.json", _MAX_CSV_JSON),
+            source=source,
+            output=actual_output,
+            policy=policy,
+            model_digest=digest,
+            domain=domain,
+            signing_key=key,
+            require_approved=False,
+        ):
+            raise ValueError("Serialized CSV review verification failed")
+        _csv_source_unchanged(args.source, source)
+    print(json.dumps(audit))
     return 0 if result.release_approved else 2
 
 
