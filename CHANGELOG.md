@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Added bounded supervised CSV review: cell-local corrections including headers,
+  file-wide indexed placeholders, canonical regeneration and reread checks,
+  source/output-bound HMAC receipts and separate candidate/approved CLI bundles.
+  Cell-level text detection requires complete human review; it does not infer
+  the schema priors of the ordinary CSV transformation pipeline.
+
 ## 0.6.0b1 - Spanish context product candidate
 
 - Added versioned clinical, financial, legal starter and general domain packs,
