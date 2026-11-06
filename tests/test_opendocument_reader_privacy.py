@@ -1,4 +1,3 @@
-import base64
 import zipfile
 from pathlib import Path
 from xml.sax.saxutils import quoteattr
@@ -47,37 +46,7 @@ def test_spreadsheet_paragraph_cells_and_pretty_print_whitespace_remain_supporte
     ),
 )
 def test_opaque_binary_metadata_never_claims_complete_coverage(tmp_path, encoding, channel):
-    payload = samples.SECRET.encode(encoding)
-    encoded = base64.b64encode(payload).decode()
-    if channel in {"settings", "content_settings"}:
-        element = f'<config:config-item config:name="PrinterSetup" config:type="base64Binary">{encoded}</config:config-item>'
-        body = element if channel == "content_settings" else "<text:p>Informe.</text:p>"
-        parts = (
-            {}
-            if channel == "content_settings"
-            else {
-                "settings.xml": f'<office:document-settings {samples.NS} xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0"><office:settings>{element}</office:settings></office:document-settings>'
-            }
-        )
-        source = samples.package(
-            tmp_path,
-            body,
-            root_attributes='xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0"',
-            parts=parts,
-        )
-    else:
-        tag = (
-            "X509Certificate" if channel in {"certificate", "rdf_certificate"} else "SignatureValue"
-        )
-        if channel in {"rdf_base64", "rdf_hex"}:
-            kind = "base64Binary" if channel == "rdf_base64" else "hexBinary"
-            encoded = encoded if channel == "rdf_base64" else payload.hex()
-            element = f'<rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#{kind}">{encoded}</rdf:value>'
-        else:
-            element = f"<ds:{tag}>{encoded}</ds:{tag}>"
-        name = "manifest.rdf" if channel.startswith("rdf_") else "META-INF/documentsignatures.xml"
-        part = f'<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">{element}</rdf:RDF>'
-        source = samples.package(tmp_path, "<text:p>Informe.</text:p>", parts={name: part})
+    source = samples.binary_metadata_package(tmp_path, encoding, channel)
     graph = read_document(source)
     assert not graph.complete
     assert "uninspected_odf_binary_metadata" in graph.issues

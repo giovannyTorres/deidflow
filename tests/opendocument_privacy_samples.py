@@ -1,3 +1,4 @@
+import base64
 import zipfile
 from pathlib import Path
 
@@ -141,3 +142,38 @@ EMBEDDED_RELATIVE_XML = f'<office:document-content {NS} office:version="1.3"><of
 
 
 AUXILIARY_SENSITIVE_SETTINGS_XML = f'<office:document-settings {NS} xmlns:dni-12345678Z="urn:oasis:names:tc:opendocument:xmlns:config:1.0"><office:settings><dni-12345678Z:config-item-set/></office:settings></office:document-settings>'
+
+
+def binary_metadata_package(tmp_path: Path, encoding: str, channel: str) -> Path:
+    payload = SECRET.encode(encoding)
+    encoded = base64.b64encode(payload).decode()
+    if channel in {"settings", "content_settings"}:
+        element = f'<config:config-item config:name="PrinterSetup" config:type="base64Binary">{encoded}</config:config-item>'
+        body = element if channel == "content_settings" else "<text:p>Informe.</text:p>"
+        parts = (
+            {}
+            if channel == "content_settings"
+            else {
+                "settings.xml": f'<office:document-settings {NS} xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0"><office:settings>{element}</office:settings></office:document-settings>'
+            }
+        )
+        source = package(
+            tmp_path,
+            body,
+            root_attributes='xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0"',
+            parts=parts,
+        )
+    else:
+        tag = (
+            "X509Certificate" if channel in {"certificate", "rdf_certificate"} else "SignatureValue"
+        )
+        if channel in {"rdf_base64", "rdf_hex"}:
+            kind = "base64Binary" if channel == "rdf_base64" else "hexBinary"
+            encoded = encoded if channel == "rdf_base64" else payload.hex()
+            element = f'<rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#{kind}">{encoded}</rdf:value>'
+        else:
+            element = f"<ds:{tag}>{encoded}</ds:{tag}>"
+        name = "manifest.rdf" if channel.startswith("rdf_") else "META-INF/documentsignatures.xml"
+        part = f'<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">{element}</rdf:RDF>'
+        source = package(tmp_path, "<text:p>Informe.</text:p>", parts={name: part})
+    return source
