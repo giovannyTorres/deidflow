@@ -7,7 +7,8 @@ con los mismos contratos y hashes de BMX-02. Una violación estructural produce
 INVALID_RUN, incluida una variante OCR que cruza las restricciones de su linaje.
 
 Construye clausura de grupo declarado, documento fuente, root documental,
-familia de plantilla, hash original e identidad explícitamente vinculada. Las
+familia de plantilla, hash de fuente, hash binario de artefacto original e
+identidad explícitamente vinculada. Las
 identidades requieren la evidencia sintética/referencia ya validada del paquete;
 un nombre común o compartir idioma/proveedor no crea identidad. También une
 documentos con texto exactamente igual o equivalente tras NFKC, casefold y

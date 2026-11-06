@@ -28,7 +28,7 @@ los cambios previos de AGENTS.md, CLAUDE.md y docs/agents/.
 | BMX-05 | Implementada y revisada; 197 pruebas focalizadas pasan, 1 juicio P3 aceptado |
 | BMX-06 | Implementada y revisada; 214 pruebas focalizadas pasan |
 | BMX-07 | Implementada y revisada; 230 pruebas focalizadas pasan |
-| BMX-08 | Pendiente |
+| BMX-08 | Implementada y revisada; 243 pruebas focalizadas pasan |
 | BMX-09 | Decisiones humanas consultadas; pendientes |
 | BMX-10 | Pendiente; depende de BMX-09 |
 | BMX-11 | Pendiente; depende de BMX-09 |

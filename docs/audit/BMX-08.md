@@ -1,6 +1,7 @@
 # BMX-08: clausura, similitud y exposición
 
-Base: `25a5c0f`. Estado: pruebas focalizadas; revisión independiente pendiente.
+Base: `25a5c0f`. Estado: implementada y revisada; integración final pendiente.
+Código revisado: `4fa622e04f15aa990735eeb7523c98e1394ce6a4`.
 Contrato: [auditoría y límites](../BENCHMARK_MX_INDEPENDENCE.md).
 
 TDD: 10 pruebas fallaron por falta del módulo, después pasaron con clausura
@@ -17,8 +18,17 @@ agotado conserva incertidumbre. Exposición conocida/desconocida bloquea blind.
 
 ## Standards
 
-Pendiente revisión independiente.
+Revisor `/root/batch08_standards`: 0 infracciones escritas y 0 juicios
+accionables tanto inicialmente como tras el delta de artefactos originales.
 
 ## Spec
 
-Pendiente revisión independiente.
+Revisor `/root/batch08_spec`: 1 P1 inicial por omitir hash binario del artefacto
+y agrupar solo hash de fuente textual. La regresión DOCX compartido con textos
+extraídos distintos falló (acreditaba independencia); tras agrupar hash de
+artefacto no nulo deniega y registra un componente cruzado. Revalidó con su
+reproducción original y 13 pruebas propias. Final: 0 abiertos.
+
+Salud: **243 pruebas focalizadas**, Ruff/formato y mypy76 pasan. Logs en
+`/tmp/deidflow-batch/BMX-08/`. No se cambian dependencias ni código de producción.
+Suite completa y empaquetado se comprobarán en integración final.

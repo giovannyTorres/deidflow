@@ -325,9 +325,13 @@
       "draft_file": "08-independencia-particiones.md",
       "github_title": "[DF-EVAL-MX][BMX-08] Auditar particiones por grupos, linajes y exposición",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-08 -->",
-      "body_sha256": "87bc9460020777abc670fe4d215a61689d68434c3b3aa23e7dd24cec2f06fe64",
+      "body_sha256": "f037642c6da920c1b7296668755aa882a240acedfeb4218f4a6782f4229d9ee9",
       "github_issue_number": null,
-      "github_issue_url": null
+      "github_issue_url": null,
+      "implementation_status": "implemented_and_reviewed",
+      "integrated_validation_pending": true,
+      "implementation_evidence": "../../audit/BMX-08.md",
+      "reviewed_code_commit": "4fa622e04f15aa990735eeb7523c98e1394ce6a4"
     },
     {
       "id": "BMX-09",

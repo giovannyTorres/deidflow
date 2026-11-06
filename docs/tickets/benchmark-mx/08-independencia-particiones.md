@@ -5,6 +5,9 @@
 
 **Estado de publicación:** borrador; no existe número/URL de issue verificado.
 
+**Estado de implementación:** implementada y revisada; integración final del lote pendiente.
+Evidencia: [acta BMX-08](../../audit/BMX-08.md).
+
 **Tipo:** tarea técnica. **Etiqueta propuesta:** `ready-for-agent`; no aplicada.
 
 **Bloqueado por:** BMX-02.
@@ -23,23 +26,23 @@ Admitir como independiente solo un paquete con auditoría verificable de grupos 
 
 ## Criterios de aceptación
 
-- [ ] Construir/comprobar la clausura de documento fuente, linaje, familia de plantilla e identidad sintética vinculada sin unir documentos solo por idioma/proveedor.
+- [x] Construir/comprobar la clausura de documento fuente, linaje, familia de plantilla e identidad sintética vinculada sin unir documentos solo por idioma/proveedor.
 
-- [ ] Comprobar igualdad original/normalizada y similitud según perfil versionado explícito; conflictos no resueltos impiden acreditar independencia.
+- [x] Comprobar igualdad original/normalizada y similitud según perfil versionado explícito; conflictos no resueltos impiden acreditar independencia.
 
-- [ ] Variantes OCR/de formato no cruzan particiones; no usar semillas o hashes diferentes como prueba suficiente.
+- [x] Variantes OCR/de formato no cruzan particiones; no usar semillas o hashes diferentes como prueba suficiente.
 
-- [ ] Exposición desconocida o histórica se declara; casos ya inspeccionados permanecen en known_regression o external_transfer.
+- [x] Exposición desconocida o histórica se declara; casos ya inspeccionados permanecen en known_regression o external_transfer.
 
-- [ ] La auditoría produce conteos y motivos seguros, no contenido de gold ciego.
+- [x] La auditoría produce conteos y motivos seguros, no contenido de gold ciego.
 
 ## Pruebas y evidencia exigidas
 
-- [ ] Duplicado exacto, NFKC/casefold/espacios equivalente, derivado OCR y plantilla compartida entre particiones se detectan.
+- [x] Duplicado exacto, NFKC/casefold/espacios equivalente, derivado OCR y plantilla compartida entre particiones se detectan.
 
-- [ ] Perfil de similitud ausente/conflicto pendiente no obtiene independencia acreditada.
+- [x] Perfil de similitud ausente/conflicto pendiente no obtiene independencia acreditada.
 
-- [ ] Nombres comunes sin identidad vinculada no fusionan todo el corpus; fuente previamente usada no se presenta como ciega.
+- [x] Nombres comunes sin identidad vinculada no fusionan todo el corpus; fuente previamente usada no se presenta como ciega.
 
 ## Trazabilidad
 
@@ -47,7 +50,7 @@ AC-01, AC-14 de DF-EVAL-MX v0.1.0.
 
 ## Restricciones y fuera de alcance
 
-- Esta creación de tareas no inicia la implementación.
+- La solicitud actual autorizó implementar este incremento dentro del lote BMX-03 a BMX-12.
 - El trabajo futuro se limita al sistema de evaluación; no corregir detectores, políticas ni transformadores de producción para hacer pasar el benchmark.
 - Solo datos ficticios o fuentes públicas no personales con permisos comprobados; nunca documentos personales reales ni envío a servicios externos.
 - Evaluación local, sin descargas/inferencia/telemetría remotas ni dependencias obligatorias nuevas. Cualquier adquisición o publicación requiere autorización de su tarea.
