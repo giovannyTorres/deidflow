@@ -38,8 +38,10 @@ import binascii
 import posixpath
 import re
 import zipfile
+import zlib
 from collections import deque
 from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, NoReturn
 from urllib.parse import unquote, urlsplit
@@ -990,6 +992,15 @@ def _read_part(
 # --- writer -------------------------------------------------------------------
 
 
+@contextmanager
+def _zip_input_errors() -> Iterator[None]:
+    """Normalize decoder failures only while reading untrusted package bytes."""
+    try:
+        yield
+    except (zipfile.BadZipFile, zlib.error, NotImplementedError):
+        raise DocumentError("Invalid or unsupported OpenDocument ZIP encoding") from None
+
+
 def _flatten(element: Node) -> None:
     """Replace an element by a text node with its displayed text."""
     text = paragraph_text(element)
@@ -1401,7 +1412,8 @@ def rewrite_odf(
     suffix = source.suffix.lower()
     spreadsheet = suffix == ".ods"
     with _archive(source, max_bytes) as archive:
-        entries = check_package(archive, suffix)
+        with _zip_input_errors():
+            entries = check_package(archive, suffix)
         embedded = subdocuments(entries)
         names = archive.namelist()
         package_members = _package_members(names)
@@ -1434,11 +1446,12 @@ def rewrite_odf(
             removed_parts=removed_targets,
             package_members=package_members,
         )
-        documents = {
-            name: _parse_odf(archive.read(name))
-            for name in ("content.xml", "styles.xml", "meta.xml")
-            if name in names
-        }
+        with _zip_input_errors():
+            documents = {
+                name: _parse_odf(archive.read(name))
+                for name in ("content.xml", "styles.xml", "meta.xml")
+                if name in names
+            }
         for name, document in documents.items():
             if document.documentElement.namespaceURI != OFFICE:
                 raise DocumentError("Unexpected OpenDocument part root")
@@ -1472,7 +1485,8 @@ def rewrite_odf(
                 elif name == "META-INF/manifest.xml":
                     data = _manifest_xml(entries, retained, suffix)
                 elif kinds[name] in {"media", "embedded"}:
-                    data = archive.read(name)  # kept only with remove_media=False: never released
+                    with _zip_input_errors():
+                        data = archive.read(name)  # remove_media=False: never released
                 else:
                     raise DocumentError("Unprocessed OpenDocument package part")
                 out.writestr(info, data)

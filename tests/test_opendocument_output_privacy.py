@@ -9,6 +9,37 @@ from deidflow import DeidEngine, Policy
 from deidflow.readers import read_document
 
 
+@pytest.mark.parametrize("failure", ("crc", "deflate", "unsupported_compression"))
+def test_corrupt_zip_input_returns_blocked_without_emitting_output(tmp_path, failure):
+    source = package(tmp_path, "<text:p>Informe.</text:p>")
+    if failure == "deflate":
+        with zipfile.ZipFile(source) as archive:
+            entries = [(info.filename, archive.read(info)) for info in archive.infolist()]
+        with zipfile.ZipFile(source, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for name, value in entries:
+                archive.writestr(name, value)
+    raw = bytearray(source.read_bytes())
+    central = raw.index(b"PK\x01\x02")
+    if failure == "crc":
+        raw[central + 16] ^= 1
+    elif failure == "unsupported_compression":
+        raw[8:10] = (99).to_bytes(2, "little")
+        raw[central + 10 : central + 12] = (99).to_bytes(2, "little")
+    else:
+        name_size = int.from_bytes(raw[26:28], "little")
+        extra_size = int.from_bytes(raw[28:30], "little")
+        raw[30 + name_size + extra_size] = 7  # invalid DEFLATE block type
+    source.write_bytes(raw)
+    output = tmp_path / "safe.odt"
+    result = DeidEngine(country="ES").deidentify(
+        source, output=output, policy=Policy.strict(require_ner=False)
+    )
+    assert result.status == "BLOCKED"
+    assert result.issues == ["MALFORMED_INPUT"]
+    assert result.output_path is None
+    assert not output.exists()
+
+
 def test_style_display_label_is_scanned_and_transformed_without_breaking_style_reference(tmp_path):
     source = package(
         tmp_path,
