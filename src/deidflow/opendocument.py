@@ -737,8 +737,11 @@ def read_odf(path: Path, graph: Any, max_bytes: int) -> None:
                 _issue(graph, "office_drawing_content_requires_review")
                 if name.endswith(".xml"):
                     _read_part(
-                        _parse(archive.read(name)), graph, name,
-                        spreadsheet=False, package_members=package_members,
+                        _parse(archive.read(name)),
+                        graph,
+                        name,
+                        spreadsheet=False,
+                        package_members=package_members,
                     )
             elif kind == "xml":
                 document = _parse(archive.read(name))
@@ -753,8 +756,11 @@ def read_odf(path: Path, graph: Any, max_bytes: int) -> None:
                 )
             elif kind == "manifest":
                 _read_part(
-                    _parse(archive.read(name)), graph, name,
-                    spreadsheet=False, package_members=package_members,
+                    _parse(archive.read(name)),
+                    graph,
+                    name,
+                    spreadsheet=False,
+                    package_members=package_members,
                 )
             elif kind == "settings":
                 root = _xml(archive.read(name))
@@ -1273,8 +1279,11 @@ def rewrite_odf(
             directory.rstrip("/") for directory in embedded if remove_media
         }
         writer = _Writer(
-            rewrite, report, remove_media=remove_media,
-            removed_parts=removed_targets, package_members=package_members,
+            rewrite,
+            report,
+            remove_media=remove_media,
+            removed_parts=removed_targets,
+            package_members=package_members,
         )
         documents = {
             name: _parse(archive.read(name))
@@ -1346,8 +1355,10 @@ def _manifest_xml(entries: dict[str, str], retained: list[str], suffix: str) -> 
         if path == "/":
             entry.setAttribute("manifest:version", "1.3")
         media_type = (
-            MEDIA_TYPES[suffix] if path == "/"
-            else "text/xml" if path.endswith(".xml")
+            MEDIA_TYPES[suffix]
+            if path == "/"
+            else "text/xml"
+            if path.endswith(".xml")
             else entries.get(path, "")
         )
         if not re.fullmatch(r"[\w.+-]{1,64}/[\w.+-]{1,128}", media_type):  # not free text

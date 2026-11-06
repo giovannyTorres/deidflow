@@ -1,6 +1,6 @@
+import zipfile
 from pathlib import Path
 from xml.sax.saxutils import quoteattr
-import zipfile
 
 import pytest
 
@@ -20,14 +20,19 @@ MEDIA = "application/vnd.oasis.opendocument.text"
 
 
 def package(
-    tmp_path: Path, body: str, *, styles: str = "", root_attributes: str = "",
-    parts: dict[str, str] | None = None, media_types: dict[str, str] | None = None,
+    tmp_path: Path,
+    body: str,
+    *,
+    styles: str = "",
+    root_attributes: str = "",
+    parts: dict[str, str] | None = None,
+    media_types: dict[str, str] | None = None,
 ) -> Path:
     content = (
         f'<office:document-content {NS} office:version="1.3" {root_attributes}>'
-        f'<office:automatic-styles>{styles}</office:automatic-styles>'
-        f'<office:body><office:text>{body}</office:text></office:body>'
-        '</office:document-content>'
+        f"<office:automatic-styles>{styles}</office:automatic-styles>"
+        f"<office:body><office:text>{body}</office:text></office:body>"
+        "</office:document-content>"
     )
     resources = {"content.xml": content, **(parts or {})}
     entries = {name: "text/xml" for name in resources} | (media_types or {})
@@ -35,11 +40,10 @@ def package(
         '<manifest:manifest xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0">'
         f'<manifest:file-entry manifest:full-path="/" manifest:media-type="{MEDIA}"/>'
         + "".join(
-            f'<manifest:file-entry manifest:full-path={quoteattr(name)} manifest:media-type={quoteattr(kind)}/>'
+            f"<manifest:file-entry manifest:full-path={quoteattr(name)} manifest:media-type={quoteattr(kind)}/>"
             for name, kind in entries.items()
         )
-        +
-        '</manifest:manifest>'
+        + "</manifest:manifest>"
     )
     source = tmp_path / "source.odt"
     with zipfile.ZipFile(source, "w") as archive:
@@ -50,7 +54,9 @@ def package(
     return source
 
 
-STYLES = f'<office:document-styles {NS} office:version="1.3"><office:styles/></office:document-styles>'
+STYLES = (
+    f'<office:document-styles {NS} office:version="1.3"><office:styles/></office:document-styles>'
+)
 
 
 def test_style_display_label_is_scanned_and_transformed_without_breaking_style_reference(tmp_path):
@@ -72,7 +78,9 @@ def test_style_display_label_is_scanned_and_transformed_without_breaking_style_r
 
 
 def test_unresolved_package_href_cannot_hide_sensitive_target(tmp_path):
-    source = package(tmp_path, f'<text:p><text:a xlink:href={quoteattr(SECRET)}>abrir</text:a></text:p>')
+    source = package(
+        tmp_path, f"<text:p><text:a xlink:href={quoteattr(SECRET)}>abrir</text:a></text:p>"
+    )
     result = DeidEngine(country="ES").deidentify(
         source, output=tmp_path / "safe.odt", policy=Policy.strict(require_ner=False)
     )
@@ -103,7 +111,7 @@ def test_sensitive_unmodeled_structural_attribute_is_inspected_and_fails_closed(
 ):
     source = package(
         tmp_path,
-        f'<text:p {attribute}={quoteattr(value)}>Informe.</text:p>',
+        f"<text:p {attribute}={quoteattr(value)}>Informe.</text:p>",
     )
     graph = read_document(source)
     assert any(value in fragment.text for fragment in graph.fragments)
@@ -132,7 +140,7 @@ def test_sensitive_unmodeled_structural_attribute_is_inspected_and_fails_closed(
 def test_unresolved_relative_or_encoded_link_is_unlinked_without_losing_text(tmp_path, href):
     source = package(
         tmp_path,
-        f'<text:p><text:a xlink:href={quoteattr(href)}>abrir</text:a></text:p>',
+        f"<text:p><text:a xlink:href={quoteattr(href)}>abrir</text:a></text:p>",
         parts={"styles.xml": STYLES},
     )
     graph = read_document(source)
@@ -152,7 +160,7 @@ def test_unresolved_relative_or_encoded_link_is_unlinked_without_losing_text(tmp
 def test_real_package_target_preserves_unchanged_uri_spelling(tmp_path, href):
     source = package(
         tmp_path,
-        f'<text:p><text:a xlink:href={quoteattr(href)}>abrir</text:a></text:p>',
+        f"<text:p><text:a xlink:href={quoteattr(href)}>abrir</text:a></text:p>",
         parts={"styles.xml": STYLES},
     )
     graph = read_document(source)
@@ -164,15 +172,15 @@ def test_real_package_target_preserves_unchanged_uri_spelling(tmp_path, href):
     assert result.output_path is not None, result.issues
     with zipfile.ZipFile(result.output_path) as archive:
         emitted = archive.read("content.xml").decode()
-    assert f'xlink:href={quoteattr(href)}' in emitted and "abrir" in emitted
+    assert f"xlink:href={quoteattr(href)}" in emitted and "abrir" in emitted
 
 
 def test_implicit_embedded_directory_and_owner_relative_target_are_resolved(tmp_path):
     embedded = (
         f'<office:document-content {NS} office:version="1.3">'
-        '<office:body><office:text><text:p>'
+        "<office:body><office:text><text:p>"
         '<text:a xlink:href="../styles.xml">detalle</text:a>'
-        '</text:p></office:text></office:body></office:document-content>'
+        "</text:p></office:text></office:body></office:document-content>"
     )
     source = package(
         tmp_path,
@@ -194,7 +202,9 @@ def test_implicit_embedded_directory_and_owner_relative_target_are_resolved(tmp_
         assert "Object 1/content.xml" not in archive.namelist()
         assert "draw:object" not in archive.read("content.xml").decode()
     kept = engine.deidentify(
-        source, output=tmp_path / "kept.odt", office_media="keep",
+        source,
+        output=tmp_path / "kept.odt",
+        office_media="keep",
         policy=Policy.strict(require_ner=False),
     )
     assert kept.status == "BLOCKED" and kept.output_path is None
@@ -204,7 +214,7 @@ def test_encoded_separator_is_not_used_as_a_package_membership_shortcut(tmp_path
     href = "nested%2F..%2Fstyles.xml"
     source = package(
         tmp_path,
-        f'<text:p><text:a xlink:href={quoteattr(href)}>abrir</text:a></text:p>',
+        f"<text:p><text:a xlink:href={quoteattr(href)}>abrir</text:a></text:p>",
         parts={"styles.xml": STYLES},
     )
     result = DeidEngine(country="ES").deidentify(
@@ -219,7 +229,7 @@ def test_encoded_separator_is_not_used_as_a_package_membership_shortcut(tmp_path
 def test_manifest_metadata_cannot_hide_identifier_in_syntactically_valid_media_type(tmp_path):
     source = package(
         tmp_path,
-        '<text:p>Informe.</text:p>',
+        "<text:p>Informe.</text:p>",
         media_types={"content.xml": "application/12345678Z"},
     )
     result = DeidEngine(country="ES").deidentify(
