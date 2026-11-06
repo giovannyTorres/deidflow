@@ -291,6 +291,10 @@ configuration, layout-cache or directory payloads. These channels cannot receive
 approval from a clean extracted-text scan. Ordinary CDATA marker text is scanned
 as visible text. Rewriting removes hidden XML/package channels and rebuilds ZIP
 metadata; the resulting candidate is then independently reread and rescanned.
+Compressed streams are checked for bounded expansion, exact length, CRC and
+end-of-stream consumption. Invalid streams stop processing; unused trailing
+payload bytes keep original-source coverage incomplete and are removed by
+canonical rewriting.
 
 ODT and ODS e-mail attachments use the same writer and canonical OpenDocument
 MIME types and are renamed like other attachments. ODT attachment rewriting is

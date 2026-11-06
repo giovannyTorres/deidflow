@@ -7,9 +7,10 @@ being prepared as a dependent change; its existence does not authorize a merge.
 ## Source and scope
 
 - Base: `44d04b16fb1ec545161c4ef0c14f516c7b0d9d29`.
-- Frozen combined reference: `8edf588b21dc684e68cc62c9d6c41b3963de8255`.
-- Reader source/tests: `b690f19d33b1a3e7c0af26ec84a8f20242481f80`.
-- All 41 retained reader/shared function ASTs match the frozen reference.
+- Frozen combined reference: `8cb3c5fc3a3568102620f69931c5990b2a64dba5`.
+- Initial reader source/tests: `b690f19d33b1a3e7c0af26ec84a8f20242481f80`.
+- Final reader source/tests: `9a27b832b6e15b461650dbabd6b49f3db5098cba`.
+- All 42 retained reader/shared function ASTs match the final frozen reference.
   `_is_sheet` moved into the shared grid section. The text walk, grid and repeat
   expansion helper are unchanged; there is one implementation of each.
 - `engine.py`, `mail.py`, `office.py` and the frozen benchmark/spec tickets are
@@ -27,6 +28,11 @@ layout-cache or directory payloads retain incomplete coverage. Ordinary CDATA
 marker text is visible and does not trigger the hidden-channel check. XML
 nesting is bounded at 128 elements. ODS always carries `ODS_REVIEW_REQUIRED`,
 even when its inspected graph is complete and its text contains no findings.
+Compressed streams are checked before ordinary ZIP decoding, with bounded
+expansion, exact length, CRC and end-of-stream validation. Trailing compressed
+payload bytes preserve incomplete coverage; invalid streams do not reach XML
+decoding. A declared-zero member expanding to 8 MiB stays below the regression's
+2 MiB allocation bound.
 
 ## Focused evidence
 
@@ -40,16 +46,18 @@ PYTHONPATH=/workspace/deidflow-odf-reader/src /workspace/deidflow/.venv/bin/pyth
 PYTHONPATH=/workspace/deidflow-odf-reader/src /workspace/deidflow/.venv/bin/python -m mypy --python-version 3.12 src/deidflow
 ```
 
-Observed: **55 passed** in 0.96 seconds; changed-file Ruff/format passed; mypy
+Observed: **58 passed** in 1.31 seconds; changed-file Ruff/format passed; mypy
 passed all 65 source files. A copied public reader test first failed on the base
 with `UnsupportedFormat`, then passed after extraction. The two direct-output
 and two MIME-boundary cases passed before and after reader registration.
 The initial Python 3.11 mypy target could not parse the installed NumPy stubs;
 the passing target matches the shared venv's Python 3.12 interpreter.
 
-The source/test diff adds 1,517 physical lines. Excluding only 89 lines of
-top-level synthetic sample data gives **1,428 conservative code/test lines**.
-Imports, builders, validation assertions and expected values are included.
+The source/test diff adds 1,621 physical lines. Excluding only 116 lines of
+synthetic input sample data gives **1,505 conservative code/test lines**, within
+the approximate 1,500-line guide. Imports, builders, namespace/base64 generation,
+validation assertions and expected values are included. Repeated manifest/ZIP
+fixture plumbing is shared without removing any case or assertion.
 
 The coordinator runs the integrated full suite, coverage, microbenchmark,
 package checks and fresh internal reviews against the split commits. Those

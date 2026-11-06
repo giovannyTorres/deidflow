@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import zipfile
 from pathlib import Path
+from xml.sax.saxutils import quoteattr
 
 NAMESPACES = {
     "office": "urn:oasis:names:tc:opendocument:xmlns:office:1.0",
@@ -87,7 +88,7 @@ End Sub</script:module>"""
 
 def manifest(media_type: str, parts: dict[str, str]) -> str:
     entries = "".join(
-        f'<manifest:file-entry manifest:full-path="{path}" manifest:media-type="{kind}"/>'
+        f"<manifest:file-entry manifest:full-path={quoteattr(path)} manifest:media-type={quoteattr(kind)}/>"
         for path, kind in parts.items()
     )
     return (
