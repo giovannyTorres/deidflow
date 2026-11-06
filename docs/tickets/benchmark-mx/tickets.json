@@ -285,9 +285,13 @@
       "draft_file": "07-ejecucion-segura.md",
       "github_title": "[DF-EVAL-MX][BMX-07] Ejecutar con aislamiento local, límites y diagnósticos sin datos",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-07 -->",
-      "body_sha256": "1f3c470ca7b175b853b9e51b9c982583206f16a4431e6c4785d988f623c58898",
+      "body_sha256": "8647bf7f8e90f1a4249aa567dffca40e4dbde4c0dc0da2f33abbb9e21cf51a8e",
       "github_issue_number": null,
-      "github_issue_url": null
+      "github_issue_url": null,
+      "implementation_status": "implemented_and_reviewed",
+      "integrated_validation_pending": true,
+      "implementation_evidence": "../../audit/BMX-07.md",
+      "reviewed_code_commit": "e8032793468f87fd399dddf65eb8db3332ba9afd"
     },
     {
       "id": "BMX-08",

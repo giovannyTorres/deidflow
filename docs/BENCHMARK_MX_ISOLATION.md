@@ -60,3 +60,14 @@ otro host no dispone de capacidades, necesitaría aprovisionar bubblewrap y
 strace, permitir namespaces de usuario/PID/red/montaje y ptrace de hijos, y
 exponer un runtime Python local readonly. En este host ya están disponibles;
 la tarea no cambia paquetes, permisos, servicios ni configuración de nube.
+
+La frontera de referencia debe declararse para acreditar custodia estricta; sin
+ella puede completarse el programa pero la acreditación permanece falsa. El
+informe registra su digest, mecanismo y declaración, sin publicar la ruta.
+CLONE_UNTRACED (clone/clone3), ptrace e io_uring invalidan explícitamente la
+integridad del trazado y producen LOCAL_POLICY_VIOLATION sin acreditar auditoría
+ni custodia. No se interpreta la ausencia de sockets observados como prueba
+favorable ante una ruta que suprime el trazado. Los límites solicitados nunca
+se elevan sobre el hard heredado del host; un fallo de arranque produce un
+informe conservador. JSON excesivamente profundo es MALFORMED_RESPONSE del
+candidato, no invalida el dataset.

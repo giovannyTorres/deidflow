@@ -5,6 +5,9 @@
 
 **Estado de publicación:** borrador; no existe número/URL de issue verificado.
 
+**Estado de implementación:** implementada y revisada; integración final del lote pendiente.
+Evidencia: [acta BMX-07](../../audit/BMX-07.md).
+
 **Tipo:** tarea técnica. **Etiqueta propuesta:** `ready-for-agent`; no aplicada.
 
 **Bloqueado por:** BMX-01.
@@ -23,25 +26,25 @@ Hacer ejecutable y verificable la restricción local del arnés, con límites po
 
 ## Criterios de aceptación
 
-- [ ] Prohibir y registrar intentos de red durante carga e inferencia, incluidos subprocesos; no confundir bloqueo de sockets Python con aislamiento nativo.
+- [x] Prohibir y registrar intentos de red durante carga e inferencia, incluidos subprocesos; no confundir bloqueo de sockets Python con aislamiento nativo.
 
-- [ ] Configurar límites de bytes/expansión, miembros, profundidad, píxeles, tiempo y memoria; distinguir admisión de límite duro.
+- [x] Configurar límites de bytes/expansión, miembros, profundidad, píxeles, tiempo y memoria; distinguir admisión de límite duro.
 
-- [ ] En custodia estricta el candidato solo accede a entradas/activos autorizados, no al gold; capacidad ausente se informa y bloquea acreditación estricta.
+- [x] En custodia estricta el candidato solo accede a entradas/activos autorizados, no al gold; capacidad ausente se informa y bloquea acreditación estricta.
 
-- [ ] Timeout, activos ausentes o respuestas malformadas mantienen el caso y su soporte en el informe; no instalar activos ni alterar el sandbox.
+- [x] Timeout, activos ausentes o respuestas malformadas mantienen el caso y su soporte en el informe; no instalar activos ni alterar el sandbox.
 
-- [ ] Resumen y mensajes de error usan códigos permitidos y no contienen valores, nombres originales, secretos o variables de entorno.
+- [x] Resumen y mensajes de error usan códigos permitidos y no contienen valores, nombres originales, secretos o variables de entorno.
 
 ## Pruebas y evidencia exigidas
 
-- [ ] Adapter y subproceso controlados intentan red, incluso capturando la excepción: la condición local no pasa.
+- [x] Adapter y subproceso controlados intentan red, incluso capturando la excepción: la condición local no pasa.
 
-- [ ] Proceso intenta leer una referencia fuera de sus entradas; verificar la restricción real o declarar capacidad no acreditada.
+- [x] Proceso intenta leer una referencia fuera de sus entradas; verificar la restricción real o declarar capacidad no acreditada.
 
-- [ ] Timeout, expansión excesiva y memoria admitida versus límite duro producen estados correctos.
+- [x] Timeout, expansión excesiva y memoria admitida versus límite duro producen estados correctos.
 
-- [ ] Canarios en texto, nombre de archivo y excepción no llegan a logs/resumen.
+- [x] Canarios en texto, nombre de archivo y excepción no llegan a logs/resumen.
 
 ## Trazabilidad
 
@@ -49,7 +52,7 @@ AC-10, AC-11 de DF-EVAL-MX v0.1.0.
 
 ## Restricciones y fuera de alcance
 
-- Esta creación de tareas no inicia la implementación.
+- La solicitud actual autorizó implementar este incremento dentro del lote BMX-03 a BMX-12.
 - El trabajo futuro se limita al sistema de evaluación; no corregir detectores, políticas ni transformadores de producción para hacer pasar el benchmark.
 - Solo datos ficticios o fuentes públicas no personales con permisos comprobados; nunca documentos personales reales ni envío a servicios externos.
 - Evaluación local, sin descargas/inferencia/telemetría remotas ni dependencias obligatorias nuevas. Cualquier adquisición o publicación requiere autorización de su tarea.
