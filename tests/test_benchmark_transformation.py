@@ -203,3 +203,35 @@ def test_copy_to_another_mapped_region_does_not_accredit_complete_removal(tmp_pa
     result = run_case(tmp_path, callback=duplicate)
     assert result["metrics"]["removed_mentions"] == 0
     assert result["metrics"]["leaked_mentions"] == 1
+
+
+def test_verified_placeholder_is_not_leakage_from_accidental_equal_characters(tmp_path):
+    records = transformation_package(tmp_path)
+    unit = records["units"][0]
+    unit["text"] = unit["text"].replace("Nombre Ficticio", "PIERRE X")
+    unit["text_sha256"] = hashlib.sha256(unit["text"].encode()).hexdigest()
+    records["sources"][0]["content_sha256"] = unit["text_sha256"]
+    records["mentions"][0]["end"] = unit["text"].index(". Niega")
+    records["expectations"][1].update(
+        start=unit["text"].index("Niega"), end=unit["text"].index(" [PERSON]")
+    )
+    result = run_case(tmp_path, records=records)
+    assert result["metrics"]["removed_mentions"] == 1
+    assert result["metrics"]["leaked_mentions"] == 0
+
+
+def test_compatible_operator_intersection_is_used_for_repeated_entity(tmp_path):
+    records = transformation_package(tmp_path)
+    records["mentions"].append(dict(records["mentions"][0], mention_id="m-2", start=0, end=7))
+    records["expectations"][0]["allowed_operators"] = ["placeholder", "redact"]
+    records["expectations"].append(
+        dict(
+            records["expectations"][0],
+            expectation_id="e-3",
+            mention_id="m-2",
+            allowed_operators=["redact"],
+        )
+    )
+    result = run_case(tmp_path, records=records)
+    assert result["attempt_status"] == "completed"
+    assert result["metrics"]["removed_mentions"] == 2

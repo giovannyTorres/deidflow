@@ -42,15 +42,19 @@ def transformation_policy(
 ) -> tuple[tuple[Finding, ...], Policy]:
     findings: list[Finding] = []
     rules: dict[str, Rule] = {}
+    choices: dict[str, list[str]] = {}
     for requirement in requirements:
         if requirement.action in {"preserve", "review_required"} or not requirement.ranges:
             continue
-        operator = requirement.operators[0]
         label = requirement.entity_type
-        rule = Rule(operator)
-        if label in rules and rules[label] != rule:
+        choices[label] = [
+            operator
+            for operator in choices.get(label, list(requirement.operators))
+            if operator in requirement.operators
+        ]
+        if not choices[label]:
             raise UnsupportedTransformationError
-        rules[label] = rule
+        rules[label] = Rule(choices[label][0])
         findings.extend(
             Finding(label, a, b, 1.0, "benchmark-gold", protected=True)
             for a, b in requirement.ranges

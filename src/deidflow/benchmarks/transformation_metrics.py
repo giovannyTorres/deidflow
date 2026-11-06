@@ -198,7 +198,12 @@ def inspect_text_output(
                 and (
                     output.text == text
                     or (literal_survives and not ambiguous_survival)
-                    or (valid_maps and any(preserved[position] for position in positions))
+                    or (
+                        valid_maps
+                        and any(
+                            preserved[position] and not removed[position] for position in positions
+                        )
+                    )
                 )
             )
             counts["removed_mentions"] += int(verified and not leaked)
