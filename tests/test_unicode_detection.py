@@ -84,3 +84,16 @@ def test_normalized_floor_ordinal_keeps_the_existing_address_coverage():
 def test_a_floor_without_a_house_number_does_not_become_a_new_address():
     source = "Calle Ficción, 3ª planta."
     assert not [f for f in DeidEngine().scan_text(source) if f.entity_type == "ADDRESS"]
+
+
+@pytest.mark.parametrize("tail", [", 3 o más pisos", ", 3 a 5 visitas"])
+def test_ordinary_ascii_prose_is_not_reinterpreted_as_a_floor(tail):
+    source = "Calle Ficción 12" + tail
+    addresses = [f for f in DeidEngine().scan_text(source) if f.entity_type == "ADDRESS"]
+    assert [source[f.start : f.end] for f in addresses] == ["Calle Ficción 12"]
+
+
+def test_ordinal_in_street_type_keeps_its_original_lexical_meaning():
+    source = "Pº Ficción 12"
+    addresses = [f for f in DeidEngine().scan_text(source) if f.entity_type == "ADDRESS"]
+    assert [source[f.start : f.end] for f in addresses] == [source]

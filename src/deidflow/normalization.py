@@ -86,9 +86,9 @@ def detection_view(text: str, *, max_characters: int = DEFAULT_MAX_CHARACTERS) -
         ends.append(segment_end)
         # At most 256 canonical classes: stable buckets avoid quadratic insertion
         # and unbounded sorting of adversarial combining sequences.
-        for category in sorted(segment):
-            for character in segment[category]:
-                if starter >= 0 and (last_class < category or last_class == 0):
+        for combining_class in sorted(segment):
+            for character in segment[combining_class]:
+                if starter >= 0 and (last_class < combining_class or last_class == 0):
                     combined = unicodedata.normalize("NFC", output[starter] + character)
                     if len(combined) == 1:
                         output[starter] = combined
@@ -98,11 +98,11 @@ def detection_view(text: str, *, max_characters: int = DEFAULT_MAX_CHARACTERS) -
                             starts[previous] = min(starts[previous], starts[current])
                             ends[previous] = max(ends[previous], ends[current])
                         continue
-                if category == 0:
+                if combining_class == 0:
                     starter = len(output)
                 output.append(character)
                 groups.append(group)
-                last_class = category
+                last_class = combining_class
         segment.clear()
 
     position = previous_end = 0
@@ -117,15 +117,15 @@ def detection_view(text: str, *, max_characters: int = DEFAULT_MAX_CHARACTERS) -
             decomposed += 1
             if decomposed > max_characters:
                 raise ValueError("Text exceeds normalization tracing budget")
-            category = unicodedata.combining(character)
-            if category == 0:
+            combining_class = unicodedata.combining(character)
+            if combining_class == 0:
                 flush()
             if not segment:
                 segment_start, segment_end = previous_end, following
             else:
                 segment_start = min(segment_start, previous_end)
                 segment_end = max(segment_end, following)
-            segment.setdefault(category, []).append(character)
+            segment.setdefault(combining_class, []).append(character)
         previous_end = position + 1
         position = following
     flush()

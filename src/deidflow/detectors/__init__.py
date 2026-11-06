@@ -24,7 +24,7 @@ from deidflow.validators import (
     validate_rfc,
 )
 
-from .addresses import AddressCandidate, address_candidates
+from .addresses import AddressCandidate, address_candidates, address_lexical_view
 from .clinical import contextual_spanish
 from .international import (
     SUPPORTED_COUNTRIES,
@@ -267,6 +267,7 @@ class RuleDetector:
         self.countries: frozenset[str] | None = countries
 
     def detect(self, text: str) -> list[Finding]:
+        source = text
         view = detection_view(text)
         text = view.text
         findings: list[Finding] = []
@@ -468,7 +469,7 @@ class RuleDetector:
                     for start, end in spans:
                         add("PERSON", start, end, 0.88, context=context)
             labelled_addresses: list[tuple[int, int]] = []
-            candidates = list(address_candidates(text))
+            candidates = list(address_candidates(address_lexical_view(source, view)))
             for pattern in (_ADDRESS, _STREET):
                 for match in pattern.finditer(text):
                     start, end = match.span("value")
