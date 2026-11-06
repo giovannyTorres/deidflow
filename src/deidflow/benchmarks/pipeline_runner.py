@@ -139,6 +139,29 @@ def _inspect_outputs(
         primary["removed_mentions"] = combined.count("removed")
         primary["leaked_mentions"] = combined.count("leaked")
         primary["unverifiable_mentions"] = combined.count("unknown")
+    if inspections:
+        primary["preserved_context_spans"] = sum(
+            all(states)
+            for states in zip(*(row["context_outcomes"] for row in inspections), strict=True)
+        )
+        primary["failed_requirements"] = sum(
+            any(states)
+            for states in zip(*(row["failed_outcomes"] for row in inspections), strict=True)
+        )
+        masks = [row["preserved_mask"] for row in inspections]
+        retained = changed = 0
+        for position, required in enumerate(primary["preservation_required_mask"]):
+            if not required:
+                continue
+            changed += int(any(mask is not None and not mask[position] for mask in masks))
+            retained += int(
+                not pending and all(mask is not None and mask[position] for mask in masks)
+            )
+        primary["retained_chars"] = retained
+        primary["overtransformed_chars"] = changed
+        primary["unverified_preservation_chars"] = (
+            primary["retention_required_chars"] - retained - changed
+        )
     primary["verification_complete"] = (
         bool(inspections)
         and not pending

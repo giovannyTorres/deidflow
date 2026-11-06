@@ -199,6 +199,8 @@ def inspect_text_output(
         0,
     )
     removal_outcomes = []
+    context_outcomes = []
+    failed_outcomes = []
     for requirement in requirements:
         positions = [
             position for start, end in requirement.ranges for position in range(start, end)
@@ -207,6 +209,7 @@ def inspect_text_output(
             counts["excluded_requirements"] += 1
             continue
         action = requirement.action
+        failures_before = counts["failed_requirements"]
         if action == "remove":
             counts["required_removals"] += 1
             allowed = all(
@@ -251,6 +254,7 @@ def inspect_text_output(
             intact = valid_maps and all(preserved[position] for position in positions)
             counts["preserved_context_spans"] += int(intact)
             counts["failed_requirements"] += int(not intact)
+            context_outcomes.append(bool(intact))
         elif action == "review_required":
             counts["review_required_spans"] += 1
             counts["failed_requirements"] += 1
@@ -260,6 +264,8 @@ def inspect_text_output(
         if output is not None and output.release_status not in requirement.release_states:
             counts["failed_requirements"] += 1
             counts["release_state_failures"] += 1
+        failed_outcomes.append(counts["failed_requirements"] > failures_before)
+        counts["failed_requirements"] = failures_before + int(failed_outcomes[-1])
     required = sum(preserve_required)
     retained = sum(
         bool(keep and present) for keep, present in zip(preserve_required, preserved, strict=True)
@@ -277,4 +283,8 @@ def inspect_text_output(
         "joint_success": bool(joint and output is not None),
         "output_observable": output is not None and output.text is not None,
         "removal_outcomes": tuple(removal_outcomes),
+        "context_outcomes": tuple(context_outcomes),
+        "failed_outcomes": tuple(failed_outcomes),
+        "preservation_required_mask": bytes(preserve_required),
+        "preserved_mask": bytes(preserved) if valid_maps else None,
     }

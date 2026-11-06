@@ -6,7 +6,7 @@ from benchmark_case_fixtures import fixture_records, profile_package
 from deidflow.engine import ReleaseStatus, Result
 
 
-def run_pipeline(tmp_path, callback="rules.mx", *, capability=None):
+def run_pipeline(tmp_path, callback="rules.mx", *, capability=None, preserve_negation=False):
     from deidflow.benchmarks.pipeline_runner import PipelineCandidate, run_pipeline_benchmark
 
     records = fixture_records()
@@ -14,6 +14,21 @@ def run_pipeline(tmp_path, callback="rules.mx", *, capability=None):
         records["documents"][0]["capabilities_required"].append(capability)
     for expectation in records["expectations"]:
         expectation["acceptable_release_states"] = ["APPROVED", "REVIEW_REQUIRED", "BLOCKED"]
+    if preserve_negation:
+        records["expectations"].append(
+            dict(
+                records["expectations"][0],
+                expectation_id="e-3",
+                mention_id=None,
+                unit_id="u-2",
+                case_id="c-2",
+                start=0,
+                end=2,
+                action="preserve",
+                allowed_operators=["keep"],
+                verification="exact_preservation",
+            )
+        )
     _, digest = profile_package(tmp_path / "package", records, "pipeline-descriptive-v1", ["EMAIL"])
     return run_pipeline_benchmark(
         tmp_path / "package",
@@ -159,3 +174,26 @@ def test_missing_required_capability_cannot_pass_conformity(tmp_path):
     assert result["verdicts"]["execution"] == "INCOMPLETE"
     assert result["execution"]["pending_documents"] == 1
     assert result["diagnostics"] == [{"code": "REQUIRED_CAPABILITY_NOT_EVALUATED", "count": 1}]
+
+
+def test_secondary_output_losing_negation_reduces_context_and_retention(tmp_path):
+    from deidflow import DeidEngine
+    from deidflow.transformations import SourceMap
+
+    engine = DeidEngine(language="es", country="MX", offline=True)
+
+    def lose_negation(text, policy):
+        result = engine.deidentify_text(text, policy=policy)
+        if text.startswith("No"):
+            result.mappings = [SourceMap(0, 2, 0, 2, ("REGION",), "keep")]
+            artifact = tmp_path / "secondary.txt"
+            artifact.write_text("Si" + text[2:])
+            result.output_path = artifact
+        return result
+
+    result = run_pipeline(tmp_path, lose_negation, preserve_negation=True)
+    assert result["metrics"]["required_context_spans"] == 1
+    assert result["metrics"]["preserved_context_spans"] == 0
+    assert result["metrics"]["retention"] < 1
+    assert result["metrics"]["overtransformed_chars"] == 2
+    assert result["verdicts"]["technical_conformity"] == "FAIL"
