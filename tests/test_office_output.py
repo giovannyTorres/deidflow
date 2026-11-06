@@ -288,6 +288,45 @@ def test_strict_docx_rejects_unvalidated_structure(tmp_path, strict_tagger_engin
     assert result.status == "BLOCKED" and not output.exists()
 
 
+@pytest.mark.parametrize("media_policy", ["keep", "remove"])
+@pytest.mark.parametrize(
+    "part", ["word/CHARTS/payload.bin", "word/charts/payload.bin", "word/diagrams/payload.bin"]
+)
+def test_docx_opaque_media_never_bypasses_coverage(
+    tmp_path, strict_tagger_engine, part, media_policy
+):
+    source, output = tmp_path / "source.docx", tmp_path / "candidate.docx"
+    canary = b"synthetic.leak@example.test"
+    with zipfile.ZipFile(source, "w") as archive:
+        archive.writestr("[Content_Types].xml", CONTENT_TYPES)
+        archive.writestr(
+            "_rels/.rels",
+            '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+            '<Relationship Id="rId1" '
+            'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" '
+            'Target="word/document.xml"/></Relationships>',
+        )
+        archive.writestr(
+            "word/document.xml",
+            f'<w:document xmlns:w="{W}"><w:body><w:p><w:r>'
+            "<w:t>Texto general.</w:t></w:r></w:p></w:body></w:document>",
+        )
+        archive.writestr(part, canary)
+    graph = read_document(source)
+    assert not graph.complete and "office_media_requires_review" in graph.issues
+    result = strict_tagger_engine.deidentify(
+        source, output=output, policy=Policy.strict(), office_media=media_policy
+    )
+    if media_policy == "keep":
+        assert result.status == "BLOCKED" and not result.release_approved
+        assert not output.exists() and not list(tmp_path.glob(".deidflow-*"))
+    else:
+        assert result.release_approved, result.issues
+        with zipfile.ZipFile(output) as archive:
+            assert part not in archive.namelist()
+            assert all(canary not in archive.read(name) for name in archive.namelist())
+
+
 def test_docx_financial_tagger_preserves_fonts_styles_and_namespaces(tmp_path):
     source = make_docx(tmp_path / "source.docx")
     _update_package(

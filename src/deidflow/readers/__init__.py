@@ -251,6 +251,8 @@ def _read_docx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
             raise DocumentError("Missing DOCX document part")
         if any(docx_part_kind(name) is None for name in archive.namelist()):
             _issue(graph, "unsupported_docx_package_part")
+        if any(docx_part_kind(name) == "media" for name in archive.namelist()):
+            _issue(graph, "office_media_requires_review")
         _read_metadata(archive, graph)
         for name in archive.namelist():
             if not name.startswith("word/") or not name.endswith(".xml"):
