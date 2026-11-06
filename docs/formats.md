@@ -22,31 +22,39 @@ finding list on an incomplete graph must never approve a release.
 
 ## Unicode detection and original offsets
 
-Built-in rules and NLP adapters receive a detection view with Unicode format
-controls (category `Cf`) removed and NFKC applied. Source text is retained;
-findings project to complete original canonical clusters, including adjacent
-inserted controls. Compatibility expansions and reordered combining marks do
-not expose partially replaced original characters. Lexical features and boundary validation also use
-source ordinal provenance, since NFKC merges `º`/`ª` with ordinary `o`/`a`.
-Built-in models keep NFKC token coordinates while consuming this semantic
-metadata. NLP routers/combinators forward it; external adapters retain the
-existing `detect_batch` normalized-text interface.
+Built-in rules and NLP adapters receive a detection view of each text:
+
+- invisible characters are removed: format controls (`Cf`: zero-width space,
+  soft hyphen, word joiner, BOM, bidirectional controls, tag characters) and every
+  other `Default_Ignorable_Code_Point` (combining grapheme joiner, variation
+  selectors, Hangul fillers, Mongolian and Khmer invisibles);
+- NFKC is applied: full-width and mathematical letters and digits, superscript
+  digits, ligatures and no-break spaces become their ordinary forms;
+- inside a word that also contains ASCII letters or digits, Greek and Cyrillic
+  letters that look Latin are folded to Latin (`12345678Ζ`, `аna@example.com`).
+  Pure Greek or Cyrillic words are unchanged.
+
+Findings project back to complete original spans, including adjacent invisible
+characters, so a replacement removes them too; compatibility expansions and
+reordered combining marks never leave part of an original character. The emitted
+document is not normalized outside transformed spans. Lexical features and
+boundary validation use source ordinal provenance, since NFKC merges `º`/`ª`
+with `o`/`a`; built-in models, routers and combinators forward it, and external
+adapters keep the `detect_batch` interface on the normalized text.
+
+The view is built word by word at ASCII whitespace, a stable NFKC boundary.
+Unchanged text and words whose characters map one to one (a no-break space, a
+full-width letter) allocate no coordinate maps; only words whose length changes
+do, up to 8 million traced characters by default (`NormalizationLimitError`, a
+`ValueError`, beyond that, like the other size limits).
 
 Text, structured cells, Office, HTML and e-mail writers transform original spans
-and reread the emitted artifact. A remaining format control between alphanumeric
-characters yields `UNICODE_FORMAT_CONTROLS_REQUIRE_REVIEW` and prevents approval,
-without inventing a sensitive entity. This fallback does not prove completeness
-of detection. HTML entities are checked after decoding by the existing parser.
-
-ASCII and already normalized identity views allocate no maps. Nonidentity views
-bound decomposition/tracing to one million characters by default; the NLP path
-also checks its batch mapping budget. These are admission estimates, not an RSS
-or process-isolation guarantee. Unicode behavior uses the interpreter's Unicode
-database and is recorded with the candidate evidence.
-
-The corrected candidate retains master predictions on synthetic validation and
-MEDDOCAN dev; Gretel evidence remains pending. See [the audit handoff](audit/unicode-normalization/README.md).
-ODT/ODS coverage remains pending the separate OpenDocument PR.
+and reread the emitted artifact. An invisible character remaining between
+alphanumeric characters yields `UNICODE_FORMAT_CONTROLS_REQUIRE_REVIEW` and
+prevents approval, without inventing a sensitive entity. HTML entities are
+checked after decoding by the existing parser. Unicode behavior uses the
+interpreter's Unicode database. Look-alikes outside Greek and Cyrillic (for
+example Cherokee or mathematical symbols not covered by NFKC) are not folded.
 
 ## DOCX and XLSX
 

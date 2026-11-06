@@ -3,7 +3,7 @@
 **La regresión de MEDDOCAN está corregida en la candidata.** La validación
 sintética y MEDDOCAN dev conservan los mismos tipos y coordenadas de predicción
 que master, tanto por reglas como con el paquete general. Gretel sigue sin
-medirse por falta de acceso a sus activos. **Auditoría Claude: pendiente.**
+medirse por falta de acceso a sus activos. **Auditoría Claude: hallazgos A1–A5 corregidos (ver «Cierre»).**
 
 Base master: `44d04b16fb1ec545161c4ef0c14f516c7b0d9d29`.
 Código probado/revisado: `3de9d732dca9a6df106a757836f0c8194be73916`.
@@ -151,3 +151,29 @@ repositorios a ese borrador y no se eludió la política de red.
 El resto del plan conserva su orden y sus PRs separados. No se modificaron #32,
 hilos de #31, defaults pendientes, ramas ajenas ni la versión del paquete.
 Logs locales: /tmp/deidflow-unicode-evidence/continuation/.
+
+## Cierre (Claude Code)
+
+La auditoría de `9402452`/`d05f807` encontró cinco hallazgos; esta rama los corrige:
+
+| Hallazgo | Corrección | Evidencia |
+|---|---|---|
+| A1 invisibles no Cf (CGJ, selectores de variación, rellenos Hangul, mongol, jemer) | Vista y señal de revisión usan `Default_Ignorable_Code_Point` además de `Cf` | `tests/test_unicode_hardening.py` (9 caracteres × DNI, correo y teléfono) |
+| A2 regresión de MEDDOCAN | Ya resuelta por `3de9d73` (procedencia ordinal) | Hallazgos idénticos a master, abajo |
+| A3 excepción con más de 1M de caracteres | Vista por palabras: solo se trazan palabras que cambian; las sustituciones 1:1 no reservan mapas | 1,2M caracteres con `º` y NBSP: `APPROVED` |
+| A4 coste | Igual que A3; el texto sin cambios no se recorre en Python | 66k caracteres: 0,094 s frente a 0,090 s de master; 400k invisibles: 0,15 s frente a 0,37 s |
+| A5 homoglifos griegos y cirílicos | Plegado a latín solo en palabras con letras o dígitos ASCII, solo en la vista | `12345678Ζ`, `аna@…` sustituidos; «5α-reductasa» intacto |
+
+**Validación** (sin conjuntos de test). Comparación hallazgo por hallazgo con `master` `44d04b1`:
+- **Paquete general balanced:** 0 documentos con diferencias en MEDDOCAN dev (250) y en el holdout de Gretel (402).
+- **Ruta `builtin:auto` con reglas:**
+
+  | Corpus | F1 | Recall de caracteres | Documentos sin cubrir |
+  |---|---|---|---|
+  | MEDDOCAN dev | 0,8964 | 0,9732 | 94 |
+  | Gretel | 0,6447 | 0,8301 | 174 |
+  | Sintético 600 | 0,7930 | 0,9087 | 338 |
+
+  Las tres cifras son idénticas a master.
+
+**Comprobaciones:** 1257 pruebas pasan, 11 omitidas. Ruff, formato, mypy y microbenchmark (ratio 1,01) OK.

@@ -10,7 +10,22 @@
 - Preserve source ordinal evidence through model features, contextual rules,
   routers, combinators and cached adapters; distinguish Nº from the surname No.
   Synthetic validation and MEDDOCAN dev recover master prediction coordinates
-  and acceptance metrics. Gretel validation and external release gates remain pending.
+  and acceptance metrics.
+- Remove every `Default_Ignorable_Code_Point` from the detection view, not only
+  `Cf`: the combining grapheme joiner, variation selectors, Hangul fillers and
+  Mongolian/Khmer invisibles no longer hide a DNI, phone or e-mail. The same set
+  drives the residual review signal.
+- Fold Greek and Cyrillic letters that look Latin inside words that also hold
+  ASCII letters or digits (`12345678Ζ`, `аna@…`) for detection only; pure Greek
+  or Cyrillic words and the emitted text are unchanged.
+- Normalize word by word at ASCII whitespace. Unchanged text and one-to-one
+  replacements allocate no coordinate maps, so a 1.2-million-character document
+  with `º` and no-break spaces is processed (previously an exception) and the
+  scan stays within 6% of master; 400,000 invisible characters take 0.15 s.
+  A tracing-budget overrun raises `NormalizationLimitError`, a `ValueError`.
+- Validation (no test sets): rules, `builtin:auto` and the general pack give
+  identical findings to master on all 250 MEDDOCAN dev and 402 Gretel holdout
+  documents, and identical metrics on 600 synthetic validation documents.
 
 ## 0.6.0b1 - Spanish context product candidate
 

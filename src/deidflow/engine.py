@@ -25,6 +25,7 @@ from deidflow.detectors import CORE_RULES_VERSION, RuleDetector, fuse
 from deidflow.normalization import (
     DEFAULT_MAX_CHARACTERS,
     FORMAT_CONTROL_ISSUE,
+    NormalizationLimitError,
     detection_view,
     has_internal_format_controls,
 )
@@ -248,6 +249,8 @@ class DeidEngine:
         try:
             with profiler.stage("rules") if profiler else nullcontext():
                 results = [self.detector.detect(t) for t in texts]
+        except NormalizationLimitError:
+            raise  # a size limit, reported like the other configured limits
         except Exception:
             raise RuntimeError("Local rule recognizer failed; output is not verified") from None
         if self.nlp is not None and texts:
