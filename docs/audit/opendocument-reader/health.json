@@ -25,8 +25,11 @@
     },
     "build_no_isolation": "PASS",
     "clean_git_archive_commit": "93242156e9cb259a01b6dba66bde7c3000f9c49c",
+    "documented_stdin_probe": "PASS",
     "network_attempts_during_probe": 0,
     "scope_specific_wheel_probe": "PASS",
+    "scope_wheel_reproducer": "REPRODUCE_WHEEL.md",
+    "scope_wheel_reproducer_python_sha256": "6720247953b5ff84e00f1bd4d7a586685a12067d7ab70b397e441a8b697c7fc3",
     "twine_strict": "PASS",
     "wheel_without_extras_outside_checkout": "PASS"
   },
