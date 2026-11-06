@@ -41,7 +41,8 @@ or excessively nested XML is rejected.
 Media, embedded objects, macros, unknown parts and unresolved package references
 preserve incomplete coverage. XML comments/processing instructions and opaque
 ZIP metadata, nonempty directory payloads, configuration and layout-cache data
-also mark coverage incomplete. A clean text scan cannot approve these hidden
+also mark coverage incomplete. Compressed streams receive bounded length/CRC/
+end-of-stream checks; unused trailing payload stays incomplete. A clean text scan cannot approve these hidden
 channels. Ordinary CDATA text is scanned normally. ODS always carries
 `ODS_REVIEW_REQUIRED`, including standalone verification.
 
