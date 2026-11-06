@@ -1,6 +1,6 @@
 # ADR 0001: perfiles operativos v1 de BMX-09
 
-Estado: **ratificado en alcance operativo; revisión documental pendiente**.
+Estado: **ratificado en alcance operativo; revisión documental verificada**.
 Decisión: `BMX-09-operational-v1`, versión `1.0.0`.
 Responsable: solicitante (`requester`). Fecha: `2026-11-06T18:02:28Z`.
 
@@ -121,6 +121,5 @@ personal: conservar; clínica con negación/dosis: conservar contextual y retira
 estricto; PDF sin soporte: sin aprobación. No se incorporan datos personales
 reales ni se fabrica gold, independencia o evaluación con esta decisión.
 
-BMX-09 documenta ratificación del solicitante con revisión técnica pendiente.
-BMX-10–12 conservan su bloqueo hasta la actualización del coordinador después
-de la revisión; no se ejecutan desde esta ADR.
+BMX-09 documenta ratificación del solicitante y revisión técnica verificada.
+BMX-10/11 están desbloqueadas; BMX-12 sigue dependiendo de ambas.

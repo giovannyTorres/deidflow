@@ -381,10 +381,10 @@
       "draft_file": "09-ratificar-perfiles.md",
       "github_title": "[DF-EVAL-MX][BMX-09] Ratificar perfiles operativos, sensibilidad y conservación",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-09 -->",
-      "body_sha256": "522fb871f2611d41fd8cb85f899a5dc7fb9cd78c5f889e2973f243335820e3ff",
+      "body_sha256": "b382c10f38e262b70aa3d135cac8695dfe6ba0e37a9f3011dd81d4f49914b691",
       "github_issue_number": null,
       "github_issue_url": null,
-      "implementation_status": "ratified_documentation_pending_review",
+      "implementation_status": "completed_and_verified",
       "implementation_evidence": "../../audit/BMX-09.md",
       "human_decisions": {
         "D1": "automatic_global_easy_local_retraining",
@@ -393,7 +393,8 @@
         "mandatory_formats": "all_planned_including_ocr",
         "ratified": true,
         "quality_profile_ratified": false
-      }
+      },
+      "reviewed_code_commit": "9f9ea18fc4b1995da1fe4b94112ea224cc0f360e"
     },
     {
       "id": "BMX-10",
@@ -429,10 +430,10 @@
       "draft_file": "10-corpus-identificadores.md",
       "github_title": "[DF-EVAL-MX][BMX-10] Preparar corpus sintético mexicano de identificadores y negativos",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-10 -->",
-      "body_sha256": "7fcae3114b39c7d2fcf12359af49e38aadd488f863e019c59d7c791e5cbb7cc4",
+      "body_sha256": "720d4e4fc8b42fc34b1b67e9129bc223b6f4e2494a025459ca0096e8474fd3bd",
       "github_issue_number": null,
       "github_issue_url": null,
-      "implementation_status": "blocked_by_unratified_BMX-09"
+      "implementation_status": "ready_for_implementation"
     },
     {
       "id": "BMX-11",
@@ -467,10 +468,10 @@
       "draft_file": "11-corpus-contextual.md",
       "github_title": "[DF-EVAL-MX][BMX-11] Evaluar nombres, direcciones, clínica y homónimos con referencia adjudicada",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-11 -->",
-      "body_sha256": "0356796b46913a1fef0e2d1d6d5981fa4fc8df728264c1468f53f0f3e4db3778",
+      "body_sha256": "8d885a8365ed9ef1202ccc2320830605ca971f5868d36c2efb05f14bd59c5fff",
       "github_issue_number": null,
       "github_issue_url": null,
-      "implementation_status": "blocked_by_unratified_BMX-09"
+      "implementation_status": "ready_for_implementation"
     },
     {
       "id": "BMX-12",
@@ -505,10 +506,10 @@
       "draft_file": "12-perturbaciones.md",
       "github_title": "[DF-EVAL-MX][BMX-12] Evaluar perturbaciones textuales sin romper linaje ni referencia",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-12 -->",
-      "body_sha256": "f3a6baec09d23ecddaa2fb6d07bc1de949d416ee47eba5926408593b4207ae00",
+      "body_sha256": "1b8754d3977d33dd8dd4429640ab834b87b889bbcf5bd0ab6063e78cc82a4f64",
       "github_issue_number": null,
       "github_issue_url": null,
-      "implementation_status": "blocked_by_unratified_BMX-09"
+      "implementation_status": "blocked_by_BMX-10_and_BMX-11"
     },
     {
       "id": "BMX-13",

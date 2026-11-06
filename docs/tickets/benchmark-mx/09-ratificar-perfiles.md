@@ -22,7 +22,7 @@ Los IDs BMX son referencias locales, no números de GitHub. Al publicar, enlazar
 D1–D3 ratificados por respuesta explícita: automático/global/adaptación local
 fácil, D2 y D3 recomendados aceptados; todos los formatos obligatorios.
 [Decisión versionada](../../adr/0001-bmx-09-operational-profiles-v1.md).
-Revisión documental pendiente; no se ratifica calidad del candidato.
+Revisión documental verificada en 9f9ea18; no se ratifica calidad del candidato.
 
 ## Qué entrega
 

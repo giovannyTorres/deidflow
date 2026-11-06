@@ -19,8 +19,8 @@ Los IDs BMX son referencias locales, no números de GitHub. Al publicar, enlazar
 
 ## Estado del lote
 
-Implementación no iniciada: BMX-09 no está ratificada; el solicitante pidió
-ajustar D1–D3. Se conservan las dependencias y los criterios originales.
+BMX-09 ratificada y revisada: se inicia la continuación secuencial autorizada
+del lote. Se conservan las dependencias y los criterios originales.
 [Revisión humana pendiente](../../audit/BMX-09-decisions-for-review.md).
 
 ## Qué entrega
