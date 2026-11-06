@@ -97,3 +97,16 @@ def test_ordinal_in_street_type_keeps_its_original_lexical_meaning():
     source = "Pº Ficción 12"
     addresses = [f for f in DeidEngine().scan_text(source) if f.entity_type == "ADDRESS"]
     assert [source[f.start : f.end] for f in addresses] == [source]
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        ("Nombre: Ana Ficticia Nº", "Ana Ficticia"),
+        ("Nombre: Ana Ficticia No", "Ana Ficticia No"),
+        ("Nombre: Mª Ficticia", "Mª Ficticia"),
+    ],
+)
+def test_ordinal_number_label_is_not_reinterpreted_as_a_surname(source, expected):
+    names = [f for f in DeidEngine().scan_text(source) if f.entity_type == "PERSON"]
+    assert [source[f.start : f.end] for f in names] == [expected]

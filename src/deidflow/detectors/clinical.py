@@ -12,6 +12,7 @@ from datetime import date
 from deidflow.core import Finding
 
 _FLAGS = re.IGNORECASE | re.UNICODE
+_NUMBER_LABEL = re.compile(r"(?<!\w)[Nn][º°](?!\w)")
 # Necessary condition for every recognizer below: fields contain ':', phones '+',
 # dates a digit plus date delimiter/'de', ages 'años', or a DNI/NIF/NIE label.
 # This changes only whether a provably empty set is scanned, never candidate rules.
@@ -80,7 +81,18 @@ _SEX_AGE = re.compile(
 )
 
 
-def contextual_spanish(text: str) -> list[Finding]:
+def person_field_boundary(lexical_text: str, start: int, end: int) -> int:
+    """A source number-label token is not another surname; literal No remains valid."""
+    marker = _NUMBER_LABEL.search(lexical_text, start, end)
+    if marker is None:
+        return end
+    boundary = marker.start()
+    while boundary > start and lexical_text[boundary - 1] in " \t":
+        boundary -= 1
+    return boundary
+
+
+def contextual_spanish(text: str, *, lexical_text: str | None = None) -> list[Finding]:
     if not _TRIGGER.search(text):
         return []
     findings = []
@@ -113,6 +125,9 @@ def contextual_spanish(text: str) -> list[Finding]:
 
     for match in _PERSON.finditer(text):
         start, end = match.span("value")
+        end = person_field_boundary(lexical_text if lexical_text is not None else text, start, end)
+        if end <= start:
+            continue
         # Another label is never a person's name, including blank redacted forms.
         if (
             text[end : end + 1] == ":"

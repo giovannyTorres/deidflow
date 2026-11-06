@@ -270,7 +270,12 @@ class DeidEngine:
                 raise ValueError("Normalized text batch exceeds configured memory budget")
             try:
                 with self._nlp_lock, profiler.stage("nlp") if profiler else nullcontext():
-                    predicted = self.nlp.detect_batch([view.text for view in views])
+                    detect_views = getattr(self.nlp, "detect_views", None)
+                    predicted = (
+                        detect_views(texts, views)
+                        if callable(detect_views)
+                        else self.nlp.detect_batch([view.text for view in views])
+                    )
             except Exception:
                 raise RuntimeError("Local NLP adapter failed; output is not verified") from None
             if len(predicted) != len(texts):

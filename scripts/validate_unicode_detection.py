@@ -24,9 +24,14 @@ from deidflow import DeidEngine
 from deidflow.benchmarks.public_corpus import PublicCorpus, load_public, verify_acquired_corpus
 from deidflow.benchmarks.public_quality import map_predictions, quality_metrics
 from deidflow.benchmarks.runner import offline_network
+from deidflow.benchmarks.span_corpus import hash_split, load_gretel_finance
 from deidflow.benchmarks.synthetic_es import generate
 from deidflow.domains import get_domain_pack
 from deidflow.nlp.tagger import BUILTIN_MODELS, builtin_profiles
+
+GRETEL_TRAIN_FILENAME = "Spanish_train-00000-of-00001.parquet"
+GRETEL_TRAIN_SHA256 = "39954d0931f3d3771af1200f0255016bbe29905dcd0fec539864d3b01ea63b7b"
+GRETEL_REVISION = "7b844d16738527a04264f50214cb426a4cea0897"
 
 
 def canonical(value):
@@ -56,11 +61,76 @@ def digest_sources(root):
     return state.hexdigest()
 
 
+def gretel_validation(corpus_path):
+    if corpus_path is None:
+        raise SystemExit("Pinned Gretel Spanish train is unavailable")
+    path = corpus_path / GRETEL_TRAIN_FILENAME if corpus_path.is_dir() else corpus_path
+    if not path.is_file():
+        raise SystemExit("Pinned Gretel Spanish train is unavailable")
+    path = path.resolve()
+    if path.name != GRETEL_TRAIN_FILENAME:
+        raise SystemExit("Gretel validation accepts only the pinned Spanish train file")
+    if any((parent / ".git").exists() for parent in path.parents):
+        raise SystemExit("Raw Gretel validation assets must remain outside Git checkouts")
+
+    def file_digest():
+        try:
+            with path.open("rb") as stream:
+                return hashlib.file_digest(stream, "sha256").hexdigest()
+        except OSError:
+            raise SystemExit("Pinned Gretel Spanish train cannot be accessed") from None
+
+    if file_digest() != GRETEL_TRAIN_SHA256:
+        raise SystemExit("Gretel Spanish train SHA-256 differs from the registered pin")
+    try:
+        published = load_gretel_finance([path], language="Spanish", split="train")
+        training, validation = hash_split(
+            published.examples, validation_fraction=0.1, salt="deidflow"
+        )
+    except Exception:
+        raise SystemExit("Pinned Gretel train validation could not be loaded locally") from None
+    if file_digest() != GRETEL_TRAIN_SHA256:
+        raise SystemExit("Pinned Gretel Spanish train changed during loading")
+    examples = tuple(validation)
+    assert all(example.split == "validation" for example in examples)
+    metadata = {
+        "partition": "validation",
+        "official_split": "train",
+        "evidence_type": "public_synthetic_financial_validation",
+        "provenance_kind": "synthetic_financial",
+        "source": "Gretel.ai synthetic_pii_finance_multilingual",
+        "license": "Apache-2.0",
+        "source_revision": GRETEL_REVISION,
+        "train_file_sha256": GRETEL_TRAIN_SHA256,
+        "published_train_documents_loaded": len(published.examples),
+        "internal_training_documents_not_scored": len(training),
+        "documents": len(examples),
+        "gold_mentions": sum(len(e.spans) for e in examples),
+        "gold_support_by_entity": dict(
+            sorted(Counter(s.entity_type for e in examples for s in e.spans).items())
+        ),
+        "hash_split": {
+            "validation_fraction": 0.1,
+            "salt": "deidflow",
+            "duplicate_texts_share_partition": True,
+            "identity_or_template_independence_accredited": False,
+        },
+        "template_ids_retained_from_published_train": True,
+        "official_test_files_opened": 0,
+        "annotated_records_sha256": digest_records(asdict(e) for e in examples),
+        "texts_sha256": digest_records(e.text for e in examples),
+    }
+    corpus = PublicCorpus("gretel_finance", "Spanish", "synthetic_financial", examples, metadata)
+    return corpus, examples, metadata
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-root", type=Path, required=True)
     parser.add_argument("--label", choices=("baseline", "candidate"), required=True)
-    parser.add_argument("--source", choices=("synthetic", "meddocan"), default="synthetic")
+    parser.add_argument(
+        "--source", choices=("synthetic", "meddocan", "gretel"), default="synthetic"
+    )
     parser.add_argument("--corpus", type=Path)
     parser.add_argument("--expected-revision")
     parser.add_argument("--output", type=Path, required=True)
@@ -110,7 +180,7 @@ def main():
             "texts_sha256": digest_records(e.text for e in examples),
         }
         corpus = PublicCorpus("synthetic_es", "es", "synthetic", examples, metadata)
-    else:
+    elif args.source == "meddocan":
         if args.corpus is None:
             raise SystemExit("MEDDOCAN dev requires an explicitly supplied registered corpus path")
         integrity = verify_acquired_corpus(args.corpus, "meddocan")
@@ -137,6 +207,8 @@ def main():
             "texts_sha256": digest_records(e.text for e in examples),
             "loader_metadata": corpus.metadata,
         }
+    else:
+        corpus, examples, metadata = gretel_validation(args.corpus)
     pack = get_domain_pack("general")
     rules_config = {
         "factory": "deidflow.DeidEngine",
@@ -161,9 +233,11 @@ def main():
     report = {
         "schema_version": "deidflow.unicode-validation.v1",
         "label": args.label,
-        "evidence_type": "validation_synthetic_fiction"
-        if args.source == "synthetic"
-        else "validation_public_semi_synthetic",
+        "evidence_type": {
+            "synthetic": "validation_synthetic_fiction",
+            "meddocan": "validation_public_semi_synthetic",
+            "gretel": "validation_public_synthetic_financial",
+        }[args.source],
         "source": args.source,
         "partition": "validation",
         "source_revision": revision,
@@ -175,7 +249,8 @@ def main():
         "detection_passes_per_configuration": 1,
         "warmup_calls": 0,
         "test_partitions_loaded_for_scoring": 0,
-        "train_partitions_loaded_for_scoring": 0,
+        "published_train_files_loaded_for_validation_split": int(args.source == "gretel"),
+        "internal_training_examples_scored": 0,
         "threshold_or_weight_adjustments": 0,
         "pipelines": {},
         "limitations": [

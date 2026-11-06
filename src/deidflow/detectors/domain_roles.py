@@ -16,6 +16,7 @@ from typing import Any
 from deidflow.core import Finding
 from deidflow.detectors import address_field_boundary
 from deidflow.detectors.narrative import coordinated_person_spans
+from deidflow.normalization import DetectionView, ordinal_feature_text
 
 DOMAIN_RULES_VERSION = "domain-roles-1.0.1"
 DOMAIN_ROLES = (
@@ -199,6 +200,10 @@ class DomainRoleRecognizer:
             + rf"))\b[ \t]*(?::[ \t]*|[ \t]+)(?P<value>{_NAME})(?![\w])"
         )
 
+    def detect_view(self, source: str, view: DetectionView) -> list[Finding]:
+        """Interpret source ordinal classes without changing normalized offsets."""
+        return self.detect(ordinal_feature_text(source, view))
+
     def detect(self, text: str) -> list[Finding]:
         findings = []
         for match in self._pattern.finditer(text):
@@ -351,7 +356,23 @@ class DomainModelAdapter:
         self.roles = DomainRoleRecognizer(domain)
 
     def detect_batch(self, texts: list[str]) -> list[list[Finding]]:
-        batches = self.adapter.detect_batch(texts)
+        return self._refine(texts, self.adapter.detect_batch(texts))
+
+    def detect_views(self, sources: list[str], views: list[DetectionView]) -> list[list[Finding]]:
+        """Refine normalized predictions with source ordinal token evidence."""
+        if len(sources) != len(views):
+            raise ValueError("Normalized inference source/view batch length differs")
+        detect_views = getattr(self.adapter, "detect_views", None)
+        if callable(detect_views):
+            batches = detect_views(sources, views)
+        else:
+            batches = self.adapter.detect_batch([view.text for view in views])
+        lexical = [
+            ordinal_feature_text(source, view) for source, view in zip(sources, views, strict=True)
+        ]
+        return self._refine(lexical, batches)
+
+    def _refine(self, texts: list[str], batches: list[list[Finding]]) -> list[list[Finding]]:
         if len(batches) != len(texts):
             raise ValueError("Local domain model returned an invalid batch length")
         result = []

@@ -21,8 +21,6 @@ import re
 from collections.abc import Iterator
 from dataclasses import dataclass
 
-from deidflow.normalization import DetectionView
-
 _CAP = r"[A-ZÁÉÍÓÚÜÑ]"
 _WORD = r"[\wÁÉÍÓÚÜÑáéíóúüñ'’.-]*"
 # Lowercase connectors only: a capitalized word ("San", "Santa") is a name word, so
@@ -95,28 +93,6 @@ class AddressCandidate:
     end: int
     score: float
     context: tuple[str, ...]
-
-
-def address_lexical_view(source: str, view: DetectionView) -> str:
-    """Interpret source ordinal token classes at normalized view coordinates.
-
-    NFKC merges ordinal indicators with ordinary a/o, although these have
-    different roles in house numbers, floors and street abbreviations. Validate
-    that distinction using source provenance, rather than accepting ordinary
-    prose such as '3 o más' as a floor. This does not change any view offsets.
-    """
-    if "ª" not in source and "º" not in source:
-        return view.text
-    characters = list(view.text)
-    for index, character in enumerate(characters):
-        if character in "ao":
-            start, end = view.bounds(index, index + 1)
-            original = source[start:end]
-            if "ª" in original and character == "a":
-                characters[index] = "ª"
-            elif "º" in original and character == "o":
-                characters[index] = "º"
-    return "".join(characters)
 
 
 def _trim(text: str, start: int, end: int) -> tuple[int, int]:

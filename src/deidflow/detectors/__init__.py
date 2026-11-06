@@ -14,7 +14,7 @@ from dataclasses import dataclass, replace
 from typing import Protocol
 
 from deidflow.core import Finding
-from deidflow.normalization import detection_view
+from deidflow.normalization import detection_view, ordinal_feature_text
 from deidflow.validators import (
     ValidationResult,
     validate_card,
@@ -24,8 +24,8 @@ from deidflow.validators import (
     validate_rfc,
 )
 
-from .addresses import AddressCandidate, address_candidates, address_lexical_view
-from .clinical import contextual_spanish
+from .addresses import AddressCandidate, address_candidates
+from .clinical import contextual_spanish, person_field_boundary
 from .international import (
     SUPPORTED_COUNTRIES,
     date_candidates,
@@ -270,6 +270,7 @@ class RuleDetector:
         source = text
         view = detection_view(text)
         text = view.text
+        lexical_text = ordinal_feature_text(source, view)
         findings: list[Finding] = []
 
         def add(
@@ -462,14 +463,18 @@ class RuleDetector:
                 add(kind, start, end, 0.85, context=("explicit_field_label",))
             for pattern in (_NAME, _NAME_FIELD, _HONORIFIC):
                 for match in pattern.finditer(text):
-                    spans = coordinated_person_spans(text, *match.span("value"))
+                    start, end = match.span("value")
+                    end = person_field_boundary(lexical_text, start, end)
+                    if end <= start:
+                        continue
+                    spans = coordinated_person_spans(text, start, end)
                     context = ("person_label",) + (
                         ("person_coordination_split",) if len(spans) > 1 else ()
                     )
                     for start, end in spans:
                         add("PERSON", start, end, 0.88, context=context)
             labelled_addresses: list[tuple[int, int]] = []
-            candidates = list(address_candidates(address_lexical_view(source, view)))
+            candidates = list(address_candidates(lexical_text))
             for pattern in (_ADDRESS, _STREET):
                 for match in pattern.finditer(text):
                     start, end = match.span("value")
@@ -546,9 +551,12 @@ class RuleDetector:
                     context=("explicit_blood_type",),
                 )
         for recognizer in self.recognizers:
-            findings.extend(recognizer.detect(text))
+            detect_view = getattr(recognizer, "detect_view", None)
+            findings.extend(
+                detect_view(source, view) if callable(detect_view) else recognizer.detect(text)
+            )
         if self.contextual:
-            findings.extend(contextual_spanish(text))
+            findings.extend(contextual_spanish(text, lexical_text=lexical_text))
         return fuse(view.project(finding) for finding in findings)
 
     def detect_batch(self, texts: list[str]) -> list[list[Finding]]:

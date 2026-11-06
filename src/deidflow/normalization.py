@@ -140,6 +140,27 @@ def detection_view(text: str, *, max_characters: int = DEFAULT_MAX_CHARACTERS) -
     return DetectionView(normalized, source_starts, source_ends)
 
 
+def ordinal_feature_text(source: str, view: DetectionView) -> str:
+    """Retain original ordinal token classes for lexical features/validation.
+
+    The detection view stays Cf-free NFKC. Its map supplies the distinction
+    between source ordinal indicators and ordinary a/o at unchanged coordinates;
+    controls and fullwidth characters are never restored to the feature text.
+    """
+    if "ª" not in source and "º" not in source:
+        return view.text
+    characters = list(view.text)
+    for index, character in enumerate(characters):
+        if character in "ao":
+            start, end = view.bounds(index, index + 1)
+            original = source[start:end]
+            if "ª" in original and character == "a":
+                characters[index] = "ª"
+            elif "º" in original and character == "o":
+                characters[index] = "º"
+    return "".join(characters)
+
+
 def has_internal_format_controls(text: str) -> bool:
     """Whether Cf separates alphanumeric characters, allowing combining marks."""
     alphanumeric = pending = False
