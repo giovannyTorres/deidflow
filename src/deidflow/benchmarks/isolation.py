@@ -58,6 +58,20 @@ class LocalAsset:
     sha256: str
 
 
+@dataclass(frozen=True)
+class _AdmissionMeasurements:
+    expanded_bytes: int
+    archive_members: int
+    nesting_depth: int
+    pixels: int
+
+    def exceeds(self, limits: IsolationLimits) -> bool:
+        return any(
+            type(value) is not int or not 0 <= value <= getattr(limits, name)
+            for name, value in asdict(self).items()
+        )
+
+
 def _read_file(path: Path, maximum: int) -> bytes:
     import stat
 
@@ -76,18 +90,27 @@ def _read_file(path: Path, maximum: int) -> bytes:
 def _set_limits(limits: IsolationLimits) -> None:
     import resource
 
-    resource.setrlimit(resource.RLIMIT_AS, (limits.memory_bytes, limits.memory_bytes))
-    resource.setrlimit(resource.RLIMIT_FSIZE, (limits.output_bytes, limits.output_bytes))
     cpu = math.ceil(limits.wall_seconds) + 1
-    resource.setrlimit(resource.RLIMIT_CPU, (cpu, cpu))
-    resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
-    resource.setrlimit(resource.RLIMIT_NOFILE, (128, 128))
+    for kind, requested in (
+        (resource.RLIMIT_AS, limits.memory_bytes),
+        (resource.RLIMIT_FSIZE, limits.output_bytes),
+        (resource.RLIMIT_CPU, cpu),
+        (resource.RLIMIT_CORE, 0),
+        (resource.RLIMIT_NOFILE, 128),
+    ):
+        _soft, inherited_hard = resource.getrlimit(kind)
+        applied = (
+            requested
+            if inherited_hard == resource.RLIM_INFINITY
+            else min(requested, inherited_hard)
+        )
+        resource.setrlimit(kind, (applied, applied))
 
 
-def _runtime_roots() -> list[Path]:
+def _runtime_mounts() -> list[Path]:
     return list(
         dict.fromkeys(
-            Path(path).resolve()
+            Path(path)
             for path in ("/usr", "/lib", "/lib64", sys.base_prefix)
             if Path(path).exists()
         )
@@ -103,7 +126,7 @@ def _command(root: Path, bwrap: str, strace: str) -> list[str]:
         "-s",
         "4096",
         "-e",
-        "trace=network,process,memory",
+        "trace=network,process,memory,ptrace,io_uring_setup,io_uring_enter,io_uring_register",
         "-o",
         str(root / "trace"),
         bwrap,
@@ -115,9 +138,8 @@ def _command(root: Path, bwrap: str, strace: str) -> list[str]:
         "--clearenv",
     ]
     # Preserve alias mount points required by ELF loaders while keeping roots RO.
-    for raw in dict.fromkeys(("/usr", "/lib", "/lib64", sys.base_prefix)):
-        if Path(raw).exists():
-            command.extend(("--ro-bind", raw, raw))
+    for path in _runtime_mounts():
+        command.extend(("--ro-bind", str(path), str(path)))
     command.extend(
         (
             "--proc",
@@ -148,17 +170,17 @@ def _command(root: Path, bwrap: str, strace: str) -> list[str]:
     return command
 
 
-def _trace_summary(root: Path, maximum: int) -> tuple[bool, int, int]:
+def _trace_summary(root: Path, maximum: int) -> tuple[bool, int, int, int]:
     files = list(root.glob("trace.*"))
     if not files or len(files) > 1024:
-        return False, 0, 0
+        return False, 0, 0, 0
     records = []
     entry = None
     interpreter = str(Path(sys.executable).resolve())
     for path in files:
         raw = _read_file(path, maximum)
         if len(raw) >= maximum:
-            return False, 0, 0
+            return False, 0, 0, 0
         for line in raw.decode("utf-8", errors="replace").splitlines():
             timestamp, _, call = line.partition(" ")
             try:
@@ -173,7 +195,7 @@ def _trace_summary(root: Path, maximum: int) -> tuple[bool, int, int]:
             ):
                 entry = at if entry is None else min(entry, at)
     if entry is None:
-        return False, 0, 0
+        return False, 0, 0, 0
     network_calls = {
         "socket",
         "socketpair",
@@ -194,14 +216,18 @@ def _trace_summary(root: Path, maximum: int) -> tuple[bool, int, int]:
         "setsockopt",
         "getsockopt",
     }
-    network = memory = 0
+    network = memory = integrity = 0
     for at, call in records:
         if at < entry:
             continue  # Trusted bubblewrap namespace setup, before candidate exec.
         name = call.partition("(")[0]
         network += int(name in network_calls)
         memory += int(name in {"mmap", "mremap", "brk"} and "ENOMEM" in call)
-    return True, network, memory
+        integrity += int(
+            (name in {"clone", "clone3"} and "CLONE_UNTRACED" in call)
+            or name in {"ptrace", "io_uring_setup", "io_uring_enter", "io_uring_register"}
+        )
+    return True, network, memory, integrity
 
 
 def _response(raw: bytes, required_mentions: int) -> dict[str, int]:
@@ -267,6 +293,7 @@ def run_isolated_case(
         "required_support": {"documents": 1, "mentions": required_mentions},
         "network_attempts": 0,
         "memory_limit_events": 0,
+        "audit_integrity_events": 0,
         "strict_custody_accredited": False,
         "capabilities": {
             "native_network_namespace": False,
@@ -283,24 +310,13 @@ def run_isolated_case(
     try:
         payload = json.dumps(input_payload, allow_nan=False, ensure_ascii=False).encode("utf-8")
         strict_json(payload)
-        measurements = (expanded_bytes, archive_members, nesting_depth, pixels)
-        if (
-            len(payload) > MAX_RESOURCE_BYTES
-            or any(type(value) is not int or value < 0 for value in measurements)
-            or any(
-                value > maximum
-                for value, maximum in zip(
-                    measurements,
-                    (
-                        limits.expanded_bytes,
-                        limits.archive_members,
-                        limits.nesting_depth,
-                        limits.pixels,
-                    ),
-                    strict=True,
-                )
-            )
-        ):
+        measurements = _AdmissionMeasurements(
+            expanded_bytes=expanded_bytes,
+            archive_members=archive_members,
+            nesting_depth=nesting_depth,
+            pixels=pixels,
+        )
+        if len(payload) > MAX_RESOURCE_BYTES or measurements.exceeds(limits):
             result["status"] = "ADMISSION_LIMIT"
         else:
             code = _read_file(Path(script), MAX_RESOURCE_BYTES)
@@ -332,13 +348,15 @@ def run_isolated_case(
                 and not (
                     reference_root is not None
                     and any(
-                        reference_root.resolve().is_relative_to(root)
-                        or root.is_relative_to(reference_root.resolve())
-                        for root in _runtime_roots()
+                        reference_root.resolve().is_relative_to(root.resolve())
+                        or root.resolve().is_relative_to(reference_root.resolve())
+                        for root in _runtime_mounts()
                     )
                 )
             ):
                 _execute(result, code, payload, loaded_assets, limits, bwrap, strace)
+    except subprocess.SubprocessError:
+        result["status"] = "UNSUPPORTED"
     except FileNotFoundError:
         result["status"] = "MISSING_ASSET"
     except (OSError, ValueError, TypeError, UnicodeError, RecursionError):
@@ -382,12 +400,15 @@ def _execute(
                 timed_out = True
                 os.killpg(process.pid, signal.SIGKILL)
                 process.wait()
-        audited, network, memory = _trace_summary(root, limits.output_bytes)
-        result.update(network_attempts=network, memory_limit_events=memory)
+        audited, network, memory, integrity = _trace_summary(root, limits.output_bytes)
+        result.update(
+            network_attempts=network, memory_limit_events=memory, audit_integrity_events=integrity
+        )
         result["capabilities"] = dict.fromkeys(result["capabilities"], audited)
+        result["capabilities"]["native_syscall_audit"] = audited and not integrity
         if timed_out:
             result["status"] = "TIMEOUT"
-        elif network:
+        elif network or integrity:
             result["status"] = "LOCAL_POLICY_VIOLATION"
         elif memory or process.returncode in {
             -signal.SIGXFSZ,
@@ -408,5 +429,5 @@ def _execute(
                 )
                 result["status"] = "COMPLETED"
                 result["strict_custody_accredited"] = result["reference_boundary_declared"]
-            except (ValueError, OSError, UnicodeError):
+            except (ValueError, OSError, UnicodeError, RecursionError):
                 result["status"] = "MALFORMED_RESPONSE"

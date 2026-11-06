@@ -156,3 +156,60 @@ def test_undeclared_reference_boundary_cannot_accredit_strict_custody(tmp_path):
     assert result["status"] == "COMPLETED"
     assert result["strict_custody_accredited"] is False
     assert result["reference_boundary_declared"] is False
+
+
+def test_untraced_clone_cannot_accredit_native_audit(tmp_path):
+    import platform
+
+    if platform.machine() != "x86_64":
+        pytest.skip("Raw clone probe is x86_64-specific")
+    code = (
+        """import ctypes,os
+libc=ctypes.CDLL(None)
+libc.syscall.restype=ctypes.c_long
+pid=libc.syscall(56,ctypes.c_ulong(17|0x00800000),0,0,0,0)
+if pid==0:
+ libc.close(libc.socket(2,1,0))
+ os._exit(0)
+if pid>0:
+ os.waitpid(pid,0)
+"""
+        + RESPONSE
+    )
+    result = run_case(tmp_path, code)
+    require_native(result)
+    assert result["status"] == "LOCAL_POLICY_VIOLATION"
+    assert result["capabilities"]["native_syscall_audit"] is False
+    assert result["strict_custody_accredited"] is False
+    assert result["audit_integrity_events"] > 0
+
+
+def test_deep_candidate_json_is_not_a_dataset_failure(tmp_path):
+    result = run_case(tmp_path, 'print("["*50000+"0"+"]"*50000)\n')
+    require_native(result)
+    assert result["status"] == "MALFORMED_RESPONSE"
+    assert result["required_support"]["mentions"] == 3
+
+
+def test_lower_inherited_hard_limit_keeps_a_sanitized_report(tmp_path):
+    import subprocess
+    import sys
+
+    script = tmp_path / "program.py"
+    script.write_text(RESPONSE)
+    code = """import hashlib,json,resource,sys
+from pathlib import Path
+from deidflow.benchmarks.isolation import run_isolated_case
+root=Path(sys.argv[1])
+program=root/'program.py'
+resource.setrlimit(resource.RLIMIT_NOFILE,(64,64))
+result=run_isolated_case(program,script_sha256=hashlib.sha256(program.read_bytes()).hexdigest(),input_payload={},case_id='c-a',required_mentions=3,output=root/'report',reference_root=root/'reference')
+print(json.dumps(result))
+"""
+    process = subprocess.run(
+        [sys.executable, "-c", code, str(tmp_path)], capture_output=True, timeout=10
+    )
+    assert process.returncode == 0
+    result = json.loads(process.stdout)["result"]
+    assert result["required_support"]["mentions"] == 3
+    assert result["status"] in {"COMPLETED", "UNSUPPORTED"}
