@@ -12,26 +12,26 @@
     "RFC": 1.0
   },
   "engine_seconds": [
-    0.10581740000003492,
-    0.09739659999996775,
-    0.09747129999999515,
-    0.12708800000001474,
-    0.12450119999999743
+    0.31484946899990973,
+    0.22597580100000414,
+    0.22957940800006327,
+    0.22500790100002632,
+    0.23340145900010612
   ],
-  "engine_to_same_run_reference_ratio": 1.0866909437460361,
+  "engine_to_same_run_reference_ratio": 1.025222384474878,
   "machine": {
     "execution": "CPU",
     "gpu_memory_bytes": null,
-    "logical_cpu_count": 16,
-    "machine": "AMD64",
-    "physical_cpu_count": 8,
-    "physical_memory_bytes": 16962179072,
-    "platform": "Windows-10-10.0.26200-SP0",
-    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
-    "python": "3.11.9",
+    "logical_cpu_count": 4,
+    "machine": "x86_64",
+    "physical_cpu_count": 4,
+    "physical_memory_bytes": 16867418112,
+    "platform": "Linux-6.18.44-fc-v242-x86_64-with-glibc2.39",
+    "processor": "x86_64",
+    "python": "3.13.18",
     "versions": {
       "DataProfiler": null,
-      "deidflow": "0.2.0",
+      "deidflow": "0.4.0",
       "numpy": "2.4.6",
       "presidio-analyzer": "2.2.366",
       "psutil": "7.2.2",
@@ -39,16 +39,16 @@
       "spacy": "3.8.18"
     }
   },
-  "median_seconds_per_record": 0.00010581740000003492,
+  "median_seconds_per_record": 0.00022957940800006328,
   "passed": true,
   "records": 1000,
   "repeats": 5,
   "same_run_reference_seconds": [
-    0.09929320000003372,
-    0.0973758000000089,
-    0.09250279999997701,
-    0.09701330000001462,
-    0.10740240000001222
+    0.24287414900027215,
+    0.22518914400006906,
+    0.21780801899967628,
+    0.21732217899989337,
+    0.22393132599972887
   ],
   "scope": "Gross CI regression guard; identical contextual rules, engine wrapper versus direct detector, alternating timing order; no fine-grained cross-machine or statistical speedup claim"
 }

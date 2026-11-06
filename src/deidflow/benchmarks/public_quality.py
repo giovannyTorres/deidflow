@@ -49,6 +49,8 @@ _CODE_TYPES = {
     "PHONE",
     "EMAIL",
     "INSURANCE_ID",
+    "TAX_ID",
+    "IP_ADDRESS",
 }
 
 
@@ -61,6 +63,7 @@ _GRETEL_PREDICTION_ALIASES = {
     "INTERNAL_ID": "CUSTOMER_ID",
     "CONTRACT_ID": "CUSTOMER_ID",
     "PATIENT_ID": "CUSTOMER_ID",
+    "TAX_ID": "NATIONAL_ID",
 }
 
 
@@ -74,6 +77,7 @@ def map_predictions(source: str, findings: Sequence[Finding]) -> list[Finding]:
             kind = {
                 "DATE_OF_BIRTH": "DATE",
                 "NATIONAL_ID": "PATIENT_ID",
+                "TAX_ID": "PATIENT_ID",
                 "PASSPORT": "PATIENT_ID",
             }.get(kind, kind)
         elif source == "gretel_finance":

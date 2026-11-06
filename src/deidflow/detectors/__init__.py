@@ -1,9 +1,14 @@
-"""Compiled Spanish/Mexican recognizers and deterministic candidate fusion."""
+"""Compiled Spanish-language recognizers and deterministic candidate fusion.
+
+The core rules cover Mexican identifiers, contact data and labelled fields; the
+international pack (``detectors.international``) adds identifiers, phones, IP
+addresses and dates for every Spanish-speaking country.
+"""
 
 from __future__ import annotations
 
 import re
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Collection, Iterable
 from dataclasses import dataclass, replace
 from typing import Protocol
 
@@ -18,6 +23,13 @@ from deidflow.validators import (
 )
 
 from .clinical import contextual_spanish
+from .international import (
+    SUPPORTED_COUNTRIES,
+    date_candidates,
+    identifier_candidates,
+    network_candidates,
+    phone_candidates,
+)
 
 
 class Detector(Protocol):
@@ -191,9 +203,22 @@ _PHONE_CONTEXT = re.compile(
 class RuleDetector:
     """Reusable rule set. Scores are evidence ranks, explicitly not calibrated probabilities."""
 
-    def __init__(self, *, contextual: bool = True, recognizers: Iterable[Detector] = ()) -> None:
+    def __init__(
+        self,
+        *,
+        contextual: bool = True,
+        recognizers: Iterable[Detector] = (),
+        countries: Collection[str] | None = None,
+    ) -> None:
+        """``countries`` limits the international identifier pack (``None``: all)."""
         self.contextual = contextual
         self.recognizers = tuple(recognizers)
+        if countries is not None:
+            countries = frozenset(c.upper() for c in countries)
+            unknown = countries - SUPPORTED_COUNTRIES
+            if unknown or not countries:
+                raise ValueError("Unsupported country codes: " + ", ".join(sorted(unknown)))
+        self.countries: frozenset[str] | None = countries
 
     def detect(self, text: str) -> list[Finding]:
         findings: list[Finding] = []
@@ -208,6 +233,7 @@ class RuleDetector:
             context: tuple[str, ...] = (),
             risk: str = "high",
             protected: bool = True,
+            labels: tuple[str, ...] = (),
         ) -> None:
             findings.append(
                 Finding(
@@ -220,6 +246,7 @@ class RuleDetector:
                     context,
                     risk=risk,
                     protected=protected,
+                    labels=labels,
                 )
             )
 
@@ -252,6 +279,20 @@ class RuleDetector:
                         context=("explicit_identifier_label",),
                     )
         numeric_spans: list[tuple[int, int]] = []
+        for candidate in identifier_candidates(text, self.countries):
+            add(
+                candidate.entity_type,
+                candidate.start,
+                candidate.end,
+                candidate.score,
+                validation=candidate.validation,
+                context=candidate.context,
+                labels=candidate.labels,
+            )
+            # Specific identifiers reserve their digits; generic labelled fallbacks
+            # do not, so CLABE/card checks still type the same digits precisely.
+            if candidate.score >= 0.75 and not candidate.generic:
+                numeric_spans.append((candidate.start, candidate.end))
         for match in _IBAN_RE.finditer(text):
             check = validate_iban(match.group())
             labelled = bool(_IBAN_LABEL.search(text[max(0, match.start() - 24) : match.start()]))
@@ -295,6 +336,18 @@ class RuleDetector:
                         validation="structural",
                         context=("label",) if labelled else (),
                     )
+        for candidate in (*phone_candidates(text), *network_candidates(text)):
+            if not any(
+                start <= candidate.start and candidate.end <= end for start, end in numeric_spans
+            ):
+                add(
+                    candidate.entity_type,
+                    candidate.start,
+                    candidate.end,
+                    candidate.score,
+                    validation=candidate.validation,
+                    labels=candidate.labels,
+                )
         for match in _SECRET.finditer(text):
             label = match.group("label").casefold()
             kind = (
@@ -339,12 +392,15 @@ class RuleDetector:
                     while end > start and text[end - 1].isspace():
                         end -= 1
                     add("ADDRESS", start, end, 0.85, context=("address_structure",))
-            for match in _DATE.finditer(text):
-                preceding = text[max(0, match.start() - 45) : match.start()]
+            dates = {match.span() for match in _DATE.finditer(text)}
+            dates.update(date_candidates(text))
+            for date_start, date_end in sorted(dates):
+                preceding = text[max(0, date_start - 45) : date_start]
                 kind = "DATE_OF_BIRTH" if _DOB_CONTEXT.search(preceding) else "DATE"
                 add(
                     kind,
-                    *match.span(),
+                    date_start,
+                    date_end,
                     0.85 if kind == "DATE_OF_BIRTH" else 0.7,
                     risk="high" if kind == "DATE_OF_BIRTH" else "medium",
                     protected=kind == "DATE_OF_BIRTH",

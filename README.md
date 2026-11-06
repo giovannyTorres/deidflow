@@ -1,6 +1,7 @@
 # DeidFlow
 
-Local-first Spanish/Mexican sensitive-data detection and verified transformations.
+Local-first sensitive-data detection and verified transformations for Spanish across
+Spain, Latin America and Spanish-language US documents.
 Release **0.4.0** (beta), licensed under [Apache-2.0](LICENSE). It runs fully
 offline, has no mandatory runtime dependencies and now ships a trained Spanish
 span tagger. It is not a guarantee of anonymity or a compliance certification:
@@ -32,7 +33,7 @@ result = engine.deidentify_text("Paciente: Ernesto Rivera Bueno. NHC: 368503.")
 print(result.status, result.output_text)  # APPROVED / REVIEW_REQUIRED / BLOCKED
 
 # Rules only: semantic coverage is required by default, so this needs review.
-rules_only = DeidEngine(language="es", country="MX", offline=True)
+rules_only = DeidEngine(language="es", country="ALL", offline=True)  # or "MX", "ES,AR", ...
 assert rules_only.deidentify_text("correo: persona@example.test").status == "REVIEW_REQUIRED"
 
 # With an evaluated, explicitly supplied local semantic adapter:
@@ -59,6 +60,11 @@ verification gate. It never establishes anonymous data. Always inspect
 - **Built-in Spanish financial tagger** (`SpanTagger.builtin("es-finance")`)
   trained on the Apache-2.0 Gretel synthetic financial corpus: held-out exact
   F1 **0.740** versus 0.308 for the rules. Checksum-validated IBAN recognizer.
+- **Identifiers for 21 Spanish-speaking countries** ([table](docs/COUNTRIES.md)):
+  DNI/NIE/CIF/NSS/CCC (ES), CUIT/CBU (AR), RUT (CL), CI (UY), NIT (CO), RUC (PE,
+  EC, PY), cédula (EC, DO, CR, NI, PA, VE, ...), RIF (VE), RNC (DO), NIT/DPI (GT),
+  DUI (SV), INE/IMSS (MX), SSN (US/PR); international phones, IPv4/IPv6 and
+  textual Spanish dates. Check digits are cross-checked against python-stdnum.
 - Domain router (`--tagger builtin:auto`) picks the clinical or financial model
   per document; `balanced`/`assurance` operating profiles (`--tagger-profile`).
 - Train your own tagger from span JSONL (`scripts/train_span_tagger.py`).
@@ -169,6 +175,25 @@ sensitive character. Financial text is not ready for unattended release.
 Validation-tuned `assurance` profiles lower the share of approved documents that
 leak a direct identifier (MEDDOCAN test: 10.1% to 7.7%) but did not reach their
 2% validation target on test; see [operating profiles](docs/TAGGER.md#operating-profiles-domain-routing-and-leak-targets).
+
+## Compared with Presidio and spaCy
+
+Same test sets, same scoring, baselines installed as a user would
+(`presidio-analyzer` 2.2.366 and spaCy `es_core_news_lg` 3.7.0, untuned).
+Details and caveats: [docs/COMPARISON.md](docs/COMPARISON.md).
+
+| Test set | DeidFlow `builtin:auto` | DeidFlow rules + auto | Presidio | spaCy |
+| --- | ---: | ---: | ---: | ---: |
+| MEDDOCAN clinical, exact F1 | **0.958** | 0.881 | 0.363 | 0.259 |
+| MEDDOCAN, sensitive-character recall | 0.966 | **0.969** | 0.661 | 0.496 |
+| MEDDOCAN, over-redaction | **0.09%** | 0.29% | 3.87% | 3.82% |
+| Gretel financial (ES), exact F1 | **0.707** | 0.629 | 0.177 | 0.115 |
+| Gretel, sensitive-character recall | 0.789 | **0.830** | 0.637 | 0.513 |
+| Gretel, over-redaction | **0.89%** | 2.34% | 8.44% | 6.15% |
+
+DeidFlow's taggers were trained on these corpora's training splits; the
+baselines were not. No configuration removes every sensitive character from
+every document.
 
 ## Public gold evaluation of the v0.3 candidate
 

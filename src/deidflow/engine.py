@@ -75,9 +75,23 @@ class Result:
         }
 
 
-def _rules_batch_worker(texts: list[str]) -> list[list[Finding]]:
-    detector = RuleDetector()
+def _rules_batch_worker(
+    texts: list[str], countries: frozenset[str] | None = None
+) -> list[list[Finding]]:
+    detector = RuleDetector(countries=countries)
     return [detector.detect(text) for text in texts]
+
+
+def _countries(country: str | Iterable[str]) -> frozenset[str] | None:
+    """``"ALL"`` (every supported country) or ISO codes such as ``"MX"`` or ``"ES,AR"``."""
+    codes = [country] if isinstance(country, str) else list(country)
+    names = {part.strip().upper() for code in codes for part in str(code).split(",")}
+    names.discard("")
+    if not names:
+        raise ValueError("At least one country code is required")
+    if "ALL" in names:
+        return None
+    return frozenset(names)
 
 
 def _json_pairs(items: list[tuple[str, Any]]) -> dict[str, Any]:
@@ -101,7 +115,7 @@ class DeidEngine:
         self,
         *,
         language: str = "es",
-        country: str = "MX",
+        country: str | Iterable[str] = "ALL",
         performance: str = "balanced",
         offline: bool = True,
         nlp: Any = None,
@@ -119,8 +133,9 @@ class DeidEngine:
         pdf_workers: int = 1,
         pdf_profile: bool = False,
     ) -> None:
-        if language != "es" or country.upper() != "MX":
-            raise ValueError("Only the es_MX country pack is implemented")
+        if language != "es":
+            raise ValueError("Only Spanish-language detection is implemented")
+        self.countries = _countries(country)
         if offline is not True:
             raise ValueError("DeidFlow supports only local offline inference")
         if performance not in {"fast", "balanced", "assurance"}:
@@ -136,7 +151,7 @@ class DeidEngine:
             raise ValueError("Invalid PDF rasterization limits")
         if key is not None and (not isinstance(key, bytes) or len(key) < 32):
             raise ValueError("Secret key must contain at least 32 bytes")
-        self.detector = RuleDetector(recognizers=recognizers)
+        self.detector = RuleDetector(recognizers=recognizers, countries=self.countries)
         self.nlp, self.ocr, self.performance = nlp, ocr, performance
         self.key, self.tenant_id, self.dataset_id = key, tenant_id, dataset_id
         self.max_bytes, self.memory_budget_mb = max_bytes, memory_budget_mb
@@ -271,7 +286,9 @@ class DeidEngine:
                     raise ValueError("Text exceeds configured size limit")
                 task_size = min(64, max(1, len(texts) // workers))
                 tasks = list(_batches(texts, task_size))
-                for results in pool.map(_rules_batch_worker, tasks, chunksize=1):
+                for results in pool.map(
+                    _rules_batch_worker, tasks, [self.countries] * len(tasks), chunksize=1
+                ):
                     yield from results
 
     def _scope(self, policy: Policy, document_id: str) -> str:

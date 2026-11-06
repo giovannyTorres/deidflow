@@ -35,6 +35,28 @@ from deidflow.benchmarks.span_corpus import (
     verify_registered_files,
 )
 
+_SPACY_LABELS = {
+    "PER": "PERSON",
+    "PERSON": "PERSON",
+    "LOC": "LOCATION",
+    "GPE": "LOCATION",
+    "ORG": "ORGANIZATION",
+}
+
+
+def _baseline_model_metadata(path: Path) -> dict[str, object]:
+    import importlib.metadata
+
+    meta = json.loads((path / "meta.json").read_text(encoding="utf-8"))
+    return {
+        "name": f"{meta.get('lang')}_{meta.get('name')}",
+        "version": meta.get("version"),
+        "spacy_version_requirement": meta.get("spacy_version"),
+        "spacy_installed": importlib.metadata.version("spacy"),
+        "presidio_analyzer": importlib.metadata.version("presidio-analyzer"),
+        "license": meta.get("license"),
+    }
+
 
 def main() -> None:
     parser = argparse.ArgumentParser()
@@ -195,36 +217,34 @@ def main() -> None:
                     name, detector, corpus, repeats=args.repeats, ci_repeats=args.ci_repeats
                 )
                 result["pipelines"].append(measured)
-        if (
-            args.source == "meddocan"
-            and args.spacy_model
-            and not args.rules_only
-            and args.baseline is not None
-        ):
+        if args.spacy_model and not args.rules_only and args.source != "tab":
             from deidflow.nlp import SpacyNER
 
-            prior, prior_meta = snapshot_predictions(
-                args.baseline, args.corpus, args.source, args.split, nlp_path=args.spacy_model
-            )
-            if keep_indices is not None:
-                prior = [p for i, p in enumerate(prior) if i in keep_indices]
-            prior_latency = [
-                latency
-                for i, latency in enumerate(prior_meta["latency_seconds"])
-                if keep_indices is None or i in keep_indices
-            ]
-            prior_mapped = [map_predictions(args.source, p) for p in prior]
-            result["pipelines"].append(
-                {
-                    "name": "deidflow_v0.2.0_rules_plus_spacy",
-                    "status": "measured",
-                    "snapshot_commit": prior_meta["commit"],
-                    "source_sha256": prior_meta["source_sha256"],
-                    "p50_seconds": statistics.median(prior_latency),
-                    "metrics": quality_metrics(corpus, prior_mapped, ci_repeats=args.ci_repeats),
-                }
-            )
-
+            if args.baseline is not None and args.source == "meddocan":
+                prior, prior_meta = snapshot_predictions(
+                    args.baseline, args.corpus, args.source, args.split, nlp_path=args.spacy_model
+                )
+                if keep_indices is not None:
+                    prior = [p for i, p in enumerate(prior) if i in keep_indices]
+                prior_latency = [
+                    latency
+                    for i, latency in enumerate(prior_meta["latency_seconds"])
+                    if keep_indices is None or i in keep_indices
+                ]
+                prior_mapped = [map_predictions(args.source, p) for p in prior]
+                result["pipelines"].append(
+                    {
+                        "name": "deidflow_v0.2.0_rules_plus_spacy",
+                        "status": "measured",
+                        "snapshot_commit": prior_meta["commit"],
+                        "source_sha256": prior_meta["source_sha256"],
+                        "p50_seconds": statistics.median(prior_latency),
+                        "metrics": quality_metrics(
+                            corpus, prior_mapped, ci_repeats=args.ci_repeats
+                        ),
+                    }
+                )
+            result["baseline_model"] = _baseline_model_metadata(args.spacy_model)
             for name, factory in (
                 ("spacy_spanish", _spacy_baseline),
                 ("presidio_spanish", _presidio_baseline),
@@ -234,7 +254,7 @@ def main() -> None:
                     name, detector, corpus, repeats=args.repeats, ci_repeats=args.ci_repeats
                 )
                 result["pipelines"].append(measured)
-            engine = DeidEngine(nlp=SpacyNER(args.spacy_model))
+            engine = DeidEngine(nlp=SpacyNER(args.spacy_model, labels=_SPACY_LABELS))
             measured, _ = evaluate_detector(
                 "deidflow_candidate_rules_plus_spacy",
                 engine.scan_text,

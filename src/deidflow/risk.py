@@ -45,6 +45,10 @@ def assess(findings: list[Finding]) -> RiskAssessment:
         "EMPLOYEE_ID",
         "PASSPORT",
         "NATIONAL_ID",
+        "TAX_ID",
+        "INSURANCE_ID",
+        "REGIONAL_ID",
+        "IP_ADDRESS",
     }
     groups: dict[tuple[object, ...], set[str]] = defaultdict(set)
     for finding in findings:
