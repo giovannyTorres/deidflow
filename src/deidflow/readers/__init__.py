@@ -1186,6 +1186,10 @@ def read_document(
             _read_docx(source, graph, max_bytes)
         elif suffix == ".xlsx":
             _read_xlsx(source, graph, max_bytes)
+        elif suffix in {".odt", ".ods"}:
+            from deidflow.opendocument import read_odf
+
+            read_odf(source, graph, max_bytes)
         elif suffix == ".pdf":
             _read_pdf(source, graph, ocr, performance)
         elif suffix == ".parquet":
