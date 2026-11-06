@@ -6,6 +6,7 @@ import csv
 import io
 import json
 import math
+import re
 import uuid
 import warnings
 import zipfile
@@ -58,6 +59,29 @@ def _field_instructions(root: ET.Element) -> list[str]:
                 found.append(element.text or "")
     found.extend("".join(pieces) for pieces in stack)  # unterminated fields
     return found
+
+
+_EXTERNAL_WORKBOOK = re.compile(r"\[\d+\]|\[[^\]]*\.(?:xl\w*|csv|ods)\]|://", re.IGNORECASE)
+
+
+def formula_carries_data(formula: str) -> bool:
+    """True when a spreadsheet formula holds a string literal or an external reference.
+
+    Cell arithmetic such as ``SUM(B2:B9)`` or ``Tabla1[Importe]`` only reads cells
+    that are scanned themselves; ``"Juan"&A1`` or ``[1]Hoja1!A1`` carries content
+    or points outside the workbook.
+    """
+    return '"' in formula or bool(_EXTERNAL_WORKBOOK.search(formula))
+
+
+# Spreadsheet header/footer codes: sections (&L &C &R), fonts (&"Arial,Bold"), sizes
+# (&12) and fields (&P page, &A sheet, &D date...). Font names are not content.
+_HEADER_CODE = re.compile(r'&"[^"]*"|&\d+|&[A-Za-z&]')
+
+
+def header_footer_text(text: str) -> str:
+    """Spreadsheet header/footer text with formatting codes blanked, same length."""
+    return _HEADER_CODE.sub(lambda match: " " * len(match.group()), text)
 
 
 class DocumentError(RuntimeError):
@@ -283,7 +307,15 @@ def _read_xlsx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
         for definition in workbook.iter(_S + "definedName"):
             if definition.text:
                 _fragment(graph, definition.text, part="xl/workbook.xml", kind="defined_name")
-                _issue(graph, "spreadsheet_defined_names_require_review")
+                if formula_carries_data(definition.text):
+                    _issue(graph, "spreadsheet_defined_names_require_review")
+        for element in workbook.iter():
+            # Saved folder paths and shared-workbook user names.
+            for attribute in ("url", "userName"):
+                if element.attrib.get(attribute):
+                    _fragment(
+                        graph, element.attrib[attribute], part="xl/workbook.xml", kind="metadata"
+                    )
         relations: dict[str, str] = {}
         relpath = "xl/_rels/workbook.xml.rels"
         if relpath in names:
@@ -350,7 +382,8 @@ def _read_xlsx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
                             column=column_letters,
                             kind="formula",
                         )
-                        _issue(graph, "spreadsheet_formulas_require_review")
+                        if formula_carries_data(formula.text or ""):
+                            _issue(graph, "spreadsheet_formulas_require_review")
                 for element in root.iter():
                     if (
                         element.tag.rsplit("}", 1)[-1]
@@ -364,7 +397,9 @@ def _read_xlsx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
                         }
                         and element.text
                     ):
-                        _fragment(graph, element.text, part=name, kind="header_footer")
+                        _fragment(
+                            graph, header_footer_text(element.text), part=name, kind="header_footer"
+                        )
             elif name.startswith("xl/") and "comment" in name.lower() and name.endswith(".xml"):
                 root = _xml(archive.read(name))
                 for author in root.iter(_S + "author"):
@@ -406,6 +441,7 @@ def _read_xlsx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
                 )
                 and name.endswith(".xml")
             ):
+                review = "tables/" not in name  # table definitions are fully scanned below
                 root = _xml(archive.read(name))
                 for element in root.iter():
                     if element.text and element.text.strip():
@@ -419,7 +455,8 @@ def _read_xlsx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
                             "userId",
                         }:
                             _fragment(graph, attribute_value, part=name, kind="metadata")
-                _issue(graph, "spreadsheet_auxiliary_content_requires_review")
+                if review:
+                    _issue(graph, "spreadsheet_auxiliary_content_requires_review")
 
 
 def _ocr_fragment(

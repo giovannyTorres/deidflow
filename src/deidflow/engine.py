@@ -897,7 +897,7 @@ class DeidEngine:
             )
         suffix = source.suffix.lower()
         if (
-            suffix not in {".txt", ".csv", ".tsv", ".json", ".jsonl", ".docx"}
+            suffix not in {".txt", ".csv", ".tsv", ".json", ".jsonl", ".docx", ".xlsx"}
             or target.suffix.lower() != suffix
         ):
             return Result(
@@ -912,8 +912,8 @@ class DeidEngine:
         try:
             if suffix in {".csv", ".tsv"}:
                 result = self._csv(source, candidate, policy, batch_size, domain)
-            elif suffix == ".docx":
-                result = self._docx(source, candidate, policy, domain, office_media == "remove")
+            elif suffix in {".docx", ".xlsx"}:
+                result = self._office(source, candidate, policy, domain, office_media == "remove")
             elif suffix == ".txt":
                 if source.stat().st_size > self.max_bytes:
                     raise ValueError("Text exceeds configured size limit")
@@ -945,10 +945,10 @@ class DeidEngine:
         finally:
             candidate.unlink(missing_ok=True)
 
-    def _docx(
+    def _office(
         self, source: Path, output: Path, policy: Policy, domain: str | None, remove_media: bool
     ) -> Result:
-        from deidflow.office import rewrite_docx
+        from deidflow.office import CellGrid, rewrite_docx, rewrite_xlsx
         from deidflow.readers import DocumentError
 
         if source.stat().st_size > self.max_bytes:
@@ -973,10 +973,23 @@ class DeidEngine:
                 for m in mappings
             ]
 
+        def transform_cells(sheets: list[tuple[str, CellGrid]]) -> list[CellGrid]:
+            return [self._sheet_cells(grid, policy, scope, domain, originals) for _, grid in sheets]
+
         try:
-            report = rewrite_docx(
-                source, output, rewrite, max_bytes=self.max_bytes, remove_media=remove_media
-            )
+            if source.suffix.lower() == ".xlsx":
+                report = rewrite_xlsx(
+                    source,
+                    output,
+                    transform_cells,
+                    rewrite,
+                    max_bytes=self.max_bytes,
+                    remove_media=remove_media,
+                )
+            else:
+                report = rewrite_docx(
+                    source, output, rewrite, max_bytes=self.max_bytes, remove_media=remove_media
+                )
             graph = self.read(output)
         except DocumentError:
             return Result(ReleaseStatus.BLOCKED, issues=["MALFORMED_INPUT"])
@@ -997,6 +1010,98 @@ class DeidEngine:
         result.audit["transformations"] = report.transformations
         result.audit["office_removed"] = dict(sorted(report.removed.items()))
         return result
+
+    def _sheet_cells(
+        self,
+        grid: dict[tuple[int, int], str],
+        policy: Policy,
+        scope: str,
+        domain: str | None,
+        originals: list[Finding],
+    ) -> dict[tuple[int, int], str]:
+        """New text of every changed cell of one worksheet.
+
+        The first nonempty row is the header. Columns the profiler recognizes
+        (``Nombre``, ``RFC``, ``Teléfono``...) are transformed whole, as for CSV;
+        other cells are scanned with their column header as a ``Header: value``
+        prefix, so labelled-value rules and the tagger see the field name.
+        """
+        if not grid:
+            return {}
+        rows = sorted({r for r, _ in grid})
+        columns = sorted({c for _, c in grid})
+        header_row = rows[0]
+        labels = {c: grid.get((header_row, c), "").strip() for c in columns}
+        headers: list[str] = []
+        seen: dict[str, int] = {}
+        for c in columns:
+            name = labels[c] or f"columna_{c}"
+            seen[name] = seen.get(name, 0) + 1
+            headers.append(name if seen[name] == 1 else f"{name} ({seen[name]})")
+        body = rows[1:]
+        table = [[grid.get((r, c), "") for c in columns] for r in body]
+        profiles = profile_table(headers, table, self.detector)
+        changed: dict[tuple[int, int], str] = {}
+        pending: list[tuple[int, int, str, str]] = [
+            (header_row, c, "", grid[(header_row, c)]) for c in columns if (header_row, c) in grid
+        ]
+        whole_actions = {"redact", "suppress", "placeholder", "pseudonym", "generalize"}
+        for j, (c, profile) in enumerate(zip(columns, profiles, strict=True)):
+            rule = policy.rule(profile.entity_type or "", domain)
+            whole = (
+                self.schema_fast_path
+                and profile.entity_type is not None
+                and rule.action in whole_actions
+            )
+            for i, r in enumerate(body):
+                value = table[i][j]
+                if not value:
+                    continue
+                if whole:
+                    finding = Finding(
+                        profile.entity_type or "CONFIDENTIAL",
+                        0,
+                        len(value),
+                        profile.score,
+                        "schema.column",
+                        protected=True,
+                    )
+                    originals.append(finding)
+                    transformed, _ = transform_text(
+                        value,
+                        [finding],
+                        policy,
+                        key=self.key,
+                        scope=scope,
+                        domain=domain,
+                        custom=self.custom_transforms,
+                    )
+                    changed[(r, c)] = "" if rule.action == "suppress" else transformed
+                else:
+                    prefix = f"{labels[c]}: " if labels[c] else ""
+                    pending.append((r, c, prefix, value))
+        for batch in _batches(pending, 128):
+            texts = [prefix + value for _, _, prefix, value in batch]
+            for (r, c, prefix, value), findings in zip(batch, self.scan_texts(texts), strict=True):
+                shift = len(prefix)
+                local = [
+                    replace(f, start=max(f.start, shift) - shift, end=f.end - shift)
+                    for f in findings
+                    if f.end > shift
+                ]
+                originals.extend(local)
+                transformed, mappings = transform_text(
+                    value,
+                    local,
+                    policy,
+                    key=self.key,
+                    scope=scope,
+                    domain=domain,
+                    custom=self.custom_transforms,
+                )
+                if mappings:
+                    changed[(r, c)] = transformed
+        return changed
 
     def _json_file(self, source: Path, output: Path, policy: Policy, domain: str | None) -> Result:
         issues, count, records = [], 0, 0

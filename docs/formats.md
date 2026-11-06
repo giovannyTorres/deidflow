@@ -12,7 +12,7 @@ finding list on an incomplete graph must never approve a release.
 | JSON/JSONL | All string keys/values and numeric values, ordinal JSON locations | See structured engine |
 | CSV/TSV | All headers and cells; quoted multiline cells preserved | Use streaming table engine for large files |
 | DOCX | OOXML paragraphs, tables, revisions, headers, footers, footnotes, endnotes, comments, property metadata, field instructions, external relationship targets | In-place DOCX rewrite, verified by rereading (see below) |
-| XLSX | Visible/hidden/very-hidden sheets, cells, formulas and cached values, comments, headers/footers, names and metadata | Unsupported in-place release |
+| XLSX | Visible/hidden/very-hidden sheets, cells, formulas and cached values, comments, headers/footers, names and metadata | In-place XLSX rewrite, verified by rereading (see below) |
 | PDF | Native pypdf text, page coordinates, Info metadata and annotation text; selective page OCR when configured | Lossless image-only reconstruction with physical removal and verified output; supported geometry only |
 | PNG/JPEG/TIFF | Every frame through explicit local OCR adapter | Separate pixel operator; always review required |
 | Parquet | All flat columns through bounded Arrow batches; graph size limits apply | Automatic Parquet rewrite unsupported |
@@ -33,8 +33,12 @@ not inferred: OOXML does not contain reliable rendered page boundaries.
 
 Data-bearing Word fields (any field other than layout fields such as `PAGE`,
 `NUMPAGES`, `TOC`, `REF` or `SEQ` without quoted arguments), spreadsheet
-formulas/defined names, drawings, external relationships, embedded objects,
-active content, Office images and package thumbnails force review. Field
+formulas and defined names that hold string literals or external-workbook
+references, drawings, external relationships, embedded objects, active content,
+Office images and package thumbnails force review. Formulas such as
+`SUM(B2:B9)`, print areas and table definitions are scanned without forcing
+review. Spreadsheet header/footer formatting codes (`&L`, `&"Arial,Bold"`) are
+blanked before scanning. Field
 instructions, including `fldSimple` instructions, are scanned.
 All recognized text is still returned. Both deleted and inserted revision text
 are scanned. Unreferenced XLSX shared strings are scanned as source parts, since
@@ -70,9 +74,42 @@ formatted runs is replaced in its first run. Before writing, the writer:
 The output is then read back with the same reader and rescanned; residual
 findings, extraction gaps or uncertain source findings block or require review
 exactly as for text. `result.audit["office_removed"]` counts what was removed.
-Only `.docx` is rewritten; `.doc`, `.docm`, `.dotx` and XLSX output remain
-unsupported. A tested output opens in LibreOffice; Microsoft Word was not
-available for testing.
+Only `.docx` is rewritten; `.doc`, `.docm` and `.dotx` remain unsupported. A
+tested output opens in LibreOffice; Microsoft Word was not available for
+testing.
+
+## XLSX output
+
+`engine.deidentify("in.xlsx", output="out.xlsx")` edits the workbook in place.
+
+- The first nonempty row of each sheet is its header. Columns the profiler
+  recognizes from header and values (`Nombre`, `DNI`, `RFC`, `Teléfono`,
+  `Correo`...) are transformed whole, as for CSV. Every other cell is scanned
+  as `Header: value`, so labelled-value rules and the tagger see the field
+  name. Numbers are scanned as text, so a phone or ID stored as a number is
+  found.
+- Changed cells become inline strings and keep their style. The shared-string
+  table is rebuilt from the strings still referenced, so replaced values and
+  orphaned strings of deleted cells do not stay in the file.
+- Formulas that hold a string literal or an external-workbook reference, or
+  whose cell changed, are replaced by their cached (transformed) value; cell
+  arithmetic such as `SUM(D2:D3)` stays. The calculation chain is removed and
+  rebuilt by Excel. Defined names with literals are removed; print areas stay.
+- A sheet whose name contains a finding is renamed `Hoja<n>`, and formulas,
+  print areas and the sheet list in the document properties follow it.
+- Comment authors become `DeidFlow` and comment text is transformed; header
+  and footer text is transformed around its formatting codes; table column
+  names follow their header cells.
+- Pivot tables and their caches (which hold copies of the data), external
+  links, data connections and query tables, threaded comments and their
+  people list, printer settings, the saved-folder path and shared-workbook
+  user names are removed. Pivot tables therefore become their displayed
+  values. With `office_media="remove"` (default) drawings, charts, images,
+  form controls and embedded objects are removed as well.
+
+The output is reread and rescanned like DOCX. Workbooks with in-cell images or
+dynamic-array metadata (`xl/richData`, `xl/metadata.xml`) still require
+review.
 
 ## Native PDF and OCR
 

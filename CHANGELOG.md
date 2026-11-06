@@ -46,6 +46,14 @@
   external links, mail-merge settings and data-bearing field codes, and by
   default images and embedded objects (`office_media`, CLI `--office-media`);
   the output is reread and rescanned before release.
+- XLSX output: cells are transformed with their column header as context
+  (recognized columns whole, as for CSV), changed cells become inline strings,
+  the shared-string table is rebuilt so replaced and orphaned values are gone,
+  formulas with literals or external references are replaced by their values,
+  sheets named after a person are renamed, and pivot caches, external links,
+  connections, threaded comments, printer settings and saved paths are removed.
+  The XLSX reader no longer forces review for plain cell arithmetic, print
+  areas or table definitions, and blanks header/footer formatting codes.
 - The DOCX reader scans `fldSimple` instructions and commenter account IDs,
   flags package thumbnails, and no longer forces review for layout-only fields
   such as `PAGE` or `TOC`.
