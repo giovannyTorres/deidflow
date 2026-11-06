@@ -43,6 +43,10 @@ compartirla. El [flujo de revisión](docs/REVIEW_WORKFLOW.md) permite añadir
 omisiones, corregir falsos positivos, reconstruir la salida desde el original y
 emitir un recibo firmado ligado a fuente, salida, política y modelo.
 
+La [revisión CSV supervisada](docs/CSV_REVIEW.md) aplica correcciones por celda y
+encabezado, conserva marcadores dentro del archivo y separa candidatas de
+exportaciones aprobadas. Incluye una CLI y un ejemplo financiero ficticio.
+
 ## Paquetes incluidos
 
 | Paquete | Modelo local | Comportamiento y evidencia |

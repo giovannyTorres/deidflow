@@ -355,6 +355,39 @@ def apply_review(
     approve and source_complete are explicit human attestations, never inferred
     from the plan or a JSON status. Every detected span requires one decision.
     """
+    return _apply_review(
+        engine,
+        source,
+        plan,
+        decisions,
+        policy=policy,
+        model_digest=model_digest,
+        reviewer_id=reviewer_id,
+        approve=approve,
+        source_complete=source_complete,
+        signing_key=signing_key,
+        domain=domain,
+        placeholders=placeholders,
+    )
+
+
+def _apply_review(
+    engine: DeidEngine,
+    source: str,
+    plan: ReviewPlan,
+    decisions: list[ReviewDecision] | tuple[ReviewDecision, ...],
+    *,
+    policy: Policy,
+    model_digest: str,
+    reviewer_id: str,
+    approve: bool = False,
+    source_complete: bool = False,
+    signing_key: bytes | None = None,
+    domain: str | None = None,
+    placeholders: PlaceholderAllocator | None = None,
+    scope: str | None = None,
+) -> ReviewedText:
+    """Apply the same cell gates with an optional enclosing document's scope."""
     _key(signing_key)
     if (
         not isinstance(plan, ReviewPlan)
@@ -422,7 +455,7 @@ def apply_review(
         selected,
         policy,
         key=engine.key,
-        scope=engine._scope(policy, plan.plan_digest),
+        scope=engine._scope(policy, plan.plan_digest) if scope is None else scope,
         domain=domain,
         custom=engine.custom_transforms,
         placeholders=allocator,

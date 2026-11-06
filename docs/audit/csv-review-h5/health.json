@@ -1,0 +1,82 @@
+{
+  "base_commit": "c49d039f19afd719df4ecee280fcb7fa09268aac",
+  "branch": "fix/csv-review-document-scope",
+  "coverage": {
+    "covered_branches": 4130,
+    "covered_lines": 10623,
+    "excluded_lines": 29,
+    "missing_branches": 1138,
+    "missing_lines": 1652,
+    "num_branches": 5268,
+    "num_partial_branches": 864,
+    "num_statements": 12275,
+    "percent_branches_covered": 78.39787395596052,
+    "percent_branches_covered_display": "78",
+    "percent_covered": 84.09622071481503,
+    "percent_covered_display": "84",
+    "percent_statements_covered": 86.54175152749491,
+    "percent_statements_covered_display": "87"
+  },
+  "date_utc": "2026-11-06",
+  "distribution": {
+    "artifacts_sha256": {
+      "deidflow-0.6.0b1-py3-none-any.whl": "6b721f00784d4941ad6c6b5652ecc007d42859e24c8f17be956acfca5708f35b",
+      "deidflow-0.6.0b1.tar.gz": "fffaab08af99d27a25f008bfc9073d8dc45bb33eb84ff5c4c7f8e64abe420384"
+    },
+    "build_no_isolation": "PASS",
+    "clean_git_archive_commit": "16813896250993360610e26bd89b1ed812250dab",
+    "network_attempts_during_probe": 0,
+    "scope_specific_wheel_probe": "PASS",
+    "twine_strict": "PASS",
+    "wheel_without_extras_outside_checkout": "PASS"
+  },
+  "evidence_type": "known_synthetic_development_regression",
+  "existing_public_api_changed": false,
+  "github_api": "BLOCKED_BY_ENFORCED_NETWORK_POLICY",
+  "github_existing_pull_request": 32,
+  "github_target_branch": "codex/csv-review-20261106",
+  "held_out_test_scoring_passes": 0,
+  "internal_matt_review": {
+    "Spec": {
+      "open_findings": 0
+    },
+    "Standards": {
+      "open_documented_violations": 0,
+      "open_smells": 0
+    },
+    "external_claude_approval": false
+  },
+  "merge_gates": {
+    "actual_ci_11_of_11": "PENDING",
+    "all_review_threads_resolved": "PENDING",
+    "claude_blockers_closed": "PENDING",
+    "giovanny_approval": "PENDING"
+  },
+  "merge_performed": false,
+  "micro": {
+    "critical_exact_recall": {
+      "API_KEY": 1.0,
+      "CLABE": 1.0,
+      "CURP": 1.0,
+      "EMAIL": 1.0,
+      "RFC": 1.0
+    },
+    "engine_to_same_run_reference_ratio": 1.1244559185496348,
+    "median_seconds_per_record": 0.0003368148109948379,
+    "passed": true,
+    "records": 1000,
+    "repeats": 5,
+    "scope": "Gross CI regression guard; identical contextual rules, engine wrapper versus direct detector, alternating timing order; no fine-grained cross-machine or statistical speedup claim"
+  },
+  "production_dependencies_models_profiles_changed": false,
+  "release_or_pypi_publication": false,
+  "scope": "CSV: ámbito común de seudónimos entre celdas (H5)",
+  "source_commit": "16813896250993360610e26bd89b1ed812250dab",
+  "tests": {
+    "passed": 1127,
+    "platform": "Linux x86_64 / Python 3.12.14",
+    "seconds": 436.48,
+    "skipped": 11,
+    "suite_log_sha256": "5a76d5bb45a379b910f80b93d7c3df920b60cbb41237d6c93fe9c8f337b5f6dd"
+  }
+}
