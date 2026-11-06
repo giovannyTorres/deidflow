@@ -57,7 +57,7 @@ STRUCTURE_HEADERS = frozenset(
 KEPT_HEADERS = ADDRESS_HEADERS | TEXT_HEADERS | ID_HEADERS | STRUCTURE_HEADERS
 ATTACHMENT_SUFFIXES = frozenset(
     {".txt", ".text", ".md", ".log", ".csv", ".tsv", ".json", ".jsonl", ".html", ".htm",
-     ".docx", ".xlsx", ".pdf"}
+     ".docx", ".xlsx", ".odt", ".ods", ".pdf"}
 )  # fmt: skip
 MAX_DEPTH = 8
 MAX_PARTS = 512
@@ -310,6 +310,8 @@ _ATTACHMENT_TYPES = {
     ".htm": "text/html",
     ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ".odt": "application/vnd.oasis.opendocument.text",
+    ".ods": "application/vnd.oasis.opendocument.spreadsheet",
     ".pdf": "application/pdf",
 }
 

@@ -1,8 +1,34 @@
-"""Read OpenDocument text documents and spreadsheets (ODT, ODS).
+"""Read and rewrite OpenDocument text documents and spreadsheets (ODT, ODS).
 
-Shared XML traversal inspects text, attributes, sheet grids and package parts.
-Uninspected source channels preserve incomplete coverage. Automatic rewriting
-is not available in this reader increment.
+OpenDocument is the format of LibreOffice and of many public administrations.
+The reader and the writer share one walk over the XML, so everything the reader
+scans is exactly what the writer transforms:
+
+- **Text** of ``content.xml`` and ``styles.xml`` (headers, footers) as one
+  stream: paragraphs, headings, lists, tables, footnotes, comments, text boxes,
+  captions, alternative text (``svg:title``/``svg:desc``) and the displayed text
+  of fields. Spaces (``text:s``), tabs and line breaks are part of the stream.
+- **Spreadsheet cells** (ODS) as a grid, so column headers give context, like
+  XLSX. Cell values stored apart from the displayed text (``office:value``,
+  ``office:date-value``, ``office:string-value``) are scanned too.
+- **Attributes that carry content**: descriptions, index keys, bibliography
+  fields, link titles; object, bookmark and section names; links; formulas,
+  conditions and range addresses.
+
+The writer removes what it cannot keep safely: tracked changes (accepting
+them), comment authors and dates, personal metadata (authors, dates, printer,
+template, editing time), view settings, the page thumbnail, macros and event
+handlers, form controls, digital signatures, password hashes of protected
+sections, external links (hyperlinks are unlinked, linked images and sections
+removed), pivot tables, data-source links, filter values and data-carrying
+validations, conditional formats and named expressions. Fields that hold
+personal data (sender, author, file name, dates, variables, database fields,
+hidden and conditional text) become their displayed text. Images and embedded
+objects (charts) are removed by default, since they cannot be checked without
+OCR. Spreadsheet output always needs review, as for XLSX.
+
+XML is edited with ``xml.dom.minidom`` (see ``deidflow.office``) after the
+reader's guard rejects DTDs and entity declarations.
 """
 
 from __future__ import annotations
@@ -21,7 +47,20 @@ from xml.dom import minidom
 from xml.etree import ElementTree as ET
 from xml.parsers import expat
 
-from deidflow.office import CellGrid, Node, _local, _parse
+from deidflow.office import (
+    CellGrid,
+    Node,
+    OfficeReport,
+    Rewrite,
+    TransformCells,
+    _local,
+    _parse,
+    _remove,
+    _rewrite_stream,
+    _serialize,
+    _standalone,
+    _unwrap,
+)
 from deidflow.readers import DocumentError, _archive, _xml
 
 OFFICE = "urn:oasis:names:tc:opendocument:xmlns:office:1.0"
@@ -30,12 +69,14 @@ TABLE = "urn:oasis:names:tc:opendocument:xmlns:table:1.0"
 DRAW = "urn:oasis:names:tc:opendocument:xmlns:drawing:1.0"
 STYLE = "urn:oasis:names:tc:opendocument:xmlns:style:1.0"
 META = "urn:oasis:names:tc:opendocument:xmlns:meta:1.0"
+DC = "http://purl.org/dc/elements/1.1/"
 XLINK = "http://www.w3.org/1999/xlink"
 FORM = "urn:oasis:names:tc:opendocument:xmlns:form:1.0"
 SCRIPT = "urn:oasis:names:tc:opendocument:xmlns:script:1.0"
 CONFIG = "urn:oasis:names:tc:opendocument:xmlns:config:1.0"
 MANIFEST = "urn:oasis:names:tc:opendocument:xmlns:manifest:1.0"
 CALCEXT = "urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0"
+LOEXT = "urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0"
 PRESENTATION = "urn:oasis:names:tc:opendocument:xmlns:presentation:1.0"
 CHART = "urn:oasis:names:tc:opendocument:xmlns:chart:1.0"
 
@@ -98,6 +139,31 @@ _ADDRESS_ATTRIBUTES = frozenset(
      (DRAW, "notify-on-update-of-ranges"), (CHART, "cell-range-address"),
      (CHART, "values-cell-range-address"), (CHART, "label-cell-address")}
 )  # fmt: skip
+# Fields whose content is personal or document data: kept as static text.
+_FLATTENED_FIELDS = frozenset(
+    {"sender-firstname", "sender-lastname", "sender-initials", "sender-title",
+     "sender-position", "sender-email", "sender-phone-private", "sender-fax",
+     "sender-company", "sender-phone-work", "sender-street", "sender-city",
+     "sender-postal-code", "sender-country", "sender-state-or-province", "author-name",
+     "author-initials", "initial-creator", "creator", "creation-date", "creation-time",
+     "print-date", "print-time", "printed-by", "modification-date", "modification-time",
+     "editing-cycles", "editing-duration", "title", "subject", "description", "keywords",
+     "user-defined", "file-name", "template-name", "database-display", "database-next",
+     "database-row-select", "database-row-number", "database-name", "hidden-text",
+     "conditional-text", "execute-macro", "drop-down", "text-input", "user-field-get",
+     "user-field-input", "variable-get", "variable-set", "variable-input", "expression",
+     "table-formula", "date", "time", "placeholder", "meta-field", "dde-connection"}
+)  # fmt: skip
+_PERSONAL_META = frozenset(
+    {(META, "initial-creator"), (DC, "creator"), (META, "creation-date"), (DC, "date"),
+     (META, "printed-by"), (META, "print-date"), (META, "editing-cycles"),
+     (META, "editing-duration"), (META, "template"), (META, "auto-reload"),
+     (META, "hyperlink-behaviour"), (META, "generator")}
+)  # fmt: skip
+# Custom properties that Word and LibreOffice fill from the user profile (as in DOCX).
+_PERSONAL_PROPERTIES = frozenset({"company", "manager", "hyperlinkbase"})
+_ANNOTATION_PERSONAL = frozenset({"creator", "date", "date-string", "creator-initials",
+                                  "sender-initials"})  # fmt: skip
 _EMBEDDING = frozenset(
     {"image", "object", "object-ole", "plugin", "applet", "floating-frame"}
 )  # draw:* elements that show a picture or an embedded object
@@ -120,7 +186,27 @@ def _active(element: Node) -> bool:
     )
 
 
+_REMOVED_ELEMENTS = {
+    (TEXT, "tracked-changes"): "tracked_changes",
+    (TABLE, "tracked-changes"): "tracked_changes",
+    (TEXT, "change"): "tracked_changes",
+    (TEXT, "change-start"): "tracked_changes",
+    (TEXT, "change-end"): "tracked_changes",
+    (TEXT, "hidden-paragraph"): "hidden_content",
+    (TABLE, "data-pilot-tables"): "pivot_tables",
+    (TABLE, "dde-links"): "external_links",
+    (TABLE, "table-source"): "external_links",
+    (TABLE, "cell-range-source"): "external_links",
+    (TEXT, "section-source"): "external_links",
+    (TEXT, "dde-connection-decls"): "external_links",
+    (OFFICE, "dde-source"): "external_links",
+    (TABLE, "database-source-sql"): "data_sources",
+    (TABLE, "database-source-table"): "data_sources",
+    (TABLE, "database-source-query"): "data_sources",
+    (TABLE, "filter"): "criteria",
+}
 _EXTERNAL = re.compile(r"^(?:[a-zA-Z][a-zA-Z0-9+.-]*:|/|\\)")
+_SHEET_REFERENCE = "(?<![\\w'])"
 
 
 # --- shared walk --------------------------------------------------------------
@@ -177,6 +263,13 @@ def _qualified(node: Node) -> tuple[str, str]:
 
 def _elements(root: Node) -> list[Node]:
     return list(root.getElementsByTagName("*"))
+
+
+def _attached(node: Node) -> bool:
+    """False for elements inside a subtree removed earlier in the same pass."""
+    while node.parentNode is not None:
+        node = node.parentNode
+    return bool(node.nodeType == node.DOCUMENT_NODE)
 
 
 def _deferred(node: Node) -> bool:
@@ -378,6 +471,10 @@ def _package_members(names: list[str]) -> set[str]:
         if len(members) > 20_000:
             raise DocumentError("OpenDocument reference inventory exceeds the limit")
     return members
+
+
+def _href_name(href: str) -> str:
+    return _decoded_href(href)[1:].split("|", 1)[0]
 
 
 def attributes(root: Node) -> Iterator[tuple[Node, str, str]]:
@@ -890,4 +987,534 @@ def _read_part(
                 )
 
 
-__all__ = ["MEDIA_TYPES", "read_odf"]
+# --- writer -------------------------------------------------------------------
+
+
+def _flatten(element: Node) -> None:
+    """Replace an element by a text node with its displayed text."""
+    text = paragraph_text(element)
+    parent = element.parentNode
+    if parent is None:
+        return
+    if text:
+        parent.insertBefore(element.ownerDocument.createTextNode(text), element)
+    parent.removeChild(element)
+
+
+def _frame(element: Node) -> Node:
+    """The draw:frame (or other shape) holding an image or object."""
+    holder = element.parentNode
+    if holder is not None and holder.namespaceURI == DRAW and _local(holder) == "frame":
+        return holder
+    return element
+
+
+def _drop_typed_value(element: Node) -> None:
+    for namespace, name in _TYPED_VALUES:
+        if element.hasAttributeNS(namespace, name):
+            element.removeAttributeNS(namespace, name)
+    if element.hasAttributeNS(OFFICE, "value-type"):
+        element.setAttributeNS(OFFICE, _prefixed(element, OFFICE, "value-type"), "string")
+    if element.hasAttributeNS(CALCEXT, "value-type"):
+        element.setAttributeNS(CALCEXT, _prefixed(element, CALCEXT, "value-type"), "string")
+    for namespace, name in ((TEXT, "date-value"), (TEXT, "time-value"), (TABLE, "formula")):
+        if element.hasAttributeNS(namespace, name):
+            element.removeAttributeNS(namespace, name)
+
+
+def _prefix(document: Node, namespace: str) -> str:
+    root = document.documentElement
+    for index in range(root.attributes.length):
+        attribute = root.attributes.item(index)
+        if attribute.name.startswith("xmlns:") and attribute.value == namespace:
+            return str(attribute.name[6:])
+    raise DocumentError("OpenDocument namespace declaration is missing")
+
+
+def _prefixed(element: Node, namespace: str, local: str) -> str:
+    node = element.getAttributeNodeNS(namespace, local)
+    return node.name if node is not None else local
+
+
+def _rename_sheets(text: str, renames: dict[str, str]) -> str:
+    for old, new in renames.items():
+        quoted = "'" + old.replace("'", "''") + "'"
+        text = re.sub(
+            re.escape(quoted) + r"(?=\.)|" + _SHEET_REFERENCE + re.escape(old) + r"(?=\.)",
+            new,
+            text,
+        )
+    return text
+
+
+def _set_cell(cell: Node, text: str) -> None:
+    for child in list(cell.childNodes):
+        if _cell_text_child(child) or child.nodeType in _TEXT_NODES:
+            cell.removeChild(child)
+    _drop_typed_value(cell)
+    document = cell.ownerDocument
+    prefix = _prefix(document, TEXT)
+    for line in text.split("\n"):
+        paragraph = document.createElementNS(TEXT, f"{prefix}:p")
+        if line:
+            paragraph.appendChild(document.createTextNode(line))
+        cell.appendChild(paragraph)
+
+
+class _Writer:
+    def __init__(
+        self,
+        rewrite: Rewrite,
+        report: OfficeReport,
+        *,
+        remove_media: bool,
+        removed_parts: set[str],
+        package_members: set[str],
+    ) -> None:
+        self.rewrite = rewrite
+        self.report = report
+        self.remove_media = remove_media
+        self.removed_parts = removed_parts
+        self.package_members = package_members
+        self.names: dict[str, str] = {}
+        self.sheet_renames: dict[str, str] = {}
+
+    def scrub(self, document: Node, *, part: str) -> None:
+        """Removals and flattening, before any text is scanned."""
+        report = self.report
+        for element in _elements(document):
+            if not _attached(element):
+                continue
+            key = _qualified(element)
+            if key in _REMOVED_ELEMENTS:
+                _remove(element)
+                report.count(_REMOVED_ELEMENTS[key])
+            elif key in _ACTIVE:
+                if _active(element):
+                    report.count("active_content")
+                _remove(element)
+            elif key[0] == OFFICE and key[1] == "annotation":
+                for child in list(element.childNodes):
+                    if child.nodeType == child.ELEMENT_NODE and (
+                        _local(child) in _ANNOTATION_PERSONAL
+                    ):
+                        element.removeChild(child)
+                        report.count("authors")
+        for element in _elements(document):
+            if not _attached(element):
+                continue
+            key = _qualified(element)
+            if key[0] == TEXT and key[1] in _FLATTENED_FIELDS:
+                _flatten(element)
+                report.count("fields_flattened")
+        for element in _elements(document):
+            if not _attached(element):
+                continue
+            for local in ("protection-key", "protection-key-digest-algorithm",
+                          "protection-key-digest-algorithm-2"):  # fmt: skip
+                for namespace in (TEXT, TABLE, LOEXT):
+                    if element.hasAttributeNS(namespace, local):
+                        element.removeAttributeNS(namespace, local)
+                        report.count("protection_keys")
+            href = element.getAttributeNS(XLINK, "href")
+            key = _qualified(element)
+            kind = _href_kind(href)
+            if kind == "external" or (
+                kind == "package"
+                and (
+                    _package_target(href, part) not in self.package_members
+                    or _package_target(href, part) in self.removed_parts
+                )
+            ):
+                if key in {(TEXT, "a"), (DRAW, "a")}:
+                    _unwrap(element)
+                    report.count("hyperlinks_unlinked")
+                else:
+                    _remove(_frame(element) if key[0] == DRAW else element)
+                    report.count("external_links" if kind == "external" else "media")
+            elif self.remove_media and key[0] == DRAW and key[1] in _EMBEDDING:
+                _remove(_frame(element))
+                report.count("media")
+        for element in _elements(document):
+            if not _attached(element):
+                continue
+            key = _qualified(element)
+            if key == (OFFICE, "binary-data") or (
+                self.remove_media
+                and key
+                in {
+                    (STYLE, "background-image"),
+                    (DRAW, "fill-image"),
+                    (TEXT, "list-level-style-image"),
+                }  # fmt: skip
+            ):
+                holder = element.parentNode if key == (OFFICE, "binary-data") else element
+                _remove(_frame(holder) if holder.namespaceURI == DRAW else holder)
+                report.count("media")
+        if self.remove_media:
+            for element in _elements(document):
+                if element.hasAttributeNS(DRAW, "fill-image-name"):
+                    element.removeAttributeNS(DRAW, "fill-image-name")
+                    if element.getAttributeNS(DRAW, "fill") == "bitmap":
+                        element.setAttributeNS(DRAW, _prefixed(element, DRAW, "fill"), "none")
+
+    def collect_names(self, documents: list[Node]) -> None:
+        """Names that carry data get neutral names, the same in every part."""
+        used = set(self.names.values())
+        candidates: dict[str, None] = {}
+        for document in documents:
+            for element, qualified, kind in attributes(document):
+                value = element.getAttribute(qualified)
+                # Reserve all retained attribute values before allocating names,
+                # including harmless or unmodeled bindings encountered later.
+                used.add(value)
+                if kind != "name":
+                    continue
+                if _qualified(element) == (TABLE, "table") and _is_sheet(element):
+                    continue
+                candidates[value] = None
+        index = 1
+        for value in candidates:
+            if value in self.names or _standalone(value, self.rewrite, OfficeReport()) == value:
+                continue
+            replacement = f"nombre-{index}"
+            while replacement in used:
+                index += 1
+                replacement = f"nombre-{index}"
+            self.names[value] = replacement
+            used.add(replacement)
+            index += 1
+
+    def criteria(self, document: Node) -> None:
+        """Drop validations, named expressions, conditional formats and maps with data."""
+        report = self.report
+        dropped_validations: set[str] = set()
+        for element in _elements(document):
+            if not _attached(element):
+                continue
+            key = _qualified(element)
+            if key == (TABLE, "content-validation"):
+                condition = _rename_sheets(
+                    element.getAttributeNS(TABLE, "condition"), self.sheet_renames
+                )
+                if formula_carries_data(condition):
+                    dropped_validations.add(element.getAttributeNS(TABLE, "name"))
+                    _remove(element)
+                    report.count("criteria")
+            elif key in {(TABLE, "named-range"), (TABLE, "named-expression")}:
+                name = element.getAttributeNS(TABLE, "name")
+                expression = _rename_sheets(
+                    element.getAttributeNS(TABLE, "expression")
+                    + element.getAttributeNS(TABLE, "cell-range-address"),
+                    self.sheet_renames,
+                )
+                if formula_carries_data(expression) or (
+                    _standalone(name, self.rewrite, OfficeReport()) != name
+                ):
+                    _remove(element)
+                    report.count("defined_names")
+            elif key[0] == CALCEXT and element.hasAttributeNS(CALCEXT, "value"):
+                if formula_carries_data(element.getAttributeNS(CALCEXT, "value")):
+                    _remove(element)
+                    report.count("criteria")
+            elif key == (STYLE, "map"):
+                if formula_carries_data(element.getAttributeNS(STYLE, "condition")):
+                    _remove(element)
+                    report.count("criteria")
+        for element in _elements(document):
+            if _qualified(element) == (CALCEXT, "conditional-format") and not any(
+                child.nodeType == child.ELEMENT_NODE for child in element.childNodes
+            ):
+                _remove(element)
+            if element.getAttributeNS(TABLE, "content-validation-name") in dropped_validations:
+                element.removeAttributeNS(TABLE, "content-validation-name")
+        for container in ("content-validations", "named-expressions"):
+            for element in document.getElementsByTagNameNS(TABLE, container):
+                if not any(child.nodeType == child.ELEMENT_NODE for child in element.childNodes):
+                    _remove(element)
+
+    def text_formulas(self, document: Node) -> None:
+        for element in _elements(document):
+            if not _attached(element):
+                continue
+            key = _qualified(element)
+            for attribute in ((TEXT, "condition"), (TEXT, "formula")):
+                value = element.getAttributeNS(*attribute)
+                if value and formula_carries_data(value):
+                    element.removeAttributeNS(*attribute)
+                    if (
+                        key == (TEXT, "section")
+                        and element.getAttributeNS(TEXT, "display") == "condition"
+                    ):
+                        element.setAttributeNS(TEXT, _prefixed(element, TEXT, "display"), "true")
+                    self.report.count("formulas_replaced_by_values")
+
+    def rename_sheets(self, document: Node) -> None:
+        used = {sheet.getAttributeNS(TABLE, "name") for sheet in sheets(document)}
+        for index, sheet in enumerate(sheets(document), start=1):
+            name = sheet.getAttributeNS(TABLE, "name")
+            if _standalone(name, self.rewrite, self.report) != name:
+                new = f"Hoja{index}"
+                while new in used:
+                    new += "_"
+                used.add(new)
+                self.sheet_renames[name] = new
+                sheet.setAttributeNS(TABLE, _prefixed(sheet, TABLE, "name"), new)
+
+    def cells(self, document: Node, transform_cells: TransformCells) -> None:
+        tables = sheets(document)
+        grids: list[tuple[str, CellGrid]] = []
+        located: list[dict[tuple[int, int], Node]] = []
+        for table in tables:
+            grid, cells = sheet_grid(table, expand=True)
+            grids.append((table.getAttributeNS(TABLE, "name"), grid))
+            located.append(cells)
+        changes = transform_cells(grids)
+        for cells, changed in zip(located, changes, strict=True):
+            self.report.transformations += len(changed)
+            for position, text in changed.items():
+                _set_cell(cells[position], text)
+            for position, cell in cells.items():
+                if position in changed:
+                    continue
+                self._typed_value(cell)
+        for table in tables:
+            for row in _rows(table):
+                for cell in _cells(row):
+                    formula = cell.getAttributeNS(TABLE, "formula")
+                    if not formula:
+                        continue
+                    renamed = _rename_sheets(formula, self.sheet_renames)
+                    if formula_carries_data(renamed):
+                        cell.removeAttributeNS(TABLE, "formula")
+                        self.report.count("formulas_replaced_by_values")
+                    elif renamed != formula:
+                        cell.setAttributeNS(TABLE, _prefixed(cell, TABLE, "formula"), renamed)
+
+    def _typed_value(self, element: Node) -> None:
+        """Values kept apart from an unchanged displayed text are checked on their own."""
+        for namespace, name in _VALUE_ATTRIBUTES:
+            value = element.getAttributeNS(namespace, name)
+            if value and _standalone(value, self.rewrite, self.report) != value:
+                _drop_typed_value(element)
+                self.report.count("typed_values")
+                return
+
+    def text(self, document: Node, *, spreadsheet: bool) -> None:
+        holders = [
+            (element, paragraph_text(element))
+            for element in _elements(document)
+            if any(element.hasAttributeNS(*key) for key in _VALUE_ATTRIBUTES)
+            and not (spreadsheet and _qualified(element)[0] == TABLE)
+        ]
+        pieces = stream(document, skip_cells=spreadsheet)
+        replaced: list[tuple[int, int]] = []
+
+        def rewrite(text: str) -> tuple[str, list[tuple[int, int, str]]]:
+            output, mappings = self.rewrite(text)
+            replaced.extend((start, end) for start, end, _ in mappings)
+            return output, mappings
+
+        _rewrite_stream(
+            [(node if _is_text(node) else None, value) for node, value, _ in pieces],
+            rewrite,
+            self.report,
+        )
+        # Spaces, tabs and line breaks inside a replaced value go with it.
+        cursor = 0
+        for node, value, _ in pieces:
+            start, cursor = cursor, cursor + len(value)
+            if node is not None and not _is_text(node) and _attached(node):
+                if any(a <= start and cursor <= b for a, b in replaced):
+                    _remove(node)
+        for element, before in holders:
+            if paragraph_text(element) != before:
+                _drop_typed_value(element)  # the displayed value changed
+            else:
+                self._typed_value(element)
+
+    def attributes(self, document: Node) -> None:
+        report = self.report
+        for name in structural_names(document):
+            if _standalone(name, self.rewrite, OfficeReport()) != name:
+                raise DocumentError("Sensitive OpenDocument XML names are unsupported")
+        for element, qualified, kind in list(attributes(document)):
+            if not _attached(element):
+                continue
+            value = element.getAttribute(qualified)
+            if kind == "data":
+                new = _standalone(value, self.rewrite, report)
+                if new != value:
+                    element.setAttribute(qualified, new)
+            elif kind == "structural":
+                if _standalone(value, self.rewrite, OfficeReport()) != value:
+                    raise DocumentError("Sensitive OpenDocument structural metadata is unsupported")
+            elif kind == "name":
+                if value in self.names:
+                    element.setAttribute(qualified, self.names[value])
+            elif kind == "href" and _href_kind(value) == "internal":
+                target = _href_name(value)
+                decoded = _decoded_href(value)
+                if target in self.names:
+                    element.setAttribute(
+                        qualified, "#" + self.names[target] + decoded[1 + len(target) :]
+                    )
+                elif _standalone(decoded, self.rewrite, OfficeReport()) != decoded:
+                    if _qualified(element) in {(TEXT, "a"), (DRAW, "a")}:
+                        _unwrap(element)
+                    else:
+                        element.removeAttribute(qualified)
+                    report.count("hyperlinks_unlinked")
+            elif kind in {"formula", "address"}:
+                renamed = _rename_sheets(value, self.sheet_renames)
+                if renamed != value:
+                    element.setAttribute(qualified, renamed)
+
+    def meta(self, document: Node) -> None:
+        for element in _elements(document):
+            if not _attached(element):
+                continue
+            key = _qualified(element)
+            if key in _PERSONAL_META or (
+                key == (META, "user-defined")
+                and element.getAttributeNS(META, "name").lower() in _PERSONAL_PROPERTIES
+            ):
+                _remove(element)
+                self.report.count("personal_properties")
+
+
+def _is_text(node: Node | None) -> bool:
+    return node is not None and node.nodeType in _TEXT_NODES
+
+
+def rewrite_odf(
+    source: Path,
+    target: Path,
+    rewrite: Rewrite,
+    transform_cells: TransformCells,
+    *,
+    max_bytes: int,
+    remove_media: bool = True,
+) -> OfficeReport:
+    """Write a transformed copy of an ODT or ODS package; never overwrites ``source``."""
+    report = OfficeReport()
+    suffix = source.suffix.lower()
+    spreadsheet = suffix == ".ods"
+    with _archive(source, max_bytes) as archive:
+        entries = check_package(archive, suffix)
+        embedded = subdocuments(entries)
+        names = archive.namelist()
+        package_members = _package_members(names)
+        kinds = {name: part_kind(name, embedded) for name in names}
+        if None in kinds.values():
+            raise DocumentError("Unsupported OpenDocument package part")
+        removed: set[str] = set()
+        for name, kind in kinds.items():
+            if kind in {"directory", "settings", "rdf", "configuration", "layout_cache"}:
+                removed.add(name)
+            elif kind == "thumbnail":
+                removed.add(name)
+                report.count("thumbnail")
+            elif kind == "signature":
+                removed.add(name)
+                report.count("signatures")
+            elif kind == "macro":
+                removed.add(name)
+                report.count("macros")
+            elif remove_media and kind in {"media", "embedded"}:
+                removed.add(name)
+                report.count("media_parts")
+        removed_targets = {name.rstrip("/") for name in removed} | {
+            directory.rstrip("/") for directory in embedded if remove_media
+        }
+        writer = _Writer(
+            rewrite,
+            report,
+            remove_media=remove_media,
+            removed_parts=removed_targets,
+            package_members=package_members,
+        )
+        documents = {
+            name: _parse_odf(archive.read(name))
+            for name in ("content.xml", "styles.xml", "meta.xml")
+            if name in names
+        }
+        for name, document in documents.items():
+            if document.documentElement.namespaceURI != OFFICE:
+                raise DocumentError("Unexpected OpenDocument part root")
+            writer.scrub(document, part=name)
+        if "meta.xml" in documents:
+            writer.meta(documents["meta.xml"])
+        if spreadsheet:
+            writer.rename_sheets(documents["content.xml"])
+        writer.collect_names([d for n, d in documents.items() if n != "meta.xml"])
+        for document in documents.values():
+            writer.criteria(document)
+            writer.text_formulas(document)
+        if spreadsheet:
+            writer.cells(documents["content.xml"], transform_cells)
+        for name, document in documents.items():
+            writer.text(document, spreadsheet=spreadsheet and name == "content.xml")
+            writer.attributes(document)
+        retained = [name for name in names if name not in removed]
+        with zipfile.ZipFile(target, "w", compression=zipfile.ZIP_DEFLATED) as out:
+            mimetype = zipfile.ZipInfo("mimetype", date_time=(1980, 1, 1, 0, 0, 0))
+            mimetype.compress_type = zipfile.ZIP_STORED
+            out.writestr(mimetype, MEDIA_TYPES[suffix].encode("ascii"))
+            for name in retained:
+                if name == "mimetype":
+                    continue
+                info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
+                info.compress_type = zipfile.ZIP_DEFLATED
+                info.external_attr = 0o600 << 16
+                if name in documents:
+                    data = _serialize(documents[name])
+                elif name == "META-INF/manifest.xml":
+                    data = _manifest_xml(entries, retained, suffix)
+                elif kinds[name] in {"media", "embedded"}:
+                    data = archive.read(name)  # kept only with remove_media=False: never released
+                else:
+                    raise DocumentError("Unprocessed OpenDocument package part")
+                out.writestr(info, data)
+    return report
+
+
+def _manifest_xml(entries: dict[str, str], retained: list[str], suffix: str) -> bytes:
+    document = minidom.Document()
+    root = document.createElementNS(MANIFEST, "manifest:manifest")
+    root.setAttribute("xmlns:manifest", MANIFEST)
+    root.setAttribute("manifest:version", "1.3")
+    document.appendChild(root)
+    paths = (
+        ["/"]
+        + sorted(
+            {
+                name.split("/", 1)[0] + "/"
+                for name in retained
+                if "/" in name
+                and name.split("/", 1)[0] + "/" in entries
+                and not name.startswith("META-INF/")
+            }  # fmt: skip
+        )
+        + [name for name in retained if name not in {"mimetype", "META-INF/manifest.xml"}]
+    )
+    for path in paths:
+        entry = document.createElementNS(MANIFEST, "manifest:file-entry")
+        entry.setAttribute("manifest:full-path", path)
+        if path == "/":
+            entry.setAttribute("manifest:version", "1.3")
+        media_type = (
+            MEDIA_TYPES[suffix]
+            if path == "/"
+            else "text/xml"
+            if path.endswith(".xml")
+            else entries.get(path, "")
+        )
+        if not re.fullmatch(r"[\w.+-]{1,64}/[\w.+-]{1,128}", media_type):  # not free text
+            media_type = "text/xml" if path.endswith(".xml") else "application/octet-stream"
+        entry.setAttribute("manifest:media-type", media_type)
+        root.appendChild(entry)
+    return _serialize(document)
+
+
+__all__ = ["MEDIA_TYPES", "read_odf", "rewrite_odf"]

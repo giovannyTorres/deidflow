@@ -165,3 +165,10 @@ def make_ods(path: Path) -> Path:
     }
     parts["META-INF/manifest.xml"] = manifest(media_type, {name: "text/xml" for name in parts})
     return write_package(path, media_type, parts)
+
+
+def package_text(path: Path) -> str:
+    with zipfile.ZipFile(path) as archive:
+        return "\n".join(
+            archive.read(name).decode("utf-8", "replace") for name in archive.namelist()
+        )

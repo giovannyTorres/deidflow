@@ -1,7 +1,4 @@
-import email
-import email.policy
 import time
-from email.message import EmailMessage
 
 import pytest
 from opendocument_samples import NS, ODT_CONTENT, make_ods, make_odt, manifest, write_package
@@ -46,39 +43,6 @@ def test_odt_reader_scans_text_hidden_values_and_package_parts(tmp_path):
         "embedded_or_active_content_not_extracted",
         "external_relationships_require_review",
     } <= set(graph.issues)
-
-
-@pytest.mark.parametrize("maker,suffix", ((make_odt, ".odt"), (make_ods, ".ods")))
-def test_odf_output_remains_unsupported_until_writer_is_available(tmp_path, maker, suffix):
-    source = maker(tmp_path / ("source" + suffix))
-    output = tmp_path / ("safe" + suffix)
-    result = DeidEngine(country="ES").deidentify(
-        source, output=output, policy=Policy.strict(require_ner=False)
-    )
-    assert result.status == "UNSUPPORTED"
-    assert result.output_path is None
-    assert not output.exists()
-
-
-@pytest.mark.parametrize("maker,suffix", ((make_odt, ".odt"), (make_ods, ".ods")))
-def test_reader_registration_does_not_retain_unprocessed_email_attachments(tmp_path, maker, suffix):
-    payload = maker(tmp_path / ("attachment" + suffix)).read_bytes()
-    message = EmailMessage()
-    message.set_content("Adjunto informe.\n")
-    message.add_attachment(
-        payload, maintype="application", subtype="octet-stream", filename="informe" + suffix
-    )
-    source = tmp_path / "source.eml"
-    source.write_bytes(message.as_bytes(policy=email.policy.default))
-    result = DeidEngine(country="ES").deidentify(
-        source, output=tmp_path / "safe.eml", policy=Policy.strict(require_ner=False)
-    )
-    assert result.status == "REVIEW_REQUIRED", result.issues
-    assert "EMAIL_ATTACHMENT_REMOVED" in result.issues
-    assert result.output_path is not None
-    parsed = email.message_from_bytes(result.output_path.read_bytes(), policy=email.policy.default)
-    assert list(parsed.iter_attachments()) == []
-    assert all(payload not in (part.get_payload(decode=True) or b"") for part in parsed.walk())
 
 
 def test_ods_with_huge_empty_repeats_is_fast(tmp_path):

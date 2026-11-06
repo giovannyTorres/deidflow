@@ -159,13 +159,28 @@ def _set_text(element: Node, text: str, *, preserve: bool = True) -> None:
         element.setAttribute("xml:space", "preserve")
 
 
+def _node_text(node: Node) -> str:
+    """Text of a text element (DOCX ``w:t``) or of a text node itself (OpenDocument)."""
+    if node.nodeType in {node.TEXT_NODE, node.CDATA_SECTION_NODE}:
+        return str(node.data)
+    return _text_of(node)
+
+
+def _assign_text(node: Node, text: str) -> None:
+    if node.nodeType in {node.TEXT_NODE, node.CDATA_SECTION_NODE}:
+        node.data = text
+    else:
+        _set_text(node, text)
+
+
 def _rewrite_stream(
     segments: list[tuple[Node | None, str]], rewrite: Rewrite, report: OfficeReport
 ) -> None:
-    """Apply replacements over a sequence of text elements and virtual separators.
+    """Apply replacements over a sequence of text holders and virtual separators.
 
-    A replacement lands in the first text element it overlaps; the rest of the
-    replaced source text is deleted from the following elements.
+    A text holder is a text element or a text node. A replacement lands in the
+    first holder it overlaps; the rest of the replaced source text is deleted
+    from the following holders.
     """
     text = "".join(value for _, value in segments)
     if not text.strip():
@@ -180,7 +195,7 @@ def _rewrite_stream(
         if element is not None:
             spans.append((element, cursor, cursor + len(value)))
         cursor += len(value)
-    current = {id(element): _text_of(element) for element, _, _ in spans}
+    current = {id(element): _node_text(element) for element, _, _ in spans}
     for start, end, replacement in sorted(mappings, key=lambda m: m[0], reverse=True):
         placed = False
         for element, a, b in spans:
@@ -197,8 +212,8 @@ def _rewrite_stream(
         if not placed:
             raise DocumentError("Replacement could not be placed in document text")
     for element, _, _ in spans:
-        if current[id(element)] != _text_of(element):
-            _set_text(element, current[id(element)])
+        if current[id(element)] != _node_text(element):
+            _assign_text(element, current[id(element)])
 
 
 def _standalone(value: str, rewrite: Rewrite, report: OfficeReport) -> str:
