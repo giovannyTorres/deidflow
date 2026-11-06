@@ -289,7 +289,9 @@ class RuleDetector:
                 context=candidate.context,
                 labels=candidate.labels,
             )
-            if candidate.score >= 0.75:
+            # Specific identifiers reserve their digits; generic labelled fallbacks
+            # do not, so CLABE/card checks still type the same digits precisely.
+            if candidate.score >= 0.75 and not candidate.generic:
                 numeric_spans.append((candidate.start, candidate.end))
         for match in _IBAN_RE.finditer(text):
             check = validate_iban(match.group())

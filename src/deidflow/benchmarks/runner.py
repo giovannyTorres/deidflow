@@ -234,6 +234,7 @@ def _spacy_baseline(path: str | Path) -> Callable[[str], Sequence[Any]]:
         "LOC": "LOCATION",
         "GPE": "LOCATION",
         "LOCATION": "LOCATION",
+        "ORG": "ORGANIZATION",
     }
 
     def detect(text: str) -> list[Any]:
@@ -278,6 +279,10 @@ def _presidio_baseline(path: str | Path) -> Callable[[str], Sequence[Any]]:
         "ES_NIF": "NATIONAL_ID",
         "ES_NIE": "NATIONAL_ID",
         "IBAN_CODE": "BANK_ACCOUNT",
+        "ORGANIZATION": "ORGANIZATION",
+        "IP_ADDRESS": "IP_ADDRESS",
+        "US_SSN": "NATIONAL_ID",
+        "NRP": "DEMOGRAPHIC",
     }
 
     def detect(text: str) -> list[Any]:

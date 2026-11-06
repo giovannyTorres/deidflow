@@ -128,6 +128,20 @@ STDNUM_CASES = [
         lambda r: _random_digits(r, r.choice([6, 7, 8])),
         string.digits + "K",
     ),
+    (
+        "uy",
+        "rut",
+        v.validate_uy_rut,
+        lambda r: f"{r.randint(1, 22):02d}" + _random_digits(r, 6) + "001",
+        string.digits,
+    ),
+    (
+        "sv",
+        "nit",
+        v.validate_sv_nit,
+        lambda r: r.choice("019") + _random_digits(r, 12),
+        string.digits,
+    ),
 ]
 
 
@@ -144,7 +158,7 @@ def test_validators_agree_with_python_stdnum(cc, name, validator, body, checks):
             ours = validator(value).status == "checksum"
             assert ours == module.is_valid(value), value
             valid += ours
-    assert valid >= 150  # every random body has at least one valid check character
+    assert valid >= 120  # nearly every body has a valid check character (UY RUT: not mod 10)
 
 
 def test_ecuador_ruc_agrees_with_python_stdnum():
@@ -236,3 +250,33 @@ def test_international_patterns_are_linear_on_adversarial_input():
         start = time.perf_counter()
         detector.detect(text)
         assert time.perf_counter() - start < 5, chunk
+
+
+def test_generic_fallback_does_not_upgrade_a_rejected_check_digit():
+    from deidflow import Policy
+
+    engine = DeidEngine(country="EC")
+    text = "Cédula 1710034060."  # Ecuadorian check digit is wrong (valid: ...065)
+    scores = [f.score for f in engine.scan_text(text) if f.entity_type == "NATIONAL_ID"]
+    assert scores and max(scores) < 0.75
+    assert (
+        engine.deidentify_text(text, policy=Policy.strict(require_ner=False)).status != "APPROVED"
+    )
+    valid = [
+        f.score for f in engine.scan_text("Cédula 1710034065.") if f.entity_type == "NATIONAL_ID"
+    ]
+    assert max(valid) >= 0.9
+
+
+def test_new_identifier_categories_count_as_direct_identifiers():
+    from deidflow.risk import assess
+
+    findings = DeidEngine(country="PE").scan_text("RUC 20100070970.")
+    assert assess(findings).direct_identifier_count == 1
+
+
+def test_rejected_bank_account_check_digits_stay_uncertain():
+    engine = DeidEngine(country="ES")
+    findings = engine.scan_text("Cuenta 2100 0418 45 0200051333.")  # last digit altered
+    accounts = [f for f in findings if f.entity_type == "BANK_ACCOUNT"]
+    assert accounts and max(f.score for f in accounts) < 0.75

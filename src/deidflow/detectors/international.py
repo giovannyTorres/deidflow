@@ -30,7 +30,7 @@ def _label(words: str) -> re.Pattern[str]:
     # "DNI: ", "DNI nº ", "cédula de ciudadanía ", "su DNI es ", "RUC número "
     connector = r"(?:(?:es|era|ser[áa]|n[úu]mero|nro\.?)\s+)?"
     return re.compile(
-        r"(?:" + words + r")\s*" + _NUM + r"(?:de\s+\w+\s*)?" + connector + r"[:=#]?\s*$", _I
+        r"(?:" + words + r")\s*" + _NUM + r"(?:del?\s+\w+\s*)?" + connector + r"[:=#]?\s*$", _I
     )
 
 
@@ -51,6 +51,18 @@ LABELS = {
     "carne": _label(r"\bcarn[ée]t?(?:\s+de\s+identidad)?|\bCI"),
     "iban": _label(r"\bIBAN"),
     "rif": _label(r"\bR\.?\s?I\.?\s?F\.?"),
+    "rut": _label(r"\bR\.?\s?U\.?\s?T\.?"),
+    "ein": _label(r"\bEIN|\bTIN|\bemployer\s+identification\s+number"),
+    "account": _label(
+        r"\bcuenta(?:\s+(?:bancaria|corriente|de\s+ahorros?|vista|n[óo]mina))?|\bcta\.?|\bCBU|\bCVU|\bCLABE"
+        r"|\bn[úu]mero\s+de\s+cuenta|\bnro\.?\s+de\s+cuenta|\baccount"
+    ),
+    "phone": re.compile(
+        r"(?:\btel[ée]fono|\btel[sf]?\.?|\btlf\.?|\bfono|\bm[óo]vil|\bcelular|\bcel\.?|\bphone"
+        r"|\bwhatsapp|\bllam(?:ar|e|en|ar[áa]|enos|ad)|\bmarque|\bcomun[íi]quese|\bcontacto)"
+        r"(?:\s+(?:del?|al|a|con|para)\s+\w+)?(?:\s+(?:al|es|es\s+el|n[º°o]\.?))?\s*[:=]?\s*$",
+        _I,
+    ),
 }
 
 
@@ -64,6 +76,9 @@ class IdentifierSpec:
     accept: str  # "checksum" | "structural" | "context"
     labels: tuple[str, ...] = ()
     score: float = 0.99
+    # Generic fallbacks (no validator) must not override a country-specific
+    # validator that rejected the same digits.
+    generic: bool = False
 
 
 def _spec(
@@ -86,6 +101,7 @@ def _spec(
         accept,
         labels,
         score,
+        generic=name.startswith("LATAM-") or name == "BANK-ACCOUNT",
     )
 
 
@@ -136,6 +152,7 @@ SPECS: tuple[IdentifierSpec, ...] = (
         r"(?<!\w)\d{4}[ -]?\d{4}[ -]?\d{2}[ -]?\d{10}(?!\w)",
         v.validate_es_ccc,
         "checksum",
+        ("account",),
     ),
     # Argentina
     _spec(
@@ -153,6 +170,7 @@ SPECS: tuple[IdentifierSpec, ...] = (
         r"(?<!\w)\d{8}[ -]?\d{14}(?!\w)",
         v.validate_ar_cbu,
         "checksum",
+        ("account",),
     ),
     # Chile, Uruguay (dotted body with a hyphenated check character)
     _spec(
@@ -345,6 +363,38 @@ SPECS: tuple[IdentifierSpec, ...] = (
         "structural",
         score=0.95,
     ),
+    _spec(
+        "SV-NIT",
+        "SV",
+        "TAX_ID",
+        r"(?<![\d-])\d{4}-\d{6}-\d{3}-\d(?![\d-])",
+        v.validate_sv_nit,
+        "checksum",
+        ("nit",),
+    ),
+    _spec(
+        "CR-CEDULA-JURIDICA",
+        "CR",
+        "TAX_ID",
+        r"(?<![\d-])[2-5]-\d{3}-\d{6}(?![\d-])",
+        None,
+        "structural",
+        score=0.85,
+    ),
+    _spec("UY-RUT", "UY", "TAX_ID", r"(?<!\w)\d{12}(?!\w)", v.validate_uy_rut, "context", ("rut",)),
+    _spec(
+        "US-EIN", "US PR", "TAX_ID", r"(?<![\d-])\d{2}-\d{7}(?![\d-])", None, "context", ("ein",)
+    ),
+    _spec(
+        "BANK-ACCOUNT",
+        "AR BO CL CO CR CU DO EC ES GT HN MX NI PA PE PR PY SV US UY VE",
+        "BANK_ACCOUNT",
+        r"(?<![\w.-])\d{2,6}(?:[ -]?\d{2,6}){1,5}(?![\w-]|[.,]\d)",
+        None,
+        "context",
+        ("account",),
+        score=0.9,
+    ),
     # United States / Puerto Rico
     _spec(
         "US-SSN",
@@ -390,7 +440,7 @@ _INTL_PHONE = re.compile(
 _ES_PHONE = re.compile(
     r"(?<![\d+.,])(?:[6789]\d{2}(?: \d{2}){3}|[6789]\d{2}[ .]\d{3}[ .]\d{3}|9\d[ .]\d{3}[ .]\d{2}[ .]\d{2})(?!\d|[.,]\d|-\d)"
 )
-_IPV4 = re.compile(r"(?<![\d.])(?:\d{1,3}\.){3}\d{1,3}(?![\d.])")
+_IPV4 = re.compile(r"(?<![\d.])(?:\d{1,3}\.){3}\d{1,3}(?!\d|\.\d)")
 _IPV6 = re.compile(r"(?<![\w:])(?=[0-9A-Fa-f:]*:[0-9A-Fa-f]*:)[0-9A-Fa-f:]{3,39}(?![\w:])")
 
 _MONTHS = (
@@ -420,22 +470,36 @@ class Candidate:
     validation: str
     context: tuple[str, ...]
     labels: tuple[str, ...]
+    generic: bool = False
 
 
 def identifier_candidates(
     text: str, countries: Collection[str] | None = None
 ) -> Iterator[Candidate]:
-    """Yield identifier candidates for ``countries`` (``None`` means all)."""
-    for spec in SPECS:
+    """Yield identifier candidates for ``countries`` (``None`` means all).
+
+    Country-specific recognizers run first; a generic fallback is skipped where a
+    specific validator already rejected overlapping digits, so an invalid check
+    digit keeps its uncertain score instead of being upgraded.
+    """
+    rejected: list[tuple[int, int]] = []
+    ordered = sorted(SPECS, key=lambda spec: spec.generic)
+    for spec in ordered:
         if countries is not None and not (spec.countries & set(countries)):
             continue
         for match in spec.pattern.finditer(text):
+            if spec.generic and any(
+                start < match.end() and match.start() < end for start, end in rejected
+            ):
+                continue
             value = match.group()
             labelled = bool(spec.labels) and _has_label(text, match.start(), spec.labels)
             result = spec.validator(value) if spec.validator else None
             status = result.status if result is not None else "pattern"
             valid = result is None or bool(result)
             checksum_ok = result is not None and result.checksum is True
+            if result is not None and not (checksum_ok and result.structural) and labelled:
+                rejected.append(match.span())
             if spec.accept == "checksum":
                 if checksum_ok and result is not None and result.structural:
                     score = spec.score
@@ -463,7 +527,13 @@ def identifier_candidates(
                 status,
                 context + (("checksum_valid",) if checksum_ok else ()),
                 ("id:" + spec.name,),
+                spec.generic,
             )
+
+
+_LABELLED_PHONE = re.compile(
+    r"(?<![\w+])(?:\+\d{1,3}[ .-]?)?(?:\(\d{1,4}\)[ .-]?)?\d{1,4}(?:[ .-]?\d{2,4}){1,4}(?!\d|[.,]\d|-\d)"
+)
 
 
 def phone_candidates(text: str) -> Iterator[Candidate]:
@@ -472,6 +542,15 @@ def phone_candidates(text: str) -> Iterator[Candidate]:
             digits = sum(c.isdigit() for c in match.group())
             if 8 <= digits <= 15:
                 yield Candidate("PHONE", *match.span(), score, "structural", (), ("phone:" + name,))
+    # Any national grouping of 7-13 digits right after a phone label or call verb.
+    for match in _LABELLED_PHONE.finditer(text):
+        digits = sum(c.isdigit() for c in match.group())
+        if 7 <= digits <= 13 and LABELS["phone"].search(
+            text[max(0, match.start() - 40) : match.start()]
+        ):
+            yield Candidate(
+                "PHONE", *match.span(), 0.9, "structural", ("phone_label",), ("phone:labelled",)
+            )
 
 
 def network_candidates(text: str) -> Iterator[Candidate]:

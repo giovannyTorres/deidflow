@@ -232,6 +232,17 @@ def validate_uy_ci(value: str) -> ValidationResult:
     return _result(True, True, v[-1] == str(-total % 10), value=v)
 
 
+def validate_uy_rut(value: str) -> ValidationResult:
+    """Uruguay RUT (tax registry): 12 digits, department, 001 suffix, mod-11 check."""
+    v = _clean(value)
+    if not (len(v) == 12 and _digits(v)):
+        return _result(False)
+    structural = "01" <= v[:2] <= "22" and v[2:8] != "000000" and v[8:11] == "001"
+    weights = (4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2)
+    total = sum(w * int(d) for w, d in zip(weights, v[:11], strict=True))
+    return _result(True, structural, v[11] == str(-total % 11), value=v)
+
+
 def validate_py_ruc(value: str) -> ValidationResult:
     """Paraguay RUC: base number and a mod-11 check digit."""
     v = _clean(value)
@@ -282,6 +293,22 @@ def validate_sv_dui(value: str) -> ValidationResult:
         return _result(False)
     total = sum(w * int(d) for w, d in zip(range(9, 1, -1), v[:8], strict=True))
     return _result(True, True, v[8] == str(-total % 10), value=v)
+
+
+def validate_sv_nit(value: str) -> ValidationResult:
+    """El Salvador NIT: 14 digits (municipality, birth date, serial, check digit)."""
+    v = _clean(value)
+    if not (len(v) == 14 and _digits(v)):
+        return _result(False)
+    if v[10:13] <= "100":
+        weights = (14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2)
+        total = sum(w * int(d) for w, d in zip(weights, v[:13], strict=True))
+        check = str((total % 11) % 10)
+    else:
+        weights = (2, 7, 6, 5, 4, 3, 2, 7, 6, 5, 4, 3, 2)
+        total = sum(w * int(d) for w, d in zip(weights, v[:13], strict=True))
+        check = str((-total % 11) % 10)
+    return _result(True, v[0] in "019", v[13] == check, value=v)
 
 
 def validate_us_ssn(value: str) -> ValidationResult:
@@ -369,7 +396,9 @@ __all__ = [
     "validate_pe_ruc",
     "validate_py_ruc",
     "validate_sv_dui",
+    "validate_sv_nit",
     "validate_us_ssn",
     "validate_uy_ci",
+    "validate_uy_rut",
     "validate_ve_rif",
 ]

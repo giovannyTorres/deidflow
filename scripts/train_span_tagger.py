@@ -31,7 +31,11 @@ from deidflow.training.tagger import train_span_tagger
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("source", choices=["meddocan", "gretel_finance", "jsonl"])
+    parser.add_argument("source", choices=["meddocan", "gretel_finance", "mixed", "jsonl"])
+    parser.add_argument("--meddocan", type=Path, help="mixed: verified MEDDOCAN directory")
+    parser.add_argument("--gretel", type=Path, help="mixed: registered Gretel finance directory")
+    parser.add_argument("--synthetic-train", type=int, default=0, help="mixed: synthetic documents")
+    parser.add_argument("--synthetic-validation", type=int, default=0)
     parser.add_argument(
         "--corpus", type=Path, help="Verified MEDDOCAN or registered Gretel finance directory"
     )
@@ -99,6 +103,54 @@ def main() -> None:
             "changes": "PII labels mapped to DeidFlow categories; no source text edits",
             "provenance_kind": GRETEL_FINANCE["provenance_kind"],
         }
+    elif args.source == "mixed":
+        from deidflow.benchmarks.synthetic_es import generate
+
+        train, validation = [], []
+        provenance = {"source": "mixed", "components": {}}
+        if args.meddocan:
+            integrity = verify_acquired_corpus(args.meddocan, "meddocan")
+            train += load_public(args.meddocan, "meddocan", "train").examples
+            validation += load_public(args.meddocan, "meddocan", "dev").examples
+            provenance["components"]["meddocan"] = {
+                "commit": SOURCES["meddocan"]["commit"],
+                "license": SOURCES["meddocan"]["license"],
+                "attribution": SOURCES["meddocan"]["attribution"],
+                "file_digest_manifest_sha256": SOURCES["meddocan"]["file_digest_manifest_sha256"],
+                "splits": {"weights": "train", "selection": "dev"},
+            }
+        if args.gretel:
+            integrity = verify_registered_files(args.gretel, "gretel_finance")
+            files = gretel_files(args.gretel, "train")
+            published = load_gretel_finance(files, language=args.language, split="train")
+            gretel_train, gretel_validation = hash_split(
+                published.examples, validation_fraction=args.validation_fraction
+            )
+            train += gretel_train
+            validation += gretel_validation
+            provenance["components"]["gretel_finance"] = {
+                "repository": GRETEL_FINANCE["repository"],
+                "license": GRETEL_FINANCE["license"],
+                "attribution": GRETEL_FINANCE["attribution"],
+                "file_digest_manifest_sha256": integrity["file_digest_manifest_sha256"],
+                "splits": {"weights": "train minus text-hash holdout", "selection": "holdout"},
+            }
+        if args.synthetic_train:
+            train += list(generate(args.synthetic_train, split="train", seed=args.seed))
+            validation += list(
+                generate(args.synthetic_validation or 1, split="validation", seed=args.seed)
+            )
+            provenance["components"]["synthetic_es"] = {
+                "generator": "deidflow.benchmarks.synthetic_es",
+                "seed": args.seed,
+                "documents": {
+                    "train": args.synthetic_train,
+                    "validation": args.synthetic_validation,
+                },
+                "splits": "template families disjoint across train/validation/test",
+            }
+        if not train:
+            parser.error("mixed needs --meddocan, --gretel and/or --synthetic-train")
     else:
         if args.train_jsonl is None or args.validation_jsonl is None:
             parser.error("--train-jsonl and --validation-jsonl are required for jsonl")
@@ -123,7 +175,13 @@ def main() -> None:
             "language": "es",
             # Only the financial model records a domain, so the packaged clinical
             # model (trained before this field existed) rebuilds byte for byte.
-            **({"domain": "financial"} if args.source == "gretel_finance" else {}),
+            **(
+                {"domain": "financial"}
+                if args.source == "gretel_finance"
+                else {"domain": "general"}
+                if args.source == "mixed"
+                else {}
+            ),
             "training_data": provenance,
         },
         log=lambda line: print(line, file=sys.stderr, flush=True),

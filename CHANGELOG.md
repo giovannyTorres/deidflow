@@ -37,6 +37,15 @@
   (`docs/COUNTRIES.md`), international phones, IPv4/IPv6 and textual Spanish
   dates; `DeidEngine(country=...)` now accepts `"ALL"` (default), an ISO code or
   a list. Adds `TAX_ID`. Validators agree with python-stdnum on random inputs.
+- `TAX_ID`, `INSURANCE_ID`, `REGIONAL_ID` and `IP_ADDRESS` count as direct
+  identifiers in risk assessment. Generic `LATAM-*`/`BANK-ACCOUNT` fallbacks no
+  longer raise the score of digits whose country check digit failed.
+- Added a head-to-head comparison with Presidio and spaCy on the MEDDOCAN and
+  Gretel test sets (`docs/COMPARISON.md`): exact F1 0.958 vs 0.363 vs 0.259
+  (clinical) and 0.707 vs 0.177 vs 0.115 (financial).
+- Added `deidflow.benchmarks.synthetic_es`, a seeded multi-country synthetic
+  corpus with check-digit-valid identifiers and template families held out per
+  split, and `train_span_tagger.py mixed` to train on several corpora at once.
 - Added `redact_margin` (silent over-redaction of near-miss tokens), packaged
   `balanced`/`assurance` operating profiles tuned on validation, a domain router
   (`DomainRouter`, CLI `--tagger builtin:auto`) and direct-identifier leak,

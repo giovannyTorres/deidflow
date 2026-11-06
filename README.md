@@ -176,6 +176,25 @@ Validation-tuned `assurance` profiles lower the share of approved documents that
 leak a direct identifier (MEDDOCAN test: 10.1% to 7.7%) but did not reach their
 2% validation target on test; see [operating profiles](docs/TAGGER.md#operating-profiles-domain-routing-and-leak-targets).
 
+## Compared with Presidio and spaCy
+
+Same test sets, same scoring, baselines installed as a user would
+(`presidio-analyzer` 2.2.366 and spaCy `es_core_news_lg` 3.7.0, untuned).
+Details and caveats: [docs/COMPARISON.md](docs/COMPARISON.md).
+
+| Test set | DeidFlow `builtin:auto` | DeidFlow rules + auto | Presidio | spaCy |
+| --- | ---: | ---: | ---: | ---: |
+| MEDDOCAN clinical, exact F1 | **0.958** | 0.881 | 0.363 | 0.259 |
+| MEDDOCAN, sensitive-character recall | 0.966 | **0.969** | 0.661 | 0.496 |
+| MEDDOCAN, over-redaction | **0.09%** | 0.29% | 3.87% | 3.82% |
+| Gretel financial (ES), exact F1 | **0.707** | 0.629 | 0.177 | 0.115 |
+| Gretel, sensitive-character recall | 0.789 | **0.830** | 0.637 | 0.513 |
+| Gretel, over-redaction | **0.89%** | 2.34% | 8.44% | 6.15% |
+
+DeidFlow's taggers were trained on these corpora's training splits; the
+baselines were not. No configuration removes every sensitive character from
+every document.
+
 ## Public gold evaluation of the v0.3 candidate
 
 Independent human gold exposes substantially lower accuracy than the easy

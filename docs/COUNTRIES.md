@@ -30,9 +30,9 @@ or who holds it. Values made of one repeated digit are treated as placeholders.
 | ES-NIE | ES | `NATIONAL_ID` | check digit | nie, dni |
 | ES-CIF | ES | `TAX_ID` | check digit | nit |
 | ES-NSS | ES | `INSURANCE_ID` | field label required | nss |
-| ES-CCC | ES | `BANK_ACCOUNT` | check digit | — |
+| ES-CCC | ES | `BANK_ACCOUNT` | check digit | account |
 | AR-CUIT (CUIT/CUIL) | AR | `TAX_ID` | check digit | — |
-| AR-CBU | AR | `BANK_ACCOUNT` | check digit | — |
+| AR-CBU | AR | `BANK_ACCOUNT` | check digit | account |
 | CL-RUT (RUT/RUN) | CL | `NATIONAL_ID` | check digit | cedula, dni |
 | UY-CI | UY | `NATIONAL_ID` | check digit | cedula |
 | CO-NIT | CO | `TAX_ID` | check digit | nit |
@@ -50,6 +50,10 @@ or who holds it. Values made of one repeated digit are treated as placeholders.
 | DO-CEDULA | DO | `NATIONAL_ID` | check digit (Luhn) | cedula |
 | DO-RNC | DO | `TAX_ID` | field label required | rnc |
 | GT-NIT | GT | `TAX_ID` | field label required | nit |
+| SV-NIT | SV | `TAX_ID` | check digit | nit |
+| CR-CEDULA-JURIDICA | CR | `TAX_ID` | distinctive format | — |
+| UY-RUT | UY | `TAX_ID` | field label required (check digit scored) | rut |
+| US-EIN | US, PR | `TAX_ID` | field label required | ein |
 | GT-DPI (CUI) | GT | `NATIONAL_ID` | field label required | dpi, dni |
 | SV-DUI | SV | `NATIONAL_ID` | field label required | dui |
 | MX-NSS (IMSS) | MX | `INSURANCE_ID` | field label required | nss |
@@ -57,13 +61,20 @@ or who holds it. Values made of one repeated digit are treated as placeholders.
 | US-SSN | US, PR | `NATIONAL_ID` | distinctive format | — |
 | LATAM-DNI | AR, BO, CL, CO, GT, HN, PE, PY, UY | `NATIONAL_ID` | field label required | dni, cedula |
 | LATAM-CEDULA | BO, CO, CR, CU, EC, HN, NI, PA, PY, VE | `NATIONAL_ID` | field label required | cedula |
+| BANK-ACCOUNT | all | `BANK_ACCOUNT` | field label required | account (`cuenta`, `cta.`, `CBU`, `CVU`, `CLABE`, `número de cuenta`) |
+
+The `LATAM-*` and `BANK-ACCOUNT` rows are generic fallbacks: they never raise
+the score of digits that a country-specific validator rejected (an invalid
+check digit stays an uncertain candidate), and they do not stop CLABE or card
+validation from typing the same digits.
 
 Also in the international pack, for every country:
 
 - Phone numbers in international format for Spain, Equatorial Guinea, Latin
   America and the NANP (`+34 612 345 678`, `+54 9 11 4123-4567`), and Spanish
-  national groupings (`612 34 56 78`, `91 123 45 67`). Labelled numbers of 7–12
-  digits are also detected by the core rules.
+  national groupings (`612 34 56 78`, `91 123 45 67`). Any national grouping of
+  7–13 digits right after a phone label or call verb (`Teléfono del tutor:`,
+  `llame al`, `WhatsApp`, `cel.`) is also detected.
 - IPv4 and IPv6 addresses (`IP_ADDRESS`), validated by the standard library.
 - Spanish textual dates (`3 de marzo de 1985`, `marzo de 2020`) and short
   numeric dates with the same separator twice (`15/3/2021`); with a birth-date
@@ -71,7 +82,7 @@ Also in the international pack, for every country:
 
 ## Verification
 
-`tests/test_international.py` compares 13 of these validators with
+`tests/test_international.py` compares 15 of these validators with
 [python-stdnum](https://arthurdejong.org/python-stdnum/) on thousands of random
 values, one check character at a time, plus Ecuador's RUC variants; uses
 published example values for the others; checks negatives such as amounts,
@@ -79,8 +90,12 @@ times, versions and scores; and bounds runtime on adversarial input. Spain's
 NSS and Mexico's IMSS NSS have no python-stdnum module, so they require a field
 label.
 
-On validation data the pack raised MEDDOCAN dev rules exact F1 from 0.493 to
-0.515 (precision 0.685 to 0.697, recall 0.385 to 0.408; dates 0.72 to 0.88,
-phones 0.07 to 0.68) and Gretel validation rules recall for national IDs from
-0.00 to 0.45 and IP addresses from 0.00 to 0.83, with rules + tagger character
-coverage unchanged or slightly higher.
+Rules were developed on validation data only: MEDDOCAN dev, the Gretel train
+holdout and the training families of the synthetic multi-country corpus
+(`deidflow.benchmarks.synthetic_es`). MEDDOCAN dev rules exact F1 rose from 0.493
+to 0.515 (precision 0.685 to 0.697, recall 0.385 to 0.408; dates 0.72 to 0.88,
+phones 0.07 to 0.71); Gretel validation rules recall rose for national IDs from
+0.00 to 0.45, IP addresses from 0.00 to 0.83 and phones from 0.91 to 0.96, with
+rules + tagger character coverage unchanged or slightly higher. On the synthetic
+training families the rules now cover every generated national ID, tax ID, bank
+account and IP address, and 145 of 153 phone numbers.
