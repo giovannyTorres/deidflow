@@ -5,6 +5,9 @@
 
 **Estado de publicación:** borrador; no existe número/URL de issue verificado.
 
+**Estado de implementación:** implementada y revisada; integración final del lote pendiente.
+Evidencia: [acta BMX-10](../../audit/BMX-10.md).
+
 **Tipo:** tarea técnica. **Etiqueta propuesta:** `ready-for-agent`; no aplicada.
 
 **Bloqueado por:** BMX-04, BMX-08, BMX-09.
@@ -21,7 +24,7 @@ Los IDs BMX son referencias locales, no números de GitHub. Al publicar, enlazar
 
 BMX-09 ratificada y revisada: se inicia la continuación secuencial autorizada
 del lote. Se conservan las dependencias y los criterios originales.
-[Revisión humana pendiente](../../audit/BMX-09-decisions-for-review.md).
+[Decisión operativa ratificada](../../audit/BMX-09-decisions-for-review.md).
 
 ## Qué entrega
 
@@ -29,21 +32,21 @@ Producir un paquete de identificadores mexicanos completamente ficticios con val
 
 ## Criterios de aceptación
 
-- [ ] Cubrir RFC física/moral/genéricos, CURP, CLABE, tarjetas, teléfonos mexicanos y correos con variantes válidas/inválidas y distractores.
+- [x] Cubrir RFC física/moral/genéricos, CURP, CLABE, tarjetas, teléfonos mexicanos y correos con variantes válidas/inválidas y distractores.
 
-- [ ] Etiquetas y sensibilidad siguen perfiles ratificados; no derivar gold de las predicciones del candidato.
+- [x] Etiquetas y sensibilidad siguen perfiles ratificados; no derivar gold de las predicciones del candidato.
 
-- [ ] Asignar grupos/particiones antes de derivados y registrar semillas, algoritmos, procedencia y vectores de validez.
+- [x] Asignar grupos/particiones antes de derivados y registrar semillas, algoritmos, procedencia y vectores de validez.
 
-- [ ] Emitir soporte por entidad/estrato y errores reales de admisión; un fixture no se presenta como muestra de despliegue ni cuenta existente.
+- [x] Emitir soporte por entidad/estrato y errores reales de admisión; un fixture no se presenta como muestra de despliegue ni cuenta existente.
 
 ## Pruebas y evidencia exigidas
 
-- [ ] Repetir generación y comparar hashes/conteos.
+- [x] Repetir generación y comparar hashes/conteos.
 
-- [ ] Auditoría independiente de vectores y casos negativos; pasar el paquete por validación, pista de validez y detección.
+- [x] Auditoría independiente de vectores y casos negativos; pasar el paquete por validación, pista de validez y detección.
 
-- [ ] Comprobar separación de grupos, metadatos de licencia/procedencia y ausencia de consultas de titularidad.
+- [x] Comprobar separación de grupos, metadatos de licencia/procedencia y ausencia de consultas de titularidad.
 
 ## Trazabilidad
 
@@ -51,7 +54,7 @@ AC-03, AC-04, AC-12 de DF-EVAL-MX v0.1.0.
 
 ## Restricciones y fuera de alcance
 
-- Esta creación de tareas no inicia la implementación.
+- La solicitud actual autorizó implementar este incremento dentro del lote BMX-03 a BMX-12.
 - El trabajo futuro se limita al sistema de evaluación; no corregir detectores, políticas ni transformadores de producción para hacer pasar el benchmark.
 - Solo datos ficticios o fuentes públicas no personales con permisos comprobados; nunca documentos personales reales ni envío a servicios externos.
 - Evaluación local, sin descargas/inferencia/telemetría remotas ni dependencias obligatorias nuevas. Cualquier adquisición o publicación requiere autorización de su tarea.

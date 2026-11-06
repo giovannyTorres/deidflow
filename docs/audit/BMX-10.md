@@ -66,3 +66,19 @@ codificación incremental de JSONL/JSON/manifest detiene la acumulación al agot
 el presupuesto de recurso o paquete. La prueba exige menos de 16 MiB y pasa;
 la salida normal conserva el manifest `ed2a387e…`. Red/green en
 `/tmp/deidflow-batch/BMX-10/memory-{red,green}.log`.
+
+## Standards
+
+/root/bmx10_standards: 0 infracciones escritas y 0 smells accionables. Dos
+observaciones adicionales de robustez corregidas: JSONL acumulaba132MB antes
+del límite; un token de32MiB se codificaba completo. Pruebas públicas rojas/
+verdes y revalidación: picos2.37MB y5.7KB en sus probes, sin salida residual.
+
+## Spec
+
+/root/bmx10_spec: 0 hallazgos; confirmó coberturas/procedencia. Revalidó
+token gigante tras corrección:2KB de overhead en su probe. Código final
+6528df7297e91b38b17819bc104cff1c2925a43f; hash del corpus ed2a... intacto.
+
+Salud final del paso:251 pruebas focalizadas; Ruff/formato y mypy77 pasan.
+La integración completa queda pendiente al final de BMX-12.

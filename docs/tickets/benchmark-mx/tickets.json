@@ -430,10 +430,13 @@
       "draft_file": "10-corpus-identificadores.md",
       "github_title": "[DF-EVAL-MX][BMX-10] Preparar corpus sintético mexicano de identificadores y negativos",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-10 -->",
-      "body_sha256": "720d4e4fc8b42fc34b1b67e9129bc223b6f4e2494a025459ca0096e8474fd3bd",
+      "body_sha256": "5220c91ce139f6810e72952b30671d3dcdfcc1294ed9fe0630e433e7a24f15bd",
       "github_issue_number": null,
       "github_issue_url": null,
-      "implementation_status": "ready_for_implementation"
+      "implementation_status": "implemented_and_reviewed",
+      "integrated_validation_pending": true,
+      "implementation_evidence": "../../audit/BMX-10.md",
+      "reviewed_code_commit": "6528df7297e91b38b17819bc104cff1c2925a43f"
     },
     {
       "id": "BMX-11",
