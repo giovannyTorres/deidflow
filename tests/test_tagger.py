@@ -226,6 +226,22 @@ def test_builtin_models_load_with_pinned_digest(name, text, expected, license_):
     assert tagger.model_version == BUILTIN_MODELS[name][0].removesuffix(".json.gz")
 
 
+def test_builtin_general_model_covers_other_genres_and_records_its_sources():
+    tagger = SpanTagger.builtin("es-general")
+    text = (
+        "Constancia laboral: el señor Héctor Ramírez Soto labora en "
+        "Comercializadora del Norte S.A. de C.V. como contador."
+    )
+    found = {(f.entity_type, text[f.start : f.end]) for f in tagger.detect(text)}
+    assert ("PERSON", "Héctor Ramírez Soto") in found
+    components = tagger.metadata["training_data"]["components"]
+    assert {c["license"] for k, c in components.items() if k != "synthetic_es"} == {
+        "CC-BY-4.0",
+        "Apache-2.0",
+    }
+    assert components["synthetic_es"]["splits"].startswith("template families disjoint")
+
+
 def test_unknown_builtin_model_is_rejected():
     with pytest.raises(ValueError, match="Unknown built-in"):
         SpanTagger.builtin("missing-model")

@@ -35,7 +35,11 @@ GRID = (5.0, 10.0, 20.0, 40.0, 80.0, 160.0, 320.0)
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("source", choices=["meddocan", "gretel_finance"])
+    parser.add_argument(
+        "source",
+        choices=["meddocan", "gretel_finance", "general"],
+        help="general: the Gretel holdout plus synthetic validation documents",
+    )
     parser.add_argument("--corpus", type=Path, required=True)
     parser.add_argument("--tagger", choices=sorted(BUILTIN_MODELS), required=True)
     parser.add_argument("--target", type=float, default=0.02)
@@ -58,6 +62,11 @@ def main() -> None:
         published = load_gretel_finance(gretel_files(args.corpus, "train"), split="train")
         _, examples = hash_split(published.examples)
         split = "10% text-hash holdout of the published train file (the tagger's validation set)"
+        if args.source == "general":
+            from deidflow.benchmarks.synthetic_es import generate
+
+            examples = list(examples) + list(generate(600, split="validation", seed=1729))
+            split += " plus 600 synthetic validation-family documents (seed 1729)"
     tagger = SpanTagger.builtin(args.tagger)
     adapter = CachedTagger(tagger, (e.text for e in examples))
     engine = DeidEngine(nlp=adapter)

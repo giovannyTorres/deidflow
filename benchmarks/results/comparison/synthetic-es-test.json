@@ -1,0 +1,1298 @@
+{
+  "schema_version": 1,
+  "machine": {
+    "platform": "Linux-6.18.44-fc-v242-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "machine": "x86_64",
+    "processor": "x86_64",
+    "logical_cpu_count": 4,
+    "versions": {
+      "deidflow": "0.4.0",
+      "psutil": "7.2.2",
+      "spacy": "3.8.18",
+      "presidio-analyzer": "2.2.366",
+      "DataProfiler": null,
+      "numpy": "2.4.6",
+      "scikit-learn": "1.8.0"
+    },
+    "execution": "CPU",
+    "gpu_memory_bytes": null,
+    "physical_memory_bytes": 16867418112,
+    "physical_cpu_count": 4
+  },
+  "source": {
+    "name": "DeidFlow synthetic multi-country Spanish documents",
+    "license": "Apache-2.0 (generator); values from Faker (MIT) locales",
+    "provenance_kind": "synthetic"
+  },
+  "integrity": {
+    "generator": "deidflow.benchmarks.synthetic_es",
+    "seed": 1729,
+    "faker": "40.44.0"
+  },
+  "corpus": {
+    "split": "test",
+    "documents": 600,
+    "gold_span_count": 3450,
+    "selection": "Template families held out from training and validation"
+  },
+  "split": "test",
+  "documents": 600,
+  "scope": "Independent public human annotations; semi-synthetic clinical and real public judicial corpora remain separate",
+  "taxonomy": {
+    "gold_label_mapping": "generator slots map directly to DeidFlow categories",
+    "prediction_aliases": {
+      "meddocan": {
+        "DATE_OF_BIRTH": "DATE",
+        "NATIONAL_ID": "PATIENT_ID",
+        "PASSPORT": "PATIENT_ID"
+      },
+      "tab": "regional/document/contact identifiers -> CODE; AGE/OCCUPATION -> DEMOGRAPHIC",
+      "gretel_finance": {
+        "CLABE": "BANK_ACCOUNT",
+        "RFC": "NATIONAL_ID",
+        "CURP": "NATIONAL_ID",
+        "REGIONAL_ID": "NATIONAL_ID",
+        "AUTH_TOKEN": "CREDENTIAL",
+        "INTERNAL_ID": "CUSTOMER_ID",
+        "CONTRACT_ID": "CUSTOMER_ID",
+        "PATIENT_ID": "CUSTOMER_ID",
+        "TAX_ID": "NATIONAL_ID"
+      },
+      "synthetic_es": {
+        "CURP": "NATIONAL_ID",
+        "RFC": "TAX_ID",
+        "CLABE": "BANK_ACCOUNT"
+      }
+    },
+    "excluded_prediction_categories": [
+      "CLINICAL_OBSERVATION",
+      "DIAGNOSIS",
+      "MEDICAL_ATTRIBUTE",
+      "MEDICAL_CONDITION",
+      "MEDICAL_HISTORY",
+      "MEDICATION",
+      "TREATMENT"
+    ],
+    "exclusion_reason": "These clinical attributes are outside the PHI/masking gold annotation task, so unlabeled medical spans cannot be asserted false positives"
+  },
+  "corpus_sha256": "b8b1d35298405dbfb16dec2febd2fbed5fc5d18b2140dd1e1983a1109477ddb3",
+  "pipelines": [
+    {
+      "name": "deidflow_candidate_rules",
+      "status": "measured",
+      "documents": 600,
+      "repeats": 1,
+      "runs": [
+        {
+          "elapsed_seconds": 0.3728970029997072,
+          "units": 600,
+          "records_per_second": 1609.0233903018823,
+          "mb_per_second": 0.3980509331154817,
+          "peak_rss_bytes": 40632320,
+          "peak_process_tree_rss_bytes": 40632320,
+          "cpu_percent_one_core_scale": 101.90481471911919,
+          "cpu_accounting_note": "Process CPU only; excludes child CPU"
+        }
+      ],
+      "p50_seconds": 0.0005795770000531775,
+      "p95_seconds": 0.0008421295498237669,
+      "metrics": {
+        "exact": {
+          "precision": 0.7431635388739947,
+          "recall": 0.4017391304347826,
+          "f1": 0.5215428033866415,
+          "true_positives": 1386,
+          "false_positives": 479,
+          "false_negatives": 2064,
+          "document_leakage_rate": 1.0,
+          "false_redaction_rate": 0.03243617908624194,
+          "entity_level_recall": 0.44753623188405794,
+          "recall_by_type": {
+            "ADDRESS": 0.05523809523809524,
+            "AGE": 1.0,
+            "BANK_ACCOUNT": 1.0,
+            "DATE": 1.0,
+            "DATE_OF_BIRTH": 0.5,
+            "EMAIL": 1.0,
+            "LOCATION": 0.0,
+            "NATIONAL_ID": 0.8666666666666667,
+            "ORGANIZATION": 0.0,
+            "PERSON": 0.13155555555555556,
+            "PHONE": 0.9,
+            "TAX_ID": 0.92
+          },
+          "recall_by_format": {
+            "text": 0.4017391304347826
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 600
+        },
+        "overlap": {
+          "precision": 0.8278820375335121,
+          "recall": 0.44753623188405794,
+          "f1": 0.580997177798683,
+          "true_positives": 1544,
+          "false_positives": 321,
+          "false_negatives": 1906,
+          "document_leakage_rate": 1.0,
+          "false_redaction_rate": 0.03243617908624194,
+          "entity_level_recall": 0.44753623188405794,
+          "recall_by_type": {
+            "ADDRESS": 0.3352380952380952,
+            "AGE": 1.0,
+            "BANK_ACCOUNT": 1.0,
+            "DATE": 1.0,
+            "DATE_OF_BIRTH": 0.5,
+            "EMAIL": 1.0,
+            "LOCATION": 0.0,
+            "NATIONAL_ID": 0.8666666666666667,
+            "ORGANIZATION": 0.0,
+            "PERSON": 0.13333333333333333,
+            "PHONE": 0.93,
+            "TAX_ID": 0.92
+          },
+          "recall_by_format": {
+            "text": 0.44753623188405794
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "overlap",
+          "documents": 600
+        },
+        "confidence_intervals": {
+          "status": "measured",
+          "unit": "document bootstrap",
+          "seed": 1729,
+          "repeats": 500,
+          "confidence": 0.95,
+          "intervals": {
+            "precision": [
+              0.7302342812236652,
+              0.7561249510890831
+            ],
+            "recall": [
+              0.38444459429715144,
+              0.4161226399609719
+            ],
+            "f1": [
+              0.505638807289694,
+              0.5340910785994473
+            ],
+            "document_leakage_rate": [
+              1.0,
+              1.0
+            ]
+          }
+        },
+        "person_only_exact": {
+          "precision": 0.9866666666666667,
+          "recall": 0.13155555555555556,
+          "f1": 0.23215686274509806,
+          "true_positives": 148,
+          "false_positives": 2,
+          "false_negatives": 977,
+          "document_leakage_rate": 0.875,
+          "false_redaction_rate": 0.0,
+          "entity_level_recall": 0.13333333333333333,
+          "recall_by_type": {
+            "PERSON": 0.13155555555555556
+          },
+          "recall_by_format": {
+            "text": 0.13155555555555556
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 600
+        },
+        "common_scope_exact": {
+          "precision": 0.8533333333333334,
+          "recall": 0.25971014492753625,
+          "f1": 0.39822222222222226,
+          "true_positives": 448,
+          "false_positives": 77,
+          "false_negatives": 1277,
+          "document_leakage_rate": 1.0,
+          "false_redaction_rate": 0.008935961756110744,
+          "entity_level_recall": 0.2608695652173913,
+          "recall_by_type": {
+            "DATE": 1.0,
+            "LOCATION": 0.0,
+            "PERSON": 0.13155555555555556
+          },
+          "recall_by_format": {
+            "text": 0.25971014492753625
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 600
+        },
+        "common_scope_types": [
+          "DATE",
+          "LOCATION",
+          "PERSON"
+        ],
+        "frequency_strata": {
+          "once": {
+            "gold_mentions": 3054,
+            "exact_recall": 0.42272429600523903
+          },
+          "two_to_five": {
+            "gold_mentions": 289,
+            "exact_recall": 0.328719723183391
+          },
+          "more_than_five": {
+            "gold_mentions": 107,
+            "exact_recall": 0.0
+          }
+        },
+        "coverage_leakage": {
+          "sensitive_character_recall": 0.4412224544541909,
+          "documents_with_uncovered_gold_characters": 600,
+          "character_coverage_document_leakage_rate": 1.0,
+          "entity_value_groups": 3170,
+          "entity_value_complete_coverage_rate": 0.5025236593059937,
+          "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities."
+        },
+        "uncertain_candidate_document_rate": 0.5,
+        "review_rate_definition": "candidate uncertainty proxy only; no transformation or semantic-model release gating evaluated",
+        "strata": {
+          "source": "synthetic_es",
+          "language": "es",
+          "source_format": "text",
+          "scanned": false,
+          "domain": "synthetic",
+          "structure": "unstructured"
+        },
+        "ocr_cer": null,
+        "ocr_wer": null,
+        "table_reconstruction_quality": null,
+        "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated"
+      },
+      "prediction_sha256": "0e738a685e2a3848527535ba867fdcf0d6661e0d62d4992c358228ce7c16062d"
+    },
+    {
+      "name": "deidflow_auto",
+      "status": "measured",
+      "documents": 600,
+      "repeats": 1,
+      "runs": [
+        {
+          "elapsed_seconds": 2.4446280950000983,
+          "units": 600,
+          "records_per_second": 245.43610589568058,
+          "mb_per_second": 0.06071762011717944,
+          "peak_rss_bytes": 241332224,
+          "peak_process_tree_rss_bytes": 241332224,
+          "cpu_percent_one_core_scale": 109.21906712357787,
+          "cpu_accounting_note": "Process CPU only; excludes child CPU"
+        }
+      ],
+      "p50_seconds": 0.0031694785000127013,
+      "p95_seconds": 0.007777006450032785,
+      "metrics": {
+        "exact": {
+          "precision": 0.8396039603960396,
+          "recall": 0.7373913043478261,
+          "f1": 0.7851851851851851,
+          "true_positives": 2544,
+          "false_positives": 486,
+          "false_negatives": 906,
+          "document_leakage_rate": 0.8283333333333334,
+          "false_redaction_rate": 0.01968961830805559,
+          "entity_level_recall": 0.8136231884057971,
+          "recall_by_type": {
+            "ADDRESS": 0.6133333333333333,
+            "AGE": 0.14666666666666667,
+            "BANK_ACCOUNT": 0.88,
+            "DATE": 0.83,
+            "DATE_OF_BIRTH": 0.49333333333333335,
+            "EMAIL": 1.0,
+            "LOCATION": 0.4633333333333333,
+            "NATIONAL_ID": 0.7511111111111111,
+            "ORGANIZATION": 0.8333333333333334,
+            "PERSON": 0.8675555555555555,
+            "PHONE": 0.8766666666666667,
+            "TAX_ID": 0.0
+          },
+          "recall_by_format": {
+            "text": 0.7373913043478261
+          },
+          "expected_calibration_error": 0.04842007987760319,
+          "calibration_count": 3030,
+          "matching": "exact",
+          "documents": 600
+        },
+        "overlap": {
+          "precision": 0.9264026402640264,
+          "recall": 0.8136231884057971,
+          "f1": 0.866358024691358,
+          "true_positives": 2807,
+          "false_positives": 223,
+          "false_negatives": 643,
+          "document_leakage_rate": 0.6716666666666666,
+          "false_redaction_rate": 0.01968961830805559,
+          "entity_level_recall": 0.8136231884057971,
+          "recall_by_type": {
+            "ADDRESS": 0.9447619047619048,
+            "AGE": 0.6933333333333334,
+            "BANK_ACCOUNT": 0.88,
+            "DATE": 0.8566666666666667,
+            "DATE_OF_BIRTH": 0.49333333333333335,
+            "EMAIL": 1.0,
+            "LOCATION": 0.4633333333333333,
+            "NATIONAL_ID": 0.7511111111111111,
+            "ORGANIZATION": 0.8666666666666667,
+            "PERSON": 0.8791111111111111,
+            "PHONE": 0.95,
+            "TAX_ID": 0.0
+          },
+          "recall_by_format": {
+            "text": 0.8136231884057971
+          },
+          "expected_calibration_error": 0.05496650043628355,
+          "calibration_count": 3030,
+          "matching": "overlap",
+          "documents": 600
+        },
+        "confidence_intervals": {
+          "status": "measured",
+          "unit": "document bootstrap",
+          "seed": 1729,
+          "repeats": 500,
+          "confidence": 0.95,
+          "intervals": {
+            "precision": [
+              0.8269202378550591,
+              0.852921288154336
+            ],
+            "recall": [
+              0.7246130765240913,
+              0.7498957418788411
+            ],
+            "f1": [
+              0.7728516641728931,
+              0.797270445261119
+            ],
+            "document_leakage_rate": [
+              0.7966666666666666,
+              0.8558749999999999
+            ]
+          }
+        },
+        "person_only_exact": {
+          "precision": 0.9663366336633663,
+          "recall": 0.8675555555555555,
+          "f1": 0.9142857142857141,
+          "true_positives": 976,
+          "false_positives": 34,
+          "false_negatives": 149,
+          "document_leakage_rate": 0.18666666666666668,
+          "false_redaction_rate": 0.0026829774661833047,
+          "entity_level_recall": 0.8791111111111111,
+          "recall_by_type": {
+            "PERSON": 0.8675555555555555
+          },
+          "recall_by_format": {
+            "text": 0.8675555555555555
+          },
+          "expected_calibration_error": 0.08092129082612545,
+          "calibration_count": 1010,
+          "matching": "exact",
+          "documents": 600
+        },
+        "common_scope_exact": {
+          "precision": 0.9185185185185185,
+          "recall": 0.7907246376811594,
+          "f1": 0.8498442367601245,
+          "true_positives": 1364,
+          "false_positives": 121,
+          "false_negatives": 361,
+          "document_leakage_rate": 0.43666666666666665,
+          "false_redaction_rate": 0.011174175239446612,
+          "entity_level_recall": 0.8028985507246377,
+          "recall_by_type": {
+            "DATE": 0.83,
+            "LOCATION": 0.4633333333333333,
+            "PERSON": 0.8675555555555555
+          },
+          "recall_by_format": {
+            "text": 0.7907246376811594
+          },
+          "expected_calibration_error": 0.05348017744745917,
+          "calibration_count": 1485,
+          "matching": "exact",
+          "documents": 600
+        },
+        "common_scope_types": [
+          "DATE",
+          "LOCATION",
+          "PERSON"
+        ],
+        "frequency_strata": {
+          "once": {
+            "gold_mentions": 3054,
+            "exact_recall": 0.7711198428290766
+          },
+          "two_to_five": {
+            "gold_mentions": 289,
+            "exact_recall": 0.45674740484429066
+          },
+          "more_than_five": {
+            "gold_mentions": 107,
+            "exact_recall": 0.5327102803738317
+          }
+        },
+        "coverage_leakage": {
+          "sensitive_character_recall": 0.9289205602093379,
+          "documents_with_uncovered_gold_characters": 295,
+          "character_coverage_document_leakage_rate": 0.49166666666666664,
+          "entity_value_groups": 3170,
+          "entity_value_complete_coverage_rate": 0.8842271293375394,
+          "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities."
+        },
+        "uncertain_candidate_document_rate": 0.5066666666666667,
+        "review_rate_definition": "candidate uncertainty proxy only; no transformation or semantic-model release gating evaluated",
+        "strata": {
+          "source": "synthetic_es",
+          "language": "es",
+          "source_format": "text",
+          "scanned": false,
+          "domain": "synthetic",
+          "structure": "unstructured"
+        },
+        "ocr_cer": null,
+        "ocr_wer": null,
+        "table_reconstruction_quality": null,
+        "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated"
+      },
+      "prediction_sha256": "6e19b78af2c31aa934ae1a9114c4e47407f9f4515aa007e42b4299d1a2a1ed81"
+    },
+    {
+      "name": "deidflow_rules_plus_auto",
+      "status": "measured",
+      "documents": 600,
+      "repeats": 1,
+      "runs": [
+        {
+          "elapsed_seconds": 2.930517151999993,
+          "units": 600,
+          "records_per_second": 204.74201954099377,
+          "mb_per_second": 0.05065044574084798,
+          "peak_rss_bytes": 242200576,
+          "peak_process_tree_rss_bytes": 242200576,
+          "cpu_percent_one_core_scale": 108.17203365749171,
+          "cpu_accounting_note": "Process CPU only; excludes child CPU"
+        }
+      ],
+      "p50_seconds": 0.004240565499912918,
+      "p95_seconds": 0.009071195999740666,
+      "metrics": {
+        "exact": {
+          "precision": 0.7662266226622663,
+          "recall": 0.807536231884058,
+          "f1": 0.7863392605136891,
+          "true_positives": 2786,
+          "false_positives": 850,
+          "false_negatives": 664,
+          "document_leakage_rate": 0.7666666666666667,
+          "false_redaction_rate": 0.037217607875847325,
+          "entity_level_recall": 0.8675362318840579,
+          "recall_by_type": {
+            "ADDRESS": 0.6266666666666667,
+            "AGE": 1.0,
+            "BANK_ACCOUNT": 1.0,
+            "DATE": 1.0,
+            "DATE_OF_BIRTH": 0.5,
+            "EMAIL": 1.0,
+            "LOCATION": 0.4633333333333333,
+            "NATIONAL_ID": 0.88,
+            "ORGANIZATION": 0.8333333333333334,
+            "PERSON": 0.8684444444444445,
+            "PHONE": 0.9133333333333333,
+            "TAX_ID": 0.92
+          },
+          "recall_by_format": {
+            "text": 0.807536231884058
+          },
+          "expected_calibration_error": 0.08396615661305146,
+          "calibration_count": 2081,
+          "matching": "exact",
+          "documents": 600
+        },
+        "overlap": {
+          "precision": 0.8231573157315731,
+          "recall": 0.8675362318840579,
+          "f1": 0.8447643240191927,
+          "true_positives": 2993,
+          "false_positives": 643,
+          "false_negatives": 457,
+          "document_leakage_rate": 0.6133333333333333,
+          "false_redaction_rate": 0.037217607875847325,
+          "entity_level_recall": 0.8675362318840579,
+          "recall_by_type": {
+            "ADDRESS": 0.9466666666666667,
+            "AGE": 1.0,
+            "BANK_ACCOUNT": 1.0,
+            "DATE": 1.0,
+            "DATE_OF_BIRTH": 0.5,
+            "EMAIL": 1.0,
+            "LOCATION": 0.4633333333333333,
+            "NATIONAL_ID": 0.88,
+            "ORGANIZATION": 0.8666666666666667,
+            "PERSON": 0.88,
+            "PHONE": 0.9833333333333333,
+            "TAX_ID": 0.92
+          },
+          "recall_by_format": {
+            "text": 0.8675362318840579
+          },
+          "expected_calibration_error": 0.04796717248488717,
+          "calibration_count": 2081,
+          "matching": "overlap",
+          "documents": 600
+        },
+        "confidence_intervals": {
+          "status": "measured",
+          "unit": "document bootstrap",
+          "seed": 1729,
+          "repeats": 500,
+          "confidence": 0.95,
+          "intervals": {
+            "precision": [
+              0.7536077299489091,
+              0.7779624714854161
+            ],
+            "recall": [
+              0.7960496483202,
+              0.818968270897048
+            ],
+            "f1": [
+              0.7758693229653766,
+              0.7964036800055517
+            ],
+            "document_leakage_rate": [
+              0.7324583333333333,
+              0.8016666666666666
+            ]
+          }
+        },
+        "person_only_exact": {
+          "precision": 0.9644619940769991,
+          "recall": 0.8684444444444445,
+          "f1": 0.9139382600561272,
+          "true_positives": 977,
+          "false_positives": 36,
+          "false_negatives": 148,
+          "document_leakage_rate": 0.185,
+          "false_redaction_rate": 0.0026829774661833047,
+          "entity_level_recall": 0.88,
+          "recall_by_type": {
+            "PERSON": 0.8684444444444445
+          },
+          "recall_by_format": {
+            "text": 0.8684444444444445
+          },
+          "expected_calibration_error": 0.0826988655442374,
+          "calibration_count": 863,
+          "matching": "exact",
+          "documents": 600
+        },
+        "common_scope_exact": {
+          "precision": 0.917098445595855,
+          "recall": 0.8208695652173913,
+          "f1": 0.8663199755276842,
+          "true_positives": 1416,
+          "false_positives": 128,
+          "false_negatives": 309,
+          "document_leakage_rate": 0.435,
+          "false_redaction_rate": 0.011596479670264701,
+          "entity_level_recall": 0.8284057971014492,
+          "recall_by_type": {
+            "DATE": 1.0,
+            "LOCATION": 0.4633333333333333,
+            "PERSON": 0.8684444444444445
+          },
+          "recall_by_format": {
+            "text": 0.8208695652173913
+          },
+          "expected_calibration_error": 0.05842411266024593,
+          "calibration_count": 1324,
+          "matching": "exact",
+          "documents": 600
+        },
+        "common_scope_types": [
+          "DATE",
+          "LOCATION",
+          "PERSON"
+        ],
+        "frequency_strata": {
+          "once": {
+            "gold_mentions": 3054,
+            "exact_recall": 0.8372626064178127
+          },
+          "two_to_five": {
+            "gold_mentions": 289,
+            "exact_recall": 0.5951557093425606
+          },
+          "more_than_five": {
+            "gold_mentions": 107,
+            "exact_recall": 0.5327102803738317
+          }
+        },
+        "coverage_leakage": {
+          "sensitive_character_recall": 0.9467439066537202,
+          "documents_with_uncovered_gold_characters": 236,
+          "character_coverage_document_leakage_rate": 0.3933333333333333,
+          "entity_value_groups": 3170,
+          "entity_value_complete_coverage_rate": 0.9173501577287066,
+          "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities."
+        },
+        "uncertain_candidate_document_rate": 0.5,
+        "review_rate_definition": "candidate uncertainty proxy only; no transformation or semantic-model release gating evaluated",
+        "strata": {
+          "source": "synthetic_es",
+          "language": "es",
+          "source_format": "text",
+          "scanned": false,
+          "domain": "synthetic",
+          "structure": "unstructured"
+        },
+        "ocr_cer": null,
+        "ocr_wer": null,
+        "table_reconstruction_quality": null,
+        "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated"
+      },
+      "prediction_sha256": "5939032e882d5b9bc7f5a841a09d775b8ec7baea35c12c4eb0f23f2d4d8e65f6"
+    },
+    {
+      "name": "spacy_spanish",
+      "status": "measured",
+      "documents": 600,
+      "repeats": 1,
+      "runs": [
+        {
+          "elapsed_seconds": 6.169591684000352,
+          "units": 600,
+          "records_per_second": 97.25116842918219,
+          "mb_per_second": 0.02405864238713395,
+          "peak_rss_bytes": 1136619520,
+          "peak_process_tree_rss_bytes": 1136619520,
+          "cpu_percent_one_core_scale": 110.54216144783709,
+          "cpu_accounting_note": "Process CPU only; excludes child CPU"
+        }
+      ],
+      "p50_seconds": 0.009991560499884145,
+      "p95_seconds": 0.014356815799760623,
+      "metrics": {
+        "exact": {
+          "precision": 0.47821011673151753,
+          "recall": 0.356231884057971,
+          "f1": 0.4083056478405315,
+          "true_positives": 1229,
+          "false_positives": 1341,
+          "false_negatives": 2221,
+          "document_leakage_rate": 1.0,
+          "false_redaction_rate": 0.05607311944173588,
+          "entity_level_recall": 0.40840579710144925,
+          "recall_by_type": {
+            "ADDRESS": 0.0,
+            "AGE": 0.0,
+            "BANK_ACCOUNT": 0.0,
+            "DATE": 0.0,
+            "DATE_OF_BIRTH": 0.0,
+            "EMAIL": 0.0,
+            "LOCATION": 0.5,
+            "NATIONAL_ID": 0.0,
+            "ORGANIZATION": 0.12,
+            "PERSON": 0.9431111111111111,
+            "PHONE": 0.0,
+            "TAX_ID": 0.0
+          },
+          "recall_by_format": {
+            "text": 0.356231884057971
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 600
+        },
+        "overlap": {
+          "precision": 0.5482490272373541,
+          "recall": 0.40840579710144925,
+          "f1": 0.46810631229235883,
+          "true_positives": 1409,
+          "false_positives": 1161,
+          "false_negatives": 2041,
+          "document_leakage_rate": 1.0,
+          "false_redaction_rate": 0.05607311944173588,
+          "entity_level_recall": 0.40840579710144925,
+          "recall_by_type": {
+            "ADDRESS": 0.0,
+            "AGE": 0.0,
+            "BANK_ACCOUNT": 0.0,
+            "DATE": 0.0,
+            "DATE_OF_BIRTH": 0.0,
+            "EMAIL": 0.0,
+            "LOCATION": 0.9366666666666666,
+            "NATIONAL_ID": 0.0,
+            "ORGANIZATION": 0.35333333333333333,
+            "PERSON": 0.9555555555555556,
+            "PHONE": 0.0,
+            "TAX_ID": 0.0
+          },
+          "recall_by_format": {
+            "text": 0.40840579710144925
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "overlap",
+          "documents": 600
+        },
+        "confidence_intervals": {
+          "status": "measured",
+          "unit": "document bootstrap",
+          "seed": 1729,
+          "repeats": 500,
+          "confidence": 0.95,
+          "intervals": {
+            "precision": [
+              0.4590011630636944,
+              0.4968872498676472
+            ],
+            "recall": [
+              0.3451270303152382,
+              0.36987129974466576
+            ],
+            "f1": [
+              0.3951345534948918,
+              0.4236457374996278
+            ],
+            "document_leakage_rate": [
+              1.0,
+              1.0
+            ]
+          }
+        },
+        "person_only_exact": {
+          "precision": 0.6598258706467661,
+          "recall": 0.9431111111111111,
+          "f1": 0.7764361507500914,
+          "true_positives": 1061,
+          "false_positives": 547,
+          "false_negatives": 64,
+          "document_leakage_rate": 0.09166666666666666,
+          "false_redaction_rate": 0.046465017487263845,
+          "entity_level_recall": 0.9555555555555556,
+          "recall_by_type": {
+            "PERSON": 0.9431111111111111
+          },
+          "recall_by_format": {
+            "text": 0.9431111111111111
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 600
+        },
+        "common_scope_exact": {
+          "precision": 0.4892929292929293,
+          "recall": 0.7020289855072464,
+          "f1": 0.5766666666666665,
+          "true_positives": 1211,
+          "false_positives": 1264,
+          "false_negatives": 514,
+          "document_leakage_rate": 0.5116666666666667,
+          "false_redaction_rate": 0.14551766077129683,
+          "entity_level_recall": 0.7860869565217391,
+          "recall_by_type": {
+            "DATE": 0.0,
+            "LOCATION": 0.5,
+            "PERSON": 0.9431111111111111
+          },
+          "recall_by_format": {
+            "text": 0.7020289855072464
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 600
+        },
+        "common_scope_types": [
+          "DATE",
+          "LOCATION",
+          "PERSON"
+        ],
+        "frequency_strata": {
+          "once": {
+            "gold_mentions": 3054,
+            "exact_recall": 0.3529796987557302
+          },
+          "two_to_five": {
+            "gold_mentions": 289,
+            "exact_recall": 0.3460207612456747
+          },
+          "more_than_five": {
+            "gold_mentions": 107,
+            "exact_recall": 0.4766355140186916
+          }
+        },
+        "coverage_leakage": {
+          "sensitive_character_recall": 0.6103879005315734,
+          "documents_with_uncovered_gold_characters": 584,
+          "character_coverage_document_leakage_rate": 0.9733333333333334,
+          "entity_value_groups": 3170,
+          "entity_value_complete_coverage_rate": 0.42302839116719243,
+          "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities."
+        },
+        "uncertain_candidate_document_rate": 1.0,
+        "review_rate_definition": "candidate uncertainty proxy only; no transformation or semantic-model release gating evaluated",
+        "strata": {
+          "source": "synthetic_es",
+          "language": "es",
+          "source_format": "text",
+          "scanned": false,
+          "domain": "synthetic",
+          "structure": "unstructured"
+        },
+        "ocr_cer": null,
+        "ocr_wer": null,
+        "table_reconstruction_quality": null,
+        "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated"
+      },
+      "prediction_sha256": "d5f2a8d85415ae06d3a9bb41150685d8c705ec62c1c4e4d05eefa0d394a5c264"
+    },
+    {
+      "name": "presidio_spanish",
+      "status": "measured",
+      "documents": 600,
+      "repeats": 1,
+      "runs": [
+        {
+          "elapsed_seconds": 8.326338568999745,
+          "units": 600,
+          "records_per_second": 72.06048553368865,
+          "mb_per_second": 0.017826803314560793,
+          "peak_rss_bytes": 1222955008,
+          "peak_process_tree_rss_bytes": 1222955008,
+          "cpu_percent_one_core_scale": 110.73294610343495,
+          "cpu_accounting_note": "Process CPU only; excludes child CPU"
+        }
+      ],
+      "p50_seconds": 0.013391053000304964,
+      "p95_seconds": 0.019026682949834138,
+      "metrics": {
+        "exact": {
+          "precision": 0.486933509758518,
+          "recall": 0.4266666666666667,
+          "f1": 0.4548122972346671,
+          "true_positives": 1472,
+          "false_positives": 1551,
+          "false_negatives": 1978,
+          "document_leakage_rate": 0.9933333333333333,
+          "false_redaction_rate": 0.056355071016552905,
+          "entity_level_recall": 0.4860869565217391,
+          "recall_by_type": {
+            "ADDRESS": 0.0,
+            "AGE": 0.0,
+            "BANK_ACCOUNT": 0.04,
+            "DATE": 0.48,
+            "DATE_OF_BIRTH": 0.0,
+            "EMAIL": 0.0,
+            "LOCATION": 0.5,
+            "NATIONAL_ID": 0.07555555555555556,
+            "ORGANIZATION": 0.12,
+            "PERSON": 0.9431111111111111,
+            "PHONE": 0.2633333333333333,
+            "TAX_ID": 0.0
+          },
+          "recall_by_format": {
+            "text": 0.4266666666666667
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 600
+        },
+        "overlap": {
+          "precision": 0.5547469401257029,
+          "recall": 0.4860869565217391,
+          "f1": 0.5181523250424842,
+          "true_positives": 1677,
+          "false_positives": 1346,
+          "false_negatives": 1773,
+          "document_leakage_rate": 0.9866666666666667,
+          "false_redaction_rate": 0.056355071016552905,
+          "entity_level_recall": 0.4860869565217391,
+          "recall_by_type": {
+            "ADDRESS": 0.0,
+            "AGE": 0.0,
+            "BANK_ACCOUNT": 0.04,
+            "DATE": 0.48,
+            "DATE_OF_BIRTH": 0.0,
+            "EMAIL": 0.0,
+            "LOCATION": 0.9366666666666666,
+            "NATIONAL_ID": 0.07555555555555556,
+            "ORGANIZATION": 0.35333333333333333,
+            "PERSON": 0.9555555555555556,
+            "PHONE": 0.3466666666666667,
+            "TAX_ID": 0.0
+          },
+          "recall_by_format": {
+            "text": 0.4860869565217391
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "overlap",
+          "documents": 600
+        },
+        "confidence_intervals": {
+          "status": "measured",
+          "unit": "document bootstrap",
+          "seed": 1729,
+          "repeats": 500,
+          "confidence": 0.95,
+          "intervals": {
+            "precision": [
+              0.46718915550689816,
+              0.5067338570607396
+            ],
+            "recall": [
+              0.40922351654727634,
+              0.4457383876322561
+            ],
+            "f1": [
+              0.436668836787784,
+              0.47389424368427063
+            ],
+            "document_leakage_rate": [
+              0.9866666666666667,
+              0.9983333333333333
+            ]
+          }
+        },
+        "person_only_exact": {
+          "precision": 0.6598258706467661,
+          "recall": 0.9431111111111111,
+          "f1": 0.7764361507500914,
+          "true_positives": 1061,
+          "false_positives": 547,
+          "false_negatives": 64,
+          "document_leakage_rate": 0.09166666666666666,
+          "false_redaction_rate": 0.046465017487263845,
+          "entity_level_recall": 0.9555555555555556,
+          "recall_by_type": {
+            "PERSON": 0.9431111111111111
+          },
+          "recall_by_format": {
+            "text": 0.9431111111111111
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 600
+        },
+        "common_scope_exact": {
+          "precision": 0.5,
+          "recall": 0.7855072463768116,
+          "f1": 0.6110484780157835,
+          "true_positives": 1355,
+          "false_positives": 1355,
+          "false_negatives": 370,
+          "document_leakage_rate": 0.40166666666666667,
+          "false_redaction_rate": 0.15320360141218603,
+          "entity_level_recall": 0.8695652173913043,
+          "recall_by_type": {
+            "DATE": 0.48,
+            "LOCATION": 0.5,
+            "PERSON": 0.9431111111111111
+          },
+          "recall_by_format": {
+            "text": 0.7855072463768116
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 600
+        },
+        "common_scope_types": [
+          "DATE",
+          "LOCATION",
+          "PERSON"
+        ],
+        "frequency_strata": {
+          "once": {
+            "gold_mentions": 3054,
+            "exact_recall": 0.43189259986902423
+          },
+          "two_to_five": {
+            "gold_mentions": 289,
+            "exact_recall": 0.35294117647058826
+          },
+          "more_than_five": {
+            "gold_mentions": 107,
+            "exact_recall": 0.4766355140186916
+          }
+        },
+        "coverage_leakage": {
+          "sensitive_character_recall": 0.6837384592597469,
+          "documents_with_uncovered_gold_characters": 576,
+          "character_coverage_document_leakage_rate": 0.96,
+          "entity_value_groups": 3170,
+          "entity_value_complete_coverage_rate": 0.5476340694006309,
+          "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities."
+        },
+        "uncertain_candidate_document_rate": 0.48,
+        "review_rate_definition": "candidate uncertainty proxy only; no transformation or semantic-model release gating evaluated",
+        "strata": {
+          "source": "synthetic_es",
+          "language": "es",
+          "source_format": "text",
+          "scanned": false,
+          "domain": "synthetic",
+          "structure": "unstructured"
+        },
+        "ocr_cer": null,
+        "ocr_wer": null,
+        "table_reconstruction_quality": null,
+        "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated"
+      },
+      "prediction_sha256": "fa745977a752d20ee44faba4dc7243819b946898eae7082424052cd0e4efd788"
+    },
+    {
+      "name": "deidflow_candidate_rules_plus_spacy",
+      "status": "measured",
+      "documents": 600,
+      "repeats": 1,
+      "runs": [
+        {
+          "elapsed_seconds": 6.392418570000245,
+          "units": 600,
+          "records_per_second": 93.86118781642563,
+          "mb_per_second": 0.023220006383279482,
+          "peak_rss_bytes": 1976340480,
+          "peak_process_tree_rss_bytes": 1976340480,
+          "cpu_percent_one_core_scale": 110.44333099732742,
+          "cpu_accounting_note": "Process CPU only; excludes child CPU"
+        }
+      ],
+      "p50_seconds": 0.010419597000009162,
+      "p95_seconds": 0.013818434450240601,
+      "metrics": {
+        "exact": {
+          "precision": 0.5773339526242453,
+          "recall": 0.7205797101449275,
+          "f1": 0.6410520887055183,
+          "true_positives": 2486,
+          "false_positives": 1820,
+          "false_negatives": 964,
+          "document_leakage_rate": 0.9583333333333334,
+          "false_redaction_rate": 0.07924014050586811,
+          "entity_level_recall": 0.8153623188405797,
+          "recall_by_type": {
+            "ADDRESS": 0.05523809523809524,
+            "AGE": 1.0,
+            "BANK_ACCOUNT": 1.0,
+            "DATE": 1.0,
+            "DATE_OF_BIRTH": 0.5,
+            "EMAIL": 1.0,
+            "LOCATION": 0.5,
+            "NATIONAL_ID": 0.8666666666666667,
+            "ORGANIZATION": 0.12,
+            "PERSON": 0.96,
+            "PHONE": 0.9,
+            "TAX_ID": 0.92
+          },
+          "recall_by_format": {
+            "text": 0.7205797101449275
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 600
+        },
+        "overlap": {
+          "precision": 0.6532745006967022,
+          "recall": 0.8153623188405797,
+          "f1": 0.725373904074265,
+          "true_positives": 2813,
+          "false_positives": 1493,
+          "false_negatives": 637,
+          "document_leakage_rate": 0.7233333333333334,
+          "false_redaction_rate": 0.07924014050586811,
+          "entity_level_recall": 0.8153623188405797,
+          "recall_by_type": {
+            "ADDRESS": 0.3352380952380952,
+            "AGE": 1.0,
+            "BANK_ACCOUNT": 1.0,
+            "DATE": 1.0,
+            "DATE_OF_BIRTH": 0.5,
+            "EMAIL": 1.0,
+            "LOCATION": 0.9366666666666666,
+            "NATIONAL_ID": 0.8666666666666667,
+            "ORGANIZATION": 0.35333333333333333,
+            "PERSON": 0.9644444444444444,
+            "PHONE": 0.93,
+            "TAX_ID": 0.92
+          },
+          "recall_by_format": {
+            "text": 0.8153623188405797
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "overlap",
+          "documents": 600
+        },
+        "confidence_intervals": {
+          "status": "measured",
+          "unit": "document bootstrap",
+          "seed": 1729,
+          "repeats": 500,
+          "confidence": 0.95,
+          "intervals": {
+            "precision": [
+              0.5630031541752897,
+              0.5917589507936354
+            ],
+            "recall": [
+              0.7096668320846972,
+              0.7314923426943633
+            ],
+            "f1": [
+              0.629058880065923,
+              0.652631618782356
+            ],
+            "document_leakage_rate": [
+              0.94,
+              0.9742083333333333
+            ]
+          }
+        },
+        "person_only_exact": {
+          "precision": 0.6629834254143646,
+          "recall": 0.96,
+          "f1": 0.784313725490196,
+          "true_positives": 1080,
+          "false_positives": 549,
+          "false_negatives": 45,
+          "document_leakage_rate": 0.06,
+          "false_redaction_rate": 0.046465017487263845,
+          "entity_level_recall": 0.9644444444444444,
+          "recall_by_type": {
+            "PERSON": 0.96
+          },
+          "recall_by_format": {
+            "text": 0.96
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 600
+        },
+        "common_scope_exact": {
+          "precision": 0.5329153605015674,
+          "recall": 0.8869565217391304,
+          "f1": 0.6657963446475196,
+          "true_positives": 1530,
+          "false_positives": 1341,
+          "false_negatives": 195,
+          "document_leakage_rate": 0.30666666666666664,
+          "false_redaction_rate": 0.15445362252740755,
+          "entity_level_recall": 0.9657971014492753,
+          "recall_by_type": {
+            "DATE": 1.0,
+            "LOCATION": 0.5,
+            "PERSON": 0.96
+          },
+          "recall_by_format": {
+            "text": 0.8869565217391304
+          },
+          "expected_calibration_error": null,
+          "calibration_count": 0,
+          "matching": "exact",
+          "documents": 600
+        },
+        "common_scope_types": [
+          "DATE",
+          "LOCATION",
+          "PERSON"
+        ],
+        "frequency_strata": {
+          "once": {
+            "gold_mentions": 3054,
+            "exact_recall": 0.733464309102816
+          },
+          "two_to_five": {
+            "gold_mentions": 289,
+            "exact_recall": 0.6747404844290658
+          },
+          "more_than_five": {
+            "gold_mentions": 107,
+            "exact_recall": 0.4766355140186916
+          }
+        },
+        "coverage_leakage": {
+          "sensitive_character_recall": 0.9434030577818738,
+          "documents_with_uncovered_gold_characters": 372,
+          "character_coverage_document_leakage_rate": 0.62,
+          "entity_value_groups": 3170,
+          "entity_value_complete_coverage_rate": 0.8637223974763407,
+          "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities."
+        },
+        "uncertain_candidate_document_rate": 0.5,
+        "review_rate_definition": "candidate uncertainty proxy only; no transformation or semantic-model release gating evaluated",
+        "strata": {
+          "source": "synthetic_es",
+          "language": "es",
+          "source_format": "text",
+          "scanned": false,
+          "domain": "synthetic",
+          "structure": "unstructured"
+        },
+        "ocr_cer": null,
+        "ocr_wer": null,
+        "table_reconstruction_quality": null,
+        "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated"
+      },
+      "prediction_sha256": "50695a1fd39047074c3e9cbf01787b46112b41cdf29f483064c6886432fa55f4"
+    }
+  ],
+  "tagger_models": {
+    "auto": {
+      "router_sha256": "316d2ee699ddee08879d0835df894715ae14b1ae176f1794b45b283d82ff6324",
+      "min_evidence": 0.5,
+      "taggers": {
+        "clinical": "es-clinical-meddocan-1",
+        "financial": "es-general-1"
+      },
+      "routes": {
+        "financial": 242,
+        "mixed": 348,
+        "clinical": 10
+      }
+    }
+  },
+  "baseline_model": {
+    "name": "es_core_news_lg",
+    "version": "3.7.0",
+    "spacy_version_requirement": ">=3.7.0,<3.8.0",
+    "spacy_installed": "3.8.18",
+    "presidio_analyzer": "2.2.366",
+    "license": "GNU GPL 3.0"
+  },
+  "network_guard": {
+    "attempts": 0,
+    "dns_and_connect": "denied"
+  },
+  "limitations": [
+    "MEDDOCAN is not real private patient data and is predominantly Spain Spanish, not a Mexican enterprise holdout",
+    "TAB uses the first reviewed annotator, DIRECT/QUASI mask decisions and a different English judicial task",
+    "No corpus text, source filenames or entity values are in this report",
+    "Text corpora do not measure OCR/layout/table accuracy or real output-transformation leakage",
+    "Confidence intervals resample documents and do not account for source/provider template correlations"
+  ]
+}

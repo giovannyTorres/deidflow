@@ -1,0 +1,316 @@
+{
+  "labels": [
+    "O",
+    "B-ADDRESS",
+    "I-ADDRESS",
+    "B-AGE",
+    "I-AGE",
+    "B-API_KEY",
+    "I-API_KEY",
+    "B-BANK_ACCOUNT",
+    "I-BANK_ACCOUNT",
+    "B-CREDENTIAL",
+    "I-CREDENTIAL",
+    "B-CUSTOMER_ID",
+    "I-CUSTOMER_ID",
+    "B-DATE",
+    "I-DATE",
+    "B-DATE_OF_BIRTH",
+    "I-DATE_OF_BIRTH",
+    "B-DEMOGRAPHIC",
+    "I-DEMOGRAPHIC",
+    "B-DOCUMENT_ID",
+    "I-DOCUMENT_ID",
+    "B-EMAIL",
+    "I-EMAIL",
+    "B-EMPLOYEE_ID",
+    "I-EMPLOYEE_ID",
+    "B-INSURANCE_ID",
+    "I-INSURANCE_ID",
+    "B-IP_ADDRESS",
+    "I-IP_ADDRESS",
+    "B-LOCATION",
+    "I-LOCATION",
+    "B-MEDICAL_FACILITY",
+    "I-MEDICAL_FACILITY",
+    "B-NATIONAL_ID",
+    "I-NATIONAL_ID",
+    "B-OCCUPATION",
+    "I-OCCUPATION",
+    "B-ORGANIZATION",
+    "I-ORGANIZATION",
+    "B-OTHER_SENSITIVE",
+    "I-OTHER_SENSITIVE",
+    "B-PASSPORT",
+    "I-PASSPORT",
+    "B-PATIENT_ID",
+    "I-PATIENT_ID",
+    "B-PAYMENT_CARD",
+    "I-PAYMENT_CARD",
+    "B-PERSON",
+    "I-PERSON",
+    "B-PHONE",
+    "I-PHONE",
+    "B-REGIONAL_ID",
+    "I-REGIONAL_ID",
+    "B-TAX_ID",
+    "I-TAX_ID"
+  ],
+  "train_documents": 7246,
+  "validation_documents": 1252,
+  "train_tokens": 1401849,
+  "features_kept": 152403,
+  "stored_features": 96159,
+  "stored_weight_entries": 458738,
+  "prune_below": 0.0,
+  "min_feature_docs": 5,
+  "train_alignment": {
+    "unaligned_spans": 447,
+    "spans_of_unknown_type": 0
+  },
+  "validation_alignment": {
+    "unaligned_spans": 64,
+    "spans_of_unknown_type": 0
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_documents_with_errors": 5634,
+      "precision": 0.8235429890363531,
+      "recall": 0.6605572526150143,
+      "f1": 0.7331004725703718
+    },
+    {
+      "epoch": 2,
+      "train_documents_with_errors": 4297,
+      "precision": 0.8504798036152644,
+      "recall": 0.7055447560862723,
+      "f1": 0.7712623324057678
+    },
+    {
+      "epoch": 3,
+      "train_documents_with_errors": 3864,
+      "precision": 0.8645287958115183,
+      "recall": 0.7336850874757012,
+      "f1": 0.793750938861349
+    },
+    {
+      "epoch": 4,
+      "train_documents_with_errors": 3572,
+      "precision": 0.8753914264118345,
+      "recall": 0.7504396926779598,
+      "f1": 0.8081140350877194
+    },
+    {
+      "epoch": 5,
+      "train_documents_with_errors": 3532,
+      "precision": 0.8827823100042936,
+      "recall": 0.7612700175877071,
+      "f1": 0.8175356628063024
+    },
+    {
+      "epoch": 6,
+      "train_documents_with_errors": 3288,
+      "precision": 0.8853489611081513,
+      "recall": 0.7691382023511988,
+      "f1": 0.8231622746185853
+    },
+    {
+      "epoch": 7,
+      "train_documents_with_errors": 3290,
+      "precision": 0.8860960865415208,
+      "recall": 0.7733962788114412,
+      "f1": 0.8259193357058126
+    },
+    {
+      "epoch": 8,
+      "train_documents_with_errors": 3193,
+      "precision": 0.8882059976687506,
+      "recall": 0.7758955845598445,
+      "f1": 0.8282608695652174
+    },
+    {
+      "epoch": 9,
+      "train_documents_with_errors": 3091,
+      "precision": 0.8898869280355067,
+      "recall": 0.7795056928630936,
+      "f1": 0.8310470739169051
+    },
+    {
+      "epoch": 10,
+      "train_documents_with_errors": 3010,
+      "precision": 0.8942601369141654,
+      "recall": 0.7859853744330279,
+      "f1": 0.8366341511478963
+    },
+    {
+      "epoch": 11,
+      "train_documents_with_errors": 2832,
+      "precision": 0.8946593776282591,
+      "recall": 0.7877441451448671,
+      "f1": 0.8378045778981048
+    },
+    {
+      "epoch": 12,
+      "train_documents_with_errors": 2909,
+      "precision": 0.8951291203023305,
+      "recall": 0.7893177820975655,
+      "f1": 0.8389000934625412
+    },
+    {
+      "epoch": 13,
+      "train_documents_with_errors": 2814,
+      "precision": 0.8959010378446378,
+      "recall": 0.7910765528094048,
+      "f1": 0.8402320322485498
+    },
+    {
+      "epoch": 14,
+      "train_documents_with_errors": 2704,
+      "precision": 0.8976237831047839,
+      "recall": 0.793760992316949,
+      "f1": 0.842503438789546
+    },
+    {
+      "epoch": 15,
+      "train_documents_with_errors": 2770,
+      "precision": 0.8973340303188709,
+      "recall": 0.7945015273535129,
+      "f1": 0.8427926158680282
+    },
+    {
+      "epoch": 16,
+      "train_documents_with_errors": 2750,
+      "precision": 0.8986415882967607,
+      "recall": 0.7960751643062113,
+      "f1": 0.844254650763265
+    },
+    {
+      "epoch": 17,
+      "train_documents_with_errors": 2709,
+      "precision": 0.8976928698193966,
+      "recall": 0.7959825974266408,
+      "f1": 0.8437837307428123
+    },
+    {
+      "epoch": 18,
+      "train_documents_with_errors": 2543,
+      "precision": 0.8974358974358975,
+      "recall": 0.7970008331019162,
+      "f1": 0.8442418002647448
+    },
+    {
+      "epoch": 19,
+      "train_documents_with_errors": 2507,
+      "precision": 0.8980400333611342,
+      "recall": 0.7973711006201981,
+      "f1": 0.8447168423633243
+    },
+    {
+      "epoch": 20,
+      "train_documents_with_errors": 2479,
+      "precision": 0.8978231434225602,
+      "recall": 0.797926501897621,
+      "f1": 0.8449323662027054
+    },
+    {
+      "epoch": 21,
+      "train_documents_with_errors": 2394,
+      "precision": 0.8983121483642426,
+      "recall": 0.798111635656762,
+      "f1": 0.8452526836919759
+    },
+    {
+      "epoch": 22,
+      "train_documents_with_errors": 2457,
+      "precision": 0.8981269510926119,
+      "recall": 0.7989447375728964,
+      "f1": 0.8456375838926175
+    },
+    {
+      "epoch": 23,
+      "train_documents_with_errors": 2367,
+      "precision": 0.896630615640599,
+      "recall": 0.798111635656762,
+      "f1": 0.844507566482198
+    },
+    {
+      "epoch": 24,
+      "train_documents_with_errors": 2379,
+      "precision": 0.8961970074812967,
+      "recall": 0.7983893362954735,
+      "f1": 0.8444705536789542
+    },
+    {
+      "epoch": 25,
+      "train_documents_with_errors": 2343,
+      "precision": 0.8960216059000727,
+      "recall": 0.798481903175044,
+      "f1": 0.8444444444444443
+    },
+    {
+      "epoch": 26,
+      "train_documents_with_errors": 2291,
+      "precision": 0.8953705625908241,
+      "recall": 0.798481903175044,
+      "f1": 0.8441552086901207
+    }
+  ],
+  "selected_epoch": 22,
+  "selected_validation_exact_f1": 0.8456375838926175,
+  "calibration": {
+    "method": "platt",
+    "feature": "log1p_margin",
+    "a": 1.136833,
+    "b": -3.268139,
+    "fitted_on": "validation",
+    "target": "exact span (type and boundaries) correctness",
+    "spans": 9610
+  },
+  "seconds": 692.613,
+  "model_file_bytes": 2887307,
+  "model_sha256": "bf7e257f363e17bcc6bee943f9dfaa0cd67e502cf8ac3fd90140bdd916a51903",
+  "training_data": {
+    "source": "mixed",
+    "components": {
+      "meddocan": {
+        "commit": "783a6df385c975b328c99bcffb54196a9ba4078a",
+        "license": "CC-BY-4.0",
+        "attribution": "SPACCC MEDDOCAN; 2019 Secretaria de Estado para el Avance Digital (SEAD)",
+        "file_digest_manifest_sha256": "ba4823b70e231902fe7d865c1193607631eb0a2d1f30c8591a6fc523388d4cdc",
+        "splits": {
+          "weights": "train",
+          "selection": "dev"
+        }
+      },
+      "gretel_finance": {
+        "repository": "https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual",
+        "license": "Apache-2.0",
+        "attribution": "Gretel.ai, synthetic_pii_finance_multilingual (Apache-2.0)",
+        "file_digest_manifest_sha256": "4226f8df4df63ba3bae639d9b18dc4c9e39a7fcbf27c99117409b4365b237c97",
+        "splits": {
+          "weights": "train minus text-hash holdout",
+          "selection": "holdout"
+        }
+      },
+      "synthetic_es": {
+        "generator": "deidflow.benchmarks.synthetic_es",
+        "seed": 1729,
+        "documents": {
+          "train": 3000,
+          "validation": 600
+        },
+        "splits": "template families disjoint across train/validation/test",
+        "faker": "40.44.0"
+      }
+    }
+  },
+  "command": "python scripts/train_span_tagger.py mixed --meddocan <verified meddocan> --gretel <registered gretel_finance> --synthetic-train 3000 --synthetic-validation 600 --version es-general-1 --epochs 30 --patience 4 --min-feature-docs 5 --output src/deidflow/models/es-general-1.json.gz",
+  "compared_candidate": {
+    "min_feature_docs": 10,
+    "selected_validation_exact_f1": 0.8401020207965469,
+    "stored_features": 64049,
+    "model_file_bytes": 2213044,
+    "decision": "not packaged: 0.0055 lower validation F1 for 0.7 MB"
+  }
+}

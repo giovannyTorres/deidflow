@@ -30,8 +30,10 @@ from deidflow.nlp.tagger import SpanTagger
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--source", choices=["meddocan", "gretel_finance"], default="meddocan")
-    parser.add_argument("--corpus", type=Path, required=True)
+    parser.add_argument(
+        "--source", choices=["meddocan", "gretel_finance", "synthetic_es"], default="meddocan"
+    )
+    parser.add_argument("--corpus", type=Path, help="Not used for synthetic_es")
     parser.add_argument("--split", choices=["dev", "test"], required=True)
     parser.add_argument(
         "--tagger",
@@ -44,7 +46,22 @@ def main() -> None:
     parser.add_argument("--profile", help="Packaged operating profile for built-in taggers")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    if args.source == "meddocan":
+    if args.source != "synthetic_es" and args.corpus is None:
+        parser.error("--corpus is required")
+    if args.source == "synthetic_es":
+        import importlib.metadata
+
+        from deidflow.benchmarks.synthetic_es import generate
+
+        split = {"dev": "validation", "test": "test"}[args.split]
+        examples = tuple(generate(600, split=split, seed=1729))
+        integrity = {
+            "generator": "deidflow.benchmarks.synthetic_es",
+            "seed": 1729,
+            "documents": 600,
+            "faker": importlib.metadata.version("faker"),
+        }
+    elif args.source == "meddocan":
         integrity = verify_acquired_corpus(args.corpus, "meddocan")
         examples = load_public(args.corpus, "meddocan", args.split).examples
     else:

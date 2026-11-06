@@ -60,5 +60,25 @@
         "over_redaction_rate": 0.1757
       }
     }
+  },
+  "es-general": {
+    "balanced": {
+      "review_margin": null,
+      "redact_margin": null,
+      "description": "Model spans only; highest throughput"
+    },
+    "assurance": {
+      "review_margin": 160.0,
+      "redact_margin": 320.0,
+      "description": "Most approvals with approved direct-identifier leak <= 2% on validation. On validation it approved 3 of 1,002 documents and over-redacted about a quarter of non-sensitive text: in practice every document goes to review. See docs/TAGGER.md.",
+      "validation": {
+        "split": "10% text-hash holdout of the published train file (the tagger's validation set) plus 600 synthetic validation-family documents (seed 1729)",
+        "documents": 1002,
+        "approved": 3,
+        "approved_direct_identifier_leak_rate": 0.0,
+        "approved_leak_rate": 0.0,
+        "over_redaction_rate": 0.2558
+      }
+    }
   }
 }
