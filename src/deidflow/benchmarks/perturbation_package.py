@@ -21,6 +21,8 @@ from ._package_io import (
     read_member,
     strict_json,
 )
+from ._unicode_derivation import verify_unicode_derivation
+from ._unicode_perturbations import UNICODE_RECIPES, unicode_parts
 from .evaluation_package import EvaluationPackage, load_evaluation_package
 from .package_runner import DetectionCandidate, run_package_benchmark
 from .synthetic_package import bounded_canonical_json, write_package_records
@@ -36,7 +38,8 @@ DEFAULT_RECIPES = (
     "long_low_density.v1",
     "high_density.v1",
 )
-VERSION = "mx-perturbations-1.0.0"
+SUPPORTED_RECIPES = DEFAULT_RECIPES + UNICODE_RECIPES
+VERSION = "mx-perturbations-1.1.0"
 MAX_SOURCE_CODEPOINTS = 50_000
 MAX_SOURCE_UNITS = 512
 MAX_REPORT_PAIRS = 512
@@ -228,7 +231,30 @@ def _derive(package: EvaluationPackage, recipe: str, seed: int) -> tuple[Any, An
             (r["start"], r["end"]) for r in originals["expectations"] if r["unit_id"] == key
         ]
         first = min((r["start"] for r in originals["mentions"] if r["unit_id"] == key), default=0)
-        edit = _edit(original["text"], recipe, targets, first, seed)
+        if recipe in UNICODE_RECIPES:
+            boundaries = {point for interval in targets for point in interval}
+            boundaries.update(
+                point
+                for coverage in package.manifest["annotation_coverage"]
+                if coverage["unit_id"] == key
+                for region in coverage["inspected_ranges"]
+                for point in (region["start"], region["end"])
+            )
+            parts, parameters = unicode_parts(
+                original["text"],
+                recipe,
+                [r for r in originals["mentions"] if r["unit_id"] == key],
+                boundaries,
+                seed,
+            )
+            cursor = 0
+            mapping: CodepointMap = []
+            for part in parts:
+                mapping.append((cursor, cursor + len(part)))
+                cursor += len(part)
+            edit = EditResult("".join(parts), [mapping], [], parameters)
+        else:
+            edit = _edit(original["text"], recipe, targets, first, seed)
         edits[key] = edit
         row = deepcopy(original)
         row.update(
@@ -245,7 +271,8 @@ def _derive(package: EvaluationPackage, recipe: str, seed: int) -> tuple[Any, An
         before = old_units[key][original["start"] : original["end"]]
         after = edits[key].text[start:end]
         if (
-            after
+            recipe not in UNICODE_RECIPES
+            and after
             != _parts(
                 before,
                 recipe,
@@ -429,7 +456,7 @@ def generate_perturbation_suite(
         or not recipes
         or any(type(recipe) is not str for recipe in recipes)
         or len(set(recipes)) != len(recipes)
-        or any(recipe not in DEFAULT_RECIPES for recipe in recipes)
+        or any(recipe not in SUPPORTED_RECIPES for recipe in recipes)
         or sum(len(row["text"]) for row in package.records["units"]) > MAX_SOURCE_CODEPOINTS
         or len(package.records["units"]) > MAX_SOURCE_UNITS
         or any(
@@ -539,7 +566,7 @@ def _admit_suite(source: EvaluationPackage, suite: Path, digest: str):
         or not 0 <= index["seed"] < 2**64
         or index["quality"] != "DESCRIPTIVE_ONLY"
         or not isinstance(index["packages"], list)
-        or not 1 <= len(index["packages"]) <= len(DEFAULT_RECIPES)
+        or not 1 <= len(index["packages"]) <= len(SUPPORTED_RECIPES)
     ):
         raise ValueError
     original_cases = {r["case_id"]: r for r in source.records["documents"]}
@@ -561,7 +588,7 @@ def _admit_suite(source: EvaluationPackage, suite: Path, digest: str):
                 "strata",
             }
             or type(entry["recipe"]) is not str
-            or entry["recipe"] not in DEFAULT_RECIPES
+            or entry["recipe"] not in SUPPORTED_RECIPES
             or entry["recipe"] in seen
             or entry["path"] != entry["recipe"].replace(".", "-")
             or entry["strata"] != strata
@@ -571,6 +598,8 @@ def _admit_suite(source: EvaluationPackage, suite: Path, digest: str):
         loaded = load_evaluation_package(
             suite / entry["path"], manifest_sha256=entry["manifest_sha256"]
         )
+        if entry["recipe"] in UNICODE_RECIPES:
+            verify_unicode_derivation(source, loaded, entry["recipe"], index["seed"], VERSION)
         for role, value in source.records.items():
             derived = loaded.records[role]
             if isinstance(value, list):
