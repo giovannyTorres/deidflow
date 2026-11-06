@@ -35,10 +35,36 @@ CONTENT_ATTRIBUTES = frozenset(
      "imagesrcset", "style"}
 )  # fmt: skip
 # A data: URL with a payload (images, SVG, documents) cannot be verified by text scanning.
-_DATA_URL = re.compile(r"(?<![\w-])data:[^\s,]*,\S", re.IGNORECASE)
+_DATA_SCHEME = re.compile(r"(?<![\w-])data:", re.IGNORECASE)
+
+
+def has_data_payload(value: str) -> bool:
+    """True when ``value`` holds a ``data:`` URL with a payload, of any length.
+
+    Linear: each ``data:`` occurrence looks for its comma once, and the search for
+    the next occurrence starts after that comma (or stops when there is none).
+    """
+    position = 0
+    while match := _DATA_SCHEME.search(value, position):
+        comma = value.find(",", match.end())
+        if comma < 0:
+            return False
+        following = value[comma + 1 : comma + 2]
+        gap = value[match.end() : comma]  # gaps of successive iterations are disjoint
+        if (
+            following
+            and not following.isspace()
+            and following not in "\"')"
+            and not any(c.isspace() for c in gap)
+        ):
+            return True
+        position = comma + 1
+    return False
+
+
 # CSS string literals and url() arguments: generated content and resource URLs.
 _CSS_VALUE = re.compile(
-    r'"((?:[^"\\\n]|\\.)*)"|\'((?:[^\'\\\n]|\\.)*)\'|url\(\s*([^)"\'\s][^)\s]*)\s*\)',
+    r'"((?:[^"\\\n]|\\.)*)"|\'((?:[^\'\\\n]|\\.)*)\'|url\(\s*([^()"\'\s][^()\s]*)\s*\)',
     re.IGNORECASE,
 )
 _ATTRIBUTE = re.compile(
@@ -112,7 +138,7 @@ class _Parser(HTMLParser):
             else:
                 continue
             value = html.unescape(self.source[value_start:value_end])
-            if _DATA_URL.search(value):
+            if has_data_payload(value):
                 self.result.removable.append((value_start, value_end, "embedded_data"))
             elif tag == "iframe" and name == "srcdoc":
                 self.result.removable.append((value_start, value_end, "iframe_srcdoc"))
@@ -140,7 +166,7 @@ class _Parser(HTMLParser):
                 group = next(g for g in (1, 2, 3) if match.group(g) is not None)
                 value = match.group(group)
                 begin, end = start + match.start(group), start + match.end(group)
-                if _DATA_URL.search(value):
+                if has_data_payload(value):
                     self.result.removable.append((begin, end, "embedded_data"))
                 else:
                     self.result.css.append((begin, end, value))
@@ -262,7 +288,7 @@ def rewrite_css(css: str, rewrite: Rewrite) -> tuple[str, int]:
         nonlocal count
         group = next(g for g in (1, 2, 3) if match.group(g) is not None)
         value = match.group(group)
-        if _DATA_URL.search(value):
+        if has_data_payload(value):
             count += 1
             new = "data:,"
         else:
@@ -303,4 +329,12 @@ def _apply(source: str, edits: list[tuple[int, int, str]]) -> str:
     return "".join(parts)
 
 
-__all__ = ["Markup", "MarkupReport", "css_values", "parse", "rewrite_css", "rewrite_html"]
+__all__ = [
+    "Markup",
+    "MarkupReport",
+    "css_values",
+    "has_data_payload",
+    "parse",
+    "rewrite_css",
+    "rewrite_html",
+]

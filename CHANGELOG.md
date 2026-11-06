@@ -44,6 +44,8 @@
   `<style>` and `style=""`), and comments, scripts, `data:` URLs with a payload
   in any attribute or stylesheet, and `iframe srcdoc` are removed. `.md`,
   `.text` and `.log` files are de-identified as text.
+- HTML CSS `url()` and `data:` URL patterns are linear: repeated `url(` or `data:`
+  without a terminator took minutes on a few hundred kilobytes.
 - The DOCX reader scans `fldSimple` instructions and commenter account IDs,
   flags package thumbnails, and no longer forces review for layout-only fields
   such as `PAGE` or `TOC`.
