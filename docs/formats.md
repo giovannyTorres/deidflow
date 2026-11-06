@@ -8,7 +8,8 @@ finding list on an incomplete graph must never approve a release.
 
 | Format | Extraction | Automatic output |
 |---|---|---|
-| UTF-8 TXT | Exact text, including original CR/LF | See text engine |
+| UTF-8 TXT, Markdown, log | Exact text, including original CR/LF | Same format (`.txt`, `.text`, `.md`, `.log`) |
+| HTML (`.html`, `.htm`) | Visible text as one stream, content attributes (`alt`, `title`, `href`, `value`, `content`...), comments, scripts | In-place rewrite by source offsets (see below) |
 | JSON/JSONL | All string keys/values and numeric values, ordinal JSON locations | See structured engine |
 | CSV/TSV | All headers and cells; quoted multiline cells preserved | Use streaming table engine for large files |
 | DOCX | OOXML paragraphs, tables, revisions, headers, footers, footnotes, endnotes, comments, property metadata, field instructions, external relationship targets | In-place DOCX rewrite, verified by rereading (see below) |
@@ -46,6 +47,23 @@ deleted cell values can remain in the archive. Invalid negative shared-string
 references and inconsistent CSV/TSV row widths are rejected. No claim is made
 that every possible proprietary extension or
 embedded binary is covered.
+
+## HTML output
+
+`engine.deidentify("page.html", output="page.safe.html")` edits values at their
+source offsets, so every tag, attribute order, whitespace and style is kept.
+Visible text is scanned as one stream (block elements start new lines, table
+cells are separated by spaces), so `<td>Nombre:</td><td>Ana</td>` keeps its label
+context; a value split by inline tags (`<b>María</b> López`) or written with
+character references (`L&oacute;pez`) is replaced across them, references whole.
+Content and URL attributes (`alt`, `title`, `href`, `src`, `srcset`, `value`,
+`content`, `data-*`...) are scanned one by one (`href="mailto:..."` becomes
+`mailto:[EMAIL]`), and so are CSS string literals and `url()` values in
+`<style>` and `style=""` (generated `content: "..."` is visible text).
+Comments, `<script>` elements, `data:` URLs with a payload (images, SVG,
+documents, in any attribute or stylesheet) and `<iframe srcdoc>` are removed;
+the rest of `<style>` is kept. The output is reread and
+rescanned like other formats. Input must be UTF-8.
 
 ## DOCX output
 

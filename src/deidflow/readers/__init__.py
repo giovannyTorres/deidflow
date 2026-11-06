@@ -439,6 +439,31 @@ def _read_docx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
                 _issue(graph, "word_fields_require_review")
 
 
+def _read_html(source: str, graph: DocumentGraph) -> None:
+    from deidflow.markup import css_values, parse
+
+    markup = parse(source)
+    _fragment(graph, markup.text(), part="body", kind="html_text")
+    for _, _, name, value in markup.attributes:
+        for item in css_values(value) if name == "style" else [value]:
+            if item.strip():
+                _fragment(graph, item, part="attribute", kind="attribute", metadata={"name": name})
+    for _, _, value in markup.css:
+        if value.strip():
+            _fragment(graph, value, part="style", kind="css")
+    for comment in markup.comments:
+        _fragment(graph, comment, part="comment", kind="comment")
+    for script in markup.scripts:
+        _fragment(graph, script, part="script", kind="script")
+    reasons = {reason for _, _, reason in markup.removable}
+    if markup.scripts:
+        _issue(graph, "html_scripts_require_review")
+    if "embedded_data" in reasons:
+        _issue(graph, "html_embedded_data_requires_review")
+    if "iframe_srcdoc" in reasons:
+        _issue(graph, "html_iframe_srcdoc_requires_review")
+
+
 def _read_xlsx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
     with _archive(path, max_bytes) as archive:
         names = archive.namelist()
@@ -1058,6 +1083,8 @@ def read_document(
                             column=str(column),
                             kind="header" if row == 0 else "cell",
                         )
+        elif suffix in {".html", ".htm"}:
+            _read_html(source.read_bytes().decode("utf-8"), graph)
         elif suffix == ".docx":
             _read_docx(source, graph, max_bytes)
         elif suffix == ".xlsx":

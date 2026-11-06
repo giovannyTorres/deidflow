@@ -109,9 +109,10 @@ verification gate. It never establishes anonymous data. Always inspect
 - Batched local spaCy adapter with long-document overlap and overlapping spans.
 - Column profiles, exhaustive streaming CSV/TSV processing, JSON/JSONL, pandas and
   Polars APIs, bounded Parquet readers, native DOCX/XLSX/PDF extraction and
-  in-place DOCX and supervised XLSX output (formatting kept; tracked changes,
-  orphaned strings and pivot caches removed). XLSX transformation and verification
-  always require review; automatic XLSX release is unavailable.
+  in-place DOCX, HTML and supervised XLSX output (formatting kept; tracked
+  changes, orphaned strings, pivot caches, HTML comments and scripts removed).
+  XLSX transformation and verification always require review; automatic XLSX
+  release is unavailable. Markdown and log files are de-identified as text.
 - Redaction, typed placeholders, scoped HMAC pseudonyms, generalization,
   suppression, ISO date shifts, numeric buckets, partial masks and custom actions.
 - Strict Python/YAML policies, domain overrides, reread verification and release
