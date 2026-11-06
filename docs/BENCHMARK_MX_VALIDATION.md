@@ -12,7 +12,7 @@ from deidflow.benchmarks.validation_runner import run_validation_benchmark
 
 report = run_validation_benchmark(
     "examples/benchmark-mx-validation",
-    manifest_sha256="22d591766e2659784145aeac953131dd3cb6bd83a93a2fbdbce3d94c641bd67a",
+    manifest_sha256="18d82a70ff0ae27a66e40da7bdf8f0220f14065d93f839e93250c73394ab007e",
     candidate="rules.mx",
     profile="validation-descriptive-v1",
     output="/tmp/deidflow-validation-001",  # Nuevo.
@@ -40,15 +40,23 @@ genéricas no personales. Se contrastaron 13 con `python-stdnum 2.2` ya instalad
 como herramienta de desarrollo. CLABE usa una hoja independiente: prefijo
 `00299900000000001`, términos reducidos con pesos 3/7/1, suma 28 y dígito 2.
 La variante terminada en 3 falla el checksum. No se añadió dependencia runtime.
-La [evidencia de referencia](audit/BMX-04-vectors.json) contiene únicamente
-estos fixtures públicos; no es una salida de auditoría para documentos reales.
+El ejemplo actual es la versión `1.0.1`, con referencia `mx-checks-1.0.1`.
+La [fe de erratas](audit/BMX-04-erratum.md) registra su comprobación y conserva
+el [recibo histórico](audit/BMX-04-vectors.json) de la versión anterior. La
+evidencia contiene únicamente fixtures públicos; no es una salida de auditoría
+para documentos reales.
 
-La referencia v1 comprueba el **checksum ordinario estricto**. Los RFC genéricos
-de facturación producen una discrepancia documentada: el checker independiente
-rechaza su checksum ordinario y DeidFlow aplica una excepción. El informe
-conserva las dos discrepancias; no afirma que los códigos genéricos sean
-jurídicamente inválidos ni cambia los validadores para obtener coincidencia.
-Los genéricos y el teléfono imposible son distractores no personales explícitos.
+La referencia comprueba el **dígito ordinario** por separado de la aceptación
+completa. `stdnum.mx.rfc.calc_check_digit` espera `4` para `XAXX010101000` y `0`
+para `XEXX010101000`: solo el primero discrepa con su último dígito. La
+aceptación estricta completa de stdnum rechaza ambos por su componente de
+homoclave; ese rechazo no demuestra que ambos checksums sean inválidos. La
+versión `1.0.0` confundía esas dos comprobaciones y marcaba incorrectamente el
+checksum de `XEXX` como inválido. El informe actual conserva una discrepancia,
+porque DeidFlow aplica la excepción de facturación a `XAXX`. No afirma invalidez
+jurídica ni titularidad. Los genéricos y el teléfono imposible son distractores
+no personales explícitos; los genéricos mantienen su estructura declarada de
+constantes de facturación, separada de la aceptación estricta de stdnum.
 
 `ValidationCandidate(id, source_sha256, validate)` permite un callback local
 confiable de `(entity_type, value) -> mapping` de los tres estados. Identidad y

@@ -2,9 +2,43 @@ from __future__ import annotations
 
 import hashlib
 from copy import deepcopy
+from pathlib import Path
 
 import pytest
 from benchmark_case_fixtures import canonical, fixture_records, profile_package, save_manifest
+
+
+def test_published_generic_rfc_checksum_references_use_check_digit_not_full_acceptance(tmp_path):
+    from stdnum.mx import rfc
+
+    from deidflow.benchmarks.evaluation_package import load_evaluation_package
+    from deidflow.benchmarks.validation_runner import run_validation_benchmark
+
+    package = Path(__file__).resolve().parents[1] / "examples" / "benchmark-mx-validation"
+    digest = hashlib.sha256((package / "manifest.json").read_bytes()).hexdigest()
+    loaded = load_evaluation_package(package, manifest_sha256=digest)
+    units = {row["unit_id"]: row for row in loaded.records["units"]}
+    references = {
+        units[row["unit_id"]]["text"][row["start"] : row["end"]]: row["validity"]["checksum"]
+        for row in loaded.records["validation_vectors"]
+        if row["entity_type"] == "RFC"
+    }
+    # Full strict acceptance rejects both generic serial components. It is not
+    # an oracle for the separate ordinary check-digit attribute.
+    assert rfc.calc_check_digit("XAXX01010100") == "4"
+    assert rfc.calc_check_digit("XEXX01010100") == "0"
+    assert not rfc.is_valid("XEXX010101000", validate_check_digits=True)
+    assert references["XAXX010101000"] == "invalid"
+    assert references["XEXX010101000"] == "valid"
+    result = run_validation_benchmark(
+        package,
+        manifest_sha256=digest,
+        candidate="rules.mx",
+        profile="validation-descriptive-v1",
+        output=tmp_path / "result",
+    )["result"]
+    assert result["metrics"]["RFC"]["checksum"]["mismatched"] == 1
+    assert result["metrics"]["RFC"]["checksum"]["matched"] == 6
 
 
 def validation_package(root):
@@ -233,7 +267,7 @@ def vectors_package(root, cases):
         ("RFC", "ZZZX011301AA4", ("valid", "invalid", "valid")),
         ("RFC", "ZZZ010101AA1", ("valid", "valid", "valid")),
         ("RFC", "XAXX010101000", ("valid", "valid", "invalid")),
-        ("RFC", "XEXX010101000", ("valid", "valid", "invalid")),
+        ("RFC", "XEXX010101000", ("valid", "valid", "valid")),
         ("CURP", "ZAXX010101HDFZZZ06", ("valid", "valid", "valid")),
         ("CURP", "ZAXX010231HDFZZZ05", ("valid", "invalid", "valid")),
         ("CURP", "ZAXX010101HDFZZZ07", ("valid", "valid", "invalid")),
@@ -263,9 +297,7 @@ def test_independently_checked_vectors_keep_attribute_states_separate(
     for attribute, state in zip(("pattern", "structure", "checksum"), expected, strict=True):
         cell = result["metrics"][entity][attribute]
         generic_disagreement = (
-            entity == "RFC"
-            and value in {"XAXX010101000", "XEXX010101000"}
-            and attribute == "checksum"
+            entity == "RFC" and value == "XAXX010101000" and attribute == "checksum"
         )
         assert cell["mismatched"] == int(generic_disagreement)
         if state in {"unknown", "not_applicable"}:
