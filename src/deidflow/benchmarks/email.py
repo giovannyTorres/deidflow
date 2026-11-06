@@ -76,7 +76,7 @@ def _load_package(path: str | Path) -> _EmailPackage:
             raise ValueError
         examples: list[Example] = []
         ids: set[str] = set()
-        for line in corpus_bytes.decode("utf-8").splitlines():
+        for line in corpus_bytes.decode("utf-8").removesuffix("\n").split("\n"):
             record = json.loads(
                 line, object_pairs_hook=_unique_pairs, parse_constant=_reject_constant
             )
@@ -145,7 +145,7 @@ def _write_report(destination: Path, report: dict[str, Any]) -> None:
         destination.mkdir(mode=0o700, parents=True, exist_ok=False)
     except FileExistsError:
         raise FileExistsError("Benchmark output already exists; choose a new directory") from None
-    except OSError:
+    except (OSError, ValueError):
         raise OSError("Cannot write email benchmark report") from None
     report_path = destination / "report.json"
     created_report = False
@@ -153,7 +153,7 @@ def _write_report(destination: Path, report: dict[str, Any]) -> None:
         with report_path.open("x", encoding="utf-8") as stream:
             created_report = True
             stream.write(payload)
-    except OSError:
+    except (OSError, ValueError):
         if created_report:
             with suppress(OSError):
                 report_path.unlink()

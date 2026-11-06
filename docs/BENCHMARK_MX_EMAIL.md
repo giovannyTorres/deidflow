@@ -1,7 +1,7 @@
 # Primer recorrido local del benchmark MX (BMX-01)
 
-Este incremento implementa [BMX-01](tickets/benchmark-mx/01-primer-recorrido-local.md)
-de [DF-EVAL-MX v0.1.0](specs/BENCHMARK_MX_SPEC.md). Evalúa exclusivamente detección
+Este incremento implementa [BMX-01](https://github.com/giovannyTorres/deidflow/blob/f2e4751d280a100e5af450337d70db78a8fefa03/docs/tickets/benchmark-mx/01-primer-recorrido-local.md)
+de [DF-EVAL-MX v0.1.0](https://github.com/giovannyTorres/deidflow/blob/f2e4751d280a100e5af450337d70db78a8fefa03/docs/specs/BENCHMARK_MX_SPEC.md). Evalúa exclusivamente detección
 EMAIL en texto español mediante las reglas existentes de DeidFlow para México.
 No cambia el detector, los transformadores, la API existente ni las dependencias.
 
@@ -90,4 +90,4 @@ maliciosos al sistema de archivos.
 Las [pruebas del recorrido](../tests/test_email_benchmark.py) ejercitan el
 detector real, repetición, conteos conocidos, matching exacto, denominadores
 ausentes, destino existente, canarios y errores de paquete/salida. La evidencia
-de aceptación se registra en [el acta BMX-01](audit/BMX-01.md).
+de aceptación se registra en [el acta BMX-01](https://github.com/giovannyTorres/deidflow/blob/f2e4751d280a100e5af450337d70db78a8fefa03/docs/audit/BMX-01.md).
