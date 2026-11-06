@@ -643,6 +643,50 @@ def _expectation_relations(indexed: _Indexes) -> None:
                 raise ValueError
 
 
+def _validation_vectors(
+    manifest: dict[str, Any], records: dict[str, Any], indexed: _Indexes
+) -> None:
+    if "validation_vectors" not in records:
+        return
+    vectors = _indexed(records["validation_vectors"], "vector_id", "v")
+    for vector in vectors.values():
+        _object(
+            vector,
+            "vector_id unit_id entity_type start end mention_id sensitivity validity provenance",
+        )
+        unit = indexed.units[vector["unit_id"]]
+        validity = _object(vector["validity"], "pattern structure checksum")
+        provenance = _object(vector["provenance"], "method version evidence_ref")
+        if (
+            vector["entity_type"] not in manifest["scope"]["entity_types"]
+            or not _interval(vector["start"], vector["end"], unit["text"])
+            or vector["sensitivity"] not in {"sensitive", "nonpersonal_distractor"}
+            or any(
+                state not in {"valid", "invalid", "unknown", "not_applicable"}
+                for state in validity.values()
+            )
+            or provenance["method"] not in {"independent_reference", "independent_worksheet"}
+            or not _text(provenance["version"])
+        ):
+            raise ValueError
+        evidence = manifest["resources"][provenance["evidence_ref"]]
+        if evidence["kind"] != "binary" or not provenance["evidence_ref"].startswith("evidence-"):
+            raise ValueError
+        key = (vector["unit_id"], vector["entity_type"], vector["start"], vector["end"])
+        if vector["sensitivity"] == "sensitive":
+            mention = indexed.mentions[vector["mention_id"]]
+            if (
+                tuple(mention[field] for field in ("unit_id", "entity_type", "start", "end")) != key
+                or mention["validity"] != validity
+            ):
+                raise ValueError
+        elif vector["mention_id"] is not None or any(
+            tuple(m[field] for field in ("unit_id", "entity_type", "start", "end")) == key
+            for m in indexed.mentions.values()
+        ):
+            raise ValueError
+
+
 def _manifest_contract(value: Any) -> dict[str, Any]:
     manifest = _object(
         value,
@@ -713,7 +757,7 @@ def load_evaluation_package(path: str | Path, *, manifest_sha256: str) -> Evalua
                 or not 0 <= resource["records"] <= MAX_RECORDS
             ):
                 raise ValueError
-            if role in required_roles:
+            if role in required_roles | {"validation_vectors"}:
                 if resource["kind"] != "jsonl":
                     raise ValueError
             elif role in profile_roles:
@@ -767,6 +811,7 @@ def load_evaluation_package(path: str | Path, *, manifest_sha256: str) -> Evalua
         _membership(manifest, documents)
         _annotation_relations(manifest, indexed)
         _expectation_relations(indexed)
+        _validation_vectors(manifest, records, indexed)
         return EvaluationPackage(manifest_sha256, manifest, records)
     except (OSError, ValueError, TypeError, KeyError, RuntimeError, BadZipFile, EOFError):
         raise InvalidPackageError from None

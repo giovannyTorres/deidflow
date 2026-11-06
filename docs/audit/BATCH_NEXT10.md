@@ -8,7 +8,9 @@ producción, manteniendo API y privacidad, sin publicar PyPI.
 Orden confirmado por el solicitante: BMX-03 a BMX-12, una por una.
 Se respeta el grafo; BMX-09 es una decisión humana y BMX-10/11/12 dependen de
 esa ratificación. La consulta sobre D1–D3 y formatos está pendiente; seleccionar
-el bloque numérico no se registra como aprobación de esos perfiles.
+el bloque numérico no se registra como aprobación de esos perfiles. El solicitante
+eligió todos los formatos previstos, incluido OCR, y pidió ajustar D1–D3 antes
+de ratificarlos; está pendiente su definición concreta.
 
 Salud inicial: Ruff y formato pasan (229 archivos), mypy pasa (68 módulos),
 pip check pasa y 142 pruebas focalizadas pasan. El último candidato base tenía
@@ -22,7 +24,7 @@ los cambios previos de AGENTS.md, CLAUDE.md y docs/agents/.
 | Tarea | Estado del lote |
 | --- | --- |
 | BMX-03 | Implementada y revisada; 151 pruebas focalizadas pasan |
-| BMX-04 | Pendiente |
+| BMX-04 | Implementada; 177 pruebas focalizadas pasan, revisión en curso |
 | BMX-05 | Pendiente |
 | BMX-06 | Pendiente |
 | BMX-07 | Pendiente |
