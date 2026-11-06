@@ -144,3 +144,21 @@ def test_long_words_without_whitespace_stay_linear():
         start = time.perf_counter()
         detection_view(text)
         assert time.perf_counter() - start < 5
+
+
+def test_long_one_to_one_word_does_not_allocate_tracing_maps():
+    import tracemalloc
+
+    engine = DeidEngine(memory_budget_mb=8)
+    tracemalloc.start()
+    engine.scan_text("Ａ" * 900_000)
+    peak = tracemalloc.get_traced_memory()[1]
+    tracemalloc.stop()
+    assert peak < 16 * 1024 * 1024
+
+
+def test_tracing_budget_follows_the_engine_memory_budget():
+    with pytest.raises(NormalizationLimitError):
+        DeidEngine(memory_budget_mb=8).scan_text("a​" * 400_000)
+    findings = DeidEngine().scan_text("DNI 1234​5678Z " + "a​" * 50_000)
+    assert any(f.entity_type == "NATIONAL_ID" for f in findings)

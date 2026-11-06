@@ -209,6 +209,10 @@ class DeidEngine:
         self.nlp, self.ocr, self.performance = nlp, ocr, performance
         self.key, self.tenant_id, self.dataset_id = key, tenant_id, dataset_id
         self.max_bytes, self.memory_budget_mb = max_bytes, memory_budget_mb
+        # Each traced character keeps two 4-byte coordinates (plus transient maps).
+        self.detector.normalization_budget = min(
+            DEFAULT_MAX_CHARACTERS, memory_budget_mb * 1024**2 // 64
+        )
         self.schema_fast_path = schema_fast_path
         self.pdf_dpi, self.pdf_max_pages = pdf_dpi, pdf_max_pages
         if (

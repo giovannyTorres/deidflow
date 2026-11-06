@@ -138,6 +138,33 @@ def _changes(word: str) -> bool:
     )
 
 
+_NFKC_CHARACTER: dict[str, str] = {}
+
+
+def _one_to_one(word: str) -> str | None:
+    """The view of a word whose characters normalize one to one in place, if so.
+
+    Such words (full-width forms, no-break spaces, ordinal indicators) need no
+    coordinate maps, so they never allocate tracing arrays whatever their length;
+    the view is built with one translation table of the distinct characters.
+    """
+    table: dict[int, str] = {}
+    for character in set(word):
+        if is_ignorable(character):
+            return None
+        normalized = _NFKC_CHARACTER.get(character)
+        if normalized is None:
+            normalized = unicodedata.normalize("NFKC", character)
+            if len(_NFKC_CHARACTER) < 65_536:
+                _NFKC_CHARACTER[character] = normalized
+        if len(normalized) != 1:
+            return None
+        if normalized != character:
+            table[ord(character)] = normalized
+    candidate = word.translate(table)
+    return candidate if unicodedata.normalize("NFKC", word) == candidate else None
+
+
 def _trace(text: str, max_characters: int) -> tuple[str, array, array]:
     """NFKC of ``text`` without ignorables, with each output character's source span."""
     parents, starts, ends = array("I"), array("I"), array("I")
@@ -258,16 +285,15 @@ def detection_view(text: str, *, max_characters: int = DEFAULT_MAX_CHARACTERS) -
         parts.append(text[source_position:start])
         view_position += start - source_position
         word = text[start:end]
-        # Temporary maps of one word: its own size, plus expansions within the budget.
-        normalized, starts, ends = _trace(word, max(max_characters, 4 * len(word)))
-        if _mixed_confusable(normalized):
-            normalized = normalized.translate(_CONFUSABLES)  # one to one
-        one_to_one = len(normalized) == len(word) and all(
-            starts[i] == i and ends[i] == i + 1 for i in range(len(word))
-        )
-        if one_to_one:
+        mapped = _one_to_one(word)
+        if mapped is not None:
+            normalized = mapped.translate(_CONFUSABLES) if _mixed_confusable(mapped) else mapped
             piece = _Piece(view_position, view_position + len(normalized), start, end, None, None)
         else:
+            # Temporary and kept maps of this word stay within the remaining budget.
+            normalized, starts, ends = _trace(word, max_characters - traced)
+            if _mixed_confusable(normalized):
+                normalized = normalized.translate(_CONFUSABLES)  # one to one
             traced += len(normalized)
             if traced > max_characters:
                 raise NormalizationLimitError("Text exceeds normalization tracing budget")

@@ -14,7 +14,7 @@ from dataclasses import dataclass, replace
 from typing import Protocol
 
 from deidflow.core import Finding
-from deidflow.normalization import detection_view, ordinal_feature_text
+from deidflow.normalization import DEFAULT_MAX_CHARACTERS, detection_view, ordinal_feature_text
 from deidflow.validators import (
     ValidationResult,
     validate_card,
@@ -265,10 +265,12 @@ class RuleDetector:
             if unknown or not countries:
                 raise ValueError("Unsupported country codes: " + ", ".join(sorted(unknown)))
         self.countries: frozenset[str] | None = countries
+        # Traced characters of normalized words; the engine ties it to its memory budget.
+        self.normalization_budget = DEFAULT_MAX_CHARACTERS
 
     def detect(self, text: str) -> list[Finding]:
         source = text
-        view = detection_view(text)
+        view = detection_view(text, max_characters=self.normalization_budget)
         text = view.text
         lexical_text = ordinal_feature_text(source, view)
         findings: list[Finding] = []
