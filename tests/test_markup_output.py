@@ -127,3 +127,17 @@ def test_plain_text_formats_are_rewritten(tmp_path, suffix):
     assert result.output_path is not None, result.issues
     text = result.output_path.read_text("utf-8")
     assert "12345678Z" not in text and "ana@example.com" not in text and "# Nota" in text
+
+
+def test_markup_patterns_are_linear_on_adversarial_input():
+    import time
+
+    for source in (
+        "<style>" + "url(" * 50000 + "</style>",
+        '<p title="' + "data:" * 50000 + '">x</p>',
+        "<style>" + "url(a" * 40000 + "</style>",
+        '<img srcset="' + "data:image/png;base64" * 10000 + '">',
+    ):
+        start = time.perf_counter()
+        parse(source)
+        assert time.perf_counter() - start < 2, source[:20]

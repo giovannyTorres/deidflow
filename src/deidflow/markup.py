@@ -35,10 +35,12 @@ CONTENT_ATTRIBUTES = frozenset(
      "imagesrcset", "style"}
 )  # fmt: skip
 # A data: URL with a payload (images, SVG, documents) cannot be verified by text scanning.
-_DATA_URL = re.compile(r"(?<![\w-])data:[^\s,]*,\S", re.IGNORECASE)
+# The media type cannot contain ":" or "(", so a scan stops at the next "data:" and the
+# pattern stays linear on repeated input.
+_DATA_URL = re.compile(r"(?<![\w-])data:[^\s,:(]{0,256},\S", re.IGNORECASE)
 # CSS string literals and url() arguments: generated content and resource URLs.
 _CSS_VALUE = re.compile(
-    r'"((?:[^"\\\n]|\\.)*)"|\'((?:[^\'\\\n]|\\.)*)\'|url\(\s*([^)"\'\s][^)\s]*)\s*\)',
+    r'"((?:[^"\\\n]|\\.)*)"|\'((?:[^\'\\\n]|\\.)*)\'|url\(\s*([^()"\'\s][^()\s]{0,2047})\s*\)',
     re.IGNORECASE,
 )
 _ATTRIBUTE = re.compile(
