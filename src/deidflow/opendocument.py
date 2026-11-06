@@ -12,6 +12,7 @@ import binascii
 import posixpath
 import re
 import zipfile
+import zlib
 from collections import deque
 from collections.abc import Iterator
 from pathlib import Path
@@ -672,6 +673,56 @@ def binary_strings(data: str) -> list[str]:
     return re.findall(r"[^\x00-\x1f\x7f-\x9f�]{4,}", text)
 
 
+def _zip_stream_status(archive: zipfile.ZipFile) -> str:
+    """Validate bounded expansion before ZipFile can silently discard stream tails."""
+    handle = archive.fp
+    if handle is None:
+        return "invalid"
+    position = handle.tell()
+    status = "complete"
+    try:
+        for info in archive.infolist():
+            handle.seek(info.header_offset)
+            header = handle.read(30)
+            if len(header) != 30 or header[:4] != b"PK\x03\x04":
+                return "invalid"
+            skip = int.from_bytes(header[26:28], "little") + int.from_bytes(header[28:30], "little")
+            handle.seek(skip, 1)
+            if info.compress_type not in {zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED}:
+                return "invalid"
+            if info.compress_type == zipfile.ZIP_STORED and info.compress_size != info.file_size:
+                return "invalid"
+            decoder = (
+                zlib.decompressobj(-zlib.MAX_WBITS)
+                if info.compress_type == zipfile.ZIP_DEFLATED
+                else None
+            )
+            remaining, expanded, checksum = info.compress_size, 0, 0
+            while remaining:
+                chunk = handle.read(min(65536, remaining))
+                if not chunk:
+                    return "invalid"
+                remaining -= len(chunk)
+                decoded = (
+                    decoder.decompress(chunk, info.file_size - expanded + 1) if decoder else chunk
+                )
+                expanded += len(decoded)
+                checksum = zlib.crc32(decoded, checksum)
+                if expanded > info.file_size or (decoder and decoder.unconsumed_tail):
+                    return "invalid"
+                if decoder and decoder.eof:
+                    if decoder.unused_data or remaining:
+                        status = "trailing"
+                    break
+            if expanded != info.file_size or checksum != info.CRC or (decoder and not decoder.eof):
+                return "invalid"
+        return status
+    except (OSError, ValueError, zlib.error):
+        return "invalid"
+    finally:
+        handle.seek(position)
+
+
 def _uninspected_zip_metadata(archive: zipfile.ZipFile) -> bool:
     """Presence-only checks: never interpret opaque ZIP comments/extra payloads."""
     infos = archive.infolist()
@@ -735,6 +786,11 @@ def read_odf(path: Path, graph: Any, max_bytes: int) -> None:
 
     suffix = path.suffix.lower()
     with _archive(path, max_bytes) as archive:
+        streams = _zip_stream_status(archive)
+        if streams != "complete":
+            _issue(graph, "unverified_odf_compressed_stream")
+        if streams == "invalid":
+            return
         entries = check_package(archive, suffix)
         embedded = subdocuments(entries)
         package_members = _package_members(archive.namelist())

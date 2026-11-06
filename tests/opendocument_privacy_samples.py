@@ -1,6 +1,7 @@
 import zipfile
 from pathlib import Path
-from xml.sax.saxutils import quoteattr
+
+from opendocument_samples import manifest, write_package
 
 SECRET = "synthetic.patient@example.test"
 
@@ -35,22 +36,8 @@ def package(
     )
     resources = {"content.xml": content, **(parts or {})}
     entries = {name: "text/xml" for name in resources} | (media_types or {})
-    manifest = (
-        '<manifest:manifest xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0">'
-        f'<manifest:file-entry manifest:full-path="/" manifest:media-type="{MEDIA}"/>'
-        + "".join(
-            f"<manifest:file-entry manifest:full-path={quoteattr(name)} manifest:media-type={quoteattr(kind)}/>"
-            for name, kind in entries.items()
-        )
-        + "</manifest:manifest>"
-    )
-    source = tmp_path / "source.odt"
-    with zipfile.ZipFile(source, "w") as archive:
-        archive.writestr("mimetype", MEDIA)
-        for name, value in resources.items():
-            archive.writestr(name, value)
-        archive.writestr("META-INF/manifest.xml", manifest)
-    return source
+    resources["META-INF/manifest.xml"] = manifest(MEDIA, entries)
+    return write_package(tmp_path / "source.odt", MEDIA, resources)
 
 
 STYLES = (
@@ -89,3 +76,68 @@ def add_zip_metadata(source: Path, channel: str) -> None:
         with zipfile.ZipFile(source) as archive:
             assert archive.getinfo("content.xml").extra == b""
             assert b"Informe." in archive.read("content.xml")
+
+
+def append_deflate_tail(source: Path, member: str, payload: bytes) -> None:
+    import struct
+
+    with zipfile.ZipFile(source) as archive:
+        entries = {info.filename: archive.read(info) for info in archive.infolist()}
+    with zipfile.ZipFile(source, "w") as archive:
+        for name, value in entries.items():
+            if name != member:
+                archive.writestr(name, value, compress_type=zipfile.ZIP_DEFLATED)
+        archive.writestr(member, entries[member], compress_type=zipfile.ZIP_DEFLATED)
+        info = archive.getinfo(member)
+        handle = archive.fp
+        assert handle is not None
+        handle.write(payload)
+        info.compress_size += len(payload)
+        archive.start_dir = handle.tell()
+        handle.seek(info.header_offset + 18)
+        handle.write(struct.pack("<I", info.compress_size))
+        handle.seek(archive.start_dir)
+    with zipfile.ZipFile(source) as archive:
+        assert archive.read(member) == entries[member]  # standard reader discards suffix
+
+
+STRUCTURAL_ATTRIBUTES = (
+    "style:patient-note",
+    "style:name",
+    "svg:font-family",
+    "text:style-name",
+    "xmlns:private",
+)
+
+
+UNRESOLVED_LINKS = (
+    "synthetic.patient%40example.test",
+    "./synthetic.patient%40example.test",
+    "nested/../synthetic.patient@example.test",
+    "../styles.xml",
+    "missing.xml",
+    "styles.xml?contact=synthetic.patient%40example.test",
+    "styles.xml#synthetic.patient%40example.test",
+)
+
+
+QUALIFIED_NAME_CASES = {
+    "standard_alias": (
+        'xmlns:dni-12345678Z="urn:oasis:names:tc:opendocument:xmlns:text:1.0"',
+        "<dni-12345678Z:p>Informe.</dni-12345678Z:p>",
+    ),
+    "element_name": (
+        'xmlns:private="urn:deidflow:fixture"',
+        "<private:dni-12345678Z>Informe.</private:dni-12345678Z>",
+    ),
+    "empty_attribute_name": (
+        'xmlns:private="urn:deidflow:fixture"',
+        '<text:p private:dni-12345678Z="">Informe.</text:p>',
+    ),
+}
+
+
+EMBEDDED_RELATIVE_XML = f'<office:document-content {NS} office:version="1.3"><office:body><office:text><text:p><text:a xlink:href="../styles.xml">detalle</text:a></text:p></office:text></office:body></office:document-content>'
+
+
+AUXILIARY_SENSITIVE_SETTINGS_XML = f'<office:document-settings {NS} xmlns:dni-12345678Z="urn:oasis:names:tc:opendocument:xmlns:config:1.0"><office:settings><dni-12345678Z:config-item-set/></office:settings></office:document-settings>'

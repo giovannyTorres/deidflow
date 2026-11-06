@@ -98,15 +98,14 @@ def test_ods_reader_scans_cells_formulas_and_typed_values(tmp_path):
 
 
 def test_clean_ods_standalone_verification_still_requires_review(tmp_path):
+    media_type = "application/vnd.oasis.opendocument.spreadsheet"
     content = f"<office:document-content {NS}><office:body><office:spreadsheet/></office:body></office:document-content>"
     source = write_package(
         tmp_path / "clean.ods",
-        "application/vnd.oasis.opendocument.spreadsheet",
+        media_type,
         {
             "content.xml": content,
-            "META-INF/manifest.xml": manifest(
-                "application/vnd.oasis.opendocument.spreadsheet", {"content.xml": "text/xml"}
-            ),
+            "META-INF/manifest.xml": manifest(media_type, {"content.xml": "text/xml"}),
         },
     )
     assert read_document(source).complete
