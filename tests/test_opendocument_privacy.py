@@ -25,7 +25,7 @@ def package(
     *,
     styles: str = "",
     root_attributes: str = "",
-    parts: dict[str, str] | None = None,
+    parts: dict[str, str | bytes] | None = None,
     media_types: dict[str, str] | None = None,
 ) -> Path:
     content = (
@@ -333,3 +333,110 @@ def test_standalone_verification_inspects_qualified_names_in_auxiliary_metadata_
     result = DeidEngine(country="ES").verify(source, policy=Policy.strict(require_ner=False))
     assert result.status == "BLOCKED", result.status
     assert any("12345678Z" in fragment.text for fragment in read_document(source).fragments)
+
+
+def assert_uninspected_source_but_clean_rewrite(source: Path, tmp_path: Path):
+    graph = read_document(source)
+    assert not graph.complete
+    engine = DeidEngine(country="ES")
+    policy = Policy.strict(require_ner=False)
+    assert engine.verify(source, policy=policy).status == "BLOCKED"
+    result = engine.deidentify(source, output=tmp_path / "safe.odt", policy=policy)
+    assert result.output_path is not None, result.issues
+    assert read_document(result.output_path).complete
+    assert engine.verify(result.output_path, policy=policy).status == "APPROVED"
+
+
+@pytest.mark.parametrize("encoding", ("utf-8", "utf-16"))
+@pytest.mark.parametrize("hidden", (f"<!--{SECRET}-->", f"<?audit {SECRET}?>"))
+def test_xml_comments_and_processing_instructions_are_uninspected_until_removed(
+    tmp_path, encoding, hidden
+):
+    content = (
+        f'<office:document-content {NS} office:version="1.3">'
+        f"<office:body><office:text><text:p>Informe.</text:p>{hidden}"
+        "</office:text></office:body></office:document-content>"
+    ).encode(encoding)
+    source = package(tmp_path, "", parts={"content.xml": content})
+    assert_uninspected_source_but_clean_rewrite(source, tmp_path)
+
+
+def test_comment_and_pi_markers_inside_cdata_are_visible_text_not_hidden_channels(tmp_path):
+    source = package(
+        tmp_path, "<text:p><![CDATA[literal <!-- marca --> y <?audit dato?>.]]></text:p>"
+    )
+    graph = read_document(source)
+    assert graph.complete, graph.issues
+    assert any("literal <!-- marca --> y <?audit dato?>." in f.text for f in graph.fragments)
+    assert (
+        DeidEngine(country="ES").verify(source, policy=Policy.strict(require_ner=False)).status
+        == "APPROVED"
+    )
+
+
+@pytest.mark.parametrize(
+    "name", ("Configurations2/accelerator/current.xml", "layout-cache", "ordinary/")
+)
+def test_nonempty_opaque_package_channel_is_uninspected_until_removed(tmp_path, name):
+    source = package(tmp_path, "<text:p>Informe.</text:p>", parts={name: b"\xff" + SECRET.encode()})
+    assert_uninspected_source_but_clean_rewrite(source, tmp_path)
+
+
+def test_empty_directory_entry_is_benign(tmp_path):
+    source = package(tmp_path, "<text:p>Informe.</text:p>", parts={"ordinary/": b""})
+    assert read_document(source).complete
+    assert (
+        DeidEngine(country="ES").verify(source, policy=Policy.strict(require_ner=False)).status
+        == "APPROVED"
+    )
+
+
+def add_zip_metadata(source: Path, channel: str) -> None:
+    import struct
+
+    with zipfile.ZipFile(source) as archive:
+        entries = [(info, archive.read(info)) for info in archive.infolist()]
+    payload = SECRET.encode()
+    if channel in {"prefix", "suffix"}:
+        raw = source.read_bytes()
+        source.write_bytes(payload + raw if channel == "prefix" else raw + payload)
+        return
+    with zipfile.ZipFile(source, "w") as archive:
+        for info, value in entries:
+            if info.filename == "content.xml":
+                if channel == "member_comment":
+                    info.comment = payload
+                elif channel in {"member_extra", "local_extra_only"}:
+                    info.extra = struct.pack("<HH", 0xBEEF, len(payload)) + payload
+            archive.writestr(info, value)
+            if channel == "local_extra_only" and info.filename == "content.xml":
+                info.extra = b""  # local header written; central directory written at close
+        if channel == "archive_comment":
+            archive.comment = payload
+        if channel == "local_name_mismatch":
+            info = zipfile.ZipInfo("dni-12345678Z/")
+            archive.writestr(info, b"")
+            info.filename = "ordinary/"
+            info.orig_filename = "ordinary/"
+    if channel == "local_extra_only":
+        with zipfile.ZipFile(source) as archive:
+            assert archive.getinfo("content.xml").extra == b""
+            assert b"Informe." in archive.read("content.xml")
+
+
+@pytest.mark.parametrize(
+    "channel",
+    (
+        "archive_comment",
+        "member_comment",
+        "member_extra",
+        "local_extra_only",
+        "local_name_mismatch",
+        "prefix",
+        "suffix",
+    ),
+)
+def test_opaque_zip_metadata_is_uninspected_until_rebuilt(tmp_path, channel):
+    source = package(tmp_path, "<text:p>Informe.</text:p>")
+    add_zip_metadata(source, channel)
+    assert_uninspected_source_but_clean_rewrite(source, tmp_path)

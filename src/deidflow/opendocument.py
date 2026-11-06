@@ -41,10 +41,11 @@ import zipfile
 from collections import deque
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Any
+from typing import Any, NoReturn
 from urllib.parse import unquote, urlsplit
 from xml.dom import minidom
 from xml.etree import ElementTree as ET
+from xml.parsers import expat
 
 from deidflow.office import (
     CellGrid,
@@ -211,23 +212,49 @@ _SHEET_REFERENCE = "(?<![\\w'])"
 # --- shared walk --------------------------------------------------------------
 
 
-def _parse_odf(data: bytes) -> Node:
-    """Keep shared recursive DOM helpers behind an ODF-specific depth boundary."""
-    try:
-        document = _parse(data)
-    except RecursionError:
-        raise DocumentError("OpenDocument XML nesting exceeds the supported depth") from None
-    pending: list[tuple[Node, int]] = [(document.documentElement, 1)]
-    while pending:
-        element, depth = pending.pop()
+def _parse_odf(data: bytes, *, graph: Any | None = None) -> Node:
+    """Inspect original XML before the shared DOM parser strips hidden nodes."""
+    depth = 0
+    hidden = False
+
+    def start(_name: str, _attributes: dict[str, str]) -> None:
+        nonlocal depth
+        depth += 1
         if depth > MAX_XML_DEPTH:
             raise DocumentError("OpenDocument XML nesting exceeds the supported depth")
-        pending.extend(
-            (child, depth + 1)
-            for child in element.childNodes
-            if child.nodeType == child.ELEMENT_NODE
-        )
-    return document
+
+    def end(_name: str) -> None:
+        nonlocal depth
+        depth -= 1
+
+    def uninspected(*_arguments: Any) -> None:
+        nonlocal hidden
+        hidden = True
+
+    def reject_declaration(*_arguments: Any) -> NoReturn:
+        raise DocumentError("OpenDocument XML entity declarations are unsupported")
+
+    parser = expat.ParserCreate()
+    parser.StartElementHandler = start
+    parser.EndElementHandler = end
+    parser.CommentHandler = uninspected
+    parser.ProcessingInstructionHandler = uninspected
+    parser.StartDoctypeDeclHandler = reject_declaration
+    parser.EntityDeclHandler = reject_declaration
+    parser.ExternalEntityRefHandler = reject_declaration
+    parser.SetParamEntityParsing(expat.XML_PARAM_ENTITY_PARSING_NEVER)
+    try:
+        parser.Parse(data, True)
+    except expat.ExpatError:
+        raise DocumentError("Malformed OpenDocument XML part") from None
+    if hidden and graph is not None:
+        from deidflow.readers import _issue
+
+        _issue(graph, "uninspected_odf_xml_channels")
+    try:
+        return _parse(data)
+    except RecursionError:
+        raise DocumentError("OpenDocument XML nesting exceeds the supported depth") from None
 
 
 def _qualified(node: Node) -> tuple[str, str]:
@@ -737,6 +764,61 @@ def binary_strings(data: str) -> list[str]:
     return re.findall(r"[^\x00-\x1f\x7f-\x9f�]{4,}", text)
 
 
+def _uninspected_zip_metadata(archive: zipfile.ZipFile) -> bool:
+    """Presence-only checks: never interpret opaque ZIP comments/extra payloads."""
+    infos = archive.infolist()
+    if archive.comment or any(info.comment or info.extra or info.flag_bits & 8 for info in infos):
+        return True
+    handle = archive.fp
+    if handle is None:
+        raise DocumentError("OpenDocument archive is unavailable")
+    position = handle.tell()
+    try:
+        expected = 0
+        for info in sorted(infos, key=lambda item: item.header_offset):
+            if info.header_offset != expected:
+                return True  # prefix, gap or unlisted local content
+            handle.seek(info.header_offset)
+            header = handle.read(30)
+            if len(header) != 30 or header[:4] != b"PK\x03\x04":
+                raise DocumentError("Malformed OpenDocument local ZIP header")
+            name_size = int.from_bytes(header[26:28], "little")
+            extra_size = int.from_bytes(header[28:30], "little")
+            if extra_size:
+                return True  # local extras need not appear in ZipInfo.extra
+            if (
+                int.from_bytes(header[6:8], "little") != info.flag_bits
+                or int.from_bytes(header[8:10], "little") != info.compress_type
+                or int.from_bytes(header[14:18], "little") != info.CRC
+                or int.from_bytes(header[18:22], "little") != info.compress_size
+                or int.from_bytes(header[22:26], "little") != info.file_size
+            ):
+                return True
+            encoding = "utf-8" if info.flag_bits & 0x800 else "cp437"
+            if handle.read(name_size) != info.filename.encode(encoding):
+                return True  # unlisted local names must not bypass member inspection
+            if info.compress_type == zipfile.ZIP_STORED and info.compress_size != info.file_size:
+                return True
+            expected += 30 + name_size + info.compress_size
+        handle.seek(0, 2)
+        size = handle.tell()
+        if size < 22:
+            raise DocumentError("Malformed OpenDocument ZIP footer")
+        handle.seek(size - 22)
+        footer = handle.read(22)
+        if footer[:4] != b"PK\x05\x06":
+            return True  # trailing data or an uninspected extended container layout
+        central_size = int.from_bytes(footer[12:16], "little")
+        central_offset = int.from_bytes(footer[16:20], "little")
+        return (
+            int.from_bytes(footer[20:22], "little") != 0
+            or central_offset != expected
+            or central_offset + central_size != size - 22
+        )
+    finally:
+        handle.seek(position)
+
+
 # --- reader -------------------------------------------------------------------
 
 
@@ -748,13 +830,19 @@ def read_odf(path: Path, graph: Any, max_bytes: int) -> None:
         entries = check_package(archive, suffix)
         embedded = subdocuments(entries)
         package_members = _package_members(archive.namelist())
+        if _uninspected_zip_metadata(archive):
+            _issue(graph, "uninspected_odf_container_metadata")
         if suffix == ".ods":
             # As for XLSX: cell display formats and extensions are not all modelled.
             graph.issues.append("ODS_REVIEW_REQUIRED")
         for name in archive.namelist():
             kind = part_kind(name, embedded)
+            _fragment(graph, name, part="ZIP", kind="package_member_name")
             if kind is None:
                 _issue(graph, "unsupported_odf_package_part")
+            elif kind in {"directory", "configuration", "layout_cache"}:
+                if archive.getinfo(name).file_size:
+                    _issue(graph, "uninspected_odf_package_channel")
             elif kind == "thumbnail":
                 _issue(graph, "office_thumbnail_requires_review")
             elif kind == "media":
@@ -767,14 +855,14 @@ def read_odf(path: Path, graph: Any, max_bytes: int) -> None:
                 _issue(graph, "office_drawing_content_requires_review")
                 if name.endswith(".xml"):
                     _read_part(
-                        _parse_odf(archive.read(name)),
+                        _parse_odf(archive.read(name), graph=graph),
                         graph,
                         name,
                         spreadsheet=False,
                         package_members=package_members,
                     )
             elif kind == "xml":
-                document = _parse_odf(archive.read(name))
+                document = _parse_odf(archive.read(name), graph=graph)
                 if document.documentElement.namespaceURI != OFFICE:
                     raise DocumentError("Unexpected OpenDocument part root")
                 _read_part(
@@ -786,7 +874,7 @@ def read_odf(path: Path, graph: Any, max_bytes: int) -> None:
                 )
             elif kind == "manifest":
                 _read_part(
-                    _parse_odf(archive.read(name)),
+                    _parse_odf(archive.read(name), graph=graph),
                     graph,
                     name,
                     spreadsheet=False,
@@ -794,7 +882,7 @@ def read_odf(path: Path, graph: Any, max_bytes: int) -> None:
                 )
             elif kind == "settings":
                 _read_part(
-                    _parse_odf(archive.read(name)),
+                    _parse_odf(archive.read(name), graph=graph),
                     graph,
                     name,
                     spreadsheet=False,
@@ -811,7 +899,7 @@ def read_odf(path: Path, graph: Any, max_bytes: int) -> None:
                         _fragment(graph, value, part=name, kind="settings")
             elif kind in {"rdf", "signature"}:
                 _read_part(
-                    _parse_odf(archive.read(name)),
+                    _parse_odf(archive.read(name), graph=graph),
                     graph,
                     name,
                     spreadsheet=False,
