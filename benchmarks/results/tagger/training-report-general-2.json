@@ -1,0 +1,344 @@
+{
+  "labels": [
+    "O",
+    "B-ADDRESS",
+    "I-ADDRESS",
+    "B-AGE",
+    "I-AGE",
+    "B-API_KEY",
+    "I-API_KEY",
+    "B-BANK_ACCOUNT",
+    "I-BANK_ACCOUNT",
+    "B-CREDENTIAL",
+    "I-CREDENTIAL",
+    "B-CUSTOMER_ID",
+    "I-CUSTOMER_ID",
+    "B-DATE",
+    "I-DATE",
+    "B-DATE_OF_BIRTH",
+    "I-DATE_OF_BIRTH",
+    "B-DEMOGRAPHIC",
+    "I-DEMOGRAPHIC",
+    "B-DOCUMENT_ID",
+    "I-DOCUMENT_ID",
+    "B-EMAIL",
+    "I-EMAIL",
+    "B-EMPLOYEE_ID",
+    "I-EMPLOYEE_ID",
+    "B-INSURANCE_ID",
+    "I-INSURANCE_ID",
+    "B-IP_ADDRESS",
+    "I-IP_ADDRESS",
+    "B-LOCATION",
+    "I-LOCATION",
+    "B-MEDICAL_FACILITY",
+    "I-MEDICAL_FACILITY",
+    "B-NATIONAL_ID",
+    "I-NATIONAL_ID",
+    "B-OCCUPATION",
+    "I-OCCUPATION",
+    "B-ORGANIZATION",
+    "I-ORGANIZATION",
+    "B-OTHER_SENSITIVE",
+    "I-OTHER_SENSITIVE",
+    "B-PASSPORT",
+    "I-PASSPORT",
+    "B-PATIENT_ID",
+    "I-PATIENT_ID",
+    "B-PAYMENT_CARD",
+    "I-PAYMENT_CARD",
+    "B-PERSON",
+    "I-PERSON",
+    "B-PHONE",
+    "I-PHONE",
+    "B-REGIONAL_ID",
+    "I-REGIONAL_ID",
+    "B-TAX_ID",
+    "I-TAX_ID"
+  ],
+  "train_documents": 9246,
+  "validation_documents": 1252,
+  "train_tokens": 1471760,
+  "features_kept": 157814,
+  "stored_features": 101785,
+  "stored_weight_entries": 490744,
+  "prune_below": 0.0,
+  "min_feature_docs": 5,
+  "train_alignment": {
+    "unaligned_spans": 449,
+    "spans_of_unknown_type": 0
+  },
+  "validation_alignment": {
+    "unaligned_spans": 64,
+    "spans_of_unknown_type": 0
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_documents_with_errors": 6426,
+      "precision": 0.8334412081984898,
+      "recall": 0.7151717115616033,
+      "f1": 0.7697902655308126
+    },
+    {
+      "epoch": 2,
+      "train_documents_with_errors": 4938,
+      "precision": 0.8545012679628065,
+      "recall": 0.7485883550865501,
+      "f1": 0.7980460847683427
+    },
+    {
+      "epoch": 3,
+      "train_documents_with_errors": 4190,
+      "precision": 0.8751956589794427,
+      "recall": 0.776358418957697,
+      "f1": 0.8228195820661237
+    },
+    {
+      "epoch": 4,
+      "train_documents_with_errors": 3903,
+      "precision": 0.8839434276206323,
+      "recall": 0.7868184763491622,
+      "f1": 0.8325579117488613
+    },
+    {
+      "epoch": 5,
+      "train_documents_with_errors": 3566,
+      "precision": 0.8905637001858352,
+      "recall": 0.798481903175044,
+      "f1": 0.8420127873493094
+    },
+    {
+      "epoch": 6,
+      "train_documents_with_errors": 3505,
+      "precision": 0.8940752189592993,
+      "recall": 0.803202814033139,
+      "f1": 0.8462063584942461
+    },
+    {
+      "epoch": 7,
+      "train_documents_with_errors": 3360,
+      "precision": 0.8968310942467439,
+      "recall": 0.8094973618439323,
+      "f1": 0.8509292595115306
+    },
+    {
+      "epoch": 8,
+      "train_documents_with_errors": 3206,
+      "precision": 0.8979153893316983,
+      "recall": 0.8133851707858928,
+      "f1": 0.8535625819612415
+    },
+    {
+      "epoch": 9,
+      "train_documents_with_errors": 3172,
+      "precision": 0.8998572302671833,
+      "recall": 0.816810145330001,
+      "f1": 0.8563249065942065
+    },
+    {
+      "epoch": 10,
+      "train_documents_with_errors": 3060,
+      "precision": 0.9004787613323826,
+      "recall": 0.8182912154031288,
+      "f1": 0.8574199806013578
+    },
+    {
+      "epoch": 11,
+      "train_documents_with_errors": 3093,
+      "precision": 0.9014442636289667,
+      "recall": 0.82042025363325,
+      "f1": 0.8590259268233584
+    },
+    {
+      "epoch": 12,
+      "train_documents_with_errors": 2962,
+      "precision": 0.9020105605199025,
+      "recall": 0.8222715912246599,
+      "f1": 0.8602973221635757
+    },
+    {
+      "epoch": 13,
+      "train_documents_with_errors": 2951,
+      "precision": 0.9017358643792508,
+      "recall": 0.8222715912246599,
+      "f1": 0.860172363706788
+    },
+    {
+      "epoch": 14,
+      "train_documents_with_errors": 2822,
+      "precision": 0.9019587942758551,
+      "recall": 0.8226418587429418,
+      "f1": 0.8604763749031759
+    },
+    {
+      "epoch": 15,
+      "train_documents_with_errors": 2778,
+      "precision": 0.9023920535171296,
+      "recall": 0.8241229288160696,
+      "f1": 0.8614833809086072
+    },
+    {
+      "epoch": 16,
+      "train_documents_with_errors": 2746,
+      "precision": 0.9024093946142944,
+      "recall": 0.825141164491345,
+      "f1": 0.8620472897828925
+    },
+    {
+      "epoch": 17,
+      "train_documents_with_errors": 2751,
+      "precision": 0.9031278469480717,
+      "recall": 0.8258816995279089,
+      "f1": 0.8627792283144765
+    },
+    {
+      "epoch": 18,
+      "train_documents_with_errors": 2643,
+      "precision": 0.9031376518218623,
+      "recall": 0.8259742664074794,
+      "f1": 0.8628342116714209
+    },
+    {
+      "epoch": 19,
+      "train_documents_with_errors": 2610,
+      "precision": 0.9021354113956077,
+      "recall": 0.825141164491345,
+      "f1": 0.8619222587507253
+    },
+    {
+      "epoch": 20,
+      "train_documents_with_errors": 2541,
+      "precision": 0.9027005158288662,
+      "recall": 0.8261594001666204,
+      "f1": 0.8627356210729822
+    },
+    {
+      "epoch": 21,
+      "train_documents_with_errors": 2552,
+      "precision": 0.9027103559870551,
+      "recall": 0.8262519670461909,
+      "f1": 0.8627905852786236
+    },
+    {
+      "epoch": 22,
+      "train_documents_with_errors": 2446,
+      "precision": 0.9024759979787772,
+      "recall": 0.8266222345644728,
+      "f1": 0.8628853029278192
+    },
+    {
+      "epoch": 23,
+      "train_documents_with_errors": 2415,
+      "precision": 0.9030529720986656,
+      "recall": 0.8268999352031843,
+      "f1": 0.8633003140855279
+    },
+    {
+      "epoch": 24,
+      "train_documents_with_errors": 2477,
+      "precision": 0.9028311425682508,
+      "recall": 0.8265296676849023,
+      "f1": 0.8629971487942782
+    },
+    {
+      "epoch": 25,
+      "train_documents_with_errors": 2423,
+      "precision": 0.9032258064516129,
+      "recall": 0.8268073683236138,
+      "f1": 0.8633288227334236
+    },
+    {
+      "epoch": 26,
+      "train_documents_with_errors": 2233,
+      "precision": 0.9034768546593895,
+      "recall": 0.8274553364806072,
+      "f1": 0.8637966855099772
+    },
+    {
+      "epoch": 27,
+      "train_documents_with_errors": 2284,
+      "precision": 0.9031410968589031,
+      "recall": 0.8277330371193187,
+      "f1": 0.8637944358578051
+    },
+    {
+      "epoch": 28,
+      "train_documents_with_errors": 2388,
+      "precision": 0.9032518683094325,
+      "recall": 0.8279181708784596,
+      "f1": 0.8639459067858005
+    },
+    {
+      "epoch": 29,
+      "train_documents_with_errors": 2317,
+      "precision": 0.9030988190168567,
+      "recall": 0.8281958715171711,
+      "f1": 0.8640270400772573
+    },
+    {
+      "epoch": 30,
+      "train_documents_with_errors": 2265,
+      "precision": 0.9027665589660743,
+      "recall": 0.8276404702397482,
+      "f1": 0.8635727048824068
+    }
+  ],
+  "selected_epoch": 29,
+  "selected_validation_exact_f1": 0.8640270400772573,
+  "calibration": {
+    "method": "platt",
+    "feature": "log1p_margin",
+    "a": 1.116855,
+    "b": -3.196686,
+    "fitted_on": "validation",
+    "target": "exact span (type and boundaries) correctness",
+    "spans": 9907
+  },
+  "seconds": 839.825,
+  "model_file_bytes": 3086261,
+  "model_sha256": "f3008720a246e32b7a2adaf4af2ba9a03fb665caadcf698658b029a73042c173",
+  "training_data": {
+    "source": "mixed",
+    "components": {
+      "meddocan": {
+        "commit": "783a6df385c975b328c99bcffb54196a9ba4078a",
+        "license": "CC-BY-4.0",
+        "attribution": "SPACCC MEDDOCAN; 2019 Secretaria de Estado para el Avance Digital (SEAD)",
+        "file_digest_manifest_sha256": "ba4823b70e231902fe7d865c1193607631eb0a2d1f30c8591a6fc523388d4cdc",
+        "splits": {
+          "weights": "train",
+          "selection": "dev"
+        }
+      },
+      "gretel_finance": {
+        "repository": "https://huggingface.co/datasets/gretelai/synthetic_pii_finance_multilingual",
+        "license": "Apache-2.0",
+        "attribution": "Gretel.ai, synthetic_pii_finance_multilingual (Apache-2.0)",
+        "file_digest_manifest_sha256": "4226f8df4df63ba3bae639d9b18dc4c9e39a7fcbf27c99117409b4365b237c97",
+        "splits": {
+          "weights": "train minus text-hash holdout",
+          "selection": "holdout"
+        }
+      },
+      "synthetic_es": {
+        "generator": "deidflow.benchmarks.synthetic_es",
+        "faker": "40.44.0",
+        "seed": 1729,
+        "documents": {
+          "train": 5000,
+          "validation": 600
+        },
+        "splits": "template families disjoint across train/validation/test"
+      }
+    }
+  },
+  "command": "python scripts/train_span_tagger.py mixed --meddocan <verified meddocan> --gretel <registered gretel_finance> --synthetic-train 5000 --synthetic-validation 600 --version es-general-2 --epochs 30 --patience 4 --min-feature-docs 5 --output src/deidflow/models/es-general-2.json.gz",
+  "previous": {
+    "version": "es-general-1",
+    "selected_validation_exact_f1": 0.8456375838926175,
+    "synthetic_train_documents": 3000,
+    "synthetic_train_families": 21
+  },
+  "synthetic_train_families": 51
+}

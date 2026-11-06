@@ -85,31 +85,31 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 0.3728970029997072,
+          "elapsed_seconds": 0.5147616200001721,
           "units": 600,
-          "records_per_second": 1609.0233903018823,
-          "mb_per_second": 0.3980509331154817,
-          "peak_rss_bytes": 40632320,
-          "peak_process_tree_rss_bytes": 40632320,
-          "cpu_percent_one_core_scale": 101.90481471911919,
+          "records_per_second": 1165.5880638494366,
+          "mb_per_second": 0.28835094582216597,
+          "peak_rss_bytes": 40841216,
+          "peak_process_tree_rss_bytes": 40841216,
+          "cpu_percent_one_core_scale": 99.07498542720211,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.0005795770000531775,
-      "p95_seconds": 0.0008421295498237669,
+      "p50_seconds": 0.0008008479999261908,
+      "p95_seconds": 0.0013841899497492702,
       "metrics": {
         "exact": {
-          "precision": 0.7431635388739947,
-          "recall": 0.4017391304347826,
-          "f1": 0.5215428033866415,
-          "true_positives": 1386,
-          "false_positives": 479,
-          "false_negatives": 2064,
+          "precision": 0.7660271408516612,
+          "recall": 0.4744927536231884,
+          "f1": 0.5860032217648111,
+          "true_positives": 1637,
+          "false_positives": 500,
+          "false_negatives": 1813,
           "document_leakage_rate": 1.0,
           "false_redaction_rate": 0.03243617908624194,
-          "entity_level_recall": 0.44753623188405794,
+          "entity_level_recall": 0.5272463768115943,
           "recall_by_type": {
-            "ADDRESS": 0.05523809523809524,
+            "ADDRESS": 0.5333333333333333,
             "AGE": 1.0,
             "BANK_ACCOUNT": 1.0,
             "DATE": 1.0,
@@ -123,7 +123,7 @@
             "TAX_ID": 0.92
           },
           "recall_by_format": {
-            "text": 0.4017391304347826
+            "text": 0.4744927536231884
           },
           "expected_calibration_error": null,
           "calibration_count": 0,
@@ -131,17 +131,17 @@
           "documents": 600
         },
         "overlap": {
-          "precision": 0.8278820375335121,
-          "recall": 0.44753623188405794,
-          "f1": 0.580997177798683,
-          "true_positives": 1544,
-          "false_positives": 321,
-          "false_negatives": 1906,
+          "precision": 0.8511932615816565,
+          "recall": 0.5272463768115943,
+          "f1": 0.6511544657240022,
+          "true_positives": 1819,
+          "false_positives": 318,
+          "false_negatives": 1631,
           "document_leakage_rate": 1.0,
           "false_redaction_rate": 0.03243617908624194,
-          "entity_level_recall": 0.44753623188405794,
+          "entity_level_recall": 0.5272463768115943,
           "recall_by_type": {
-            "ADDRESS": 0.3352380952380952,
+            "ADDRESS": 0.8590476190476191,
             "AGE": 1.0,
             "BANK_ACCOUNT": 1.0,
             "DATE": 1.0,
@@ -155,7 +155,7 @@
             "TAX_ID": 0.92
           },
           "recall_by_format": {
-            "text": 0.44753623188405794
+            "text": 0.5272463768115943
           },
           "expected_calibration_error": null,
           "calibration_count": 0,
@@ -170,16 +170,16 @@
           "confidence": 0.95,
           "intervals": {
             "precision": [
-              0.7302342812236652,
-              0.7561249510890831
+              0.7537898720460946,
+              0.7794473398034347
             ],
             "recall": [
-              0.38444459429715144,
-              0.4161226399609719
+              0.4590947548680275,
+              0.4869215896648866
             ],
             "f1": [
-              0.505638807289694,
-              0.5340910785994473
+              0.573267025538753,
+              0.5970440436900832
             ],
             "document_leakage_rate": [
               1.0,
@@ -239,7 +239,7 @@
         "frequency_strata": {
           "once": {
             "gold_mentions": 3054,
-            "exact_recall": 0.42272429600523903
+            "exact_recall": 0.5049115913555993
           },
           "two_to_five": {
             "gold_mentions": 289,
@@ -251,12 +251,143 @@
           }
         },
         "coverage_leakage": {
-          "sensitive_character_recall": 0.4412224544541909,
+          "sensitive_character_recall": 0.5702318845349966,
           "documents_with_uncovered_gold_characters": 600,
           "character_coverage_document_leakage_rate": 1.0,
           "entity_value_groups": 3170,
-          "entity_value_complete_coverage_rate": 0.5025236593059937,
+          "entity_value_complete_coverage_rate": 0.5826498422712934,
           "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities."
+        },
+        "leakage_breakdown": {
+          "fully_covered_mention_rate": 0.5721739130434783,
+          "direct_fully_covered_mention_rate": 0.5805714285714285,
+          "documents_with_direct_identifier_leak": 552,
+          "documents": 600,
+          "by_type": {
+            "PERSON": {
+              "gold_mentions": 1125,
+              "fully_covered_rate": 0.13155555555555556,
+              "character_coverage": 0.13738498789346246,
+              "predictions": 150,
+              "typed_overlap_precision": 1.0
+            },
+            "ADDRESS": {
+              "gold_mentions": 525,
+              "fully_covered_rate": 0.819047619047619,
+              "character_coverage": 0.8550492938982147,
+              "predictions": 451,
+              "typed_overlap_precision": 1.0
+            },
+            "DATE": {
+              "gold_mentions": 300,
+              "fully_covered_rate": 1.0,
+              "character_coverage": 1.0,
+              "predictions": 375,
+              "typed_overlap_precision": 0.8
+            },
+            "LOCATION": {
+              "gold_mentions": 300,
+              "fully_covered_rate": 0.25,
+              "character_coverage": 0.2320177056436739,
+              "predictions": 0,
+              "typed_overlap_precision": null
+            },
+            "PHONE": {
+              "gold_mentions": 300,
+              "fully_covered_rate": 0.93,
+              "character_coverage": 0.9475569199283704,
+              "predictions": 356,
+              "typed_overlap_precision": 0.9775280898876404
+            },
+            "NATIONAL_ID": {
+              "gold_mentions": 225,
+              "fully_covered_rate": 0.9644444444444444,
+              "character_coverage": 0.9659310878823074,
+              "predictions": 205,
+              "typed_overlap_precision": 0.9658536585365853
+            },
+            "DATE_OF_BIRTH": {
+              "gold_mentions": 150,
+              "fully_covered_rate": 1.0,
+              "character_coverage": 1.0,
+              "predictions": 75,
+              "typed_overlap_precision": 1.0
+            },
+            "EMAIL": {
+              "gold_mentions": 150,
+              "fully_covered_rate": 1.0,
+              "character_coverage": 1.0,
+              "predictions": 150,
+              "typed_overlap_precision": 1.0
+            },
+            "ORGANIZATION": {
+              "gold_mentions": 150,
+              "fully_covered_rate": 0.0,
+              "character_coverage": 0.0,
+              "predictions": 0,
+              "typed_overlap_precision": null
+            },
+            "AGE": {
+              "gold_mentions": 75,
+              "fully_covered_rate": 1.0,
+              "character_coverage": 1.0,
+              "predictions": 75,
+              "typed_overlap_precision": 1.0
+            },
+            "BANK_ACCOUNT": {
+              "gold_mentions": 75,
+              "fully_covered_rate": 1.0,
+              "character_coverage": 1.0,
+              "predictions": 134,
+              "typed_overlap_precision": 1.0
+            },
+            "TAX_ID": {
+              "gold_mentions": 75,
+              "fully_covered_rate": 1.0,
+              "character_coverage": 1.0,
+              "predictions": 86,
+              "typed_overlap_precision": 0.9069767441860465
+            },
+            "CUSTOMER_ID": {
+              "gold_mentions": 0,
+              "fully_covered_rate": null,
+              "character_coverage": null,
+              "predictions": 75,
+              "typed_overlap_precision": 0.0
+            },
+            "PAYMENT_CARD": {
+              "gold_mentions": 0,
+              "fully_covered_rate": null,
+              "character_coverage": null,
+              "predictions": 5,
+              "typed_overlap_precision": 0.0
+            }
+          },
+          "direct_identifier_types": [
+            "ADDRESS",
+            "API_KEY",
+            "AUTH_TOKEN",
+            "BANK_ACCOUNT",
+            "CLABE",
+            "CREDENTIAL",
+            "CURP",
+            "CUSTOMER_ID",
+            "DATE_OF_BIRTH",
+            "EMAIL",
+            "EMPLOYEE_ID",
+            "INSURANCE_ID",
+            "IP_ADDRESS",
+            "NATIONAL_ID",
+            "PASSPORT",
+            "PATIENT_ID",
+            "PAYMENT_CARD",
+            "PERSON",
+            "PHONE",
+            "REGIONAL_ID",
+            "RFC",
+            "TAX_ID"
+          ],
+          "definition": "fully covered = every gold character covered by any prediction, any category; detection coverage only, not transformed-output verification"
         },
         "uncertain_candidate_document_rate": 0.5,
         "review_rate_definition": "candidate uncertainty proxy only; no transformation or semantic-model release gating evaluated",
@@ -273,7 +404,7 @@
         "table_reconstruction_quality": null,
         "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated"
       },
-      "prediction_sha256": "0e738a685e2a3848527535ba867fdcf0d6661e0d62d4992c358228ce7c16062d"
+      "prediction_sha256": "22548b36a787d857340044b1d6e830cc3dec8cd6fd5ebe97f3a15325632d3439"
     },
     {
       "name": "deidflow_auto",
@@ -282,80 +413,80 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 2.4446280950000983,
+          "elapsed_seconds": 2.6211931529996946,
           "units": 600,
-          "records_per_second": 245.43610589568058,
-          "mb_per_second": 0.06071762011717944,
-          "peak_rss_bytes": 241332224,
-          "peak_process_tree_rss_bytes": 241332224,
-          "cpu_percent_one_core_scale": 109.21906712357787,
+          "records_per_second": 228.90339054691935,
+          "mb_per_second": 0.056627646776100556,
+          "peak_rss_bytes": 244772864,
+          "peak_process_tree_rss_bytes": 244772864,
+          "cpu_percent_one_core_scale": 108.7291105097867,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.0031694785000127013,
-      "p95_seconds": 0.007777006450032785,
+      "p50_seconds": 0.0036006390005240974,
+      "p95_seconds": 0.008555619750177355,
       "metrics": {
         "exact": {
-          "precision": 0.8396039603960396,
-          "recall": 0.7373913043478261,
-          "f1": 0.7851851851851851,
-          "true_positives": 2544,
-          "false_positives": 486,
-          "false_negatives": 906,
-          "document_leakage_rate": 0.8283333333333334,
-          "false_redaction_rate": 0.01968961830805559,
-          "entity_level_recall": 0.8136231884057971,
+          "precision": 0.8832278481012659,
+          "recall": 0.8089855072463769,
+          "f1": 0.8444780635400909,
+          "true_positives": 2791,
+          "false_positives": 369,
+          "false_negatives": 659,
+          "document_leakage_rate": 0.6283333333333333,
+          "false_redaction_rate": 0.002925247588726636,
+          "entity_level_recall": 0.8382608695652174,
           "recall_by_type": {
-            "ADDRESS": 0.6133333333333333,
-            "AGE": 0.14666666666666667,
-            "BANK_ACCOUNT": 0.88,
-            "DATE": 0.83,
-            "DATE_OF_BIRTH": 0.49333333333333335,
+            "ADDRESS": 0.8495238095238096,
+            "AGE": 0.9333333333333333,
+            "BANK_ACCOUNT": 0.09333333333333334,
+            "DATE": 0.9166666666666666,
+            "DATE_OF_BIRTH": 0.5133333333333333,
             "EMAIL": 1.0,
-            "LOCATION": 0.4633333333333333,
+            "LOCATION": 0.65,
             "NATIONAL_ID": 0.7511111111111111,
-            "ORGANIZATION": 0.8333333333333334,
-            "PERSON": 0.8675555555555555,
+            "ORGANIZATION": 0.8533333333333334,
+            "PERSON": 0.8986666666666666,
             "PHONE": 0.8766666666666667,
             "TAX_ID": 0.0
           },
           "recall_by_format": {
-            "text": 0.7373913043478261
+            "text": 0.8089855072463769
           },
-          "expected_calibration_error": 0.04842007987760319,
-          "calibration_count": 3030,
+          "expected_calibration_error": 0.02297779104249346,
+          "calibration_count": 3160,
           "matching": "exact",
           "documents": 600
         },
         "overlap": {
-          "precision": 0.9264026402640264,
-          "recall": 0.8136231884057971,
-          "f1": 0.866358024691358,
-          "true_positives": 2807,
-          "false_positives": 223,
-          "false_negatives": 643,
-          "document_leakage_rate": 0.6716666666666666,
-          "false_redaction_rate": 0.01968961830805559,
-          "entity_level_recall": 0.8136231884057971,
+          "precision": 0.9151898734177215,
+          "recall": 0.8382608695652174,
+          "f1": 0.8750378214826021,
+          "true_positives": 2892,
+          "false_positives": 268,
+          "false_negatives": 558,
+          "document_leakage_rate": 0.6016666666666667,
+          "false_redaction_rate": 0.002925247588726636,
+          "entity_level_recall": 0.8382608695652174,
           "recall_by_type": {
-            "ADDRESS": 0.9447619047619048,
-            "AGE": 0.6933333333333334,
-            "BANK_ACCOUNT": 0.88,
-            "DATE": 0.8566666666666667,
-            "DATE_OF_BIRTH": 0.49333333333333335,
+            "ADDRESS": 0.9714285714285714,
+            "AGE": 0.9333333333333333,
+            "BANK_ACCOUNT": 0.09333333333333334,
+            "DATE": 0.9466666666666667,
+            "DATE_OF_BIRTH": 0.5133333333333333,
             "EMAIL": 1.0,
-            "LOCATION": 0.4633333333333333,
+            "LOCATION": 0.65,
             "NATIONAL_ID": 0.7511111111111111,
             "ORGANIZATION": 0.8666666666666667,
-            "PERSON": 0.8791111111111111,
-            "PHONE": 0.95,
+            "PERSON": 0.9075555555555556,
+            "PHONE": 0.93,
             "TAX_ID": 0.0
           },
           "recall_by_format": {
-            "text": 0.8136231884057971
+            "text": 0.8382608695652174
           },
-          "expected_calibration_error": 0.05496650043628355,
-          "calibration_count": 3030,
+          "expected_calibration_error": 0.026806513238175914,
+          "calibration_count": 3160,
           "matching": "overlap",
           "documents": 600
         },
@@ -367,64 +498,64 @@
           "confidence": 0.95,
           "intervals": {
             "precision": [
-              0.8269202378550591,
-              0.852921288154336
+              0.8697130208480666,
+              0.895187155485919
             ],
             "recall": [
-              0.7246130765240913,
-              0.7498957418788411
+              0.7946874166031037,
+              0.8236328755177676
             ],
             "f1": [
-              0.7728516641728931,
-              0.797270445261119
+              0.8313027940220923,
+              0.8573807498470065
             ],
             "document_leakage_rate": [
-              0.7966666666666666,
-              0.8558749999999999
+              0.5866666666666667,
+              0.665875
             ]
           }
         },
         "person_only_exact": {
-          "precision": 0.9663366336633663,
-          "recall": 0.8675555555555555,
-          "f1": 0.9142857142857141,
-          "true_positives": 976,
-          "false_positives": 34,
-          "false_negatives": 149,
-          "document_leakage_rate": 0.18666666666666668,
-          "false_redaction_rate": 0.0026829774661833047,
-          "entity_level_recall": 0.8791111111111111,
+          "precision": 0.978702807357212,
+          "recall": 0.8986666666666666,
+          "f1": 0.9369786839666358,
+          "true_positives": 1011,
+          "false_positives": 22,
+          "false_negatives": 114,
+          "document_leakage_rate": 0.14333333333333334,
+          "false_redaction_rate": 0.001668875864381877,
+          "entity_level_recall": 0.9075555555555556,
           "recall_by_type": {
-            "PERSON": 0.8675555555555555
+            "PERSON": 0.8986666666666666
           },
           "recall_by_format": {
-            "text": 0.8675555555555555
+            "text": 0.8986666666666666
           },
-          "expected_calibration_error": 0.08092129082612545,
-          "calibration_count": 1010,
+          "expected_calibration_error": 0.07032396540143393,
+          "calibration_count": 1033,
           "matching": "exact",
           "documents": 600
         },
         "common_scope_exact": {
-          "precision": 0.9185185185185185,
-          "recall": 0.7907246376811594,
-          "f1": 0.8498442367601245,
-          "true_positives": 1364,
-          "false_positives": 121,
-          "false_negatives": 361,
-          "document_leakage_rate": 0.43666666666666665,
-          "false_redaction_rate": 0.011174175239446612,
-          "entity_level_recall": 0.8028985507246377,
+          "precision": 0.9326196473551638,
+          "recall": 0.8585507246376811,
+          "f1": 0.8940537277392092,
+          "true_positives": 1481,
+          "false_positives": 107,
+          "false_negatives": 244,
+          "document_leakage_rate": 0.31333333333333335,
+          "false_redaction_rate": 0.010143752428250477,
+          "entity_level_recall": 0.8695652173913043,
           "recall_by_type": {
-            "DATE": 0.83,
-            "LOCATION": 0.4633333333333333,
-            "PERSON": 0.8675555555555555
+            "DATE": 0.9166666666666666,
+            "LOCATION": 0.65,
+            "PERSON": 0.8986666666666666
           },
           "recall_by_format": {
-            "text": 0.7907246376811594
+            "text": 0.8585507246376811
           },
-          "expected_calibration_error": 0.05348017744745917,
-          "calibration_count": 1485,
+          "expected_calibration_error": 0.033394382479577836,
+          "calibration_count": 1588,
           "matching": "exact",
           "documents": 600
         },
@@ -436,26 +567,171 @@
         "frequency_strata": {
           "once": {
             "gold_mentions": 3054,
-            "exact_recall": 0.7711198428290766
+            "exact_recall": 0.8212180746561886
           },
           "two_to_five": {
             "gold_mentions": 289,
-            "exact_recall": 0.45674740484429066
+            "exact_recall": 0.6920415224913494
           },
           "more_than_five": {
             "gold_mentions": 107,
-            "exact_recall": 0.5327102803738317
+            "exact_recall": 0.7757009345794392
           }
         },
         "coverage_leakage": {
-          "sensitive_character_recall": 0.9289205602093379,
-          "documents_with_uncovered_gold_characters": 295,
-          "character_coverage_document_leakage_rate": 0.49166666666666664,
+          "sensitive_character_recall": 0.9544130474137221,
+          "documents_with_uncovered_gold_characters": 212,
+          "character_coverage_document_leakage_rate": 0.35333333333333333,
           "entity_value_groups": 3170,
-          "entity_value_complete_coverage_rate": 0.8842271293375394,
+          "entity_value_complete_coverage_rate": 0.9201892744479495,
           "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities."
         },
-        "uncertain_candidate_document_rate": 0.5066666666666667,
+        "leakage_breakdown": {
+          "fully_covered_mention_rate": 0.92,
+          "direct_fully_covered_mention_rate": 0.9337142857142857,
+          "documents_with_direct_identifier_leak": 150,
+          "documents": 600,
+          "by_type": {
+            "PERSON": {
+              "gold_mentions": 1125,
+              "fully_covered_rate": 0.9084444444444445,
+              "character_coverage": 0.9542857142857143,
+              "predictions": 1033,
+              "typed_overlap_precision": 0.9883833494675702
+            },
+            "ADDRESS": {
+              "gold_mentions": 525,
+              "fully_covered_rate": 0.9523809523809523,
+              "character_coverage": 0.9743538502531308,
+              "predictions": 510,
+              "typed_overlap_precision": 1.0
+            },
+            "DATE": {
+              "gold_mentions": 300,
+              "fully_covered_rate": 0.92,
+              "character_coverage": 0.9406060606060606,
+              "predictions": 354,
+              "typed_overlap_precision": 0.8022598870056498
+            },
+            "LOCATION": {
+              "gold_mentions": 300,
+              "fully_covered_rate": 0.8166666666666667,
+              "character_coverage": 0.8428624123939505,
+              "predictions": 201,
+              "typed_overlap_precision": 0.9701492537313433
+            },
+            "PHONE": {
+              "gold_mentions": 300,
+              "fully_covered_rate": 0.9633333333333334,
+              "character_coverage": 0.973650550012791,
+              "predictions": 310,
+              "typed_overlap_precision": 0.9
+            },
+            "NATIONAL_ID": {
+              "gold_mentions": 225,
+              "fully_covered_rate": 0.8755555555555555,
+              "character_coverage": 0.8826945412311266,
+              "predictions": 250,
+              "typed_overlap_precision": 0.676
+            },
+            "DATE_OF_BIRTH": {
+              "gold_mentions": 150,
+              "fully_covered_rate": 0.98,
+              "character_coverage": 0.9857142857142858,
+              "predictions": 78,
+              "typed_overlap_precision": 0.9871794871794872
+            },
+            "EMAIL": {
+              "gold_mentions": 150,
+              "fully_covered_rate": 1.0,
+              "character_coverage": 1.0,
+              "predictions": 150,
+              "typed_overlap_precision": 1.0
+            },
+            "ORGANIZATION": {
+              "gold_mentions": 150,
+              "fully_covered_rate": 0.88,
+              "character_coverage": 0.9274666666666667,
+              "predictions": 132,
+              "typed_overlap_precision": 0.9848484848484849
+            },
+            "AGE": {
+              "gold_mentions": 75,
+              "fully_covered_rate": 0.9333333333333333,
+              "character_coverage": 0.9333333333333333,
+              "predictions": 70,
+              "typed_overlap_precision": 1.0
+            },
+            "BANK_ACCOUNT": {
+              "gold_mentions": 75,
+              "fully_covered_rate": 0.9866666666666667,
+              "character_coverage": 0.9869236063317275,
+              "predictions": 17,
+              "typed_overlap_precision": 0.4117647058823529
+            },
+            "TAX_ID": {
+              "gold_mentions": 75,
+              "fully_covered_rate": 0.96,
+              "character_coverage": 0.9624145785876993,
+              "predictions": 3,
+              "typed_overlap_precision": 0.0
+            },
+            "CUSTOMER_ID": {
+              "gold_mentions": 0,
+              "fully_covered_rate": null,
+              "character_coverage": null,
+              "predictions": 3,
+              "typed_overlap_precision": 0.0
+            },
+            "IP_ADDRESS": {
+              "gold_mentions": 0,
+              "fully_covered_rate": null,
+              "character_coverage": null,
+              "predictions": 8,
+              "typed_overlap_precision": 0.0
+            },
+            "PAYMENT_CARD": {
+              "gold_mentions": 0,
+              "fully_covered_rate": null,
+              "character_coverage": null,
+              "predictions": 28,
+              "typed_overlap_precision": 0.0
+            },
+            "REGIONAL_ID": {
+              "gold_mentions": 0,
+              "fully_covered_rate": null,
+              "character_coverage": null,
+              "predictions": 13,
+              "typed_overlap_precision": 0.0
+            }
+          },
+          "direct_identifier_types": [
+            "ADDRESS",
+            "API_KEY",
+            "AUTH_TOKEN",
+            "BANK_ACCOUNT",
+            "CLABE",
+            "CREDENTIAL",
+            "CURP",
+            "CUSTOMER_ID",
+            "DATE_OF_BIRTH",
+            "EMAIL",
+            "EMPLOYEE_ID",
+            "INSURANCE_ID",
+            "IP_ADDRESS",
+            "NATIONAL_ID",
+            "PASSPORT",
+            "PATIENT_ID",
+            "PAYMENT_CARD",
+            "PERSON",
+            "PHONE",
+            "REGIONAL_ID",
+            "RFC",
+            "TAX_ID"
+          ],
+          "definition": "fully covered = every gold character covered by any prediction, any category; detection coverage only, not transformed-output verification"
+        },
+        "uncertain_candidate_document_rate": 0.4033333333333333,
         "review_rate_definition": "candidate uncertainty proxy only; no transformation or semantic-model release gating evaluated",
         "strata": {
           "source": "synthetic_es",
@@ -470,7 +746,7 @@
         "table_reconstruction_quality": null,
         "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated"
       },
-      "prediction_sha256": "6e19b78af2c31aa934ae1a9114c4e47407f9f4515aa007e42b4299d1a2a1ed81"
+      "prediction_sha256": "c9a4233a0f94c4f2d8982be93231a1275a6584ce9dbd2180ac1fa20606270648"
     },
     {
       "name": "deidflow_rules_plus_auto",
@@ -479,80 +755,80 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 2.930517151999993,
+          "elapsed_seconds": 3.087353726999936,
           "units": 600,
-          "records_per_second": 204.74201954099377,
-          "mb_per_second": 0.05065044574084798,
-          "peak_rss_bytes": 242200576,
-          "peak_process_tree_rss_bytes": 242200576,
-          "cpu_percent_one_core_scale": 108.17203365749171,
+          "records_per_second": 194.34119088875377,
+          "mb_per_second": 0.04807741940999917,
+          "peak_rss_bytes": 245706752,
+          "peak_process_tree_rss_bytes": 245706752,
+          "cpu_percent_one_core_scale": 109.4788708673313,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.004240565499912918,
-      "p95_seconds": 0.009071195999740666,
+      "p50_seconds": 0.00475758050015429,
+      "p95_seconds": 0.009063328400225144,
       "metrics": {
         "exact": {
-          "precision": 0.7662266226622663,
-          "recall": 0.807536231884058,
-          "f1": 0.7863392605136891,
-          "true_positives": 2786,
-          "false_positives": 850,
-          "false_negatives": 664,
-          "document_leakage_rate": 0.7666666666666667,
-          "false_redaction_rate": 0.037217607875847325,
-          "entity_level_recall": 0.8675362318840579,
+          "precision": 0.7975250131648236,
+          "recall": 0.8779710144927536,
+          "f1": 0.8358167770419426,
+          "true_positives": 3029,
+          "false_positives": 769,
+          "false_negatives": 421,
+          "document_leakage_rate": 0.5216666666666666,
+          "false_redaction_rate": 0.034339352216256856,
+          "entity_level_recall": 0.8979710144927536,
           "recall_by_type": {
-            "ADDRESS": 0.6266666666666667,
+            "ADDRESS": 0.9066666666666666,
             "AGE": 1.0,
             "BANK_ACCOUNT": 1.0,
             "DATE": 1.0,
-            "DATE_OF_BIRTH": 0.5,
+            "DATE_OF_BIRTH": 0.52,
             "EMAIL": 1.0,
-            "LOCATION": 0.4633333333333333,
-            "NATIONAL_ID": 0.88,
-            "ORGANIZATION": 0.8333333333333334,
-            "PERSON": 0.8684444444444445,
+            "LOCATION": 0.65,
+            "NATIONAL_ID": 0.8755555555555555,
+            "ORGANIZATION": 0.8533333333333334,
+            "PERSON": 0.8995555555555556,
             "PHONE": 0.9133333333333333,
             "TAX_ID": 0.92
           },
           "recall_by_format": {
-            "text": 0.807536231884058
+            "text": 0.8779710144927536
           },
-          "expected_calibration_error": 0.08396615661305146,
-          "calibration_count": 2081,
+          "expected_calibration_error": 0.04740600659245856,
+          "calibration_count": 2038,
           "matching": "exact",
           "documents": 600
         },
         "overlap": {
-          "precision": 0.8231573157315731,
-          "recall": 0.8675362318840579,
-          "f1": 0.8447643240191927,
-          "true_positives": 2993,
-          "false_positives": 643,
-          "false_negatives": 457,
-          "document_leakage_rate": 0.6133333333333333,
-          "false_redaction_rate": 0.037217607875847325,
-          "entity_level_recall": 0.8675362318840579,
+          "precision": 0.8156924697209057,
+          "recall": 0.8979710144927536,
+          "f1": 0.8548565121412803,
+          "true_positives": 3098,
+          "false_positives": 700,
+          "false_negatives": 352,
+          "document_leakage_rate": 0.48833333333333334,
+          "false_redaction_rate": 0.034339352216256856,
+          "entity_level_recall": 0.8979710144927536,
           "recall_by_type": {
-            "ADDRESS": 0.9466666666666667,
+            "ADDRESS": 0.9866666666666667,
             "AGE": 1.0,
             "BANK_ACCOUNT": 1.0,
             "DATE": 1.0,
-            "DATE_OF_BIRTH": 0.5,
+            "DATE_OF_BIRTH": 0.52,
             "EMAIL": 1.0,
-            "LOCATION": 0.4633333333333333,
-            "NATIONAL_ID": 0.88,
+            "LOCATION": 0.65,
+            "NATIONAL_ID": 0.8755555555555555,
             "ORGANIZATION": 0.8666666666666667,
-            "PERSON": 0.88,
-            "PHONE": 0.9833333333333333,
+            "PERSON": 0.9084444444444445,
+            "PHONE": 0.9633333333333334,
             "TAX_ID": 0.92
           },
           "recall_by_format": {
-            "text": 0.8675362318840579
+            "text": 0.8979710144927536
           },
-          "expected_calibration_error": 0.04796717248488717,
-          "calibration_count": 2081,
+          "expected_calibration_error": 0.0374708814119012,
+          "calibration_count": 2038,
           "matching": "overlap",
           "documents": 600
         },
@@ -564,64 +840,64 @@
           "confidence": 0.95,
           "intervals": {
             "precision": [
-              0.7536077299489091,
-              0.7779624714854161
+              0.7862714282215423,
+              0.8086632146712994
             ],
             "recall": [
-              0.7960496483202,
-              0.818968270897048
+              0.8664212001691578,
+              0.8876744617257343
             ],
             "f1": [
-              0.7758693229653766,
-              0.7964036800055517
+              0.8263263937027188,
+              0.8443638635023127
             ],
             "document_leakage_rate": [
-              0.7324583333333333,
-              0.8016666666666666
+              0.48,
+              0.56
             ]
           }
         },
         "person_only_exact": {
-          "precision": 0.9644619940769991,
-          "recall": 0.8684444444444445,
-          "f1": 0.9139382600561272,
-          "true_positives": 977,
-          "false_positives": 36,
-          "false_negatives": 148,
-          "document_leakage_rate": 0.185,
-          "false_redaction_rate": 0.0026829774661833047,
-          "entity_level_recall": 0.88,
+          "precision": 0.9768339768339769,
+          "recall": 0.8995555555555556,
+          "f1": 0.9366034243405831,
+          "true_positives": 1012,
+          "false_positives": 24,
+          "false_negatives": 113,
+          "document_leakage_rate": 0.14166666666666666,
+          "false_redaction_rate": 0.001668875864381877,
+          "entity_level_recall": 0.9084444444444445,
           "recall_by_type": {
-            "PERSON": 0.8684444444444445
+            "PERSON": 0.8995555555555556
           },
           "recall_by_format": {
-            "text": 0.8684444444444445
+            "text": 0.8995555555555556
           },
-          "expected_calibration_error": 0.0826988655442374,
-          "calibration_count": 863,
+          "expected_calibration_error": 0.07127302864430157,
+          "calibration_count": 886,
           "matching": "exact",
           "documents": 600
         },
         "common_scope_exact": {
-          "precision": 0.917098445595855,
-          "recall": 0.8208695652173913,
-          "f1": 0.8663199755276842,
-          "true_positives": 1416,
-          "false_positives": 128,
-          "false_negatives": 309,
-          "document_leakage_rate": 0.435,
-          "false_redaction_rate": 0.011596479670264701,
-          "entity_level_recall": 0.8284057971014492,
+          "precision": 0.9290998766954377,
+          "recall": 0.8736231884057971,
+          "f1": 0.9005079175380938,
+          "true_positives": 1507,
+          "false_positives": 115,
+          "false_negatives": 218,
+          "document_leakage_rate": 0.31166666666666665,
+          "false_redaction_rate": 0.010887008226490313,
+          "entity_level_recall": 0.8794202898550725,
           "recall_by_type": {
             "DATE": 1.0,
-            "LOCATION": 0.4633333333333333,
-            "PERSON": 0.8684444444444445
+            "LOCATION": 0.65,
+            "PERSON": 0.8995555555555556
           },
           "recall_by_format": {
-            "text": 0.8208695652173913
+            "text": 0.8736231884057971
           },
-          "expected_calibration_error": 0.05842411266024593,
-          "calibration_count": 1324,
+          "expected_calibration_error": 0.02921243168534684,
+          "calibration_count": 1426,
           "matching": "exact",
           "documents": 600
         },
@@ -633,26 +909,171 @@
         "frequency_strata": {
           "once": {
             "gold_mentions": 3054,
-            "exact_recall": 0.8372626064178127
+            "exact_recall": 0.8984937786509496
           },
           "two_to_five": {
             "gold_mentions": 289,
-            "exact_recall": 0.5951557093425606
+            "exact_recall": 0.698961937716263
           },
           "more_than_five": {
             "gold_mentions": 107,
-            "exact_recall": 0.5327102803738317
+            "exact_recall": 0.7757009345794392
           }
         },
         "coverage_leakage": {
-          "sensitive_character_recall": 0.9467439066537202,
-          "documents_with_uncovered_gold_characters": 236,
-          "character_coverage_document_leakage_rate": 0.3933333333333333,
+          "sensitive_character_recall": 0.9680562184223952,
+          "documents_with_uncovered_gold_characters": 168,
+          "character_coverage_document_leakage_rate": 0.28,
           "entity_value_groups": 3170,
-          "entity_value_complete_coverage_rate": 0.9173501577287066,
+          "entity_value_complete_coverage_rate": 0.9435331230283912,
           "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities."
         },
-        "uncertain_candidate_document_rate": 0.5,
+        "leakage_breakdown": {
+          "fully_covered_mention_rate": 0.9417391304347826,
+          "direct_fully_covered_mention_rate": 0.9512380952380952,
+          "documents_with_direct_identifier_leak": 110,
+          "documents": 600,
+          "by_type": {
+            "PERSON": {
+              "gold_mentions": 1125,
+              "fully_covered_rate": 0.9084444444444445,
+              "character_coverage": 0.9542857142857143,
+              "predictions": 1036,
+              "typed_overlap_precision": 0.9884169884169884
+            },
+            "ADDRESS": {
+              "gold_mentions": 525,
+              "fully_covered_rate": 0.9733333333333334,
+              "character_coverage": 0.9869437783106848,
+              "predictions": 696,
+              "typed_overlap_precision": 1.0
+            },
+            "DATE": {
+              "gold_mentions": 300,
+              "fully_covered_rate": 1.0,
+              "character_coverage": 1.0,
+              "predictions": 385,
+              "typed_overlap_precision": 0.8025974025974026
+            },
+            "LOCATION": {
+              "gold_mentions": 300,
+              "fully_covered_rate": 0.8166666666666667,
+              "character_coverage": 0.8428624123939505,
+              "predictions": 201,
+              "typed_overlap_precision": 0.9701492537313433
+            },
+            "PHONE": {
+              "gold_mentions": 300,
+              "fully_covered_rate": 0.9633333333333334,
+              "character_coverage": 0.973650550012791,
+              "predictions": 398,
+              "typed_overlap_precision": 0.9020100502512562
+            },
+            "NATIONAL_ID": {
+              "gold_mentions": 225,
+              "fully_covered_rate": 1.0,
+              "character_coverage": 1.0,
+              "predictions": 282,
+              "typed_overlap_precision": 0.7092198581560284
+            },
+            "DATE_OF_BIRTH": {
+              "gold_mentions": 150,
+              "fully_covered_rate": 1.0,
+              "character_coverage": 1.0,
+              "predictions": 79,
+              "typed_overlap_precision": 0.9873417721518988
+            },
+            "EMAIL": {
+              "gold_mentions": 150,
+              "fully_covered_rate": 1.0,
+              "character_coverage": 1.0,
+              "predictions": 150,
+              "typed_overlap_precision": 1.0
+            },
+            "ORGANIZATION": {
+              "gold_mentions": 150,
+              "fully_covered_rate": 0.88,
+              "character_coverage": 0.9274666666666667,
+              "predictions": 132,
+              "typed_overlap_precision": 0.9848484848484849
+            },
+            "AGE": {
+              "gold_mentions": 75,
+              "fully_covered_rate": 1.0,
+              "character_coverage": 1.0,
+              "predictions": 75,
+              "typed_overlap_precision": 1.0
+            },
+            "BANK_ACCOUNT": {
+              "gold_mentions": 75,
+              "fully_covered_rate": 1.0,
+              "character_coverage": 1.0,
+              "predictions": 144,
+              "typed_overlap_precision": 0.9305555555555556
+            },
+            "TAX_ID": {
+              "gold_mentions": 75,
+              "fully_covered_rate": 1.0,
+              "character_coverage": 1.0,
+              "predictions": 89,
+              "typed_overlap_precision": 0.8764044943820225
+            },
+            "CUSTOMER_ID": {
+              "gold_mentions": 0,
+              "fully_covered_rate": null,
+              "character_coverage": null,
+              "predictions": 78,
+              "typed_overlap_precision": 0.0
+            },
+            "IP_ADDRESS": {
+              "gold_mentions": 0,
+              "fully_covered_rate": null,
+              "character_coverage": null,
+              "predictions": 8,
+              "typed_overlap_precision": 0.0
+            },
+            "PAYMENT_CARD": {
+              "gold_mentions": 0,
+              "fully_covered_rate": null,
+              "character_coverage": null,
+              "predictions": 32,
+              "typed_overlap_precision": 0.0
+            },
+            "REGIONAL_ID": {
+              "gold_mentions": 0,
+              "fully_covered_rate": null,
+              "character_coverage": null,
+              "predictions": 13,
+              "typed_overlap_precision": 0.0
+            }
+          },
+          "direct_identifier_types": [
+            "ADDRESS",
+            "API_KEY",
+            "AUTH_TOKEN",
+            "BANK_ACCOUNT",
+            "CLABE",
+            "CREDENTIAL",
+            "CURP",
+            "CUSTOMER_ID",
+            "DATE_OF_BIRTH",
+            "EMAIL",
+            "EMPLOYEE_ID",
+            "INSURANCE_ID",
+            "IP_ADDRESS",
+            "NATIONAL_ID",
+            "PASSPORT",
+            "PATIENT_ID",
+            "PAYMENT_CARD",
+            "PERSON",
+            "PHONE",
+            "REGIONAL_ID",
+            "RFC",
+            "TAX_ID"
+          ],
+          "definition": "fully covered = every gold character covered by any prediction, any category; detection coverage only, not transformed-output verification"
+        },
+        "uncertain_candidate_document_rate": 0.36833333333333335,
         "review_rate_definition": "candidate uncertainty proxy only; no transformation or semantic-model release gating evaluated",
         "strata": {
           "source": "synthetic_es",
@@ -667,7 +1088,7 @@
         "table_reconstruction_quality": null,
         "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated"
       },
-      "prediction_sha256": "5939032e882d5b9bc7f5a841a09d775b8ec7baea35c12c4eb0f23f2d4d8e65f6"
+      "prediction_sha256": "72545070f53da4e81631dd654403b3d5ec00eb7d4e90d916632162d59a4c7023"
     },
     {
       "name": "spacy_spanish",
@@ -676,18 +1097,18 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 6.169591684000352,
+          "elapsed_seconds": 7.088934497000082,
           "units": 600,
-          "records_per_second": 97.25116842918219,
-          "mb_per_second": 0.02405864238713395,
-          "peak_rss_bytes": 1136619520,
-          "peak_process_tree_rss_bytes": 1136619520,
-          "cpu_percent_one_core_scale": 110.54216144783709,
+          "records_per_second": 84.63895388706298,
+          "mb_per_second": 0.020938548672274224,
+          "peak_rss_bytes": 1138282496,
+          "peak_process_tree_rss_bytes": 1138282496,
+          "cpu_percent_one_core_scale": 112.00554897721342,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.009991560499884145,
-      "p95_seconds": 0.014356815799760623,
+      "p50_seconds": 0.011465843000223686,
+      "p95_seconds": 0.016190370149752196,
       "metrics": {
         "exact": {
           "precision": 0.47821011673151753,
@@ -849,6 +1270,123 @@
           "entity_value_complete_coverage_rate": 0.42302839116719243,
           "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities."
         },
+        "leakage_breakdown": {
+          "fully_covered_mention_rate": 0.452463768115942,
+          "direct_fully_covered_mention_rate": 0.46895238095238095,
+          "documents_with_direct_identifier_leak": 521,
+          "documents": 600,
+          "by_type": {
+            "PERSON": {
+              "gold_mentions": 1125,
+              "fully_covered_rate": 0.9786666666666667,
+              "character_coverage": 0.987457627118644,
+              "predictions": 1608,
+              "typed_overlap_precision": 0.6685323383084577
+            },
+            "ADDRESS": {
+              "gold_mentions": 525,
+              "fully_covered_rate": 0.1961904761904762,
+              "character_coverage": 0.706634692246203,
+              "predictions": 0,
+              "typed_overlap_precision": null
+            },
+            "DATE": {
+              "gold_mentions": 300,
+              "fully_covered_rate": 0.0033333333333333335,
+              "character_coverage": 0.0024242424242424242,
+              "predictions": 0,
+              "typed_overlap_precision": null
+            },
+            "LOCATION": {
+              "gold_mentions": 300,
+              "fully_covered_rate": 0.97,
+              "character_coverage": 0.9704905938767983,
+              "predictions": 867,
+              "typed_overlap_precision": 0.32410611303344866
+            },
+            "PHONE": {
+              "gold_mentions": 300,
+              "fully_covered_rate": 0.0,
+              "character_coverage": 0.0028140189306728063,
+              "predictions": 0,
+              "typed_overlap_precision": null
+            },
+            "NATIONAL_ID": {
+              "gold_mentions": 225,
+              "fully_covered_rate": 0.035555555555555556,
+              "character_coverage": 0.04490902051877662,
+              "predictions": 0,
+              "typed_overlap_precision": null
+            },
+            "DATE_OF_BIRTH": {
+              "gold_mentions": 150,
+              "fully_covered_rate": 0.0,
+              "character_coverage": 0.0,
+              "predictions": 0,
+              "typed_overlap_precision": null
+            },
+            "EMAIL": {
+              "gold_mentions": 150,
+              "fully_covered_rate": 0.08,
+              "character_coverage": 0.07728065078442765,
+              "predictions": 0,
+              "typed_overlap_precision": null
+            },
+            "ORGANIZATION": {
+              "gold_mentions": 150,
+              "fully_covered_rate": 0.25333333333333335,
+              "character_coverage": 0.7970666666666667,
+              "predictions": 95,
+              "typed_overlap_precision": 0.5684210526315789
+            },
+            "AGE": {
+              "gold_mentions": 75,
+              "fully_covered_rate": 0.0,
+              "character_coverage": 0.0,
+              "predictions": 0,
+              "typed_overlap_precision": null
+            },
+            "BANK_ACCOUNT": {
+              "gold_mentions": 75,
+              "fully_covered_rate": 0.0,
+              "character_coverage": 0.0,
+              "predictions": 0,
+              "typed_overlap_precision": null
+            },
+            "TAX_ID": {
+              "gold_mentions": 75,
+              "fully_covered_rate": 0.09333333333333334,
+              "character_coverage": 0.07630979498861047,
+              "predictions": 0,
+              "typed_overlap_precision": null
+            }
+          },
+          "direct_identifier_types": [
+            "ADDRESS",
+            "API_KEY",
+            "AUTH_TOKEN",
+            "BANK_ACCOUNT",
+            "CLABE",
+            "CREDENTIAL",
+            "CURP",
+            "CUSTOMER_ID",
+            "DATE_OF_BIRTH",
+            "EMAIL",
+            "EMPLOYEE_ID",
+            "INSURANCE_ID",
+            "IP_ADDRESS",
+            "NATIONAL_ID",
+            "PASSPORT",
+            "PATIENT_ID",
+            "PAYMENT_CARD",
+            "PERSON",
+            "PHONE",
+            "REGIONAL_ID",
+            "RFC",
+            "TAX_ID"
+          ],
+          "definition": "fully covered = every gold character covered by any prediction, any category; detection coverage only, not transformed-output verification"
+        },
         "uncertain_candidate_document_rate": 1.0,
         "review_rate_definition": "candidate uncertainty proxy only; no transformation or semantic-model release gating evaluated",
         "strata": {
@@ -873,18 +1411,18 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 8.326338568999745,
+          "elapsed_seconds": 9.235265267000614,
           "units": 600,
-          "records_per_second": 72.06048553368865,
-          "mb_per_second": 0.017826803314560793,
-          "peak_rss_bytes": 1222955008,
-          "peak_process_tree_rss_bytes": 1222955008,
-          "cpu_percent_one_core_scale": 110.73294610343495,
+          "records_per_second": 64.96835582448463,
+          "mb_per_second": 0.016072304986233174,
+          "peak_rss_bytes": 1223987200,
+          "peak_process_tree_rss_bytes": 1223987200,
+          "cpu_percent_one_core_scale": 110.44620490162391,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.013391053000304964,
-      "p95_seconds": 0.019026682949834138,
+      "p50_seconds": 0.01455540100005237,
+      "p95_seconds": 0.02225243490020147,
       "metrics": {
         "exact": {
           "precision": 0.486933509758518,
@@ -1046,6 +1584,137 @@
           "entity_value_complete_coverage_rate": 0.5476340694006309,
           "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities."
         },
+        "leakage_breakdown": {
+          "fully_covered_mention_rate": 0.5672463768115942,
+          "direct_fully_covered_mention_rate": 0.5653333333333334,
+          "documents_with_direct_identifier_leak": 515,
+          "documents": 600,
+          "by_type": {
+            "PERSON": {
+              "gold_mentions": 1125,
+              "fully_covered_rate": 0.9786666666666667,
+              "character_coverage": 0.987457627118644,
+              "predictions": 1608,
+              "typed_overlap_precision": 0.6685323383084577
+            },
+            "ADDRESS": {
+              "gold_mentions": 525,
+              "fully_covered_rate": 0.1961904761904762,
+              "character_coverage": 0.706634692246203,
+              "predictions": 0,
+              "typed_overlap_precision": null
+            },
+            "DATE": {
+              "gold_mentions": 300,
+              "fully_covered_rate": 0.48,
+              "character_coverage": 0.3490909090909091,
+              "predictions": 235,
+              "typed_overlap_precision": 0.6127659574468085
+            },
+            "LOCATION": {
+              "gold_mentions": 300,
+              "fully_covered_rate": 0.97,
+              "character_coverage": 0.9704905938767983,
+              "predictions": 867,
+              "typed_overlap_precision": 0.32410611303344866
+            },
+            "PHONE": {
+              "gold_mentions": 300,
+              "fully_covered_rate": 0.3433333333333333,
+              "character_coverage": 0.348938347403428,
+              "predictions": 160,
+              "typed_overlap_precision": 0.65
+            },
+            "NATIONAL_ID": {
+              "gold_mentions": 225,
+              "fully_covered_rate": 0.20444444444444446,
+              "character_coverage": 0.1916376306620209,
+              "predictions": 17,
+              "typed_overlap_precision": 1.0
+            },
+            "DATE_OF_BIRTH": {
+              "gold_mentions": 150,
+              "fully_covered_rate": 0.6066666666666667,
+              "character_coverage": 0.43333333333333335,
+              "predictions": 0,
+              "typed_overlap_precision": null
+            },
+            "EMAIL": {
+              "gold_mentions": 150,
+              "fully_covered_rate": 0.08,
+              "character_coverage": 0.07728065078442765,
+              "predictions": 0,
+              "typed_overlap_precision": null
+            },
+            "ORGANIZATION": {
+              "gold_mentions": 150,
+              "fully_covered_rate": 0.25333333333333335,
+              "character_coverage": 0.8018666666666666,
+              "predictions": 95,
+              "typed_overlap_precision": 0.5684210526315789
+            },
+            "AGE": {
+              "gold_mentions": 75,
+              "fully_covered_rate": 0.0,
+              "character_coverage": 0.0,
+              "predictions": 0,
+              "typed_overlap_precision": null
+            },
+            "BANK_ACCOUNT": {
+              "gold_mentions": 75,
+              "fully_covered_rate": 0.12,
+              "character_coverage": 0.1348933241569167,
+              "predictions": 3,
+              "typed_overlap_precision": 1.0
+            },
+            "TAX_ID": {
+              "gold_mentions": 75,
+              "fully_covered_rate": 0.25333333333333335,
+              "character_coverage": 0.27107061503416857,
+              "predictions": 0,
+              "typed_overlap_precision": null
+            },
+            "PAYMENT_CARD": {
+              "gold_mentions": 0,
+              "fully_covered_rate": null,
+              "character_coverage": null,
+              "predictions": 2,
+              "typed_overlap_precision": 0.0
+            },
+            "URL": {
+              "gold_mentions": 0,
+              "fully_covered_rate": null,
+              "character_coverage": null,
+              "predictions": 36,
+              "typed_overlap_precision": 0.0
+            }
+          },
+          "direct_identifier_types": [
+            "ADDRESS",
+            "API_KEY",
+            "AUTH_TOKEN",
+            "BANK_ACCOUNT",
+            "CLABE",
+            "CREDENTIAL",
+            "CURP",
+            "CUSTOMER_ID",
+            "DATE_OF_BIRTH",
+            "EMAIL",
+            "EMPLOYEE_ID",
+            "INSURANCE_ID",
+            "IP_ADDRESS",
+            "NATIONAL_ID",
+            "PASSPORT",
+            "PATIENT_ID",
+            "PAYMENT_CARD",
+            "PERSON",
+            "PHONE",
+            "REGIONAL_ID",
+            "RFC",
+            "TAX_ID"
+          ],
+          "definition": "fully covered = every gold character covered by any prediction, any category; detection coverage only, not transformed-output verification"
+        },
         "uncertain_candidate_document_rate": 0.48,
         "review_rate_definition": "candidate uncertainty proxy only; no transformation or semantic-model release gating evaluated",
         "strata": {
@@ -1070,31 +1739,31 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 6.392418570000245,
+          "elapsed_seconds": 7.281707461999758,
           "units": 600,
-          "records_per_second": 93.86118781642563,
-          "mb_per_second": 0.023220006383279482,
-          "peak_rss_bytes": 1976340480,
-          "peak_process_tree_rss_bytes": 1976340480,
-          "cpu_percent_one_core_scale": 110.44333099732742,
+          "records_per_second": 82.39825660824108,
+          "mb_per_second": 0.020384230041457403,
+          "peak_rss_bytes": 1978114048,
+          "peak_process_tree_rss_bytes": 1978114048,
+          "cpu_percent_one_core_scale": 111.6496377041667,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.010419597000009162,
-      "p95_seconds": 0.013818434450240601,
+      "p50_seconds": 0.01185580450010093,
+      "p95_seconds": 0.016303614649950757,
       "metrics": {
         "exact": {
-          "precision": 0.5773339526242453,
-          "recall": 0.7205797101449275,
-          "f1": 0.6410520887055183,
-          "true_positives": 2486,
-          "false_positives": 1820,
-          "false_negatives": 964,
-          "document_leakage_rate": 0.9583333333333334,
+          "precision": 0.5978593272171254,
+          "recall": 0.7933333333333333,
+          "f1": 0.6818634778276035,
+          "true_positives": 2737,
+          "false_positives": 1841,
+          "false_negatives": 713,
+          "document_leakage_rate": 0.7266666666666667,
           "false_redaction_rate": 0.07924014050586811,
-          "entity_level_recall": 0.8153623188405797,
+          "entity_level_recall": 0.8950724637681159,
           "recall_by_type": {
-            "ADDRESS": 0.05523809523809524,
+            "ADDRESS": 0.5333333333333333,
             "AGE": 1.0,
             "BANK_ACCOUNT": 1.0,
             "DATE": 1.0,
@@ -1108,7 +1777,7 @@
             "TAX_ID": 0.92
           },
           "recall_by_format": {
-            "text": 0.7205797101449275
+            "text": 0.7933333333333333
           },
           "expected_calibration_error": null,
           "calibration_count": 0,
@@ -1116,17 +1785,17 @@
           "documents": 600
         },
         "overlap": {
-          "precision": 0.6532745006967022,
-          "recall": 0.8153623188405797,
-          "f1": 0.725373904074265,
-          "true_positives": 2813,
-          "false_positives": 1493,
-          "false_negatives": 637,
-          "document_leakage_rate": 0.7233333333333334,
+          "precision": 0.6745303626037571,
+          "recall": 0.8950724637681159,
+          "f1": 0.7693074240159442,
+          "true_positives": 3088,
+          "false_positives": 1490,
+          "false_negatives": 362,
+          "document_leakage_rate": 0.405,
           "false_redaction_rate": 0.07924014050586811,
-          "entity_level_recall": 0.8153623188405797,
+          "entity_level_recall": 0.8950724637681159,
           "recall_by_type": {
-            "ADDRESS": 0.3352380952380952,
+            "ADDRESS": 0.8590476190476191,
             "AGE": 1.0,
             "BANK_ACCOUNT": 1.0,
             "DATE": 1.0,
@@ -1140,7 +1809,7 @@
             "TAX_ID": 0.92
           },
           "recall_by_format": {
-            "text": 0.8153623188405797
+            "text": 0.8950724637681159
           },
           "expected_calibration_error": null,
           "calibration_count": 0,
@@ -1155,20 +1824,20 @@
           "confidence": 0.95,
           "intervals": {
             "precision": [
-              0.5630031541752897,
-              0.5917589507936354
+              0.5841171581674838,
+              0.6120046583850931
             ],
             "recall": [
-              0.7096668320846972,
-              0.7314923426943633
+              0.7819791302779029,
+              0.8061342556795682
             ],
             "f1": [
-              0.629058880065923,
-              0.652631618782356
+              0.6701880895241692,
+              0.6945364531916964
             ],
             "document_leakage_rate": [
-              0.94,
-              0.9742083333333333
+              0.6833333333333333,
+              0.7592083333333333
             ]
           }
         },
@@ -1224,7 +1893,7 @@
         "frequency_strata": {
           "once": {
             "gold_mentions": 3054,
-            "exact_recall": 0.733464309102816
+            "exact_recall": 0.8156516044531762
           },
           "two_to_five": {
             "gold_mentions": 289,
@@ -1236,12 +1905,143 @@
           }
         },
         "coverage_leakage": {
-          "sensitive_character_recall": 0.9434030577818738,
-          "documents_with_uncovered_gold_characters": 372,
-          "character_coverage_document_leakage_rate": 0.62,
+          "sensitive_character_recall": 0.9672498066257427,
+          "documents_with_uncovered_gold_characters": 212,
+          "character_coverage_document_leakage_rate": 0.35333333333333333,
           "entity_value_groups": 3170,
-          "entity_value_complete_coverage_rate": 0.8637223974763407,
+          "entity_value_complete_coverage_rate": 0.9268138801261829,
           "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities."
+        },
+        "leakage_breakdown": {
+          "fully_covered_mention_rate": 0.9318840579710145,
+          "direct_fully_covered_mention_rate": 0.9554285714285714,
+          "documents_with_direct_identifier_leak": 112,
+          "documents": 600,
+          "by_type": {
+            "PERSON": {
+              "gold_mentions": 1125,
+              "fully_covered_rate": 0.9848888888888889,
+              "character_coverage": 0.9907506053268765,
+              "predictions": 1629,
+              "typed_overlap_precision": 0.67280540208717
+            },
+            "ADDRESS": {
+              "gold_mentions": 525,
+              "fully_covered_rate": 0.8647619047619047,
+              "character_coverage": 0.9539035438316014,
+              "predictions": 451,
+              "typed_overlap_precision": 1.0
+            },
+            "DATE": {
+              "gold_mentions": 300,
+              "fully_covered_rate": 1.0,
+              "character_coverage": 1.0,
+              "predictions": 375,
+              "typed_overlap_precision": 0.8
+            },
+            "LOCATION": {
+              "gold_mentions": 300,
+              "fully_covered_rate": 0.98,
+              "character_coverage": 0.9804500184433789,
+              "predictions": 867,
+              "typed_overlap_precision": 0.32410611303344866
+            },
+            "PHONE": {
+              "gold_mentions": 300,
+              "fully_covered_rate": 0.93,
+              "character_coverage": 0.9475569199283704,
+              "predictions": 356,
+              "typed_overlap_precision": 0.9775280898876404
+            },
+            "NATIONAL_ID": {
+              "gold_mentions": 225,
+              "fully_covered_rate": 0.9644444444444444,
+              "character_coverage": 0.9659310878823074,
+              "predictions": 205,
+              "typed_overlap_precision": 0.9658536585365853
+            },
+            "DATE_OF_BIRTH": {
+              "gold_mentions": 150,
+              "fully_covered_rate": 1.0,
+              "character_coverage": 1.0,
+              "predictions": 75,
+              "typed_overlap_precision": 1.0
+            },
+            "EMAIL": {
+              "gold_mentions": 150,
+              "fully_covered_rate": 1.0,
+              "character_coverage": 1.0,
+              "predictions": 150,
+              "typed_overlap_precision": 1.0
+            },
+            "ORGANIZATION": {
+              "gold_mentions": 150,
+              "fully_covered_rate": 0.25333333333333335,
+              "character_coverage": 0.7970666666666667,
+              "predictions": 95,
+              "typed_overlap_precision": 0.5684210526315789
+            },
+            "AGE": {
+              "gold_mentions": 75,
+              "fully_covered_rate": 1.0,
+              "character_coverage": 1.0,
+              "predictions": 75,
+              "typed_overlap_precision": 1.0
+            },
+            "BANK_ACCOUNT": {
+              "gold_mentions": 75,
+              "fully_covered_rate": 1.0,
+              "character_coverage": 1.0,
+              "predictions": 134,
+              "typed_overlap_precision": 1.0
+            },
+            "TAX_ID": {
+              "gold_mentions": 75,
+              "fully_covered_rate": 1.0,
+              "character_coverage": 1.0,
+              "predictions": 86,
+              "typed_overlap_precision": 0.9069767441860465
+            },
+            "CUSTOMER_ID": {
+              "gold_mentions": 0,
+              "fully_covered_rate": null,
+              "character_coverage": null,
+              "predictions": 75,
+              "typed_overlap_precision": 0.0
+            },
+            "PAYMENT_CARD": {
+              "gold_mentions": 0,
+              "fully_covered_rate": null,
+              "character_coverage": null,
+              "predictions": 5,
+              "typed_overlap_precision": 0.0
+            }
+          },
+          "direct_identifier_types": [
+            "ADDRESS",
+            "API_KEY",
+            "AUTH_TOKEN",
+            "BANK_ACCOUNT",
+            "CLABE",
+            "CREDENTIAL",
+            "CURP",
+            "CUSTOMER_ID",
+            "DATE_OF_BIRTH",
+            "EMAIL",
+            "EMPLOYEE_ID",
+            "INSURANCE_ID",
+            "IP_ADDRESS",
+            "NATIONAL_ID",
+            "PASSPORT",
+            "PATIENT_ID",
+            "PAYMENT_CARD",
+            "PERSON",
+            "PHONE",
+            "REGIONAL_ID",
+            "RFC",
+            "TAX_ID"
+          ],
+          "definition": "fully covered = every gold character covered by any prediction, any category; detection coverage only, not transformed-output verification"
         },
         "uncertain_candidate_document_rate": 0.5,
         "review_rate_definition": "candidate uncertainty proxy only; no transformation or semantic-model release gating evaluated",
@@ -1258,7 +2058,7 @@
         "table_reconstruction_quality": null,
         "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated"
       },
-      "prediction_sha256": "50695a1fd39047074c3e9cbf01787b46112b41cdf29f483064c6886432fa55f4"
+      "prediction_sha256": "76b3a43a6be275d8559e9ef924d8a8cc3c31277b35e53d36186dd0417bedd81b"
     }
   ],
   "tagger_models": {
@@ -1267,7 +2067,7 @@
       "min_evidence": 0.5,
       "taggers": {
         "clinical": "es-clinical-meddocan-1",
-        "financial": "es-general-1"
+        "financial": "es-general-2"
       },
       "routes": {
         "financial": 242,

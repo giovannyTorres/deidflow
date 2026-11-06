@@ -389,6 +389,132 @@ TEMPLATES: tuple[tuple[str, str], ...] = (
     ),
 )
 
+# Training-only families added for es-general-2: more genres from Latin America and
+# places mentioned in running text. Validation and test families are unchanged.
+EXTRA_TEMPLATES: tuple[tuple[str, str], ...] = (
+    (
+        "traslado-1",
+        "Solicito el traslado de mi expediente de la sede de {CITY} a la de {CITY2}, donde resido desde {MONTH_YEAR}. Atentamente, {PERSON}, {ID_LABEL} {ID}.",
+    ),
+    (
+        "traslado-2",
+        "{PERSON} fue trasladado desde el hospital de {CITY} hasta {CITY2} el {DATE}; lo acompañó su hija {PERSON2}.",
+    ),
+    (
+        "biografia-1",
+        "{PERSON} nació en {CITY} el {DOB_TEXT} y se mudó con su familia a {CITY2} a los {AGE} años. Hoy trabaja como {JOB} en {ORG}.",
+    ),
+    (
+        "biografia-2",
+        "Originaria de {CITY}, {FIRST} estudió en {ORG} y vive actualmente en {ADDRESS}. Su teléfono es {PHONE}.",
+    ),
+    (
+        "aviso-1",
+        "AVISO DE FALLECIMIENTO. Con profundo pesar comunicamos el sensible fallecimiento de {PERSON_UPPER}, ocurrido en {CITY} el {DATE}. Sus restos serán velados en {ADDRESS}.",
+    ),
+    (
+        "aviso-2",
+        "Se busca a {PERSON}, de {AGE} años, vista por última vez en {CITY} el {DATE}. Cualquier información al {PHONE}.",
+    ),
+    (
+        "whatsapp-1",
+        "[{TIME}] {FIRST}: ya llegué a {CITY}, mañana paso por tu casa en {ADDRESS}\n[{TIME2}] {FIRST2}: dale, avísale a {PERSON3} también",
+    ),
+    (
+        "whatsapp-2",
+        "{FIRST}: me pasas el número de {PERSON2}?\n{FIRST2}: claro, es {PHONE}\n{FIRST}: gracias, y su correo?\n{FIRST2}: {EMAIL}",
+    ),
+    (
+        "eps-1",
+        "FORMULARIO DE AFILIACIÓN\nAfiliado: {PERSON}\n{ID_LABEL}: {ID}\nFecha de nacimiento: {DOB}\nMunicipio de residencia: {CITY}\nDirección: {ADDRESS}\nCelular: {PHONE}\nBeneficiario: {PERSON2}, {ID_LABEL} {ID2}",
+    ),
+    (
+        "cfdi-1",
+        "Comprobante fiscal\nEmisor: {ORG}\n{TAX_LABEL} emisor: {TAX}\nReceptor: {PERSON}\nLugar de expedición: {CITY}\nFecha: {DATE}\nImporte: {AMOUNT}",
+    ),
+    (
+        "credito-1",
+        "Solicitud de crédito de consumo. Solicitante: {PERSON}, {ID_LABEL} {ID}, {AGE} años, con domicilio en {ADDRESS} de la ciudad de {CITY}. Ingresos mensuales: {AMOUNT}. Referencia personal: {PERSON2}, teléfono {PHONE2}.",
+    ),
+    (
+        "beca-1",
+        "Comité de becas:\nLa estudiante {PERSON}, matrícula {STUDENT}, originaria de {CITY}, solicita la renovación de su beca. Su madre, {PERSON2}, es la responsable económica.",
+    ),
+    (
+        "certificado-1",
+        "CERTIFICADO MÉDICO\nCertifico que {PERSON}, de {AGE} años, con {ID_LABEL} {ID}, fue atendido en {ORG} de {CITY} el {DATE} y requiere reposo por tres días.\n{PERSON2}\nMédico cirujano, registro {PROF}",
+    ),
+    (
+        "historia-1",
+        "Paciente femenina de {AGE} años, natural y procedente de {CITY}, acude con su esposo {PERSON2}. Antecedente de cirugía en {ORG} en {MONTH_YEAR}. Historia clínica {PATIENT}.",
+    ),
+    (
+        "historia-2",
+        "Varón de {AGE} años remitido desde {CITY} por cefalea. Vive con su madre, {PERSON2}, en {ADDRESS}. Teléfono de la familia: {PHONE}.",
+    ),
+    (
+        "expediente-1",
+        "Juzgado Civil de {CITY}. Expediente {CASE}. Demandante: {PERSON}. Demandado: {PERSON2}, con domicilio procesal en {ADDRESS}. Se cita a las partes para el {DATE}.",
+    ),
+    (
+        "policia-1",
+        "Parte informativo: siendo las {TIME} del {DATE}, en la intersección cercana a {ADDRESS} de {CITY}, se detuvo al ciudadano {PERSON}, quien dijo llamarse así y portar {ID_LABEL} {ID}.",
+    ),
+    (
+        "residencia-1",
+        "CONSTANCIA DE RESIDENCIA\nSe hace constar que {PERSON}, {ID_LABEL} {ID}, reside en {ADDRESS}, municipio de {CITY}, desde hace {AGE} años.\nExpedida el {DATE}.",
+    ),
+    (
+        "recomendacion-1",
+        "A quien corresponda:\nConozco a {PERSON} desde hace varios años, cuando trabajábamos juntos en {ORG} en {CITY}. Puede contactarme al {PHONE} o a {EMAIL}.\n{PERSON2}",
+    ),
+    (
+        "reclamo-1",
+        "Buenas tardes, soy {PERSON} y vivo en {ADDRESS}, {CITY}. El pedido {TRACKING} nunca llegó. Mi tarjeta terminación {CARD_LAST} fue cargada dos veces. Mi correo es {EMAIL}.",
+    ),
+    (
+        "reserva-1",
+        "Reserva confirmada a nombre de {PERSON} para el {DATE} en {CITY}. Huéspedes: {FIRST2} y {PERSON3}. Pasaporte del titular: {PASSPORT}.",
+    ),
+    (
+        "escuela-2",
+        "Estimada {PERSON2}: le informamos que su hijo {PERSON}, alumno con matrícula {STUDENT}, no asistió a clases el {DATE}. Escuela {ORG}, {CITY}.",
+    ),
+    (
+        "vecinos-1",
+        "Acta de la junta de vecinos de {CITY}. Asistieron {PERSON}, {PERSON2} y {PERSON3}. La señora {LAST} denunció ruidos en el departamento de {ADDRESS}.",
+    ),
+    (
+        "migracion-1",
+        "Declaración de ingreso. Viajero: {PERSON_UPPER}. Pasaporte: {PASSPORT}. Procedencia: {CITY}. Destino final: {CITY2}. Dirección durante la estancia: {ADDRESS}.",
+    ),
+    (
+        "pension-1",
+        "Resolución de pensión. Se concede pensión de viudez a {PERSON}, {ID_LABEL} {ID}, cónyuge del fallecido {PERSON2}, con domicilio en {CITY}. Pago en {ACCOUNT_LABEL} {ACCOUNT}.",
+    ),
+    (
+        "nota-1",
+        "Nota de voz transcrita: hola, habla {FIRST} de {CITY}, le marco por lo del crédito; mi número es {PHONE} y mi cédula termina en {CARD_LAST}.",
+    ),
+    (
+        "encuesta-1",
+        "Encuestado: {PERSON}. Edad: {AGE}. Ciudad: {CITY}. Ocupación: {JOB}. Correo para resultados: {EMAIL}.",
+    ),
+    (
+        "seguro-2",
+        "Siniestro reportado por {PERSON}, póliza {POLICY}, ocurrido el {DATE} en la carretera de {CITY} a {CITY2}. Conductor del otro vehículo: {PERSON2}, teléfono {PHONE2}.",
+    ),
+    (
+        "laboral-1",
+        "Constancia laboral: se hace constar que {PERSON}, con número de empleado {EMPLOYEE}, labora en {ORG} desde el {DATE} como {JOB}, en la sucursal de {CITY}.",
+    ),
+    (
+        "redes-2",
+        "Felicidades a {PERSON} por su graduación en {CITY}!! te queremos mucho, att. {FIRST2} y {PERSON3} #orgullo",
+    ),
+)
+TEMPLATES = TEMPLATES + EXTRA_TEMPLATES
+
 HELD_OUT = {
     "validation": {"correo-2", "factura-2", "clinica-3", "chat-2", "cv-1", "notaria-1", "redes-1"},
     "test": {
