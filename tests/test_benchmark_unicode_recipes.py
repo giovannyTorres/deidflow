@@ -84,7 +84,8 @@ def test_format_controls_stay_inside_crossed_targets_and_preserve_unknowns(tmp_p
 
 
 @pytest.mark.parametrize(
-    "corruption", ["text", "map", "seed", "parameters", "mention", "validity", "coverage"]
+    "corruption",
+    ["text", "map", "map_type", "seed", "parameters", "mention", "validity", "coverage"],
 )
 def test_semantically_forged_unicode_data_is_rejected_before_candidate_work(tmp_path, corruption):
     source, digest = literal_package(tmp_path / "source")
@@ -109,6 +110,8 @@ def test_semantically_forged_unicode_data_is_rejected_before_candidate_work(tmp_
         child.records["sources"][1]["content_sha256"] = unit["text_sha256"]
     elif corruption == "map":
         evidence["codepoint_boundaries"]["u-1"][0][0] = [0, 2]
+    elif corruption == "map_type":
+        evidence["codepoint_boundaries"]["u-1"][0][0] = [False, True]
     elif corruption == "seed":
         index["seed"] = evidence["seed"] = 1
         child.records["documents"][1]["perturbation_recipe"]["seed"] = 1
@@ -186,6 +189,39 @@ def test_unicode_admission_accepts_real_suites_and_leaves_distractors_unchanged(
         for pair in report["results"]
         for track in ("clean", "perturbed")
     )
+
+
+@pytest.mark.parametrize("recipe", ["format_chars.v1", "fullwidth.v1"])
+def test_empty_unit_with_no_inspected_ranges_remains_admissible(tmp_path, recipe):
+    source, digest = literal_package(tmp_path / "source")
+    original = load_evaluation_package(source, manifest_sha256=digest)
+    for role in ("mentions", "expectations", "validation_vectors"):
+        original.records[role] = []
+    original.records["units"][0].update(text="", text_sha256=hashlib.sha256(b"").hexdigest())
+    original.records["sources"][0]["content_sha256"] = hashlib.sha256(b"").hexdigest()
+    original.manifest["annotation_coverage"][0].update(
+        inspected_ranges=[], exhaustive_entity_types=[]
+    )
+    source = tmp_path / "empty"
+    digest = write_package_records(source, original.records, original.manifest).manifest_sha256
+    generated = generate_perturbation_suite(
+        source,
+        manifest_sha256=digest,
+        destination=tmp_path / "suite",
+        seed=0,
+        recipes=(recipe,),
+    )
+    assert generated["packages"][0]["changed_units"] == 0
+    report = run_perturbation_suite(
+        source,
+        manifest_sha256=digest,
+        suite=tmp_path / "suite",
+        index_sha256=generated["index_sha256"],
+        candidate=DetectionCandidate("candidate-a", "a" * 64, lambda text: []),
+        profile="detection-descriptive-v1",
+        output=tmp_path / "reports",
+    )
+    assert report["quality"] == "DESCRIPTIVE_ONLY"
 
 
 def test_nested_reference_end_is_not_extended_by_an_outer_control(tmp_path):

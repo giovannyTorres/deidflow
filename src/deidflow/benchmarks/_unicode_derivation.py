@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 from copy import deepcopy
+from dataclasses import dataclass
 from itertools import accumulate
 from typing import Any
 
@@ -15,9 +16,22 @@ from ._package_io import strict_json
 from .evaluation_package import EvaluationPackage
 
 
+@dataclass(frozen=True)
+class _ReferenceEdit:
+    text: str
+    offsets: list[int]
+    parameters: dict[str, Any]
+
+
 def _same(actual: Any, expected: Any) -> None:
-    if actual != expected:
+    if type(actual) is not type(expected) or actual != expected:
         raise ValueError
+    if isinstance(expected, dict):
+        for key, value in expected.items():
+            _same(actual[key], value)
+    elif isinstance(expected, list):
+        for left, right in zip(actual, expected, strict=True):
+            _same(left, right)
 
 
 def _sha(value: bytes) -> str:
@@ -28,7 +42,9 @@ def _id(namespace: str, prefix: str, parent: str) -> str:
     return prefix + "-" + _sha(f"{namespace}:{prefix}:{parent}:0".encode())[:32]
 
 
-def _reference_edit(source: EvaluationPackage, unit: dict[str, Any], recipe: str, seed: int):
+def _reference_edit(
+    source: EvaluationPackage, unit: dict[str, Any], recipe: str, seed: int
+) -> _ReferenceEdit:
     text, key = unit["text"], unit["unit_id"]
     events = [0] * (len(text) + 1)
     endpoints: set[int] = set()
@@ -73,7 +89,7 @@ def _reference_edit(source: EvaluationPackage, unit: dict[str, Any], recipe: str
         changed += result != character
         parts.append(result)
         boundaries.append(boundaries[-1] + len(result))
-    return (
+    return _ReferenceEdit(
         "".join(parts),
         boundaries,
         {
@@ -115,7 +131,8 @@ def verify_unicode_derivation(
     old_units = {unit["unit_id"]: unit for unit in original["units"]}
 
     def projected(row):
-        text, offsets, _ = edits[row["unit_id"]]
+        edit = edits[row["unit_id"]]
+        text, offsets = edit.text, edit.offsets
         start, end = offsets[row["start"]], offsets[row["end"]]
         changed = old_units[row["unit_id"]]["text"][row["start"] : row["end"]] != text[start:end]
         return start, end, changed
@@ -124,7 +141,7 @@ def verify_unicode_derivation(
     expected["units"] = []
     for row in original["units"]:
         copied = deepcopy(row)
-        text = edits[row["unit_id"]][0]
+        text = edits[row["unit_id"]].text
         copied.update(
             unit_id=identifiers["units"][row["unit_id"]],
             case_id=identifiers["documents"][row["case_id"]],
@@ -151,7 +168,9 @@ def verify_unicode_derivation(
                 "version": "1.0.0",
                 "operation": recipe,
                 "seed": seed,
-                "parameters": {identifiers["units"][key]: edits[key][2] for key in row["unit_ids"]},
+                "parameters": {
+                    identifiers["units"][key]: edits[key].parameters for key in row["unit_ids"]
+                },
             },
         )
         expected["documents"].append(copied)
@@ -245,8 +264,8 @@ def verify_unicode_derivation(
             "recipe": recipe,
             "seed": seed,
             "codepoint_boundaries": {
-                key: [[[a, b] for a, b in zip(offsets[:-1], offsets[1:], strict=True)]]
-                for key, (_, offsets, _) in edits.items()
+                key: [[[a, b] for a, b in zip(edit.offsets[:-1], edit.offsets[1:], strict=True)]]
+                for key, edit in edits.items()
             },
             "vector_derivations": [
                 {
@@ -261,7 +280,7 @@ def verify_unicode_derivation(
     for row in source.manifest["annotation_coverage"]:
         copied = deepcopy(row)
         copied["unit_id"] = identifiers["units"][row["unit_id"]]
-        offsets = edits[row["unit_id"]][1]
+        offsets = edits[row["unit_id"]].offsets
         ranges: list[dict[str, int]] = []
         for region in sorted(row["inspected_ranges"], key=lambda r: (r["start"], r["end"])):
             start, end = offsets[region["start"]], offsets[region["end"]]
@@ -269,7 +288,9 @@ def verify_unicode_derivation(
                 ranges[-1]["end"] = max(ranges[-1]["end"], end)
             else:
                 ranges.append({"start": start, "end": end})
-        copied["inspected_ranges"] = ranges
+        copied["inspected_ranges"] = (
+            ranges if edits[row["unit_id"]].text else [{"start": 0, "end": 0}]
+        )
         copied["limitations"] = list(
             dict.fromkeys(row["limitations"] + ["SYNTHETIC_DERIVATION_NOT_REVIEWED"])
         )
