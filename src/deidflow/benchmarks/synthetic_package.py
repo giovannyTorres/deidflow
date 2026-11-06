@@ -41,6 +41,27 @@ def canonical_json(value: Any) -> bytes:
     ).encode("utf-8")
 
 
+def _bounded_json(value: Any, limit: int, *, jsonl: bool = False) -> bytes:
+    """Stop encoding at the remaining resource/package budget, including newlines."""
+    encoder = json.JSONEncoder(
+        ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False
+    )
+    payload = bytearray()
+    for row in value if jsonl else (value,):
+        for chunk in encoder.iterencode(row):
+            if len(chunk) > limit - len(payload):
+                raise ValueError
+            encoded = chunk.encode("utf-8")
+            if len(encoded) > limit - len(payload):
+                raise ValueError
+            payload.extend(encoded)
+        if jsonl:
+            if len(payload) >= limit:
+                raise ValueError
+            payload.extend(b"\n")
+    return bytes(payload)
+
+
 def write_package_records(
     destination: str | Path, records: dict[str, Any], manifest: dict[str, Any]
 ) -> EvaluationPackage:
@@ -81,9 +102,12 @@ def _write_records(
                 if len(record) > MAX_RECORDS:
                     raise ValueError
                 kind, count, extension = "jsonl", len(record), ".jsonl"
-                payload = b"".join(canonical_json(row) + b"\n" for row in record)
+                payload = _bounded_json(
+                    record, min(MAX_RESOURCE_BYTES, MAX_PACKAGE_BYTES - total), jsonl=True
+                )
             elif isinstance(record, dict):
-                kind, payload, count, extension = "json", canonical_json(record), 1, ".json"
+                kind, count, extension = "json", 1, ".json"
+                payload = _bounded_json(record, min(MAX_RESOURCE_BYTES, MAX_PACKAGE_BYTES - total))
             else:
                 raise ValueError("Invalid synthetic package resource")
             total += len(payload)
@@ -116,9 +140,7 @@ def _write_records(
                 }
                 for name in names
             }
-        payload = canonical_json(value)
-        if len(payload) > MAX_MANIFEST_BYTES or total + len(payload) > MAX_PACKAGE_BYTES:
-            raise ValueError
+        payload = _bounded_json(value, min(MAX_MANIFEST_BYTES, MAX_PACKAGE_BYTES - total))
         digest = hashlib.sha256(payload).hexdigest()
         (staging / "manifest.json").write_bytes(payload)
         admitted = load_evaluation_package(staging, manifest_sha256=digest)

@@ -24,6 +24,9 @@ def test_seeded_public_generator_produces_reproducible_admissible_known_regressi
 
     first, second = tmp_path / "first", tmp_path / "second"
     summary = generate(first)
+    assert summary["manifest_sha256"] == (
+        "ed2a387e84ab9a0b5764a803e59ea8f173e5c2eceaea00debd2b26064a1c1dba"
+    )
     assert generate(second) == summary
     assert {p.name: p.read_bytes() for p in first.iterdir()} == {
         p.name: p.read_bytes() for p in second.iterdir()
@@ -98,6 +101,26 @@ def test_writer_preserves_existing_packages_and_rejects_invalid_admission_withou
         write_package_records(blocker / "package", package.records, package.manifest)
     assert "canary" not in str(error.value)
     assert blocker.read_text() == "existing file"
+
+
+def test_writer_rejects_oversized_jsonl_without_materializing_the_whole_resource(tmp_path):
+    import tracemalloc
+
+    from deidflow.benchmarks.synthetic_package import write_package_records
+
+    # Allocate caller input before measuring writer overhead. Shared rows make
+    # this a small input object that would otherwise expand to roughly 64 MiB.
+    records = {"units": [{"text": "x" * 8192}] * 8000}
+    target = tmp_path / "oversized"
+    tracemalloc.start()
+    try:
+        with pytest.raises(ValueError, match="^Invalid synthetic package output$"):
+            write_package_records(target, records, {})
+        _, peak = tracemalloc.get_traced_memory()
+    finally:
+        tracemalloc.stop()
+    assert peak < 16 * 1024**2, f"writer allocated {peak} bytes before rejecting"
+    assert not target.exists()
 
 
 def test_same_invalid_literal_follows_context_and_receipt_pinning_is_required(tmp_path):

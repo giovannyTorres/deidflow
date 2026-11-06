@@ -50,7 +50,7 @@ por la excepción `XAXX`; PHONE/EMAIL muestran sus predicciones desconocidas.
 La auditoría registra ocho componentes, cero cruces, cero grupos separados y
 `NO_BLIND_TEST`, con `independence_accredited:false`.
 
-Verificación focalizada: 32 pruebas de corpus/validez pasan. Ruff/formato y mypy
+Verificación focalizada: 33 pruebas de corpus/validez pasan. Ruff/formato y mypy
 Python 3.12 pasan; el chequeo mypy con el target configurado 3.11 encontró
 primero un stub instalado de NumPy que usa sintaxis 3.12, por lo que se usó el
 comando Python 3.12 ya documentado por el entorno. Logs e informes en
@@ -58,3 +58,11 @@ comando Python 3.12 ya documentado por el entorno. Logs e informes en
 quedan para la integración del lote; no se presentan como ejecutados aquí.
 Las revisiones frescas Standards/Spec del commit se registrarán en la entrega
 de integración; no se inventa su resultado en esta acta de implementación.
+
+La revisión detectó que el escritor materializaba todo el JSONL antes de
+comprobar el límite. La regresión pública midió 132.243.390 bytes de pico con
+8.000 referencias a una fila de 8 KiB, después de crear los inputs. Ahora la
+codificación incremental de JSONL/JSON/manifest detiene la acumulación al agotar
+el presupuesto de recurso o paquete. La prueba exige menos de 16 MiB y pasa;
+la salida normal conserva el manifest `ed2a387e…`. Red/green en
+`/tmp/deidflow-batch/BMX-10/memory-{red,green}.log`.
