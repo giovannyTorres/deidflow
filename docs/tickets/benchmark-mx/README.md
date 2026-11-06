@@ -2,7 +2,7 @@
 
 **Gestor de destino: GitHub Issues de `giovannyTorres/deidflow`.**
 
-**Estado real: documentación y 27 borradores en una rama de revisión; 0 issues creados. BMX-01 implementado y verificado; los otros 26 tickets no se han implementado.**
+**Estado real: documentación y 27 borradores en una rama de revisión; 0 issues creados. BMX-01 y BMX-02 implementados y verificados; los otros 25 tickets no se han implementado.**
 
 Rama: [`benchmark/evaluacion-mx-spec-tickets`](https://github.com/giovannyTorres/deidflow/tree/benchmark/evaluacion-mx-spec-tickets). La publicación documental no equivale al registro en GitHub Issues.
 
@@ -10,10 +10,10 @@ La lectura del repositorio por `gh repo view` devolvió HTTP 403 desde api.githu
 
 Estos archivos son cuerpos preparados para GitHub Issues, ahora visibles en GitHub como documentos; no son un cambio al gestor local de markdown. No se inventaron números, URLs, etiquetas aplicadas ni relaciones remotas.
 
-La solicitud `/implement` autorizó el primer incremento técnico desbloqueado,
-BMX-01. Su [acta de aceptación](../../audit/BMX-01.md) registra las pruebas y la
-revisión. La creación de Issues sigue pendiente del acceso de red y la posterior
-comprobación de permisos del repositorio.
+Las solicitudes `/implement` autorizaron BMX-01 y BMX-02. Sus actas registran
+pruebas y revisión: [BMX-01](../../audit/BMX-01.md),
+[BMX-02](../../audit/BMX-02.md). La creación de Issues sigue pendiente del
+acceso de red y la posterior comprobación de permisos del repositorio.
 
 Especificación fuente: [DF-EVAL-MX v0.1.0](../../specs/BENCHMARK_MX_SPEC.md).
 
@@ -63,8 +63,9 @@ Los bloqueos son prerrequisitos, no una prioridad ni una orden de comenzar. Todo
 
 - **BMX-01**: único incremento técnico sin bloqueos.
 - **BMX-09**, **BMX-19**, **BMX-21**: decisiones de perfiles, activos OCR y permisos de fuentes pueden trabajarse sin esperar al arnés.
-- Esta era la frontera al crear las tareas. Tras completar BMX-01 quedan
-  técnicamente desbloqueadas BMX-02 y BMX-07; ninguna se ha iniciado.
+- Esta era la frontera al crear las tareas. Tras completar BMX-01 y BMX-02,
+  quedan técnicamente desbloqueadas BMX-03, BMX-05, BMX-07 y BMX-08;
+  ninguna se ha iniciado.
 
 ## Grafo
 
@@ -168,7 +169,7 @@ flowchart TD
 1. Aplicar en ajustes del entorno el destino api.github.com ya preparado en el borrador. No se modificó ni publicó el entorno en esta tarea.
 2. Repetir la lectura del repositorio, comprobar Issues habilitado y permisos de escritura; no solicitar nuevas credenciales basándose solo en el 403 de red.
 3. Leer issues abiertos/cerrados y etiquetas existentes para detectar duplicados mediante el marcador estable de cada cuerpo y el prefijo del título. Ningún listado de Issues pudo completarse aquí; la lectura y escritura por Git sí se verificaron para publicar esta rama.
-4. Revisar granularidad, bloqueos y separación de tareas humanas/técnicas antes de la publicación; registrar que la autorización de implementación actual se limita a BMX-01.
+4. Revisar granularidad, bloqueos y separación de tareas humanas/técnicas antes de la publicación; registrar la aceptación de BMX-01 y BMX-02 sin empezar otros incrementos.
 5. Crear un issue por tarea en orden topológico, con cuerpo desde archivo UTF-8; retirar antes las cabeceras administrativas de borrador y resolver sus bloqueos a números reales usando los issues ya creados. Aplicar la etiqueta configurada según el tipo, comprobando antes si existe. No crear un issue padre ficticio ni cerrar/modificar un padre existente.
 6. Registrar número, ID de base de datos y URL realmente devueltos; no inferirlos del ID BMX. Resolver los bloqueos mediante dependencias nativas de GitHub; con gh 2.46 utilizar el endpoint REST documentado, no flags de versiones recientes.
 7. Si la función nativa no está disponible, escribir Blocked by con números y enlaces reales en cada cuerpo y declarar el fallback. No afirmar vínculos nativos que no existen.
@@ -181,7 +182,7 @@ La única acción externa pendiente ahora es habilitar el acceso necesario al ge
 La granularidad busca una sesión con contexto fresco por tarea técnica. Si la experiencia revela una tarea demasiado grande, dividir por un comportamiento verificable antes de implementarla, conservando trazabilidad y sin fabricar dependencias.
 
 Al crear el desglose se comprobó su coherencia documental: hashes, enlaces,
-cobertura de AC y dependencias. La implementación posterior de BMX-01 incorpora
-el recorrido, pruebas y evidencia enlazada arriba; los demás criterios siguen
+cobertura de AC y dependencias. Las implementaciones de BMX-01 y BMX-02 incorporan
+recorrido, admisión, pruebas y evidencia enlazada arriba; los demás criterios siguen
 siendo trabajo futuro. El manifiesto distingue el estado de implementación de
 la publicación pendiente en GitHub Issues y conserva los hashes de los cuerpos.

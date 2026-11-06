@@ -5,6 +5,10 @@
 
 **Estado de publicación:** borrador; no existe número/URL de issue verificado.
 
+**Estado de implementación:** completada y verificada. Véase el
+[acta de aceptación BMX-02](../../audit/BMX-02.md), con ciclos TDD, cobertura,
+revisión independiente, métricas y límites pendientes.
+
 **Tipo:** tarea técnica. **Etiqueta propuesta:** `ready-for-agent`; no aplicada.
 
 **Bloqueado por:** BMX-01.
@@ -23,21 +27,21 @@ Extender el recorrido para validar recursos, integridad, referencias y anotacion
 
 ## Criterios de aceptación
 
-- [ ] Validar los contratos de manifiesto, fuentes, documentos, unidades, menciones, expectativas y recursos usados por el paquete.
+- [x] Validar los contratos de manifiesto, fuentes, documentos, unidades, menciones, expectativas y recursos usados por el paquete.
 
-- [ ] Rechazar claves duplicadas, no finitos, bool como offset, UTF-8 inválido, referencias rotas, versiones desconocidas y hashes/tamaños/conteos alterados.
+- [x] Rechazar claves duplicadas, no finitos, bool como offset, UTF-8 inválido, referencias rotas, versiones desconocidas y hashes/tamaños/conteos alterados.
 
-- [ ] Permitir spans anidados/cruzados legítimos y rechazar duplicados idénticos, contradicciones y coordenadas fuera de rango.
+- [x] Permitir spans anidados/cruzados legítimos y rechazar duplicados idénticos, contradicciones y coordenadas fuera de rango.
 
-- [ ] Las referencias de recursos no escapan del paquete por traversal o enlaces; distinguir error de dataset de respuesta malformada del candidato.
+- [x] Las referencias de recursos no escapan del paquete por traversal o enlaces; distinguir error de dataset de respuesta malformada del candidato.
 
 ## Pruebas y evidencia exigidas
 
-- [ ] Un paquete válido con dos menciones solapadas completa la admisión.
+- [x] Un paquete válido con dos menciones solapadas completa la admisión.
 
-- [ ] Casos parametrizados para cada clase inválida y alteración de un byte.
+- [x] Casos parametrizados para cada clase inválida y alteración de un byte.
 
-- [ ] Traversal, enlace escapado y miembro ZIP duplicado se rechazan sin exponer valores en el error.
+- [x] Traversal, enlace escapado y miembro ZIP duplicado se rechazan sin exponer valores en el error.
 
 ## Trazabilidad
 
@@ -45,7 +49,7 @@ AC-01, AC-05 de DF-EVAL-MX v0.1.0.
 
 ## Restricciones y fuera de alcance
 
-- Esta creación de tareas no inicia la implementación.
+- La creación original no inició la implementación; la segunda solicitud `/implement` autorizó este incremento.
 - El trabajo futuro se limita al sistema de evaluación; no corregir detectores, políticas ni transformadores de producción para hacer pasar el benchmark.
 - Solo datos ficticios o fuentes públicas no personales con permisos comprobados; nunca documentos personales reales ni envío a servicios externos.
 - Evaluación local, sin descargas/inferencia/telemetría remotas ni dependencias obligatorias nuevas. Cualquier adquisición o publicación requiere autorización de su tarea.

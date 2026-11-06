@@ -85,9 +85,12 @@
       "draft_file": "02-admision-paquete.md",
       "github_title": "[DF-EVAL-MX][BMX-02] Rechazar paquetes inválidos y preservar anotaciones superpuestas",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-02 -->",
-      "body_sha256": "3f80fe8e27c9fe4d524ee6bace980a871ec9aa219e7638a291ca0357489cfeae",
+      "body_sha256": "d3471c7794bf2da3e13340d3c682a804aaf449ca0e8e1555d52c0b5bc3a5b277",
       "github_issue_number": null,
-      "github_issue_url": null
+      "github_issue_url": null,
+      "implementation_status": "completed_and_verified",
+      "implementation_evidence": "../../audit/BMX-02.md",
+      "reviewed_code_commit": "3b28c35f2b066b72f7a1c4aa20b7462023a99080"
     },
     {
       "id": "BMX-03",
