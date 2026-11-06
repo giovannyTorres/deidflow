@@ -3,7 +3,14 @@ from pathlib import Path
 from xml.sax.saxutils import quoteattr
 
 import pytest
-from opendocument_privacy_samples import NS, SECRET, STYLES, add_zip_metadata, package
+from opendocument_privacy_samples import (
+    NS,
+    SECRET,
+    STYLES,
+    add_zip_metadata,
+    append_deflate_tail,
+    package,
+)
 
 from deidflow import DeidEngine, Policy
 from deidflow.readers import read_document
@@ -351,4 +358,11 @@ def test_nonempty_opaque_package_channel_is_uninspected_until_removed(tmp_path, 
 def test_opaque_zip_metadata_is_uninspected_until_rebuilt(tmp_path, channel):
     source = package(tmp_path, "<text:p>Informe.</text:p>")
     add_zip_metadata(source, channel)
+    assert_uninspected_source_but_clean_rewrite(source, tmp_path)
+
+
+@pytest.mark.parametrize("member", ("content.xml", "META-INF/manifest.xml"))
+def test_terminal_deflate_suffix_is_uninspected_until_recompressed(tmp_path, member):
+    source = package(tmp_path, "<text:p>Informe.</text:p>")
+    append_deflate_tail(source, member, SECRET.encode())
     assert_uninspected_source_but_clean_rewrite(source, tmp_path)
