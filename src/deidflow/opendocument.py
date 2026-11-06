@@ -35,6 +35,8 @@ XLINK = "http://www.w3.org/1999/xlink"
 FORM = "urn:oasis:names:tc:opendocument:xmlns:form:1.0"
 SCRIPT = "urn:oasis:names:tc:opendocument:xmlns:script:1.0"
 CONFIG = "urn:oasis:names:tc:opendocument:xmlns:config:1.0"
+RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+DSIG = "http://www.w3.org/2000/09/xmldsig#"
 MANIFEST = "urn:oasis:names:tc:opendocument:xmlns:manifest:1.0"
 CALCEXT = "urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0"
 PRESENTATION = "urn:oasis:names:tc:opendocument:xmlns:presentation:1.0"
@@ -864,6 +866,8 @@ def read_odf(path: Path, graph: Any, max_bytes: int) -> None:
                     elif value_type == "string" and value.strip():
                         _fragment(graph, value, part=name, kind="settings")
             elif kind in {"rdf", "signature"}:
+                if kind == "signature":
+                    _issue(graph, "uninspected_odf_binary_metadata")
                 _read_part(
                     _parse_odf(archive.read(name), graph=graph),
                     graph,
@@ -875,6 +879,8 @@ def read_odf(path: Path, graph: Any, max_bytes: int) -> None:
                 for element in root.iter():
                     value = element.text or ""
                     if element.tag.endswith("X509Certificate"):
+                        if any(text.strip() for text in element.itertext()):
+                            _issue(graph, "uninspected_odf_binary_metadata")
                         for text in binary_strings(value):
                             _fragment(graph, text, part=name, kind="certificate")
                     elif value.strip():
@@ -902,6 +908,25 @@ def _read_part(
         _fragment(graph, name, part=part, kind="structural_name")
     for element in _elements(document):
         key = _qualified(element)
+        binary_metadata = (
+            key[0] == DSIG
+            or (
+                key == (CONFIG, "config-item")
+                and element.getAttributeNS(CONFIG, "type") == "base64Binary"
+            )
+            or element.getAttributeNS(RDF, "datatype")
+            in {
+                "http://www.w3.org/2001/XMLSchema#base64Binary",
+                "http://www.w3.org/2001/XMLSchema#hexBinary",
+            }
+        )
+        if binary_metadata and any(
+            child.nodeType in _TEXT_NODES and child.data.strip()
+            for holder in (element, *_elements(element))
+            for child in holder.childNodes
+        ):
+            # Printable runs are useful findings, never proof of binary coverage.
+            _issue(graph, "uninspected_odf_binary_metadata")
         if _active(element):
             _issue(graph, "embedded_or_active_content_not_extracted")
         if key == (OFFICE, "binary-data"):

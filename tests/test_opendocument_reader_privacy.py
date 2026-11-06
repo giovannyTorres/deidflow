@@ -1,3 +1,4 @@
+import base64
 import zipfile
 from pathlib import Path
 from xml.sax.saxutils import quoteattr
@@ -7,6 +8,77 @@ import pytest
 
 from deidflow import DeidEngine, Policy
 from deidflow.readers import DocumentError, read_document
+
+
+@pytest.mark.parametrize("encoding", ("utf-8", "utf-16le"))
+@pytest.mark.parametrize(
+    "channel",
+    (
+        "settings",
+        "content_settings",
+        "certificate",
+        "signature_value",
+        "rdf_certificate",
+        "rdf_base64",
+        "rdf_hex",
+    ),
+)
+def test_opaque_binary_metadata_never_claims_complete_coverage(tmp_path, encoding, channel):
+    payload = samples.SECRET.encode(encoding)
+    encoded = base64.b64encode(payload).decode()
+    if channel in {"settings", "content_settings"}:
+        element = f'<config:config-item config:name="PrinterSetup" config:type="base64Binary">{encoded}</config:config-item>'
+        body = element if channel == "content_settings" else "<text:p>Informe.</text:p>"
+        parts = (
+            {}
+            if channel == "content_settings"
+            else {
+                "settings.xml": f'<office:document-settings {samples.NS} xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0"><office:settings>{element}</office:settings></office:document-settings>'
+            }
+        )
+        source = samples.package(
+            tmp_path,
+            body,
+            root_attributes='xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0"',
+            parts=parts,
+        )
+    else:
+        tag = (
+            "X509Certificate" if channel in {"certificate", "rdf_certificate"} else "SignatureValue"
+        )
+        if channel in {"rdf_base64", "rdf_hex"}:
+            kind = "base64Binary" if channel == "rdf_base64" else "hexBinary"
+            encoded = encoded if channel == "rdf_base64" else payload.hex()
+            element = f'<rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#{kind}">{encoded}</rdf:value>'
+        else:
+            element = f"<ds:{tag}>{encoded}</ds:{tag}>"
+        name = "manifest.rdf" if channel.startswith("rdf_") else "META-INF/documentsignatures.xml"
+        part = f'<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">{element}</rdf:RDF>'
+        source = samples.package(tmp_path, "<text:p>Informe.</text:p>", parts={name: part})
+    graph = read_document(source)
+    assert not graph.complete
+    assert "uninspected_odf_binary_metadata" in graph.issues
+    assert (
+        DeidEngine(country="ES").verify(source, policy=Policy.strict(require_ner=False)).status
+        == "BLOCKED"
+    )
+    if encoding == "utf-8" and channel in {"settings", "certificate", "rdf_certificate"}:
+        assert any(samples.SECRET in fragment.text for fragment in graph.fragments)
+
+
+@pytest.mark.parametrize("value", ("", " \n"))
+def test_empty_binary_settings_do_not_claim_uninspected_payload(tmp_path, value):
+    source = samples.package(
+        tmp_path,
+        f'<config:config-item config:type="base64Binary">{value}</config:config-item>',
+        root_attributes='xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0"',
+    )
+    graph = read_document(source)
+    assert graph.complete, graph.issues
+    assert (
+        DeidEngine(country="ES").verify(source, policy=Policy.strict(require_ner=False)).status
+        == "APPROVED"
+    )
 
 
 @pytest.mark.parametrize("tag", ("s", "tab", "line-break"))
