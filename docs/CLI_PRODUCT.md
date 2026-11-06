@@ -90,6 +90,15 @@ autentica a quien posee la clave; no es una firma pública ni prueba de anonimat
 Una revisión de texto extraído no certifica que su PDF/Office original esté libre
 de imágenes, capas, metadatos o partes sin inspeccionar.
 
+## Revisar un CSV
+
+Para un CSV acotado, `review plan/apply/verify --format csv` usa coordenadas de
+fila/columna y offsets locales por celda, incluyendo los encabezados. Separa
+`candidate.csv` de `approved.csv` y autentica los bytes del archivo regenerado.
+El [flujo de revisión CSV](CSV_REVIEW.md) detalla decisiones, límites, comandos y
+el ejemplo financiero ficticio. No admite estado de sesión persistente en esta
+primera versión; los comandos de texto conservan su comportamiento.
+
 ## Relaciones y restauración local
 
 ```sh
