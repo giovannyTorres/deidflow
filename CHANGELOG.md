@@ -24,6 +24,11 @@
   custom sort lists, data-validation lists or text conditional formats (worksheets
   and tables); the reader scans them. Changing the master cell of a shared
   formula now also flattens its dependents instead of leaving them orphaned.
+- HTML input and output (`.html`, `.htm`): values are replaced at their source
+  offsets so markup is unchanged; text is scanned as one stream with table-cell
+  label context, character references are handled, content attributes are
+  rewritten, and comments, scripts, embedded images and `iframe srcdoc` are
+  removed. `.md`, `.text` and `.log` files are de-identified as text.
 - The DOCX reader scans `fldSimple` instructions and commenter account IDs,
   flags package thumbnails, and no longer forces review for layout-only fields
   such as `PAGE` or `TOC`.
