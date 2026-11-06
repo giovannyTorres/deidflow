@@ -13,6 +13,7 @@ module does not claim the semantics of a browser or a general CSS parser.
 from __future__ import annotations
 
 import html
+import html.entities
 import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
