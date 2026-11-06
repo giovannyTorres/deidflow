@@ -5,9 +5,32 @@ from xml.sax.saxutils import quoteattr
 
 import opendocument_privacy_samples as samples
 import pytest
+from opendocument_samples import make_ods_cell
 
 from deidflow import DeidEngine, Policy
 from deidflow.readers import DocumentError, read_document
+
+
+@pytest.mark.parametrize("value", (samples.SECRET, f"<![CDATA[{samples.SECRET}]]>"))
+def test_spreadsheet_raw_cell_text_is_not_silently_skipped(tmp_path, value):
+    source = make_ods_cell(tmp_path / "raw.ods", value)
+    with pytest.raises(DocumentError, match="cells require paragraph content") as error:
+        read_document(source)
+    assert samples.SECRET not in str(error.value)
+    with pytest.raises(DocumentError, match="cells require paragraph content"):
+        DeidEngine(country="ES").verify(source, policy=Policy.strict(require_ner=False))
+
+
+@pytest.mark.parametrize(
+    "value", (" \n", "<text:p>Importe</text:p>", " \n<text:p>Importe</text:p> \n")
+)
+def test_spreadsheet_paragraph_cells_and_pretty_print_whitespace_remain_supported(tmp_path, value):
+    source = make_ods_cell(tmp_path / "supported.ods", value)
+    graph = read_document(source)
+    assert graph.complete, graph.issues
+    result = DeidEngine(country="ES").verify(source, policy=Policy.strict(require_ner=False))
+    assert result.status == "REVIEW_REQUIRED", result.issues
+    assert "ODS_REVIEW_REQUIRED" in result.issues
 
 
 @pytest.mark.parametrize("encoding", ("utf-8", "utf-16le"))

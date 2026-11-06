@@ -473,6 +473,8 @@ def _cells(row: Node) -> list[Node]:
 
 def cell_text(cell: Node) -> str:
     """Displayed text of a cell; its typed value when nothing is displayed."""
+    if any(child.nodeType in _TEXT_NODES and child.data.strip() for child in cell.childNodes):
+        raise DocumentError("OpenDocument cells require paragraph content")
     paragraphs = [paragraph_text(c) for c in cell.childNodes if _cell_text_child(c)]
     text = "\n".join(paragraphs)
     if text.strip():
