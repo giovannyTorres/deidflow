@@ -19,6 +19,7 @@ NS = (
     'xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" '
     'xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" '
     'xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" '
+    'xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" '
     'mc:Ignorable="w14"'
 )
 CONTENT_TYPES = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -59,6 +60,7 @@ DOCUMENT = f"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:tr><w:tc><w:p><w:r><w:t>Teléfono</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>+34 612 345 678</w:t></w:r></w:p></w:tc></w:tr></w:tbl>
 <w:p><w:del w:id="1" w:author="Dr. Ramón Ortega" w:date="2024-03-01T10:00:00Z"><w:r><w:delText>Antes vivía en Calle Mayor 5.</w:delText></w:r></w:del><w:ins w:id="2" w:author="Dr. Ramón Ortega" w:date="2024-03-01T10:00:00Z"><w:r><w:t>Tratamiento revisado.</w:t></w:r></w:ins><w:commentRangeStart w:id="0"/><w:r><w:t>Control en 3 meses.</w:t></w:r><w:commentRangeEnd w:id="0"/><w:r><w:commentReference w:id="0"/></w:r></w:p>
 <w:p><w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText xml:space="preserve"> MERGEFIELD </w:instrText></w:r><w:r><w:instrText xml:space="preserve">Nombre_Paciente </w:instrText></w:r><w:r><w:fldChar w:fldCharType="separate"/></w:r><w:r><w:t>Juan Pérez</w:t></w:r><w:r><w:fldChar w:fldCharType="end"/></w:r></w:p>
+<w:p><m:oMathPara><m:oMath><m:r><m:t>contacto: maria.lopez@example.com</m:t></m:r></m:oMath></m:oMathPara></w:p>
 <w:p>{DRAWING}</w:p>
 <w:sectPr><w:footerReference w:type="default" r:id="rId1"/></w:sectPr>
 </w:body></w:document>"""
@@ -87,6 +89,10 @@ def make_docx(path: Path) -> Path:
         out.writestr("docProps/core.xml", CORE)
         out.writestr("docProps/app.xml", APP)
         out.writestr("docProps/thumbnail.jpeg", b"\xff\xd8\xff\xe0 first page render")
+        out.writestr(
+            "customXml/item1.xml",
+            '<datos><paciente correo="pedro.ruiz@example.com" dni="87654321X">Ficha</paciente></datos>',
+        )
     return path
 
 
@@ -119,6 +125,8 @@ def test_docx_output_transforms_text_across_runs_and_removes_hidden_content(tmp_
         "first page render",
         "Nombre_Paciente",
         "Foto de María",
+        "pedro.ruiz@example.com",  # custom XML attribute
+        "87654321X",
     ):
         assert secret not in package, secret
     with zipfile.ZipFile(result.output_path) as archive:
@@ -131,6 +139,7 @@ def test_docx_output_transforms_text_across_runs_and_removes_hidden_content(tmp_
     assert 'xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"' in document
     assert 'mc:Ignorable="w14"' in document
     assert "Tratamiento revisado." in document and "Control en 3 meses." in document
+    assert "<m:t>contacto: [EMAIL]</m:t>" in document  # Office Math text
     assert "<w:t>Correo</w:t>" in document
     # A layout field (PAGE) is kept, the data-bearing MERGEFIELD code is not.
     assert 'w:instr=" PAGE "' in footer

@@ -144,6 +144,9 @@ def _read_metadata(archive: zipfile.ZipFile, graph: DocumentGraph) -> None:
             for element in root.iter():
                 if element.text and element.text.strip():
                     _fragment(graph, element.text, kind="metadata", part=name)
+                for value in element.attrib.values():  # custom property names
+                    if value.strip():
+                        _fragment(graph, value, kind="metadata", part=name)
         if name.endswith(".rels"):
             root = _xml(archive.read(name))
             for relation in root:
@@ -168,6 +171,9 @@ def _read_metadata(archive: zipfile.ZipFile, graph: DocumentGraph) -> None:
             for element in root.iter():
                 if element.text and element.text.strip():
                     _fragment(graph, element.text, kind="custom_xml", part=name)
+                for value in element.attrib.values():
+                    if value.strip():
+                        _fragment(graph, value, kind="custom_xml", part=name)
 
 
 def _read_docx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
@@ -207,7 +213,10 @@ def _read_docx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
             for index, paragraph in enumerate(root.iter(_W + "p")):
                 pieces: list[str] = []
                 for child in paragraph.iter():
-                    if child.tag in {_W + "t", _W + "delText", _W + "instrText"}:
+                    # Text runs of every namespace: w:t, DrawingML a:t, Office Math m:t.
+                    if child.tag in {_W + "delText", _W + "instrText"} or (
+                        isinstance(child.tag, str) and child.tag.rsplit("}", 1)[-1] == "t"
+                    ):
                         pieces.append(child.text or "")
                     elif child.tag == _W + "tab":
                         pieces.append("\t")

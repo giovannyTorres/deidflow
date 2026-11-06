@@ -235,9 +235,7 @@ def _rewrite_word_part(
             if child.nodeType != child.ELEMENT_NODE:
                 continue
             namespace, name = child.namespaceURI, _local(child)
-            if namespace == W and name == "t":
-                segments.append((child, _text_of(child)))
-            elif namespace == A and name == "t":
+            if name == "t":  # WordprocessingML, DrawingML and Office Math text
                 segments.append((child, _text_of(child)))
             elif namespace == W and name == "tab":
                 segments.append((None, "\t"))
@@ -434,10 +432,19 @@ def _rewrite_all_text(data: bytes, rewrite: Rewrite, report: OfficeReport) -> by
 
 
 def _rewrite_text_nodes(document: Node, rewrite: Rewrite, report: OfficeReport) -> None:
+    """Transform every text node and attribute value (data parts, properties)."""
     for element in document.getElementsByTagName("*"):
         for child in element.childNodes:
             if child.nodeType == child.TEXT_NODE and child.data.strip():
                 child.data = _standalone(child.data, rewrite, report)
+        attributes = element.attributes
+        for qualified in list(attributes.keys()) if attributes is not None else []:
+            if qualified == "xmlns" or qualified.startswith("xmlns:"):
+                continue
+            value = element.getAttribute(qualified)
+            new = _standalone(value, rewrite, report)
+            if new != value:
+                element.setAttribute(qualified, new)
 
 
 __all__ = ["OfficeReport", "rewrite_docx"]
