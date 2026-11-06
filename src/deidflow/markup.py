@@ -108,6 +108,70 @@ _CSS_VALUE = re.compile(
 _ATTRIBUTE = re.compile(
     r"""([^\s"'>/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?""", re.DOTALL
 )
+_CHARACTER_REFERENCE = re.compile(r"&(?:#[0-9]+;?|#[xX][0-9a-fA-F]+;?|[^\t\n\f <&#;]{1,32};?)")
+_PERCENT_RUN = re.compile(r"(?:%[0-9a-fA-F]{2})+")
+_URL_CONTROLS = re.compile(r"[\x00-\x20\x7f]")
+
+
+def _decode_url_percent_escapes(value: str) -> str:
+    for _ in range(3):
+        decoded = unquote(value, errors="strict")
+        if decoded == value:
+            break
+        value = decoded
+    return value
+
+
+def _replace_url_source_spans(raw: str, value: str, mappings: list[tuple[int, int, str]]) -> str:
+    """Project scan-only URL decoding back to raw attribute text, lazily.
+
+    Decoding never becomes an emitted URL. Percent-encoded UTF-8 scalars and
+    HTML references are indivisible source atoms; other bytes remain untouched.
+    The bounded map is built only for a value with actual replacements.
+    """
+    if len(raw) > 1024 * 1024:
+        raise ValueError("HTML URL replacement exceeds the mapping limit")
+    text = raw
+    bounds = [(i, i + 1) for i in range(len(raw))]
+    # One HTML-reference pass, then the same three bounded URL-decoding passes.
+    for percent in (False, True, True, True):
+        pattern = _PERCENT_RUN if percent else _CHARACTER_REFERENCE
+        chunks: list[str] = []
+        projected: list[tuple[int, int]] = []
+        cursor = 0
+        for match in pattern.finditer(text):
+            chunks.append(text[cursor : match.start()])
+            projected.extend(bounds[cursor : match.start()])
+            token = match.group()
+            decoded = unquote(token, errors="strict") if percent else html.unescape(token)
+            chunks.append(decoded)
+            if decoded == token:
+                projected.extend(bounds[match.start() : match.end()])
+            elif percent:
+                offset = match.start()
+                for character in decoded:
+                    end = offset + 3 * len(character.encode("utf-8"))
+                    projected.append((bounds[offset][0], bounds[end - 1][1]))
+                    offset = end
+            else:
+                projected.extend(
+                    [(bounds[match.start()][0], bounds[match.end() - 1][1])] * len(decoded)
+                )
+            cursor = match.end()
+        chunks.append(text[cursor:])
+        projected.extend(bounds[cursor:])
+        text, bounds = "".join(chunks), projected
+    kept = [i for i, character in enumerate(text) if ord(character) > 32 and ord(character) != 127]
+    text = "".join(text[i] for i in kept)
+    bounds = [bounds[i] for i in kept]
+    if text != value:
+        raise ValueError("HTML URL source map is inconsistent")
+    edits = []
+    for start, end, replacement in mappings:
+        if not 0 <= start < end <= len(text):
+            raise ValueError("HTML URL replacement has invalid offsets")
+        edits.append((bounds[start][0], bounds[end - 1][1], html.escape(replacement, quote=True)))
+    return _apply(raw, edits)
 
 
 def _safe_css(css: str, *, stylesheet: bool) -> bool:
@@ -341,19 +405,17 @@ class _Parser(HTMLParser):
                     self.result.removable.append((*attribute_span, "css"))
             elif name in CONTENT_ATTRIBUTES:
                 if name in _URL_ATTRIBUTES:
-                    for _ in range(3):
-                        decoded = unquote(value, errors="strict")
-                        if decoded == value:
-                            break
-                        value = decoded
                     # Browser URL parsing ignores embedded ASCII whitespace and
-                    # controls; inspect the same normalized scheme before keeping it.
-                    value = re.sub(r"[\x00-\x20\x7f]", "", value)
-                    if re.search(r"%[0-9a-fA-F]{2}", value) or urlsplit(
-                        value
+                    # controls. This scheme check is never serialized as a URL.
+                    scheme_value = _URL_CONTROLS.sub("", _decode_url_percent_escapes(value))
+                    if re.search(r"%[0-9a-fA-F]{2}", scheme_value) or urlsplit(
+                        scheme_value
                     ).scheme.lower() not in {"", "http", "https", "mailto", "tel"}:
                         self.result.removable.append((*attribute_span, "attribute"))
                         continue
+                    # Retain encoded-PII detection. Its scan offsets are projected
+                    # back to the raw attribute when an actual change is required.
+                    value = scheme_value
                 self.result.attributes.append((value_start, value_end, name, value))
             elif name in _ENUM_ATTRIBUTES and value.lower() in _ENUM_ATTRIBUTES[name]:
                 self.result.canonical.append((value_start, value_end, value.lower()))
@@ -511,9 +573,15 @@ def rewrite_html(source: str, rewrite: Rewrite) -> tuple[str, MarkupReport]:
         else:
             output, mappings = rewrite(value)
             count = len(mappings)
-        if count or source[start:end] != html.escape(output, quote=True):
+        if output != value:
             report.transformations += count
-            edits.append((start, end, html.escape(output, quote=True)))
+            if name in _URL_ATTRIBUTES and mappings:
+                escaped = _replace_url_source_spans(source[start:end], value, mappings)
+            else:
+                escaped = html.escape(output, quote=True)
+            if source[start - 1] not in "\"'":
+                escaped = '"' + escaped + '"'
+            edits.append((start, end, escaped))
     for start, end, value in markup.css:
         output, mappings = rewrite(value)
         if mappings:
