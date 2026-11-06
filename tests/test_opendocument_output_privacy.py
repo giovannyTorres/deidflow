@@ -2,6 +2,7 @@ import zipfile
 from pathlib import Path
 from xml.sax.saxutils import quoteattr
 
+import opendocument_privacy_samples as samples
 import pytest
 from opendocument_privacy_samples import (
     NS,
@@ -11,9 +12,110 @@ from opendocument_privacy_samples import (
     append_deflate_tail,
     package,
 )
+from opendocument_samples import make_ods_cell
 
 from deidflow import DeidEngine, Policy
 from deidflow.readers import read_document
+
+
+@pytest.mark.parametrize("tag", ("s", "tab", "line-break"))
+@pytest.mark.parametrize("child", (SECRET, f"<text:span>{SECRET}</text:span>", "<text:span/>", " "))
+def test_whitespace_element_children_block_output_without_emitting_file(tmp_path, tag, child):
+    source = package(tmp_path, f"<text:p>Informe.<text:{tag}>{child}</text:{tag}></text:p>")
+    output = tmp_path / "safe.odt"
+    result = DeidEngine(country="ES").deidentify(
+        source, output=output, policy=Policy.strict(require_ner=False)
+    )
+    assert result.status == "BLOCKED"
+    assert result.issues == ["MALFORMED_INPUT"]
+    assert result.output_path is None
+    assert not output.exists()
+
+
+def test_empty_whitespace_elements_still_rewrite_and_verify(tmp_path):
+    source = package(
+        tmp_path, '<text:p>Informe.<text:s text:c="2"/>A<text:tab/>B<text:line-break/>C</text:p>'
+    )
+    result = DeidEngine(country="ES").deidentify(
+        source, output=tmp_path / "safe.odt", policy=Policy.strict(require_ner=False)
+    )
+    assert result.output_path is not None, result.issues
+    graph = read_document(result.output_path)
+    assert graph.complete, graph.issues
+    assert any("Informe.  A\tB\nC" in fragment.text for fragment in graph.fragments)
+    assert (
+        DeidEngine(country="ES")
+        .verify(result.output_path, policy=Policy.strict(require_ner=False))
+        .status
+        == "APPROVED"
+    )
+
+
+@pytest.mark.parametrize("value", (SECRET, f"<![CDATA[{SECRET}]]>"))
+def test_direct_spreadsheet_cell_text_blocks_output_without_emitting_file(tmp_path, value):
+    source = make_ods_cell(tmp_path / "raw.ods", value)
+    output = tmp_path / "safe.ods"
+    result = DeidEngine(country="ES").deidentify(
+        source, output=output, policy=Policy.strict(require_ner=False)
+    )
+    assert result.status == "BLOCKED"
+    assert result.issues == ["MALFORMED_INPUT"]
+    assert result.output_path is None
+    assert not output.exists()
+
+
+@pytest.mark.parametrize(
+    "value", (" \n", "<text:p>Importe</text:p>", " \n<text:p>Importe</text:p> \n")
+)
+def test_supported_spreadsheet_cells_still_emit_reviewable_output(tmp_path, value):
+    source = make_ods_cell(tmp_path / "supported.ods", value)
+    result = DeidEngine(country="ES").deidentify(
+        source, output=tmp_path / "safe.ods", policy=Policy.strict(require_ner=False)
+    )
+    assert result.output_path is not None, result.issues
+    assert read_document(result.output_path).complete
+    assert (
+        DeidEngine(country="ES")
+        .verify(result.output_path, policy=Policy.strict(require_ner=False))
+        .status
+        == "REVIEW_REQUIRED"
+    )
+
+
+@pytest.mark.parametrize("encoding", ("utf-8", "utf-16le"))
+@pytest.mark.parametrize(
+    "channel",
+    ("settings", "certificate", "signature_value", "rdf_certificate", "rdf_base64", "rdf_hex"),
+)
+def test_removed_opaque_metadata_produces_independently_verified_output(
+    tmp_path, encoding, channel
+):
+    source = samples.binary_metadata_package(tmp_path, encoding, channel)
+    engine = DeidEngine(country="ES")
+    policy = Policy.strict(require_ner=False)
+    assert not read_document(source).complete
+    assert engine.verify(source, policy=policy).status == "BLOCKED"
+    result = engine.deidentify(source, output=tmp_path / "safe.odt", policy=policy)
+    assert result.output_path is not None, result.issues
+    assert read_document(result.output_path).complete
+    assert engine.verify(result.output_path, policy=policy).status == "APPROVED"
+    with zipfile.ZipFile(result.output_path) as archive:
+        assert not {"settings.xml", "manifest.rdf", "META-INF/documentsignatures.xml"} & set(
+            archive.namelist()
+        )
+
+
+@pytest.mark.parametrize("encoding", ("utf-8", "utf-16le"))
+def test_opaque_binary_settings_retained_outside_settings_part_block_output(tmp_path, encoding):
+    source = samples.binary_metadata_package(tmp_path, encoding, "content_settings")
+    output = tmp_path / "safe.odt"
+    result = DeidEngine(country="ES").deidentify(
+        source, output=output, policy=Policy.strict(require_ner=False)
+    )
+    assert result.status == "BLOCKED"
+    assert "uninspected_odf_binary_metadata" in result.issues
+    assert result.output_path is None
+    assert not output.exists()
 
 
 @pytest.mark.parametrize("failure", ("crc", "deflate", "unsupported_compression"))
