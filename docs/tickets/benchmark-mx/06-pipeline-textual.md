@@ -5,6 +5,9 @@
 
 **Estado de publicación:** borrador; no existe número/URL de issue verificado.
 
+**Estado de implementación:** implementada y revisada; integración final del lote pendiente.
+Evidencia: [acta BMX-06](../../audit/BMX-06.md).
+
 **Tipo:** tarea técnica. **Etiqueta propuesta:** `ready-for-agent`; no aplicada.
 
 **Bloqueado por:** BMX-03, BMX-05.
@@ -23,21 +26,21 @@ Medir el pipeline real de detección/transformación con el motor existente, com
 
 ## Criterios de aceptación
 
-- [ ] Informar fugas por mención/documento, conservación, resultado conjunto y conteos por estado.
+- [x] Informar fugas por mención/documento, conservación, resultado conjunto y conteos por estado.
 
-- [ ] Sin aprobados, la fuga entre aprobados es indefinida; sin salida no hay éxito conjunto ni fuga cero certificada.
+- [x] Sin aprobados, la fuga entre aprobados es indefinida; sin salida no hay éxito conjunto ni fuga cero certificada.
 
-- [ ] Inspeccionar todas las salidas observables y no acreditar eliminación únicamente por mapas o por repetir el detector.
+- [x] Inspeccionar todas las salidas observables y no acreditar eliminación únicamente por mapas o por repetir el detector.
 
-- [ ] Los tres ejes de veredicto del evaluador no se confunden con ReleaseStatus; sin perfil ratificado no se emite aprobación de calidad.
+- [x] Los tres ejes de veredicto del evaluador no se confunden con ReleaseStatus; sin perfil ratificado no se emite aprobación de calidad.
 
 ## Pruebas y evidencia exigidas
 
-- [ ] Candidato que bloquea todo: cero éxito conjunto y denominador de aprobados cero.
+- [x] Candidato que bloquea todo: cero éxito conjunto y denominador de aprobados cero.
 
-- [ ] Candidato que emite dato residual con APPROVED, REVIEW_REQUIRED o BLOCKED conserva evidencia y estado propios.
+- [x] Candidato que emite dato residual con APPROVED, REVIEW_REQUIRED o BLOCKED conserva evidencia y estado propios.
 
-- [ ] Candidatos que cambian solo un sufijo, copian el valor en otra zona o lanzan error no mejoran métricas por exclusión del caso.
+- [x] Candidatos que cambian solo un sufijo, copian el valor en otra zona o lanzan error no mejoran métricas por exclusión del caso.
 
 ## Trazabilidad
 
@@ -45,7 +48,7 @@ AC-06, AC-08, AC-09, AC-13 de DF-EVAL-MX v0.1.0.
 
 ## Restricciones y fuera de alcance
 
-- Esta creación de tareas no inicia la implementación.
+- La solicitud actual autorizó implementar este incremento dentro del lote BMX-03 a BMX-12.
 - El trabajo futuro se limita al sistema de evaluación; no corregir detectores, políticas ni transformadores de producción para hacer pasar el benchmark.
 - Solo datos ficticios o fuentes públicas no personales con permisos comprobados; nunca documentos personales reales ni envío a servicios externos.
 - Evaluación local, sin descargas/inferencia/telemetría remotas ni dependencias obligatorias nuevas. Cualquier adquisición o publicación requiere autorización de su tarea.

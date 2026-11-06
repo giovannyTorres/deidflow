@@ -244,9 +244,13 @@
       "draft_file": "06-pipeline-textual.md",
       "github_title": "[DF-EVAL-MX][BMX-06] Evaluar la salida real del pipeline textual y sus estados",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-06 -->",
-      "body_sha256": "1a258e96838a904b9e43ebab99e6494cc5400d315c192145d38ecbf22a800698",
+      "body_sha256": "d5ddf50271cdfd17b52f4675e30aa794eb818b0a1832edc2ee200b5434985e0c",
       "github_issue_number": null,
-      "github_issue_url": null
+      "github_issue_url": null,
+      "implementation_status": "implemented_and_reviewed",
+      "integrated_validation_pending": true,
+      "implementation_evidence": "../../audit/BMX-06.md",
+      "reviewed_code_commit": "4d95eb85f9638776ed513e64371e5a8cd93eacf5"
     },
     {
       "id": "BMX-07",

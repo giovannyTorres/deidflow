@@ -1,6 +1,7 @@
 # BMX-06: pipeline textual real
 
-Base: `ed3287b`. Estado: pruebas focalizadas; revisión independiente pendiente.
+Base: `ed3287b`. Estado: implementada y revisada; integración final pendiente.
+Código revisado: `4d95eb85f9638776ed513e64371e5a8cd93eacf5`.
 Guía: [contratos y límites](../BENCHMARK_MX_PIPELINE.md).
 
 TDD: 10 pruebas fallaron primero por módulo inexistente. La comprobación del
@@ -23,8 +24,19 @@ aborda aquí. Sin datos reales, red, cambios de producción ni dependencias.
 
 ## Standards
 
-Pendiente revisión independiente.
+Revisor `/root/batch06_standards`: 0 infracciones documentadas y 2 juicios P3
+iniciales. Se extrajo selección/resolución compartida y se tipó observación
+documental; confirmó 0 pendientes y sin nuevos hallazgos en el delta final.
 
 ## Spec
 
-Pendiente revisión independiente.
+Revisor `/root/batch06_spec`: 1 P1 y 3 P2 detectados en dos pasadas.
+Se corrigieron mediante pruebas rojas/verdes: artefactos textuales secundarios
+ignorados, salida perdida ante mapas None, capacidades obligatorias ignoradas
+y conservación incompleta al agregar varias salidas. Revalidó los cuatro: 0
+pendientes. Confirmó con 17 tests y caso de negación: 0/1 contexto, 32/34
+caracteres retenidos, 2 sobretransformados, conformidad FAIL. No se publican
+máscaras internas ni nombres de artefacto.
+
+Salud: **214 pruebas focalizadas**, Ruff/formato y mypy74 pasan. Logs en
+`/tmp/deidflow-batch/BMX-06/`. Suite completa y wheel al integrar el lote.

@@ -43,3 +43,13 @@ es FAIL técnico; una capacidad/observación pendiente es INCOMPLETE. La calidad
 es siempre DESCRIPTIVE_ONLY sin perfil de calidad ratificado. Este incremento
 es texto/regresión conocida: no acredita los formatos obligatorios de primera
 versión, aislamiento nativo, independencia ni aprobación profesional.
+
+Los artefactos retornados por output_path, safe_jsonl y audit_path se leen con
+límite de bytes, sin seguir symlinks ni bloquearse en FIFO. Se buscan residuales
+en el texto decodificable; formatos distintos de .txt, rutas no legibles o
+canales sin inspector quedan incompletos. No se concede retirada si aparece
+residuo en otra salida. Conservación combina máscaras por carácter y obligaciones
+por span entre todas las salidas, sin multiplicar los denominadores. Un mapa
+malformado conserva la salida observable y se registra como error del candidato.
+Las capacidades obligatorias desconocidas dejan documentos pendientes y
+conformidad incompleta, aunque el recorrido textual conocido haya ejecutado.
