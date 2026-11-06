@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- Detect identifiers on a Cf-free NFKC view and project findings back to complete
+  original character spans, including inserted format controls. Preserve source
+  text outside transformed spans and ordinal address syntax through provenance.
+- Require review when format controls remain inside alphanumeric output. Bump
+  rule provenance to `rules-0.7`, invalidating prior rule calibrations/review plans.
+- Candidate validation remains incomplete: MEDDOCAN dev regresses with the
+  existing general model and Gretel validation assets are unavailable here.
+  This change does not establish release approval.
+
 ## 0.6.0b1 - Spanish context product candidate
 
 - Added versioned clinical, financial, legal starter and general domain packs,

@@ -20,6 +20,31 @@ finding list on an incomplete graph must never approve a release.
 | Parquet | All flat columns through bounded Arrow batches; graph size limits apply | Automatic Parquet rewrite unsupported |
 | DataFrames | See structured engine | See structured engine |
 
+## Unicode detection and original offsets
+
+Built-in rules and NLP adapters receive a detection view with Unicode format
+controls (category `Cf`) removed and NFKC applied. Source text is retained;
+findings project to complete original canonical clusters, including adjacent
+inserted controls. Compatibility expansions and reordered combining marks do
+not expose partially replaced original characters. Address grammar also uses
+source ordinal provenance, since NFKC merges `º`/`ª` with ordinary `o`/`a`.
+
+Text, structured cells, Office, HTML and e-mail writers transform original spans
+and reread the emitted artifact. A remaining format control between alphanumeric
+characters yields `UNICODE_FORMAT_CONTROLS_REQUIRE_REVIEW` and prevents approval,
+without inventing a sensitive entity. This fallback does not prove completeness
+of detection. HTML entities are checked after decoding by the existing parser.
+
+ASCII and already normalized identity views allocate no maps. Nonidentity views
+bound decomposition/tracing to one million characters by default; the NLP path
+also checks its batch mapping budget. These are admission estimates, not an RSS
+or process-isolation guarantee. Unicode behavior uses the interpreter's Unicode
+database and is recorded with the candidate evidence.
+
+The current candidate has a documented MEDDOCAN validation regression and pending
+Gretel evidence. See [the audit handoff](audit/unicode-normalization/README.md).
+ODT/ODS coverage remains pending the separate OpenDocument PR.
+
 ## DOCX and XLSX
 
 The readers use Python's standard ZIP/XML implementations and do not need Word,
