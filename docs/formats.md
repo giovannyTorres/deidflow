@@ -15,10 +15,38 @@ finding list on an incomplete graph must never approve a release.
 | CSV/TSV | All headers and cells; quoted multiline cells preserved | Use streaming table engine for large files |
 | DOCX | OOXML paragraphs, tables, revisions, headers, footers, footnotes, endnotes, comments, property metadata, field instructions, external relationship targets | In-place DOCX rewrite, verified by rereading (see below) |
 | XLSX | Visible/hidden/very-hidden sheets, cells, formulas and cached values, comments, headers/footers, names and metadata | Supervised XLSX rewrite; always `REVIEW_REQUIRED` or `BLOCKED` |
+| ODT | Shared XML text stream, content and structural attributes, metadata and package inspection | Unsupported; original can be read and verified |
+| ODS | ODT inspection plus sheet/cell coordinates, repeated cells, formulas and typed values | Unsupported; standalone verification always needs review or blocks |
 | PDF | Native pypdf text, page coordinates, Info metadata and annotation text; selective page OCR when configured | Lossless image-only reconstruction with physical removal and verified output; supported geometry only |
 | PNG/JPEG/TIFF | Every frame through explicit local OCR adapter | Separate pixel operator; always review required |
 | Parquet | All flat columns through bounded Arrow batches; graph size limits apply | Automatic Parquet rewrite unsupported |
 | DataFrames | See structured engine | See structured engine |
+
+## ODT and ODS reading
+
+`read_document()` and `engine.verify()` accept `.odt` and `.ods` without optional
+dependencies. This increment does not provide an OpenDocument writer:
+`engine.deidentify(source, output=...)` returns `UNSUPPORTED` for these formats
+without creating an output file. E-mail output continues to remove unsupported
+ODT/ODS attachments with `EMAIL_ATTACHMENT_REMOVED`.
+
+The reader scans paragraphs, spans, tables, headers/footers, notes, comments,
+tracked text, shapes, displayed fields, content attributes, qualified XML names,
+namespace aliases and retained structural attribute values. ODS grids include
+sheet names, cell coordinates, repeated content, typed values and formulas.
+Settings, RDF/signature XML, manifest entries and package member names are
+inspected where supported. Archive and XML limits apply; malformed, encrypted
+or excessively nested XML is rejected.
+
+Media, embedded objects, macros, unknown parts and unresolved package references
+preserve incomplete coverage. XML comments/processing instructions and opaque
+ZIP metadata, nonempty directory payloads, configuration and layout-cache data
+also mark coverage incomplete. A clean text scan cannot approve these hidden
+channels. Ordinary CDATA text is scanned normally. ODS always carries
+`ODS_REVIEW_REQUIRED`, including standalone verification.
+
+These checks use the configured local detectors and do not establish anonymity.
+See [the reader handoff](audit/OPENDOCUMENT_READER.md) for scope and validation.
 
 ## DOCX and XLSX
 

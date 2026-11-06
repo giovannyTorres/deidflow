@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Added local ODT/ODS reading and standalone verification with shared XML text,
+  attribute, spreadsheet and package inspection. Uninspected channels preserve
+  incomplete coverage; ODS always requires review. Automatic ODT/ODS rewriting
+  and rewritten e-mail attachments remain unsupported in this reader increment.
+
 ## 0.6.0b1 - Spanish context product candidate
 
 - Added versioned clinical, financial, legal starter and general domain packs,
