@@ -6,10 +6,12 @@ from benchmark_case_fixtures import fixture_records, profile_package
 from deidflow.engine import ReleaseStatus, Result
 
 
-def run_pipeline(tmp_path, callback="rules.mx"):
+def run_pipeline(tmp_path, callback="rules.mx", *, capability=None):
     from deidflow.benchmarks.pipeline_runner import PipelineCandidate, run_pipeline_benchmark
 
     records = fixture_records()
+    if capability:
+        records["documents"][0]["capabilities_required"].append(capability)
     for expectation in records["expectations"]:
         expectation["acceptable_release_states"] = ["APPROVED", "REVIEW_REQUIRED", "BLOCKED"]
     _, digest = profile_package(tmp_path / "package", records, "pipeline-descriptive-v1", ["EMAIL"])
@@ -117,3 +119,43 @@ def test_changed_suffix_does_not_reduce_required_support(tmp_path):
     assert result["metrics"]["removed_mentions"] == 0
     assert result["metrics"]["joint_success_documents"] == 1
     assert result["release"]["emitted"]["unverified_without_confirmed_leak"] == 1
+
+
+def test_malformed_maps_do_not_hide_observable_output(tmp_path):
+    def malformed(text, policy):
+        return Result(ReleaseStatus.APPROVED, output_text=text, mappings=None)
+
+    result = run_pipeline(tmp_path, malformed)
+    assert result["release"]["emitted"]["emitted"] == 2
+    assert result["release"]["approved"]["leaked"] == 1
+    assert result["metrics"]["leaked_mentions"] == 2
+
+
+@pytest.mark.parametrize("field", ["output_path", "safe_jsonl", "audit_path"])
+def test_secondary_text_artifact_with_residual_is_not_ignored(tmp_path, field):
+    from deidflow import DeidEngine
+
+    engine = DeidEngine(language="es", country="MX", offline=True)
+
+    def additional_artifact(text, policy):
+        result = engine.deidentify_text(text, policy=policy)
+        artifact = tmp_path / "FICTIONAL_FILENAME.txt"
+        artifact.write_text(text)
+        setattr(result, field, artifact)
+        return result
+
+    result = run_pipeline(tmp_path, additional_artifact)
+    assert result["release"]["approved"]["leaked"] == 1
+    assert result["metrics"]["leaked_mentions"] == 2
+    assert result["metrics"]["removed_mentions"] == 0
+    assert result["metrics"]["joint_success_documents"] == 1
+    assert result["verdicts"]["technical_conformity"] == "FAIL"
+    assert "FICTIONAL_FILENAME" not in (tmp_path / "report" / "report.json").read_text()
+
+
+def test_missing_required_capability_cannot_pass_conformity(tmp_path):
+    result = run_pipeline(tmp_path, capability="unimplemented_text_capability")
+    assert result["verdicts"]["technical_conformity"] == "INCOMPLETE"
+    assert result["verdicts"]["execution"] == "INCOMPLETE"
+    assert result["execution"]["pending_documents"] == 1
+    assert result["diagnostics"] == [{"code": "REQUIRED_CAPABILITY_NOT_EVALUATED", "count": 1}]

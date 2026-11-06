@@ -19,7 +19,7 @@ from .transformation_metrics import (
     TextRequirement,
     TransformationOutput,
     inspect_text_output,
-    resolve_requirements,
+    requirements_for_unit,
 )
 
 
@@ -117,15 +117,12 @@ def run_transformation_benchmark(
         if unit["case_id"] not in cases:
             continue
         units += 1
-        rows = [
-            row
-            for row in records["expectations"]
-            if row["profile_id"] == profile
-            and (mentions[row["mention_id"]]["unit_id"] if row["mention_id"] else row["unit_id"])
-            == unit["unit_id"]
-        ]
-        requirements, superseded = resolve_requirements(
-            rows, mentions, records[loaded.manifest["profiles"][profile]["resource"]]["precedence"]
+        requirements, superseded = requirements_for_unit(
+            records["expectations"],
+            mentions,
+            unit["unit_id"],
+            profile,
+            records[loaded.manifest["profiles"][profile]["resource"]]["precedence"],
         )
         overridden += superseded
         try:

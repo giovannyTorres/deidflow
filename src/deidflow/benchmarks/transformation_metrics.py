@@ -24,8 +24,25 @@ class TextRequirement:
 @dataclass(frozen=True)
 class TransformationOutput:
     text: str | None
-    mappings: tuple[SourceMap, ...]
+    mappings: tuple[SourceMap, ...] | None
     release_status: str = "APPROVED"
+
+
+def requirements_for_unit(
+    expectations: list[dict[str, Any]],
+    mentions: dict[str, dict[str, Any]],
+    unit_id: str,
+    profile: str,
+    precedence: list[str],
+) -> tuple[list[TextRequirement], int]:
+    rows = [
+        row
+        for row in expectations
+        if row["profile_id"] == profile
+        and (mentions[row["mention_id"]]["unit_id"] if row["mention_id"] else row["unit_id"])
+        == unit_id
+    ]
+    return resolve_requirements(rows, mentions, precedence)
 
 
 def resolve_requirements(
@@ -181,6 +198,7 @@ def inspect_text_output(
         ),
         0,
     )
+    removal_outcomes = []
     for requirement in requirements:
         positions = [
             position for start, end in requirement.ranges for position in range(start, end)
@@ -227,6 +245,7 @@ def inspect_text_output(
             counts["leaked_mentions"] += int(leaked)
             counts["unverifiable_mentions"] += int(not verified and not leaked)
             counts["failed_requirements"] += int(not verified or leaked)
+            removal_outcomes.append("leaked" if leaked else "removed" if verified else "unknown")
         elif action == "preserve":
             counts["required_context_spans"] += 1
             intact = valid_maps and all(preserved[position] for position in positions)
@@ -257,4 +276,5 @@ def inspect_text_output(
         and not counts["unverifiable_mentions"],
         "joint_success": bool(joint and output is not None),
         "output_observable": output is not None and output.text is not None,
+        "removal_outcomes": tuple(removal_outcomes),
     }

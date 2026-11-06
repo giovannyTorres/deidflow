@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import os
 import re
+import stat
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -13,13 +15,18 @@ from deidflow.core import Finding
 from deidflow.engine import ReleaseStatus, Result
 from deidflow.policies import Policy
 
-from ._package_io import is_sha256
+from ._package_io import MAX_RESOURCE_BYTES, is_sha256
 from .datasets import Example, GoldSpan
 from .detection_metrics import score_detection
 from .email import _source_digest, _write_report
 from .evaluation_package import load_evaluation_package
 from .package_runner import _findings
-from .transformation_metrics import TransformationOutput, inspect_text_output, resolve_requirements
+from .transformation_metrics import (
+    TextRequirement,
+    TransformationOutput,
+    inspect_text_output,
+    requirements_for_unit,
+)
 from .transformation_runner import transformation_policy
 
 
@@ -38,34 +45,111 @@ class UnsupportedPipelineError(ValueError):
         super().__init__("Unsupported pipeline benchmark configuration")
 
 
-def _risk(documents: list[dict[str, Any]]) -> dict[str, Any]:
-    emitted = [row for row in documents if row["emitted"]]
+@dataclass(frozen=True)
+class _DocumentObservation:
+    state: str
+    emitted: bool
+    complete: bool
+    leaked: bool
+    joint: bool
+    failed: bool
+
+
+def _risk(documents: list[_DocumentObservation]) -> dict[str, Any]:
+    emitted = [row for row in documents if row.emitted]
     count = len(emitted)
-    leaked = sum(row["leaked"] for row in emitted)
-    uncertain = sum(not row["complete"] and not row["leaked"] for row in emitted)
+    leaked = sum(row.leaked for row in emitted)
+    uncertain = sum(not row.complete and not row.leaked for row in emitted)
     return {
         "emitted": count,
         "leaked": leaked,
         "unverified_without_confirmed_leak": uncertain,
-        "completely_inspected": sum(row["complete"] for row in emitted),
+        "completely_inspected": sum(row.complete for row in emitted),
         "risk_lower": leaked / count if count else None,
         "risk_upper": (leaked + uncertain) / count if count else None,
         "undefined_reason": None if count else "NO_EMITTED_DOCUMENTS",
     }
 
 
-def _document_summary(events: list[dict[str, Any]]) -> dict[str, Any]:
+def _document_summary(events: list[dict[str, Any]]) -> _DocumentObservation:
     priority = ["ERROR", "UNSUPPORTED", "BLOCKED", "REVIEW_REQUIRED", "APPROVED"]
-    return {
-        "state": min((row["state"] for row in events), key=priority.index),
-        "emitted": any(row["output_observable"] for row in events),
-        "complete": all(
-            row["output_observable"] and row["verification_complete"] for row in events
-        ),
-        "leaked": any(row["leaked_mentions"] for row in events),
-        "joint": all(row["joint_success"] for row in events),
-        "failed": any(row["error"] for row in events),
-    }
+    return _DocumentObservation(
+        state=min((row["state"] for row in events), key=priority.index),
+        emitted=any(row["output_observable"] for row in events),
+        complete=all(row["output_observable"] and row["verification_complete"] for row in events),
+        leaked=any(row["leaked_mentions"] for row in events),
+        joint=all(row["joint_success"] for row in events),
+        failed=any(row["error"] for row in events),
+    )
+
+
+def _artifact_text(path: Path) -> str:
+    descriptor = os.open(path, os.O_RDONLY | os.O_NONBLOCK | getattr(os, "O_NOFOLLOW", 0))
+    with os.fdopen(descriptor, "rb") as stream:
+        if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+            raise ValueError
+        payload = stream.read(MAX_RESOURCE_BYTES + 1)
+    if len(payload) > MAX_RESOURCE_BYTES:
+        raise ValueError
+    return payload.decode("utf-8")
+
+
+def _inspect_outputs(
+    text: str, requirements: list[TextRequirement], result: Result
+) -> dict[str, Any]:
+    mappings = tuple(result.mappings) if isinstance(result.mappings, (tuple, list)) else None
+    emitted = [result.output_text] if isinstance(result.output_text, str) else []
+    returned_paths = (result.output_path, result.safe_jsonl, result.audit_path)
+    paths = {path for path in returned_paths if isinstance(path, Path)}
+    pending = result.dataframe is not None or any(
+        path is not None and not isinstance(path, Path) for path in returned_paths
+    )
+    for path in paths:
+        try:
+            artifact = _artifact_text(path)
+            if artifact not in emitted:
+                emitted.append(artifact)
+            if path.suffix.lower() != ".txt":
+                pending = True
+        except (OSError, ValueError, UnicodeError):
+            pending = True
+    inspections = [
+        inspect_text_output(
+            text, requirements, TransformationOutput(value, mappings, result.status.value)
+        )
+        for value in emitted
+    ]
+    primary = (
+        inspections[0]
+        if inspections
+        else inspect_text_output(
+            text, requirements, TransformationOutput(None, mappings, result.status.value)
+        )
+    )
+    outcomes = [row["removal_outcomes"] for row in inspections]
+    if outcomes:
+        combined = [
+            "leaked"
+            if "leaked" in states
+            else "removed"
+            if all(state == "removed" for state in states) and not pending
+            else "unknown"
+            for states in zip(*outcomes, strict=True)
+        ]
+        primary["removed_mentions"] = combined.count("removed")
+        primary["leaked_mentions"] = combined.count("leaked")
+        primary["unverifiable_mentions"] = combined.count("unknown")
+    primary["verification_complete"] = (
+        bool(inspections)
+        and not pending
+        and all(row["verification_complete"] for row in inspections)
+    )
+    primary["joint_success"] = (
+        bool(inspections) and not pending and all(row["joint_success"] for row in inspections)
+    )
+    primary["output_observable"] = bool(emitted or paths) or result.dataframe is not None
+    primary["unverified_additional_channels"] = int(pending)
+    return primary
 
 
 def run_pipeline_benchmark(
@@ -116,6 +200,13 @@ def run_pipeline_benchmark(
     }
     if not cases:
         raise UnsupportedPipelineError
+    pending_cases = {
+        row["case_id"]
+        for row in records["documents"]
+        if row["case_id"] in cases
+        and set(row["capabilities_required"])
+        - {"text_detection", "text_transformation", "text_verification", "text_pipeline"}
+    }
     mentions = {row["mention_id"]: row for row in records["mentions"]}
     precedence = records[loaded.manifest["profiles"][profile]["resource"]]["precedence"]
     examples, predictions = [], []
@@ -137,15 +228,10 @@ def run_pipeline_benchmark(
                 "package-fixture",
             )
         )
-        rows = [
-            row
-            for row in records["expectations"]
-            if row["profile_id"] == profile
-            and (mentions[row["mention_id"]]["unit_id"] if row["mention_id"] else row["unit_id"])
-            == unit["unit_id"]
-        ]
-        requirements, overridden = resolve_requirements(rows, mentions, precedence)
-        observed = None
+        requirements, overridden = requirements_for_unit(
+            records["expectations"], mentions, unit["unit_id"], profile, precedence
+        )
+        result = None
         error, state = False, "ERROR"
         try:
             _gold, policy = transformation_policy(requirements)
@@ -155,30 +241,37 @@ def run_pipeline_benchmark(
             if result.output_text is not None and not isinstance(result.output_text, str):
                 raise ValueError
             state = result.status.value
-            observed = TransformationOutput(result.output_text, tuple(result.mappings), state)
         except Exception:
             error = True
             failed_units += 1
+        if isinstance(result, Result) and not isinstance(result.mappings, (tuple, list)):
+            if not error:
+                failed_units += 1
+            error = True
         if detect is not None:
             try:
                 predictions.append(_findings(detect(unit["text"]), unit["text"]))
             except Exception:
                 detection_failed = True
-        inspected = inspect_text_output(unit["text"], requirements, observed)
+        inspected = (
+            _inspect_outputs(unit["text"], requirements, result)
+            if isinstance(result, Result) and isinstance(result.status, ReleaseStatus)
+            else inspect_text_output(unit["text"], requirements, None)
+        )
         cases[unit["case_id"]].append({**inspected, "state": state, "error": error})
         for key, value in inspected.items():
             if type(value) is int:
                 totals[key] = totals.get(key, 0) + value
         totals["overridden_chars"] = totals.get("overridden_chars", 0) + overridden
     documents = [_document_summary(events) for events in cases.values()]
-    failed_documents = sum(row["failed"] for row in documents)
+    failed_documents = sum(row.failed for row in documents)
     states = {
-        state: sum(row["state"] == state for row in documents)
+        state: sum(row.state == state for row in documents)
         for state in (*[item.value for item in ReleaseStatus], "ERROR")
     }
     emitted, approved = (
         _risk(documents),
-        _risk([row for row in documents if row["state"] == "APPROVED"]),
+        _risk([row for row in documents if row.state == "APPROVED"]),
     )
     detection = score_detection(
         examples,
@@ -199,11 +292,12 @@ def run_pipeline_benchmark(
         for key in ("leaked_mentions", "overtransformed_chars", "release_state_failures")
     )
     complete = (
-        all(row["complete"] for row in documents)
+        all(row.complete for row in documents)
         and not failed_units
         and detect is not None
         and not detection_failed
         and not totals["review_required_spans"]
+        and not pending_cases
     )
     report = {
         "schema_version": "df-eval-mx.pipeline-report.v1",
@@ -223,23 +317,36 @@ def run_pipeline_benchmark(
             "scope": {"track": "pipeline", "source_format": "text"},
             "execution": {
                 "required_documents": len(cases),
-                "completed_documents": len(cases) - failed_documents,
+                "completed_documents": sum(
+                    not row.failed and case not in pending_cases
+                    for case, row in zip(cases, documents, strict=True)
+                ),
+                "pending_documents": len(pending_cases),
                 "failed_documents": failed_documents,
                 "required_units": len(examples),
                 "failed_units": failed_units,
             },
-            "attempt_status": "candidate_error" if failed_units else "completed",
+            "attempt_status": "candidate_error"
+            if failed_units
+            else "incomplete"
+            if pending_cases
+            else "completed",
+            "diagnostics": [
+                {"code": "REQUIRED_CAPABILITY_NOT_EVALUATED", "count": len(pending_cases)}
+            ]
+            if pending_cases
+            else [],
             "metrics": {
                 **totals,
                 "required_documents": len(cases),
-                "joint_success_documents": sum(row["joint"] for row in documents),
+                "joint_success_documents": sum(row.joint for row in documents),
                 "retention": totals["retained_chars"] / totals["retention_required_chars"]
                 if totals["retention_required_chars"]
                 else None,
             },
             "release": {
                 "states": states,
-                "no_output_documents": sum(not row["emitted"] for row in documents),
+                "no_output_documents": sum(not row.emitted for row in documents),
                 "emitted": emitted,
                 "approved": approved,
                 "state_aggregation": "worst_fragment_state.v1",
@@ -249,7 +356,7 @@ def run_pipeline_benchmark(
             if detect is not None and not detection_failed
             else "ORIGINAL_DETECTIONS_UNAVAILABLE",
             "verdicts": {
-                "execution": "INCOMPLETE" if failed_units else "COMPLETED",
+                "execution": "INCOMPLETE" if failed_units or pending_cases else "COMPLETED",
                 "technical_conformity": "FAIL"
                 if known_failure
                 else "PASS"
