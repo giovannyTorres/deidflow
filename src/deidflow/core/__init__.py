@@ -49,6 +49,7 @@ class EntityType(StrEnum):
     IP_ADDRESS = "IP_ADDRESS"
     TAX_ID = "TAX_ID"
     OTHER_SENSITIVE = "OTHER_SENSITIVE"
+    AMOUNT = "AMOUNT"
 
 
 @dataclass(frozen=True, slots=True)

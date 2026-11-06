@@ -93,9 +93,13 @@ Without a field label (`Domicilio:` and `Dirección:` were already recognized),
 | Mexican colonia and postal code | `Av. Insurgentes Sur 1602, Col. Crédito Constructor, C.P. 03940` | 0.80–0.85 |
 
 Floors, doors and units (`Piso 2`, `8ºB`, `Bajo A`, `Dpto. 302`, `Int. 4`) are
-included. A street without a number, or followed by an ordinary lowercase word
-(`la Plaza Mayor 3 veces`), is not reported. Overlapping candidates become one
-finding, the longest. On validation only (MEDDOCAN dev, the Gretel holdout and
+included. A street without a number, or followed by a bounded measurement or
+duration expression (`la Plaza Mayor 3 veces`, `Glasgow 15 puntos`), is not reported.
+Ordinary prose after an apartment or colony does not shorten the address.
+Overlapping candidates become one
+finding, the longest. The following are historical PR #27 measurements before
+the 0.6 boundary and measurement-context corrections. On validation only
+(MEDDOCAN dev, the Gretel holdout and
 the synthetic validation families) rules-only exact F1 rose from 0.515 to 0.531,
 0.311 to 0.323 and 0.462 to 0.524, and address character coverage from 0.61 to
 0.86 (clinical) and 0.00 to 0.86 (synthetic); with `builtin:auto` exact F1 stayed
@@ -113,7 +117,8 @@ times, versions and scores; and bounds runtime on adversarial input. Spain's
 NSS and Mexico's IMSS NSS have no python-stdnum module, so they require a field
 label.
 
-Rules were developed on validation data only: MEDDOCAN dev, the Gretel train
+The original international rules below were developed on validation data only:
+MEDDOCAN dev, the Gretel train
 holdout and the training families of the synthetic multi-country corpus
 (`deidflow.benchmarks.synthetic_es`). MEDDOCAN dev rules exact F1 rose from 0.493
 to 0.515 (precision 0.685 to 0.697, recall 0.385 to 0.408; dates 0.72 to 0.88,
@@ -122,3 +127,8 @@ phones 0.07 to 0.71); Gretel validation rules recall rose for national IDs from
 rules + tagger character coverage unchanged or slightly higher. On the synthetic
 training families the rules now cover every generated national ID, tax ID, bank
 account and IP address, and 145 of 153 phone numbers.
+
+The 0.6 context rules also incorporate observed synthetic regression failures;
+those updated measurements are explicitly diagnostic, not untouched validation.
+See [context evaluation](CONTEXT_BENCHMARK.md) for the current configuration,
+digests and results. Historical figures above do not measure the final 0.6 tree.

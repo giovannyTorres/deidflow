@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "evidence_collection": "DeidFlow 0.6.0b1 synthetic product regression and adaptation demonstration",
+  "runtime_git_revision": "d5e6d260cf7ce379321a71cd24689a2519b6e073",
+  "source_state": {
+    "python_sources_sha256": "190ab7724f062a97fbf046286001ad4b0cfde0bb89135a80f47f4175a15026b5",
+    "python_source_files": 64,
+    "git_worktree_dirty": false,
+    "model_resource_sha256": {
+      "models/es-clinical-meddocan-1.json.gz": "dc824100552ddb5bae036d128da9cfe4e31aba68b7cb74c2ab1252ddc0952da9",
+      "models/es-domain-router-1.json.gz": "316d2ee699ddee08879d0835df894715ae14b1ae176f1794b45b283d82ff6324",
+      "models/es-finance-gretel-1.json.gz": "f7a28b8fef3ccc1090d171b693f744098b4032008a48b56530c5aabdf371679c",
+      "models/es-general-1.json.gz": "bf7e257f363e17bcc6bee943f9dfaa0cd67e502cf8ac3fd90140bdd916a51903",
+      "models/profiles.json": "31066b164a347f0646f7ba36d60a2e6ae787ef198551ca682dd60561bfe3162f"
+    }
+  },
+  "environment": {
+    "python": "3.11.17",
+    "faker": "40.44.0",
+    "numpy": "2.4.6"
+  },
+  "artifacts": {
+    "context40.csv": {
+      "sha256": "aecd43d5c2a247f14635fea0d2d1265370ccc6bbbee7a7f341efcc5bc3b2bfe5",
+      "bytes": 1796
+    },
+    "context40.json": {
+      "sha256": "6630f17adf440d8d585ace7e3489d648df94edf30b0da7bb2aafa2d485cf066c",
+      "bytes": 14210
+    },
+    "posttraining-demo.csv": {
+      "sha256": "5257cf57e7612eab92d1e9af66168ab7056fa5a8df811bff198531cf36f35683",
+      "bytes": 5585
+    },
+    "posttraining-demo.json": {
+      "sha256": "100f6a1e551dd0b13112bec3cae5d1cc9498efbf41b6e80fd5632f75963653ca",
+      "bytes": 11979
+    },
+    "synthetic-test600.csv": {
+      "sha256": "c280bb700750b1d5f322816f227320adbe626d4386fe68ebcf637c826a5e36f9",
+      "bytes": 7595
+    },
+    "synthetic-test600.json": {
+      "sha256": "606546165580d0c653ee9438594d180b78de1df13dbe825df61b1c5fa4d8a673",
+      "bytes": 35189
+    },
+    "synthetic-validation600.csv": {
+      "sha256": "2df816b150fa54b1c242d378b88afb43d5e5d83ddf53401fa3f55e37e667666f",
+      "bytes": 11707
+    },
+    "synthetic-validation600.json": {
+      "sha256": "0f5eb082e9726903195836b417959d2299354b586114365da8f6e8bf96cbc725",
+      "bytes": 46119
+    }
+  },
+  "historical_baseline": {
+    "path": "../context-baseline-v050b1.json",
+    "sha256": "442621950a1d9eec7b1e1506331a4465d42c148b4af893904045d07fa8869ded",
+    "runtime_git_revision": "7d35654044f670d2f7cddab315428d01d803ed4e"
+  },
+  "csv_projections": {
+    "context40.csv": "Per-domain scalar metrics from context40.json; null becomes empty.",
+    "synthetic-test600.csv": "Pipeline, scope, metric, value from the test report; template breakdown remains in JSON; null becomes empty.",
+    "synthetic-validation600.csv": "Pipeline, scope, metric, value from the validation report; template breakdown remains in JSON; null becomes empty.",
+    "posttraining-demo.csv": "Numeric/null leaves of measurements in posttraining-demo.json, dictionary keys separated by dots and list indices in brackets; null becomes empty."
+  },
+  "interpretation": [
+    "These are fictional regression and demonstration results, not independent real-world gold or a cross-library ranking.",
+    "Errors in context40 and the observed synthetic test informed rule and identity corrections; a fresh unseen annotated corpus is required for external quality estimates.",
+    "Validation supported retaining NarrativeRecognizer; test was not used to select model thresholds.",
+    "The domain pack returned no automatically approved documents; an approved-leak rate with no approvals is null, not zero.",
+    "The final test still has 113/600 documents with annotated direct-identifier leakage, despite 97.419% direct-character removal and 99.196% nonsensitive retention.",
+    "Declared relation fidelity measures graph storage/evidence, not automatic relation extraction or inferred coreference.",
+    "Posttraining adapts its own fictional baseline and stays blocked and inactive; classifier improvement did not change zero observed output leakage.",
+    "Reports contain aggregate metrics and digests, no raw text, reidentification maps, cryptographic keys or model weights."
+  ],
+  "csv_line_endings": "CSV projections are stored with canonical LF line endings; CLI CSV writer output may use CRLF before repository normalization.",
+  "runner_script_sha256": {
+    "scripts/benchmark_context.py": "8a7b6628f638d10e596716db1759aef220307a3b6b35be426161b211c38bca52",
+    "scripts/benchmark_domain_regression.py": "aa961c5b2b938457f902853a7919e216fa51d5a5d1b704965d6cb7178e0132d8",
+    "scripts/adapt_span_tagger.py": "d06120ae8d3ddfe4596c0d309c914fabceec93f36122f067c0234bff5857436a"
+  }
+}

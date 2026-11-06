@@ -253,9 +253,7 @@ _REPLACEMENT_TOKEN = re.compile(
     r"|\[DF_[A-Z][A-Z0-9_]{0,63}_[A-Z2-7]{32}\]"
     r"|\[GENERALIZED\]|\u2588+|\*+"
 )
-SAFE_REPLACEMENT_ACTIONS = frozenset(
-    {"redact", "suppress", "placeholder", "indexed", "pseudonym", "generalize"}
-)
+SAFE_REPLACEMENT_ACTIONS = frozenset({"redact", "suppress", "placeholder", "indexed", "pseudonym"})
 
 
 def replacement_only(

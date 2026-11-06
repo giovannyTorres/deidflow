@@ -75,7 +75,8 @@ jobs:
           /tmp/wheel-smoke/bin/python - <<'EOF'
           import importlib.util
           assert importlib.util.find_spec("numpy") is None, "base wheel must not pull NumPy"
-          from deidflow import DeidEngine
+          assert importlib.util.find_spec("cryptography") is None, "vault encryption must remain optional"
+          from deidflow import DeidEngine, DeidSession, get_domain_pack
           from deidflow.nlp.tagger import BUILTIN_MODELS, SpanTagger
           for name in BUILTIN_MODELS:
               tagger = SpanTagger.builtin(name)
@@ -83,6 +84,29 @@ jobs:
               text = "Nombre: Ernesto Rivera Bueno.\nNHC: 368503.\n"
               result = DeidEngine(nlp=tagger).deidentify_text(text)
               assert "368503" not in result.output_text
+          from pathlib import Path
+          from tempfile import TemporaryDirectory
+          with get_domain_pack("clinical").session() as session:
+              assert isinstance(session, DeidSession)
+              source = "Paciente: Ana López niega diabetes y toma metformina 500 mg."
+              first = session.deidentify(source)
+              second = session.deidentify(source)
+              assert first.output_text == second.output_text
+              assert "Ana López" not in first.output_text
+              assert "metformina 500 mg" in first.output_text and "niega diabetes" in first.output_text
+              assert first.status == second.status == "REVIEW_REQUIRED"
+              assert session.reidentify(second.output_text).text == source
+              assert len(session.graph()["entities"]) == 1
+              assert len(session.graph()["documents"]) == 2
+              with TemporaryDirectory() as temporary:
+                  destination = Path(temporary) / "session.enc"
+                  try:
+                      session.save(destination, key=b"k" * 32)
+                  except ImportError:
+                      pass
+                  else:
+                      raise AssertionError("encrypted sessions must require the vault extra")
+                  assert not destination.exists()
           print("wheel smoke test passed", sorted(BUILTIN_MODELS))
           EOF
       - uses: actions/upload-artifact@v7

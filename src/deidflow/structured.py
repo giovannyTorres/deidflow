@@ -9,7 +9,7 @@ from dataclasses import dataclass, replace
 from typing import Any
 
 from deidflow.core import Finding, SourceLocation
-from deidflow.detectors import RuleDetector, fuse
+from deidflow.detectors import CORE_RULES_VERSION, RuleDetector, fuse
 
 _HEADERS = {
     "nombre": "PERSON",
@@ -62,6 +62,12 @@ class ColumnProfile:
     digit_fraction: float
     validator_hit_rate: float
     unknown_identifier: bool = False
+
+    @property
+    def model_version(self) -> str:
+        # Exact header mappings are unchanged. Inferred schema categories depend
+        # on current core detections and cannot reuse their old calibration.
+        return "rules-0.2" if self.evidence == ("header_exact",) else f"schema-{CORE_RULES_VERSION}"
 
 
 def profile_table(
@@ -172,6 +178,7 @@ def scan_cell(
                 len(text),
                 profile.score,
                 "schema.column",
+                model_version=profile.model_version,
                 validation="contextual",
                 context=profile.evidence,
                 location=location,

@@ -1,0 +1,307 @@
+{
+  "schema_version": 1,
+  "evidence_type": "fictional_posttraining_demo",
+  "package_version": "0.6.0b1",
+  "git_revision": "d5e6d260cf7ce379321a71cd24689a2519b6e073",
+  "source_state": {
+    "python_sources_sha256": "190ab7724f062a97fbf046286001ad4b0cfde0bb89135a80f47f4175a15026b5",
+    "python_source_files": 64,
+    "git_worktree_dirty": false,
+    "model_resource_sha256": {
+      "models/es-clinical-meddocan-1.json.gz": "dc824100552ddb5bae036d128da9cfe4e31aba68b7cb74c2ab1252ddc0952da9",
+      "models/es-domain-router-1.json.gz": "316d2ee699ddee08879d0835df894715ae14b1ae176f1794b45b283d82ff6324",
+      "models/es-finance-gretel-1.json.gz": "f7a28b8fef3ccc1090d171b693f744098b4032008a48b56530c5aabdf371679c",
+      "models/es-general-1.json.gz": "bf7e257f363e17bcc6bee943f9dfaa0cd67e502cf8ac3fd90140bdd916a51903",
+      "models/profiles.json": "31066b164a347f0646f7ba36d60a2e6ae787ef198551ca682dd60561bfe3162f"
+    }
+  },
+  "script_sha256": "d06120ae8d3ddfe4596c0d309c914fabceec93f36122f067c0234bff5857436a",
+  "environment": {
+    "python": "3.11.17",
+    "numpy": "2.4.6",
+    "platform": "Linux",
+    "machine": "x86_64"
+  },
+  "reproduction_command": "PYTHONPATH=src python scripts/adapt_span_tagger.py demo --output NEW_DIRECTORY",
+  "stage_manifest_sha256": "f47c9301ca580ee9541ea7cb8228f3fdba14f61f3422b98d18d03b2c7d569c5e",
+  "evaluation_sha256": "8b668bf68a6bf8a3b6495eef58e87b22588c104683bcd1329d7df08d264c0006",
+  "artifact_sha256": {
+    "baseline.json": "e66053fb693e31e2ad52f988b264c84b85a84cd419825aac78561760e4e443aa",
+    "candidate.json": "15e95982327d84a9a9c6e9dc2e5fd05d943b1cb27ac5664686cd3c01e0ce9ddc",
+    "training.json": "7aa0093e722c613c56adb8d0277439574ed2c67f16683b26ba9468201deee706"
+  },
+  "candidate_version": "es-adapt-635141c861ffe5e612296f65",
+  "configuration": {
+    "epochs": 8,
+    "min_feature_docs": 2,
+    "patience": 3,
+    "prune_below": 0.0,
+    "seed": 53
+  },
+  "criteria": {
+    "maximum_approved_leak_rate": 0.0,
+    "maximum_overredaction_increase": 0.0,
+    "maximum_overredaction_rate": 0.02,
+    "maximum_precision_drop": 0.0,
+    "maximum_recall_drop": 0.0,
+    "minimum_approved_documents": 5,
+    "minimum_documents": 30,
+    "minimum_exact_precision": 0.9,
+    "minimum_exact_recall": 0.95,
+    "minimum_negative_documents": 10,
+    "minimum_output_character_recall": 0.99,
+    "minimum_type_support": 20,
+    "target_types": [
+      "PATIENT_ID",
+      "PERSON"
+    ]
+  },
+  "inference": {
+    "policy": "strict",
+    "redact_margin": null,
+    "review_margin": null
+  },
+  "evidence_kind": "fictional_demo",
+  "baseline_exposure_verified": true,
+  "decision": "BLOCKED",
+  "activated": false,
+  "reasons": [
+    "Independent annotated evidence is required; synthetic/unknown data is insufficient"
+  ],
+  "partitions": {
+    "train": {
+      "documents": 112,
+      "negative_documents": 28,
+      "ordered_corpus_sha256": "39c56287f591d95f92744484825efcf0badd2bd4e7033b487fb63c4ad055d8a8",
+      "role": "train",
+      "spans_by_type": {
+        "PATIENT_ID": 48,
+        "PERSON": 84
+      }
+    },
+    "validation": {
+      "documents": 32,
+      "negative_documents": 8,
+      "ordered_corpus_sha256": "4f8ffad4f87ec4e77ef08c6483536df9c647948794c5401cc2b7a8143ca9c0a8",
+      "role": "validation",
+      "spans_by_type": {
+        "PATIENT_ID": 24,
+        "PERSON": 24
+      }
+    },
+    "regression": {
+      "documents": 40,
+      "negative_documents": 10,
+      "ordered_corpus_sha256": "bde9a2faff4adb3696499fb153837338e0fa8421819aebcfb8afa8b2b795686a",
+      "role": "regression",
+      "spans_by_type": {
+        "PERSON": 30
+      }
+    },
+    "test": {
+      "documents": 40,
+      "negative_documents": 10,
+      "ordered_corpus_sha256": "21ac68f2461c2b9aa8279db9acc4e8d720b24a2fd7e752ba188b1ba6c3c82181",
+      "role": "test",
+      "spans_by_type": {
+        "PATIENT_ID": 30,
+        "PERSON": 30
+      }
+    }
+  },
+  "replay_documents": 48,
+  "measurements": {
+    "regression": {
+      "baseline": {
+        "exact_by_type": {
+          "PERSON": {
+            "matched": 30,
+            "precision": 1.0,
+            "predicted": 30,
+            "recall": 1.0,
+            "support": 30
+          }
+        },
+        "output": {
+          "approved_direct_identifier_leak_rate": 0.0,
+          "approved_direct_identifier_leak_rate_wilson95": [
+            0.0,
+            0.08762453925039232
+          ],
+          "approved_documents_with_leaked_direct_identifier": 0,
+          "approved_documents_with_leaked_gold_characters": 0,
+          "approved_leak_rate": 0.0,
+          "approved_leak_rate_wilson95": [
+            0.0,
+            0.08762453925039232
+          ],
+          "approved_rate": 1.0,
+          "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier.",
+          "documents": 40,
+          "documents_with_leaked_gold_characters_by_status": {
+            "APPROVED": 0
+          },
+          "issue_counts": {},
+          "leaked_gold_characters_by_status": {
+            "APPROVED": 0
+          },
+          "output_sensitive_character_recall": 1.0,
+          "over_redaction_rate": 0.0,
+          "review_or_blocked_rate": 0.0,
+          "status_counts": {
+            "APPROVED": 40
+          }
+        }
+      },
+      "candidate": {
+        "exact_by_type": {
+          "PERSON": {
+            "matched": 30,
+            "precision": 1.0,
+            "predicted": 30,
+            "recall": 1.0,
+            "support": 30
+          }
+        },
+        "output": {
+          "approved_direct_identifier_leak_rate": 0.0,
+          "approved_direct_identifier_leak_rate_wilson95": [
+            0.0,
+            0.08762453925039232
+          ],
+          "approved_documents_with_leaked_direct_identifier": 0,
+          "approved_documents_with_leaked_gold_characters": 0,
+          "approved_leak_rate": 0.0,
+          "approved_leak_rate_wilson95": [
+            0.0,
+            0.08762453925039232
+          ],
+          "approved_rate": 1.0,
+          "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier.",
+          "documents": 40,
+          "documents_with_leaked_gold_characters_by_status": {
+            "APPROVED": 0
+          },
+          "issue_counts": {},
+          "leaked_gold_characters_by_status": {
+            "APPROVED": 0
+          },
+          "output_sensitive_character_recall": 1.0,
+          "over_redaction_rate": 0.0,
+          "review_or_blocked_rate": 0.0,
+          "status_counts": {
+            "APPROVED": 40
+          }
+        }
+      }
+    },
+    "test": {
+      "baseline": {
+        "exact_by_type": {
+          "PATIENT_ID": {
+            "matched": 0,
+            "precision": null,
+            "predicted": 0,
+            "recall": 0.0,
+            "support": 30
+          },
+          "PERSON": {
+            "matched": 30,
+            "precision": 1.0,
+            "predicted": 30,
+            "recall": 1.0,
+            "support": 30
+          }
+        },
+        "output": {
+          "approved_direct_identifier_leak_rate": 0.0,
+          "approved_direct_identifier_leak_rate_wilson95": [
+            0.0,
+            0.08762453925039232
+          ],
+          "approved_documents_with_leaked_direct_identifier": 0,
+          "approved_documents_with_leaked_gold_characters": 0,
+          "approved_leak_rate": 0.0,
+          "approved_leak_rate_wilson95": [
+            0.0,
+            0.08762453925039232
+          ],
+          "approved_rate": 1.0,
+          "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier.",
+          "documents": 40,
+          "documents_with_leaked_gold_characters_by_status": {
+            "APPROVED": 0
+          },
+          "issue_counts": {},
+          "leaked_gold_characters_by_status": {
+            "APPROVED": 0
+          },
+          "output_sensitive_character_recall": 1.0,
+          "over_redaction_rate": 0.0,
+          "review_or_blocked_rate": 0.0,
+          "status_counts": {
+            "APPROVED": 40
+          }
+        }
+      },
+      "candidate": {
+        "exact_by_type": {
+          "PATIENT_ID": {
+            "matched": 30,
+            "precision": 1.0,
+            "predicted": 30,
+            "recall": 1.0,
+            "support": 30
+          },
+          "PERSON": {
+            "matched": 30,
+            "precision": 1.0,
+            "predicted": 30,
+            "recall": 1.0,
+            "support": 30
+          }
+        },
+        "output": {
+          "approved_direct_identifier_leak_rate": 0.0,
+          "approved_direct_identifier_leak_rate_wilson95": [
+            0.0,
+            0.08762453925039232
+          ],
+          "approved_documents_with_leaked_direct_identifier": 0,
+          "approved_documents_with_leaked_gold_characters": 0,
+          "approved_leak_rate": 0.0,
+          "approved_leak_rate_wilson95": [
+            0.0,
+            0.08762453925039232
+          ],
+          "approved_rate": 1.0,
+          "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier.",
+          "documents": 40,
+          "documents_with_leaked_gold_characters_by_status": {
+            "APPROVED": 0
+          },
+          "issue_counts": {},
+          "leaked_gold_characters_by_status": {
+            "APPROVED": 0
+          },
+          "output_sensitive_character_recall": 1.0,
+          "over_redaction_rate": 0.0,
+          "review_or_blocked_rate": 0.0,
+          "status_counts": {
+            "APPROVED": 40
+          }
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Measured performance applies only to the annotated corpus and this inference policy.",
+    "Exact/group fingerprints cannot detect undeclared near-duplicates or hidden baseline exposure.",
+    "Hashes prove integrity, not origin, annotation quality, consent or anonymization.",
+    "After inspecting test results, use a new independent test for further development.",
+    "The baseline is a small fictional demo model, not any shipped domain model.",
+    "The demo relaxes minimum sample counts to show mechanics and cannot promote fictional evidence.",
+    "Higher PATIENT_ID tagger recall did not reduce complete-product leakage: rules already protected these identifiers.",
+    "This aggregate omits raw examples, document/group fingerprints, feature weights, keys and paths."
+  ]
+}
