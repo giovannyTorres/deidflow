@@ -64,7 +64,9 @@ ODT_META = f"""<?xml version="1.0" encoding="UTF-8"?>
 PRINTER = base64.b64encode(b"\x00\x01printer=Impresora de carmen.ruiz@example.com\x00\x02").decode()
 ODT_SETTINGS = f"""<?xml version="1.0" encoding="UTF-8"?>
 <office:document-settings {NS} office:version="1.3"><office:settings><config:config-item-set config:name="ooo:configuration-settings"><config:config-item config:name="PrinterName" config:type="string">Consulta 915 123 456</config:config-item><config:config-item config:name="PrinterSetup" config:type="base64Binary">{PRINTER}</config:config-item><config:config-item config:name="PrintReversed" config:type="boolean">false</config:config-item></config:config-item-set></office:settings></office:document-settings>"""
-CERTIFICATE = base64.b64encode(b"0\x82\x01\x0c\x06\x03U\x04\x03\x0c\x1fLOPEZ GARCIA MARIA - 12345678Z").decode()
+CERTIFICATE = base64.b64encode(
+    b"0\x82\x01\x0c\x06\x03U\x04\x03\x0c\x1fLOPEZ GARCIA MARIA - 12345678Z"
+).decode()
 SIGNATURES = f"""<?xml version="1.0" encoding="UTF-8"?>
 <document-signatures xmlns="urn:oasis:names:tc:opendocument:xmlns:digitalsignature:1.0"><Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><KeyInfo><X509Data><X509IssuerSerial><X509IssuerName>CN=AC FNMT Usuarios</X509IssuerName></X509IssuerSerial><X509Certificate>{CERTIFICATE}</X509Certificate></X509Data></KeyInfo></Signature></document-signatures>"""
 MACRO = f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -324,7 +326,7 @@ def test_ods_repeated_rows_get_one_transformation_each(tmp_path):
     assert result.output_path is not None, result.issues
     with zipfile.ZipFile(result.output_path) as archive:
         content = archive.read("content.xml").decode()
-    assert "table:number-rows-repeated=\"2\"" not in content
+    assert 'table:number-rows-repeated="2"' not in content
     identifiers = re.findall(r"\[ID_OFICIAL_\d+\]", content)
     assert len(identifiers) == 3 and len(set(identifiers)) == 2  # both copies share one
 
@@ -404,9 +406,16 @@ def test_odf_output_opens_in_libreoffice(tmp_path, maker):
     assert result.output_path is not None, result.issues
     target = "txt:Text" if suffix == ".odt" else "csv"
     converted = subprocess.run(
-        ["soffice", "--headless", f"-env:UserInstallation=file://{tmp_path}/lo",
-         "--convert-to", target, "--outdir", str(tmp_path / "txt"),
-         str(result.output_path)],  # fmt: skip
+        [
+            "soffice",
+            "--headless",
+            f"-env:UserInstallation=file://{tmp_path}/lo",
+            "--convert-to",
+            target,
+            "--outdir",
+            str(tmp_path / "txt"),
+            str(result.output_path),
+        ],  # fmt: skip
         capture_output=True,
         timeout=180,
     )
