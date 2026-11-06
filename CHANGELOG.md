@@ -23,6 +23,9 @@
   or processing instructions, opaque configuration/layout/directory payloads, or
   uninspected ZIP comments, extra fields and layout data. Standalone verification
   cannot approve these channels merely because the writer would remove them.
+- Validate ODF compressed streams before parsing: bound expansion, require exact
+  sizes/CRCs and mark ignored terminal DEFLATE suffixes as uninspected source
+  data. Rebuilt output removes those suffixes; malformed streams fail closed.
 
 ## 0.6.0b1 - Spanish context product candidate
 

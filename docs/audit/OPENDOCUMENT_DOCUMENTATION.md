@@ -156,7 +156,7 @@ compatibilidad semántica universal ni calidad en documentos personales reales.
 
 ## Referencia combinada congelada y división de revisión
 
-Fuente autoritativa final: `8edf588b21dc684e68cc62c9d6c41b3963de8255`. Este
+Fuente autoritativa final: `8cb3c5fc3a3568102620f69931c5990b2a64dba5`. Este
 conjunto queda como referencia de preparación; no se presenta como un PR
 combinado contra master. Las entregas revisables se prepararán por separado:
 
@@ -175,22 +175,32 @@ prefijo/sufijo o layouts no acreditados impiden una verificación favorable del
 original. Las cabeceras se leen solo para comprobar presencia/coherencia. El
 escritor reconstruye un contenedor limpio, que puede verificar completo.
 
+Una última corrección comprueba el consumo de cada flujo comprimido antes de
+leer el manifiesto. DEFLATE usa la API pública de zlib con expansión limitada al
+tamaño declarado más un byte; comprueba tamaño exacto, CRC y fin de flujo. STORED
+exige tamaños iguales y CRC correcto. Un sufijo posterior al bloque DEFLATE
+terminal deja incompleta la fuente aunque `zipfile.read` lo omita; el escritor
+puede retirarlo al recomprimir un flujo válido. Compresión no admitida, flujo
+malformado o expansión discordante no se analizan ni se reescriben como válidos.
+
 TDD adicional: `hidden-xml-{red,green}.log`, `opaque-package-{red,green}.log`,
-`zip-metadata-{red,green}.log` y `local-name-red.log`, seguidos por el verde
+`zip-metadata-{red,green}.log`, `local-name-red.log` y `deflate-red.log`, seguidos por el verde
 focalizado final. Cubre comentarios y PIs en UTF-8/UTF-16, control CDATA, directorio
 vacío benigno, extras locales ausentes del catálogo central y controles
-`deidentify` → `verify` para cada fuente opaca retirada. Resultado final de esta
-referencia: **48 pruebas de privacidad pasan en 1.13 s**. Ruff y formato global
+`deidentify` → `verify` para cada fuente opaca retirada. También cubre sufijos en
+content/manifest y una expansión de 8 MiB declarada como cero, con pico de memoria
+inferior a 2 MiB en la lectura pública. Resultado final de esta
+referencia: **51 pruebas de privacidad pasan en 1.51 s**. Ruff y formato global
 pasan (190 archivos), y mypy Python 3.12 pasa (65 módulos). No se atribuye una
 suite completa a esta referencia: el coordinador verificará las ramas extraídas
-reales. Logs `verification-final-focused.log`, `verification-ruff-final.log`,
-`verification-format-final.log` y `verification-mypy-final.log`.
+reales. Logs `deflate-final-focused.log`, `deflate-ruff.log`,
+`deflate-format.log` y `deflate-mypy.log`.
 
-Conteo conservador final respecto a `master` `44d04b1`: **1.562 líneas de
-producción añadidas y nueve eliminadas**, más 895 líneas de pruebas. Se excluyen
-solo los prefijos de fixtures/helpers/imports de 197 y 61 líneas; las 637 líneas
+Conteo conservador final respecto a `master` `44d04b1`: **1.620 líneas de
+producción añadidas y nueve eliminadas**, más 952 líneas de pruebas. Se excluyen
+solo los prefijos de fixtures/helpers/imports de 197 y 61 líneas; las 694 líneas
 restantes de los tests se cuentan completas, incluidos datos auxiliares dentro
-de las pruebas. Total conservador: **2.199 añadidas más nueve eliminadas**, sin
+de las pruebas. Total conservador: **2.314 añadidas más nueve eliminadas**, sin
 documentación. `privacy-final-size.json` conserva el desglose. Este tamaño motiva
 la división en dos incrementos, manteniendo el conjunto como referencia congelada.
 

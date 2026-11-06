@@ -319,6 +319,12 @@ unaccounted container layout data make coverage incomplete. Opaque payloads are
 not decoded. Empty directory entries without other uninspected channels remain
 benign. The writer removes those channels and rebuilds its ZIP headers, so a
 sanitized output can verify complete even when its original source cannot.
+Before any package payload is read, bounded stream validation checks exact
+expanded sizes and CRCs. DEFLATE must reach its terminal block without exceeding
+the declared size; bytes after that block are uninspected source data even when
+the standard ZIP reader ignores them. The writer can remove such suffixes from
+otherwise valid streams by rebuilding the archive. Malformed streams, mismatched
+sizes and unsupported compression fail closed without unbounded inflation.
 
 ODT and ODS e-mail attachments use the same writer and canonical OpenDocument
 MIME types and are renamed like other attachments. ODT attachment rewriting is
