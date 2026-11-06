@@ -296,6 +296,14 @@ end-of-stream consumption. Invalid streams stop processing; unused trailing
 payload bytes keep original-source coverage incomplete and are removed by
 canonical rewriting.
 
+ODF space/tab/line-break elements reject retained children; ODS cells reject
+direct non-whitespace text/CDATA while retaining paragraph cells and harmless
+formatting whitespace. Nonempty declared binary settings anywhere in inspected
+XML, signature parts and opaque certificate/DSIG or typed-binary RDF material
+preserve incomplete coverage. Printable runs remain diagnostic findings only.
+The writer removes standard settings/signature/RDF package channels; opaque
+material retained elsewhere still blocks the independent output reread.
+
 ODT and ODS e-mail attachments use the same writer and canonical OpenDocument
 MIME types and are renamed like other attachments. ODT attachment rewriting is
 covered by the focused regression. A current limitation blocks a message when it

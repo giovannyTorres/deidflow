@@ -173,3 +173,14 @@ def package_text(path: Path) -> str:
         return "\n".join(
             archive.read(name).decode("utf-8", "replace") for name in archive.namelist()
         )
+def make_ods_cell(path: Path, cell_content: str) -> Path:
+    media_type = "application/vnd.oasis.opendocument.spreadsheet"
+    content = f'<office:document-content {NS}><office:body><office:spreadsheet><table:table table:name="Hoja"><table:table-row><table:table-cell>{cell_content}</table:table-cell></table:table-row></table:table></office:spreadsheet></office:body></office:document-content>'
+    return write_package(
+        path,
+        media_type,
+        {
+            "content.xml": content,
+            "META-INF/manifest.xml": manifest(media_type, {"content.xml": "text/xml"}),
+        },
+    )

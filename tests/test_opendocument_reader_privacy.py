@@ -4,9 +4,99 @@ from xml.sax.saxutils import quoteattr
 
 import opendocument_privacy_samples as samples
 import pytest
+from opendocument_samples import make_ods_cell
 
 from deidflow import DeidEngine, Policy
 from deidflow.readers import DocumentError, read_document
+
+
+@pytest.mark.parametrize("value", (samples.SECRET, f"<![CDATA[{samples.SECRET}]]>"))
+def test_spreadsheet_raw_cell_text_is_not_silently_skipped(tmp_path, value):
+    source = make_ods_cell(tmp_path / "raw.ods", value)
+    with pytest.raises(DocumentError, match="cells require paragraph content") as error:
+        read_document(source)
+    assert samples.SECRET not in str(error.value)
+    with pytest.raises(DocumentError, match="cells require paragraph content"):
+        DeidEngine(country="ES").verify(source, policy=Policy.strict(require_ner=False))
+
+
+@pytest.mark.parametrize(
+    "value", (" \n", "<text:p>Importe</text:p>", " \n<text:p>Importe</text:p> \n")
+)
+def test_spreadsheet_paragraph_cells_and_pretty_print_whitespace_remain_supported(tmp_path, value):
+    source = make_ods_cell(tmp_path / "supported.ods", value)
+    graph = read_document(source)
+    assert graph.complete, graph.issues
+    result = DeidEngine(country="ES").verify(source, policy=Policy.strict(require_ner=False))
+    assert result.status == "REVIEW_REQUIRED", result.issues
+    assert "ODS_REVIEW_REQUIRED" in result.issues
+
+
+@pytest.mark.parametrize("encoding", ("utf-8", "utf-16le"))
+@pytest.mark.parametrize(
+    "channel",
+    (
+        "settings",
+        "content_settings",
+        "certificate",
+        "signature_value",
+        "rdf_certificate",
+        "rdf_base64",
+        "rdf_hex",
+    ),
+)
+def test_opaque_binary_metadata_never_claims_complete_coverage(tmp_path, encoding, channel):
+    source = samples.binary_metadata_package(tmp_path, encoding, channel)
+    graph = read_document(source)
+    assert not graph.complete
+    assert "uninspected_odf_binary_metadata" in graph.issues
+    assert (
+        DeidEngine(country="ES").verify(source, policy=Policy.strict(require_ner=False)).status
+        == "BLOCKED"
+    )
+    if encoding == "utf-8" and channel in {"settings", "certificate", "rdf_certificate"}:
+        assert any(samples.SECRET in fragment.text for fragment in graph.fragments)
+
+
+@pytest.mark.parametrize("value", ("", " \n"))
+def test_empty_binary_settings_do_not_claim_uninspected_payload(tmp_path, value):
+    source = samples.package(
+        tmp_path,
+        f'<config:config-item config:type="base64Binary">{value}</config:config-item>',
+        root_attributes='xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0"',
+    )
+    graph = read_document(source)
+    assert graph.complete, graph.issues
+    assert (
+        DeidEngine(country="ES").verify(source, policy=Policy.strict(require_ner=False)).status
+        == "APPROVED"
+    )
+
+
+@pytest.mark.parametrize("tag", ("s", "tab", "line-break"))
+@pytest.mark.parametrize(
+    "child", (samples.SECRET, f"<text:span>{samples.SECRET}</text:span>", "<text:span/>", " ")
+)
+def test_nonempty_whitespace_elements_reject_retained_children(tmp_path, tag, child):
+    source = samples.package(tmp_path, f"<text:p>Informe.<text:{tag}>{child}</text:{tag}></text:p>")
+    with pytest.raises(DocumentError, match="whitespace elements must be empty") as error:
+        read_document(source)
+    assert samples.SECRET not in str(error.value)
+    with pytest.raises(DocumentError, match="whitespace elements must be empty"):
+        DeidEngine(country="ES").verify(source, policy=Policy.strict(require_ner=False))
+
+
+def test_empty_whitespace_elements_preserve_visible_separators(tmp_path):
+    source = samples.package(
+        tmp_path, '<text:p>Informe.<text:s text:c="2"/>A<text:tab/>B<text:line-break/>C</text:p>'
+    )
+    graph = read_document(source)
+    assert graph.complete, graph.issues
+    assert any("Informe.  A\tB\nC" in fragment.text for fragment in graph.fragments)
+    assert (
+        DeidEngine(country="ES").verify(source, policy=Policy.strict(require_ner=False)).status
+        == "APPROVED"
+    )
 
 
 def assert_uninspected_source(source: Path):
