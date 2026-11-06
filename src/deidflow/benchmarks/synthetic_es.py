@@ -513,7 +513,82 @@ EXTRA_TEMPLATES: tuple[tuple[str, str], ...] = (
         "Felicidades a {PERSON} por su graduación en {CITY}!! te queremos mucho, att. {FIRST2} y {PERSON3} #orgullo",
     ),
 )
-TEMPLATES = TEMPLATES + EXTRA_TEMPLATES
+# Name formats seen in real documents: surname-first lists, initials, all caps,
+# lowercase chats and courtesy titles. Training only, like EXTRA_TEMPLATES.
+NAME_TEMPLATES: tuple[tuple[str, str], ...] = (
+    (
+        "lista-1",
+        "LISTA DE ASISTENCIA\n1. {NAME_REVERSED}\n2. {NAME_REVERSED}\n3. {NAME_REVERSED}\nCoordinador: {NAME_INITIAL}",
+    ),
+    (
+        "lista-2",
+        "Alumnos inscritos en el grupo B:\n- {NAME_UPPER} ({STUDENT})\n- {NAME_UPPER}\n- {NAME_REVERSED}",
+    ),
+    (
+        "firma-1",
+        "Sin otro particular, quedo a sus órdenes.\n\nAtentamente,\n{NAME_INITIAL}\nGerente de Operaciones\n{ORG}",
+    ),
+    ("firma-2", "Saludos cordiales,\n\n{NAME_UPPER}\n{JOB} | {ORG}\nTel. {PHONE}"),
+    (
+        "correo-3",
+        "De: {NAME_REVERSED} <{EMAIL}>\nPara: {NAME_REVERSED}\nAsunto: Seguimiento del caso {CASE}\n\nBuen día, adjunto lo solicitado.",
+    ),
+    (
+        "chat-3",
+        "{NAME_LOWER}: hola!! ya hablaste con {NAME_LOWER}?\nyo: todavía no, me pasas su cel?\n{NAME_LOWER}: {PHONE}",
+    ),
+    ("chat-4", "jajaja si, {NAME_LOWER} vive por {CITY}, dile a {FIRST} que me escriba al {PHONE}"),
+    (
+        "titulo-1",
+        "Se turna el asunto al {TITLE} {NAME_TITLED}, quien deberá responder antes del {DATE}. Copia al {TITLE} {NAME_TITLED}.",
+    ),
+    (
+        "titulo-2",
+        "Reunión con la {TITLE} {NAME_TITLED} y el {TITLE} {NAME_TITLED} en las oficinas de {ORG}, {CITY}.",
+    ),
+    (
+        "apellidos-1",
+        "La familia {NAME_SURNAMES} solicitó el cambio de domicilio a {ADDRESS}. Contacto: {NAME_INITIAL}, {PHONE}.",
+    ),
+    (
+        "apellidos-2",
+        "Según el informe, los hermanos {NAME_SURNAMES} declararon ante el juez en {CITY} el {DATE}.",
+    ),
+    (
+        "cv-2",
+        "{NAME_UPPER}\n{JOB}\n{EMAIL} | {PHONE} | {CITY}\n\nFORMACIÓN\nLicenciatura, {ORG} ({MONTH_YEAR})",
+    ),
+    (
+        "acta-2",
+        "ACTA DE ENTREGA. Entrega: {NAME_UPPER}, {ID_LABEL} {ID}. Recibe: {NAME_UPPER}, {ID_LABEL} {ID2}. Testigo: {NAME_INITIAL}.",
+    ),
+    (
+        "planilla-1",
+        "APELLIDOS Y NOMBRES: {NAME_REVERSED}\nDOCUMENTO: {ID}\nCARGO: {JOB}\nSUELDO: {AMOUNT}",
+    ),
+    (
+        "planilla-2",
+        "Nombre | Documento | Teléfono\n{NAME_REVERSED} | {ID} | {PHONE}\n{NAME_REVERSED} | {ID2} | {PHONE2}",
+    ),
+    (
+        "mencion-1",
+        "Gracias a {NAME_INITIAL} y a {NAME_INITIAL} por su apoyo en el proyecto de {ORG}.",
+    ),
+    ("mencion-2", "en la foto salen {NAME_LOWER} y {NAME_LOWER} en la playa de {CITY} 😍"),
+    (
+        "judicial-2",
+        "Comparece el C. {NAME_UPPER}, quien manifiesta llamarse como ha quedado escrito, ser originario de {CITY} y tener {AGE} años de edad.",
+    ),
+    (
+        "medico-3",
+        "Paciente {NAME_REVERSED}, {AGE} años, referido por el {TITLE} {NAME_TITLED} del servicio de urgencias.",
+    ),
+    (
+        "banco-3",
+        "Titular de la cuenta: {NAME_UPPER}\n{ACCOUNT_LABEL}: {ACCOUNT}\nCotitular: {NAME_REVERSED}",
+    ),
+)
+TEMPLATES = TEMPLATES + EXTRA_TEMPLATES + NAME_TEMPLATES
 
 HELD_OUT = {
     "validation": {"correo-2", "factura-2", "clinica-3", "chat-2", "cv-1", "notaria-1", "redes-1"},
@@ -532,6 +607,8 @@ HELD_OUT = {
 _SLOT = re.compile(r"\{([A-Z0-9_]+)\}")
 _ENTITY_OF_SLOT = {
     "PERSON": "PERSON", "PERSON2": "PERSON", "PERSON3": "PERSON", "PERSON_UPPER": "PERSON",
+    "NAME_REVERSED": "PERSON", "NAME_INITIAL": "PERSON", "NAME_UPPER": "PERSON",
+    "NAME_LOWER": "PERSON", "NAME_TITLED": "PERSON", "NAME_SURNAMES": "PERSON",
     "FIRST": "PERSON", "FIRST2": "PERSON", "FIRST2B": "PERSON", "LAST": "PERSON",
     "ADDRESS": "ADDRESS", "ADDRESS2": "ADDRESS", "CITY": "LOCATION", "CITY2": "LOCATION",
     "DATE": "DATE", "DATE2": "DATE", "MONTH_YEAR": "DATE", "DOB": "DATE_OF_BIRTH", "DOB_TEXT": "DATE_OF_BIRTH",
@@ -542,9 +619,12 @@ _ENTITY_OF_SLOT = {
     "STUDENT": "CUSTOMER_ID", "POLICY": "INSURANCE_ID", "PROF": "REGIONAL_ID",
     "CASE": "DOCUMENT_ID",
 }  # fmt: skip
+_NAME_VARIANTS = {
+    "NAME_REVERSED", "NAME_INITIAL", "NAME_UPPER", "NAME_LOWER", "NAME_TITLED", "NAME_SURNAMES",
+}  # fmt: skip
 _NOT_ENTITY = {
     "ID_LABEL", "TAX_LABEL", "ACCOUNT_LABEL", "AMOUNT", "INVOICE", "JOB", "TIME", "TIME2", "TIME3",
-    "TIME4", "CARD_LAST", "TICKET", "NUMBER", "TRACKING",
+    "TIME4", "CARD_LAST", "TICKET", "NUMBER", "TRACKING", "TITLE",
 }  # fmt: skip
 
 
@@ -589,6 +669,23 @@ class _Values:
         if name in self.cache:
             return self.cache[name]
         rng, profile, faker = self.rng, self.profile, self.faker
+        if name in _NAME_VARIANTS:
+            first, last = self.person()
+            if name == "NAME_REVERSED":
+                value = f"{last}, {first}"
+            elif name == "NAME_INITIAL":
+                value = f"{first[0]}. {last}"
+            elif name == "NAME_UPPER":
+                value = f"{first} {last}".upper()
+            elif name == "NAME_LOWER":
+                value = f"{first} {last}".lower()
+            elif name == "NAME_TITLED":
+                value = f"{first} {last}"
+            else:  # NAME_SURNAMES
+                value = last
+            return value  # not cached: every occurrence in a list is another person
+        if name == "TITLE":
+            return rng.choice(["Lic.", "Ing.", "Dr.", "Dra.", "Mtro.", "Mtra.", "Sr.", "Sra."])
         if name in {"PERSON", "PERSON2", "PERSON3"}:
             first, last = self.person()
             value = f"{first} {last}"
