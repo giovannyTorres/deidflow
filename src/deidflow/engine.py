@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextvars
 import csv
 import hashlib
 import itertools
@@ -32,6 +33,13 @@ from deidflow.transformations import (
     transform_text,
 )
 from deidflow.verification import residual_proper_nouns
+
+# Set while an e-mail is rewritten, so its attachments share one pseudonym scope and
+# one indexed-placeholder allocator with the message (distinct people never share
+# an index, and the same person keeps it across body and attachments).
+_SHARED_DOCUMENT: contextvars.ContextVar[tuple[str, PlaceholderAllocator, str] | None] = (
+    contextvars.ContextVar("deidflow_shared_document", default=None)
+)
 
 
 class ReleaseStatus(StrEnum):
@@ -329,6 +337,14 @@ class DeidEngine:
                     _rules_batch_worker, tasks, [self.countries] * len(tasks), chunksize=1
                 ):
                     yield from results
+
+    def _document(self, policy: Policy) -> tuple[str, PlaceholderAllocator, str]:
+        """(scope, allocator, document id) for one output file, shared inside an e-mail."""
+        shared = _SHARED_DOCUMENT.get()
+        if shared is not None:
+            return shared
+        document_id = secrets.token_hex(16)
+        return self._scope(policy, document_id), PlaceholderAllocator(), document_id
 
     def _scope(self, policy: Policy, document_id: str) -> str:
         if policy.token_scope == "tenant":
@@ -789,8 +805,7 @@ class DeidEngine:
             raise ValueError("Batch size must be positive")
         rows = zip(*(columns[h] for h in headers), strict=True)
         transformed, issues, count = [], [], 0
-        scope = self._scope(policy, secrets.token_hex(16))
-        allocator = PlaceholderAllocator()
+        scope, allocator, _ = self._document(policy)
         for header in headers:
             allocator.reserve_source(header)
         if module == "pandas":
@@ -846,8 +861,7 @@ class DeidEngine:
         self, source: Path, output: Path, policy: Policy, batch_size: int, domain: str | None
     ) -> Result:
         delimiter = "\t" if source.suffix.lower() == ".tsv" else ","
-        scope = self._scope(policy, secrets.token_hex(16))
-        allocator = PlaceholderAllocator()
+        scope, allocator, _ = self._document(policy)
         records, count, issues = 0, 0, []
         with (
             source.open(encoding="utf-8-sig", newline="") as inp,
@@ -990,6 +1004,7 @@ class DeidEngine:
                 ".xlsx",
                 ".html",
                 ".htm",
+                ".eml",
             }
             or target.suffix.lower() != suffix
         ):
@@ -1009,14 +1024,17 @@ class DeidEngine:
                 result = self._office(source, candidate, policy, domain, office_media == "remove")
             elif suffix in {".html", ".htm"}:
                 result = self._html(source, candidate, policy, domain)
+            elif suffix == ".eml":
+                result = self._eml(source, candidate, policy, domain, office_media)
             elif suffix in {".txt", ".text", ".md", ".log"}:
                 if source.stat().st_size > self.max_bytes:
                     raise ValueError("Text exceeds configured size limit")
-                allocator = PlaceholderAllocator()
+                _, allocator, document_id = self._document(policy)
                 result = self.deidentify_text(
                     source.read_bytes().decode("utf-8"),
                     policy=policy,
                     domain=domain,
+                    document_id=document_id,
                     placeholders=allocator,
                 )
                 if result.status == ReleaseStatus.BLOCKED:
@@ -1056,8 +1074,7 @@ class DeidEngine:
 
         if source.stat().st_size > self.max_bytes:
             raise ValueError("Document exceeds configured size limit")
-        scope = self._scope(policy, secrets.token_hex(16))
-        allocator = PlaceholderAllocator()
+        scope, allocator, _ = self._document(policy)
         originals: list[Finding] = []
         office_issues: list[str] = []
 
@@ -1126,8 +1143,7 @@ class DeidEngine:
 
         if source.stat().st_size > self.max_bytes:
             raise ValueError("Document exceeds configured size limit")
-        scope = self._scope(policy, secrets.token_hex(16))
-        allocator = PlaceholderAllocator()
+        scope, allocator, _ = self._document(policy)
         originals: list[Finding] = []
 
         def rewrite(text: str) -> tuple[str, list[tuple[int, int, str]]]:
@@ -1170,6 +1186,92 @@ class DeidEngine:
         result.records = 1
         result.audit["transformations"] = report.transformations
         result.audit["markup_removed"] = dict(sorted(report.removed.items()))
+        return result
+
+    def _eml(
+        self, source: Path, output: Path, policy: Policy, domain: str | None, office_media: str
+    ) -> Result:
+        from deidflow.mail import rewrite_message
+        from deidflow.markup import rewrite_html
+        from deidflow.readers import DocumentError
+
+        if source.stat().st_size > self.max_bytes:
+            raise ValueError("Message exceeds configured size limit")
+        scope, allocator, document_id = self._document(policy)
+        originals: list[Finding] = []
+
+        def rewrite(text: str) -> tuple[str, list[tuple[int, int, str]]]:
+            findings = self.scan_text(text)
+            originals.extend(findings)
+            transformed, mappings = transform_text(
+                text,
+                findings,
+                policy,
+                key=self.key,
+                scope=scope,
+                domain=domain,
+                custom=self.custom_transforms,
+                placeholders=allocator,
+            )
+            return transformed, [
+                (m.source_start, m.source_end, transformed[m.output_start : m.output_end])
+                for m in mappings
+            ]
+
+        def whole(value: str, entity_type: str) -> str:
+            # Header semantics: a display name is a person, an address an e-mail.
+            finding = Finding(entity_type, 0, len(value), 1.0, "email.header", protected=True)
+            transformed, _ = transform_text(
+                value,
+                [finding],
+                policy,
+                key=self.key,
+                scope=scope,
+                domain=domain,
+                custom=self.custom_transforms,
+                placeholders=allocator,
+            )
+            return transformed
+
+        def attachment(path: Path, target: Path) -> tuple[str, list[str]]:
+            result = self.deidentify(
+                path, policy=policy, output=target, domain=domain, office_media=office_media
+            )
+            return str(result.status), list(result.issues)
+
+        shared = _SHARED_DOCUMENT.set((scope, allocator, document_id))
+        try:
+            data, report = rewrite_message(
+                source.read_bytes(),
+                rewrite=rewrite,
+                whole=whole,
+                attachment=attachment,
+                rewrite_html=lambda text: rewrite_html(text, rewrite)[0],
+                key=self.key or secrets.token_bytes(32),
+                remove_media=office_media == "remove",
+            )
+            output.write_bytes(data)
+            graph = self.read(output)
+        except (DocumentError, ValueError, LookupError):
+            return Result(ReleaseStatus.BLOCKED, issues=["MALFORMED_INPUT"])
+        finally:
+            _SHARED_DOCUMENT.reset(shared)
+        residual: list[Finding] = []
+        for batch in _batches(graph.fragments, 32):
+            residual.extend(
+                f for items in self._rescan_texts([x.text for x in batch], allocator) for f in items
+            )
+        result = self._gate(
+            policy=policy,
+            residual=residual,
+            original=originals,
+            complete=graph.complete,
+            issues=graph.issues + report.issues,
+            domain=domain,
+        )
+        result.records = 1
+        result.audit["transformations"] = report.transformations
+        result.audit["email_removed"] = dict(sorted(report.removed.items()))
         return result
 
     def _sheet_cells(
@@ -1279,8 +1381,7 @@ class DeidEngine:
 
     def _json_file(self, source: Path, output: Path, policy: Policy, domain: str | None) -> Result:
         issues, count, records = [], 0, 0
-        scope = self._scope(policy, secrets.token_hex(16))
-        allocator = PlaceholderAllocator()
+        scope, allocator, _ = self._document(policy)
 
         def pairs(items: list[tuple[str, Any]]) -> dict[str, Any]:
             if len({k for k, _ in items}) != len(items):
