@@ -148,14 +148,17 @@ def inspect_text_output(
                 mapping.output_start,
                 mapping.output_end,
             )
-            original, replacement = text[source_start:source_end], output.text[output_start:output_end]
+            original, replacement = (
+                text[source_start:source_end],
+                output.text[output_start:output_end],
+            )
             preserved[source_start:source_end] = (
                 bytes(left == right for left, right in zip(original, replacement, strict=True))
                 if len(original) == len(replacement)
                 else bytes(source_end - source_start)
             )
             if _removal_verified(text, output.text, mapping):
-                removed[source_start:source_end] = source_end"\x01" * (source_end - source_start)
+                removed[source_start:source_end] = b"\x01" * (source_end - source_start)
             operators.append((source_start, source_end, mapping.action))
     preserve_required = bytearray(b"\x01") * len(text)
     for requirement in requirements:
