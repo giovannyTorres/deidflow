@@ -185,10 +185,11 @@ evaluate on your own documents before relying on these numbers.
 
 | Field | Value |
 | --- | --- |
-| File | `src/deidflow/models/es-general-1.json.gz` (2.9 MB) |
-| SHA-256 | `bf7e257f363e17bcc6bee943f9dfaa0cd67e502cf8ac3fd90140bdd916a51903` |
-| Training data | MEDDOCAN train (CC-BY-4.0), Gretel Spanish train minus its 10% holdout (Apache-2.0), and 3,000 documents of `deidflow.benchmarks.synthetic_es` (seed 1729, Faker 40.44.0): 7,246 documents, 1.4 M tokens |
-| Protocol | Epoch selection and calibration on MEDDOCAN dev, the Gretel holdout and 600 synthetic documents from validation-only template families (1,252 documents). `min_feature_docs` 5 (validation F1 0.8456) beat 10 (0.8401, 2.2 MB). Test sets evaluated once after freezing; synthetic test documents come from a third, disjoint set of template families |
+| File | `src/deidflow/models/es-general-2.json.gz` (3.1 MB) |
+| SHA-256 | `f3008720a246e32b7a2adaf4af2ba9a03fb665caadcf698658b029a73042c173` |
+| Training data | MEDDOCAN train (CC-BY-4.0), Gretel Spanish train minus its 10% holdout (Apache-2.0), and 5,000 documents of `deidflow.benchmarks.synthetic_es` from 51 training template families (seed 1729, Faker 40.44.0): 9,246 documents, 1.5 M tokens |
+| Protocol | Epoch selection and calibration on MEDDOCAN dev, the Gretel holdout and 600 synthetic documents from validation-only template families (1,252 documents); epoch 29 of 30, validation F1 0.8640. Test sets evaluated once after freezing; synthetic test documents come from a third, disjoint set of template families |
+| History | `es-general-1` (3,000 synthetic documents from 21 families, validation F1 0.8456) shipped in the first `es-general` release; `es-general-2` added 30 training-only families (more genres and places in running text) without changing the validation or test families |
 | Labels | Union of both models' labels plus `TAX_ID`, `INSURANCE_ID`, `REGIONAL_ID` and `IP_ADDRESS` |
 
 The synthetic generator writes documents of many genres (appointment letters,
@@ -219,39 +220,65 @@ this one matched `es-clinical` on MEDDOCAN dev and scored best on the Gretel
 holdout; running `es-general` alone scored 0.01 higher F1 on synthetic
 validation but 0.013 lower on MEDDOCAN dev.
 
+Validation of `es-general-2` against `es-general-1` (same validation documents,
+rules from #27 in both):
+
+| Validation set | Pipeline | `es-general-1` F1 / char recall | `es-general-2` F1 / char recall |
+| --- | --- | ---: | ---: |
+| MEDDOCAN dev | tagger alone | 0.937 / 0.957 | 0.937 / 0.960 |
+| Gretel holdout | rules + `auto` | 0.644 / 0.826 | 0.645 / 0.830 |
+| Synthetic validation families | tagger alone | 0.737 / 0.787 | **0.809** / **0.866** |
+| Synthetic validation families | rules + `auto` | 0.746 / 0.868 | **0.793** / **0.909** |
+
+Location recall on the synthetic validation families rose from 0.20 to 0.49 and
+documents with an uncovered sensitive character fell from 443 to 338 of 600;
+clinical documents keep routing to `es-clinical`, so MEDDOCAN is unchanged.
+
 Held-out test results, evaluated once (`benchmarks/results/comparison/`):
 
 | Test set | Pipeline | Exact F1 [95% CI] | Sensitive-char recall | Docs with any uncovered gold char | Over-redaction |
 | --- | --- | ---: | ---: | ---: | ---: |
 | Synthetic, test families (600 docs, 3,450 mentions) | previous `auto` | 0.544 | 0.773 | 472 | 2.44% |
-| | **`auto`** | **0.785** [0.773, 0.797] | 0.929 | 295 | 1.97% |
+| | `auto` with `es-general-1` | 0.785 [0.773, 0.797] | 0.929 | 295 | 1.97% |
+| | **`auto` (`es-general-2`)** | **0.844** [0.831, 0.857] | 0.954 | 212 | **0.29%** |
 | | rules + previous `auto` | 0.624 | 0.842 | 388 | 4.55% |
-| | **rules + `auto`** | 0.786 | **0.947** | **236** | 3.72% |
+| | rules + `auto` with `es-general-1` | 0.786 | 0.947 | 236 | 3.72% |
+| | **rules + `auto` (`es-general-2`, address rules)** | 0.836 | **0.968** | **168** | 3.43% |
 | Gretel Spanish test (461 docs) | previous `auto` | 0.707 [0.658, 0.744] | 0.789 | 216 | 0.89% |
 | | rules + previous `auto` | 0.629 | 0.830 | 184 | 2.34% |
-| | **`auto`** | **0.740** [0.715, 0.767] | 0.798 | 208 | 0.73% |
-| | **rules + `auto`** | 0.655 | **0.838** | **178** | 2.19% |
+| | `auto` with `es-general-1` | 0.740 [0.715, 0.767] | 0.798 | 208 | 0.73% |
+| | rules + `auto` with `es-general-1` | 0.655 | 0.838 | 178 | 2.19% |
+| | **`auto` (`es-general-2`)** | **0.743** [0.715, 0.768] | 0.808 | 203 | 0.80% |
+| | **rules + `auto` (`es-general-2`, address rules)** | 0.659 | **0.851** | **168** | 2.35% |
 | MEDDOCAN test (250 docs) | `auto` (all routed to `es-clinical`) | 0.958 | 0.966 | 100 | 0.09% |
 
 On the Gretel test the router now equals `es-finance` used with the domain known
 (0.740). `es-finance` remains available as `SpanTagger.builtin("es-finance")`.
 
 End to end with `Policy.strict()` (rules + `auto`, `balanced`; files
-`release-gate-v3-*.json`, test sets evaluated once):
+`release-gate-v3-*.json` for `es-general-1`, `release-gate-v4-*.json` for
+`es-general-2` with the address rules; test sets evaluated once):
 
 | Test set | APPROVED | Approved docs leaking a direct identifier [95% CI] | Approved docs leaking any category | Over-redaction | Output sensitive-character recall |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Gretel, previous router | 161 / 461 | 24 (14.9%) [10.2, 21.2] | 57 (35.4%) | 2.40% | 0.831 |
 | Gretel, `auto` | 207 / 461 | 31 (15.0%) [10.8, 20.5] | 69 (33.3%) | 2.41% | 0.838 |
 | Synthetic test families, `auto` | 291 / 600 | 46 (15.8%) [12.1, 20.4] | 89 (30.6%) | 3.61% | 0.947 |
+| Gretel, `auto` (`es-general-2`) | 196 / 461 | 27 (13.8%) [9.6, 19.3] | 60 (30.6%) | 2.57% | 0.851 |
+| Synthetic test families, `auto` (`es-general-2`) | 323 / 600 | 52 (16.1%) [12.5, 20.5] | 94 (29.1%) | 3.34% | 0.968 |
+
+With `es-general-2` more synthetic documents are `BLOCKED` (79 instead of 31,
+Gretel 18 instead of 15): in these the first scan missed a name or place that
+the verification rescan of the transformed text then found, so the gate
+refused to release them instead of approving a leak.
 
 The new route approves more financial documents at the same leak rate, but
 about one approved document in seven still leaks a direct identifier.
-`es-general`'s `assurance` profile (`review_margin` 160, `redact_margin` 320)
-reached the 2% validation target only by approving 3 of 1,002 validation
-documents with a quarter of non-sensitive text redacted
-(`operating-points-es-general.json`); it is packaged for completeness but in
-practice sends every document to review.
+`es-general-2`'s `assurance` profile (`redact_margin` 320, re-tuned on
+validation) reached the 2% validation target by approving 107 of 1,002
+validation documents while redacting about 28% of non-sensitive text
+(`operating-points-es-general.json`; for `es-general-1` it approved 3). It is
+packaged for completeness but is rarely usable.
 
 ## Operating profiles, domain routing and leak targets
 

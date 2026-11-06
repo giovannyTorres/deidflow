@@ -26,42 +26,42 @@ over general-purpose tools, not an apples-to-apples model architecture study.
 
 | Pipeline | Exact P | Exact R | Exact F1 [95% CI] | Sensitive-char recall | Docs fully covered | Over-redaction | p50 ms/doc |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| **DeidFlow auto** | **0.968** | 0.949 | **0.958** [0.950, 0.966] | 0.966 | 150 / 250 | **0.09%** | 28 |
-| **DeidFlow rules + auto** | 0.819 | **0.953** | 0.881 [0.874, 0.887] | **0.969** | **161 / 250** | 0.29% | 32 |
-| DeidFlow rules | 0.699 | 0.417 | 0.522 [0.513, 0.530] | 0.556 | 0 / 250 | 0.22% | 6 |
-| Presidio | 0.355 | 0.372 | 0.363 [0.355, 0.372] | 0.661 | 0 / 250 | 3.87% | 80 |
-| spaCy | 0.283 | 0.239 | 0.259 [0.251, 0.267] | 0.496 | 0 / 250 | 3.82% | 61 |
-| DeidFlow rules + spaCy | 0.452 | 0.646 | 0.531 [0.524, 0.539] | 0.861 | 0 / 250 | 3.92% | 66 |
+| **DeidFlow auto** | **0.968** | 0.949 | **0.958** [0.950, 0.966] | 0.966 | 150 / 250 | **0.09%** | 27 |
+| **DeidFlow rules + auto** | 0.820 | **0.953** | 0.882 [0.875, 0.888] | **0.969** | **162 / 250** | 0.29% | 31 |
+| DeidFlow rules | 0.707 | 0.431 | 0.536 [0.527, 0.544] | 0.595 | 0 / 250 | 0.23% | 6 |
+| Presidio | 0.355 | 0.372 | 0.363 [0.355, 0.372] | 0.661 | 0 / 250 | 3.87% | 78 |
+| spaCy | 0.283 | 0.239 | 0.259 [0.251, 0.267] | 0.496 | 0 / 250 | 3.82% | 59 |
+| DeidFlow rules + spaCy | 0.458 | 0.660 | 0.541 [0.533, 0.548] | 0.875 | 0 / 250 | 3.93% | 64 |
 
 ## Gretel synthetic financial, Spanish test (461 documents, 1,972 mentions)
 
 | Pipeline | Exact P | Exact R | Exact F1 [95% CI] | Sensitive-char recall | Docs fully covered | Over-redaction | p50 ms/doc |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| **DeidFlow auto** | **0.790** | 0.696 | **0.740** [0.715, 0.767] | 0.798 | 253 / 461 | **0.73%** | 20 |
-| **DeidFlow rules + auto** | 0.592 | **0.734** | 0.655 [0.628, 0.682] | **0.838** | **283 / 461** | 2.19% | 24 |
-| DeidFlow rules | 0.423 | 0.259 | 0.321 [0.287, 0.358] | 0.331 | 79 / 461 | 1.68% | 3 |
-| Presidio | 0.128 | 0.285 | 0.177 [0.160, 0.194] | 0.637 | 92 / 461 | 8.44% | 39 |
-| spaCy | 0.092 | 0.154 | 0.115 [0.098, 0.131] | 0.513 | 76 / 461 | 6.15% | 32 |
-| DeidFlow rules + spaCy | 0.175 | 0.398 | 0.243 [0.224, 0.264] | 0.722 | 123 / 461 | 7.42% | 34 |
+| **DeidFlow auto** | **0.784** | 0.705 | **0.743** [0.715, 0.768] | 0.808 | 258 / 461 | **0.80%** | 22 |
+| **DeidFlow rules + auto** | 0.591 | **0.744** | 0.659 [0.630, 0.688] | **0.851** | **293 / 461** | 2.35% | 24 |
+| DeidFlow rules | 0.430 | 0.266 | 0.329 [0.293, 0.366] | 0.353 | 79 / 461 | 1.81% | 3 |
+| Presidio | 0.128 | 0.285 | 0.177 [0.160, 0.194] | 0.637 | 92 / 461 | 8.44% | 41 |
+| spaCy | 0.092 | 0.154 | 0.115 [0.098, 0.131] | 0.513 | 76 / 461 | 6.15% | 33 |
+| DeidFlow rules + spaCy | 0.178 | 0.405 | 0.247 [0.228, 0.268] | 0.730 | 127 / 461 | 7.46% | 37 |
 
 ## Synthetic multi-country test families (600 documents, 3,450 mentions)
 
 Letters, forms, contracts, payslips, court and police documents, school records,
 chats and claims from 14 countries (`deidflow.benchmarks.synthetic_es`, seed
 1729, Faker 40.44.0), written with template families that were never used for
-training or validation. DeidFlow's `es-general` saw other families from the
+training or validation. DeidFlow's `es-general-2` saw other families from the
 same generator during training; the baselines did not. Treat this as a measure
 of coverage of Latin American and Spanish formats and layouts, not of real
 documents.
 
 | Pipeline | Exact P | Exact R | Exact F1 [95% CI] | Sensitive-char recall | Docs fully covered | Over-redaction | p50 ms/doc |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| **DeidFlow auto** | **0.840** | 0.737 | 0.785 [0.773, 0.797] | 0.929 | 305 / 600 | **1.97%** | 3 |
-| **DeidFlow rules + auto** | 0.766 | **0.808** | **0.786** [0.776, 0.796] | **0.947** | **364 / 600** | 3.72% | 4 |
-| DeidFlow rules | 0.743 | 0.402 | 0.522 [0.506, 0.534] | 0.441 | 0 / 600 | 3.24% | 1 |
-| Presidio | 0.487 | 0.427 | 0.455 [0.437, 0.474] | 0.684 | 24 / 600 | 5.64% | 13 |
-| spaCy | 0.478 | 0.356 | 0.408 [0.395, 0.424] | 0.610 | 16 / 600 | 5.61% | 10 |
-| DeidFlow rules + spaCy | 0.577 | 0.721 | 0.641 [0.629, 0.653] | 0.943 | 228 / 600 | 7.92% | 10 |
+| **DeidFlow auto** | **0.883** | 0.809 | **0.844** [0.831, 0.857] | 0.954 | 388 / 600 | **0.29%** | 4 |
+| **DeidFlow rules + auto** | 0.798 | **0.878** | 0.836 [0.826, 0.844] | **0.968** | **432 / 600** | 3.43% | 5 |
+| DeidFlow rules | 0.766 | 0.474 | 0.586 [0.573, 0.597] | 0.570 | 0 / 600 | 3.24% | 1 |
+| Presidio | 0.487 | 0.427 | 0.455 [0.437, 0.474] | 0.684 | 24 / 600 | 5.64% | 15 |
+| spaCy | 0.478 | 0.356 | 0.408 [0.395, 0.424] | 0.610 | 16 / 600 | 5.61% | 11 |
+| DeidFlow rules + spaCy | 0.598 | 0.793 | 0.682 [0.670, 0.695] | 0.967 | 388 / 600 | 7.92% | 12 |
 
 "Docs fully covered" counts documents in which every gold sensitive character
 is inside some prediction; over-redaction is the share of non-sensitive
@@ -73,14 +73,14 @@ boundaries; overlap scores are in the JSON reports.
 - On the two public sets DeidFlow's packaged taggers more than double the F1 of
   the best general-purpose alternative, while redacting four to forty times
   less non-sensitive text, and run about twice as fast on one CPU core. On the
-  synthetic multi-country set the margin is smaller (0.785 against 0.455) and
+  synthetic multi-country set the margin is smaller (0.844 against 0.455) and
   DeidFlow's rules plus spaCy reach similar character coverage at twice the
   over-redaction.
 - Presidio covers more sensitive characters than spaCy because its regex
   recognizers add e-mails, phones and dates, but its generic NER labels many
   ordinary words, which is why its over-redaction is high.
 - Even the best configuration leaves at least one sensitive character
-  uncovered in 89 of 250 clinical, 178 of 461 financial and 236 of 600
+  uncovered in 88 of 250 clinical, 168 of 461 financial and 168 of 600
   synthetic test documents.
   Human review of `REVIEW_REQUIRED` output remains necessary
   ([release-gate results](TAGGER.md#operating-profiles-domain-routing-and-leak-targets)).

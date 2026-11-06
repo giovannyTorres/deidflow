@@ -211,14 +211,14 @@ Details and caveats: [docs/COMPARISON.md](docs/COMPARISON.md).
 
 | Test set | DeidFlow `builtin:auto` | DeidFlow rules + auto | Presidio | spaCy |
 | --- | ---: | ---: | ---: | ---: |
-| MEDDOCAN clinical, exact F1 | **0.958** | 0.881 | 0.363 | 0.259 |
+| MEDDOCAN clinical, exact F1 | **0.958** | 0.882 | 0.363 | 0.259 |
 | MEDDOCAN, sensitive-character recall | 0.966 | **0.969** | 0.661 | 0.496 |
 | MEDDOCAN, over-redaction | **0.09%** | 0.29% | 3.87% | 3.82% |
-| Gretel financial (ES), exact F1 | **0.740** | 0.655 | 0.177 | 0.115 |
-| Gretel, sensitive-character recall | 0.798 | **0.838** | 0.637 | 0.513 |
-| Gretel, over-redaction | **0.73%** | 2.19% | 8.44% | 6.15% |
-| Synthetic 14-country test families, exact F1 | 0.785 | **0.786** | 0.455 | 0.408 |
-| Synthetic, sensitive-character recall | 0.929 | **0.947** | 0.684 | 0.610 |
+| Gretel financial (ES), exact F1 | **0.743** | 0.659 | 0.177 | 0.115 |
+| Gretel, sensitive-character recall | 0.808 | **0.851** | 0.637 | 0.513 |
+| Gretel, over-redaction | **0.80%** | 2.35% | 8.44% | 6.15% |
+| Synthetic 14-country test families, exact F1 | **0.844** | 0.836 | 0.455 | 0.408 |
+| Synthetic, sensitive-character recall | 0.954 | **0.968** | 0.684 | 0.610 |
 
 DeidFlow's taggers were trained on these corpora's training splits; the
 baselines were not. No configuration removes every sensitive character from

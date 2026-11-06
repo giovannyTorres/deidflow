@@ -55,8 +55,8 @@ BUILTIN_MODELS: dict[str, tuple[str, str]] = {
         "f7a28b8fef3ccc1090d171b693f744098b4032008a48b56530c5aabdf371679c",
     ),
     "es-general": (
-        "es-general-1.json.gz",
-        "bf7e257f363e17bcc6bee943f9dfaa0cd67e502cf8ac3fd90140bdd916a51903",
+        "es-general-2.json.gz",
+        "f3008720a246e32b7a2adaf4af2ba9a03fb665caadcf698658b029a73042c173",
     ),
 }
 
