@@ -141,3 +141,33 @@ def test_markup_patterns_are_linear_on_adversarial_input():
         start = time.perf_counter()
         parse(source)
         assert time.perf_counter() - start < 2, source[:20]
+
+
+def test_long_data_urls_and_css_urls_are_still_removed(tmp_path):
+    import base64
+
+    svg = base64.b64encode(b"<svg><text>ana.ruiz@example.com</text></svg>" * 80).decode()
+    long_parameters = "data:image/svg+xml;name=" + "x" * 300 + ";base64," + svg
+    for page in (
+        f'<img src="{long_parameters}">',
+        f"<style>p {{ background: url(data:image/svg+xml;base64,{svg}) }}</style><p>x</p>",
+    ):
+        source = tmp_path / "long.html"
+        source.write_text(page, "utf-8")
+        output = tmp_path / "long.out.html"
+        output.unlink(missing_ok=True)
+        result = DeidEngine().deidentify(
+            source, output=output, policy=Policy.strict(require_ner=False)
+        )
+        assert result.output_path is not None, result.issues
+        assert svg[:40] not in output.read_text("utf-8")
+
+
+def test_data_payload_detection():
+    from deidflow.markup import has_data_payload
+
+    assert has_data_payload("data:image/png;base64,AAAA")
+    assert has_data_payload("a.png 1x, data:image/png;base64,AAAA 2x")
+    assert not has_data_payload("data:,")
+    assert not has_data_payload("metadata:,x")
+    assert not has_data_payload("data:" * 1000)
