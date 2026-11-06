@@ -2,7 +2,7 @@
 
 This branch prepares writer/MIME output after the reader increment. It is not
 ready for a master-target PR until the reader has landed and its separate
-review/approval gates are satisfied. No remote publication or merge occurred.
+review/approval gates are satisfied. No PR, issue or release was published, and no merge into master occurred.
 
 ## Source and deliberate correction
 
