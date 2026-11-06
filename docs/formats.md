@@ -26,8 +26,11 @@ Built-in rules and NLP adapters receive a detection view with Unicode format
 controls (category `Cf`) removed and NFKC applied. Source text is retained;
 findings project to complete original canonical clusters, including adjacent
 inserted controls. Compatibility expansions and reordered combining marks do
-not expose partially replaced original characters. Address grammar also uses
+not expose partially replaced original characters. Lexical features and boundary validation also use
 source ordinal provenance, since NFKC merges `º`/`ª` with ordinary `o`/`a`.
+Built-in models keep NFKC token coordinates while consuming this semantic
+metadata. NLP routers/combinators forward it; external adapters retain the
+existing `detect_batch` normalized-text interface.
 
 Text, structured cells, Office, HTML and e-mail writers transform original spans
 and reread the emitted artifact. A remaining format control between alphanumeric
@@ -41,8 +44,8 @@ also checks its batch mapping budget. These are admission estimates, not an RSS
 or process-isolation guarantee. Unicode behavior uses the interpreter's Unicode
 database and is recorded with the candidate evidence.
 
-The current candidate has a documented MEDDOCAN validation regression and pending
-Gretel evidence. See [the audit handoff](audit/unicode-normalization/README.md).
+The corrected candidate retains master predictions on synthetic validation and
+MEDDOCAN dev; Gretel evidence remains pending. See [the audit handoff](audit/unicode-normalization/README.md).
 ODT/ODS coverage remains pending the separate OpenDocument PR.
 
 ## DOCX and XLSX

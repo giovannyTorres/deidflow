@@ -7,9 +7,10 @@
   text outside transformed spans and ordinal address syntax through provenance.
 - Require review when format controls remain inside alphanumeric output. Bump
   rule provenance to `rules-0.7`, invalidating prior rule calibrations/review plans.
-- Candidate validation remains incomplete: MEDDOCAN dev regresses with the
-  existing general model and Gretel validation assets are unavailable here.
-  This change does not establish release approval.
+- Preserve source ordinal evidence through model features, contextual rules,
+  routers, combinators and cached adapters; distinguish Nº from the surname No.
+  Synthetic validation and MEDDOCAN dev recover master prediction coordinates
+  and acceptance metrics. Gretel validation and external release gates remain pending.
 
 ## 0.6.0b1 - Spanish context product candidate
 

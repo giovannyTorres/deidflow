@@ -1,90 +1,108 @@
-# Candidata H1/H2: normalización Unicode
+# H1/H2: normalización Unicode y compatibilidad léxica
 
-**Estado: candidata de desarrollo; aceptación no cumplida. Auditoría Claude: pendiente.**
-No se fusionó ni publicó una versión. La API de GitHub sigue denegada por la
-política del entorno: una rama publicada y este cuerpo preparado no son un PR.
+**La regresión de MEDDOCAN está corregida en la candidata.** La validación
+sintética y MEDDOCAN dev conservan los mismos tipos y coordenadas de predicción
+que master, tanto por reglas como con el paquete general. Gretel sigue sin
+medirse por falta de acceso a sus activos. **Auditoría Claude: pendiente.**
 
-Base `master`: `44d04b16fb1ec545161c4ef0c14f516c7b0d9d29`.
-Código candidato: `93ed28cc4b9ee1c8f0d2b9fb3e919f70df3c7140`.
-Rama: `fix/unicode-detection`. [Comparación](https://github.com/giovannyTorres/deidflow/compare/master...fix/unicode-detection).
-[Resultados de validación y pins](validation.json). Las comprobaciones integradas
-se registran por separado en `health.json` después de completarse.
+Base master: `44d04b16fb1ec545161c4ef0c14f516c7b0d9d29`.
+Código probado/revisado: `3de9d732dca9a6df106a757836f0c8194be73916`.
+Rama: `fix/unicode-detection`; los cambios posteriores son documentación, recibos y un reproductor clínico
+ejecutado por separado.
+[Validación actual](validation.json) · [salud local](health.json) ·
+[cuerpo de PR](PR_BODY.md).
 
-## Cambio y TDD
+## Qué cambió
 
-La vista compartida retira todos los caracteres de categoría Cf y aplica NFKC
-con trazado al original. Descomposición acotada, buckets de clase combinante y
-composición de pares evitan normalizar prefijos crecientes. Expansiones,
-composición Hangul/Indic y reordenación conservan envolventes originales; la
-proyección es constante por hallazgo. No se normaliza el documento emitido.
+La vista común retira todos los Cf y aplica NFKC con mapa de offsets al original.
+La tokenización, los segmentos, las comprobaciones de sustituciones y los
+intervalos del NLP utilizan esa vista. La salida conserva el original fuera de
+los intervalos transformados, incluidas sus formas Unicode.
 
-RuleDetector usa la vista también cuando lo invocan rutas rápidas de columnas y
-procesos. El NLP recibe el texto normalizado y sus offsets se validan antes de
-proyectar y fusionar. Los escritores siguen transformando intervalos originales.
-La relectura/streaming y el texto conservan revisión cuando quedan Cf dentro de
-palabras, sin fabricar entidades sensibles. `rules-0.7` impide reutilizar planes
-actuales o calibraciones de reglas anteriores; los recibos históricos conservan
-su contrato de verificación.
+NFKC convierte los ordinales º/ª en o/a y elimina distinciones léxicas necesarias
+para reglas y modelos ya entrenados. Ahora la procedencia conserva la clase de
+ordinal como **metadato para características léxicas y validación de límites**;
+la vista NFKC permanece intacta y no se reintroducen Cf ni letras de ancho
+completo. No se cambiaron pesos, umbrales, perfiles, modelos ni defaults.
 
-Las primeras pruebas rojas reprodujeron el DNI invisible y un adaptador NLP que
-no recibía NFKC. Otra prueba roja demostró APPROVED con un Cf residual en una
-palabra no personal. Sus correspondientes verdes están conservados localmente.
-Se añadieron pruebas de los seis Cf solicitados, anchura completa, 200.000 Cf
-insertados en un identificador (más de 200 KB UTF-8), texto, CSV/TSV, JSON/JSONL,
-DOCX/XLSX, HTML y EML. Se inspeccionan partes OOXML, entidades HTML y adjuntos.
-ODT/ODS no están en esta base; su matriz se ampliará cuando se integre su PR.
+El modelo calcula sus características con esa evidencia, manteniendo los tokens
+y coordenadas NFKC. DomainModelAdapter conserva la misma información al refinar
+límites. DomainRouter, CombinedNER y CachedTagger la propagan; el caché no
+confunde el ordinal 5º con el literal 5o. Los adaptadores externos sin esta
+capacidad siguen recibiendo texto NFKC mediante `detect_batch`.
 
-La validación encontró una distinción que NFKC borra: 3ª pasa a 3a. Una primera
-corrección de gramática admitía también expresiones ASCII como «3 o más»;
-la revisión interna lo reprodujo con tres pruebas rojas. Se restauró la
-gramática original y se interpretan los ordinales con su procedencia original,
-a las mismas coordenadas de la vista. Esto conserva Pº/Nº y pisos sin convertir
-conectores ASCII en ordinales. El corpus sintético recuperó sus métricas previas.
+La validación de nombres distingue el marcador original Nº del apellido literal
+No; también conserva el reconocimiento de abreviaturas personales como Mª.
+Esto evita consumir un marcador de número como otro apellido. La relectura de
+archivos y el streaming conservan revisión ante Cf residuales dentro de palabras,
+sin inventar entidades sensibles.
 
-## Validación: resultado bloqueante
+## Evidencia de validación
 
-Son **particiones de validación**, sin ajustes de pesos, umbrales, modelos,
-perfiles o referencia. Cada invocación hace una pasada de puntuación por
-configuración, sin warm-up. Se repitió validación después de cambios del helper,
-procedencia y gramática; no se ejecutó ningún banco de test/independiente.
-Los primeros intentos fallidos quedan como desarrollo local, no como nuevas
-mediciones de test. El informe publicado compara el helper congelado y los
-mismos textos/anotaciones/configuraciones entre base y candidata final.
+Las mediciones finales usan el mismo helper, corpus, anotaciones, modelos y
+configuraciones en base y candidata. Se comprobó igualdad del hash de **todas
+las predicciones tipadas con sus offsets**, además de las métricas exigidas.
+No se eligieron subconjuntos favorables ni se modificó el gold.
 
-| Validación | Configuración | FP exactos base → candidata | Recall de caracteres | Documentos sin cubrir |
+| Validación | Configuración | FP base → candidata | Recall de caracteres | Documentos sin cubrir |
 | --- | --- | ---: | ---: | ---: |
 | Sintética, 600 | Reglas | 268 → 268 | 0.428915 → 0.428915 | 600 → 600 |
-| Sintética, 600 | Paquete general balanced | 1090 → 1090 | 0.928963 → 0.928963 | 273 → 273 |
-| MEDDOCAN dev, 250 | Reglas | 776 → 777 | 0.587256 → 0.587256 | 250 → 250 |
-| MEDDOCAN dev, 250 | Paquete general balanced | 2066 → 2090 | 0.972887 → 0.972624 | 97 → 99 |
+| Sintética, 600 | General balanced | 1090 → 1090 | 0.928963 → 0.928963 | 273 → 273 |
+| MEDDOCAN dev, 250 | Reglas | 776 → 776 | 0.587256 → 0.587256 | 250 → 250 |
+| MEDDOCAN dev, 250 | General balanced | 2066 → 2066 | 0.972887 → 0.972887 | 97 → 97 |
+| MEDDOCAN dev, 250 | Clínico balanced | 2030 → 2030 | 0.978497 → 0.978497 | 79 → 79 |
+| MEDDOCAN dev, 250 | builtin:auto balanced | 974 → 974 | 0.973164 → 0.973164 | 94 → 94 |
 
-Por tanto **no se cumple «sin nuevos falsos positivos» ni la no regresión del
-paquete general**. El diagnóstico inicial, anterior al arreglo léxico de ordinales, contrastó el
-mapa con normalización stdlib completa y no encontró discrepancias geométricas.
-La comparación actual de 93ed28c incluye la validación ordinal adicional y sus
-resultados se cuentan por separado. Ese diagnóstico inicial atribuyó la pérdida
-de 18 caracteres a
-ADDRESS; no se reinterpretó el gold ni se descartaron errores del denominador.
-Queda trabajo para compatibilizar reconocedores/modelos con el preprocesamiento;
-esta candidata no habilita uso con datos reales ni satisface el cierre de P1.
+Clínico y auto se comprobaron adicionalmente mediante el reproductor publicado;
+sus posiciones marcadas como inciertas por score < 0.75 también coinciden.
+Los hashes de scores, confianza y contexto se conservan por separado, junto al
+ECE observado: no se recalibraron perfiles. Las filas principales comparan las
+métricas de aceptación; no afirman identidad de cada campo de confianza.
 
-MEDDOCAN se adquirió del commit/licencia fijados en el registro, fuera del
-checkout; solo dev se parseó y puntuó. La verificación de integridad lee bytes
-del archivo publicado, incluidos otros splits, sin ejecutarlos como evaluación.
-No se publicaron documentos, valores, nombres de archivo de casos ni coordenadas
-individuales. Gretel requiere el Spanish train registrado para su holdout hash:
-no está disponible aquí y no se sustituyó por el test publicado.
+El intento anterior tenía FP general 2090 y 99 documentos sin cubrir en MEDDOCAN.
+Se conservan íntegros sus [recibos de validación](history/93ed28c-validation.json)
+y [salud local](history/93ed28c-health.json), ligados al código anterior. No se
+presentan como mediciones del código corregido.
+
+Cada invocación de validación realiza una pasada de puntuación por configuración
+sin warm-up. Se repitió validación durante las correcciones y al comprobar el
+reproductor en su ruta publicada; ningún banco de test/independiente fue puntuado.
+Las pruebas pytest y sus ejemplos de entrenamiento son fixtures de software y
+regresión ficticia de desarrollo, no evidencia independiente de adopción.
+
+MEDDOCAN se adquirió de su registro fijado, CC-BY-4.0, fuera del checkout. Solo dev
+se parseó/puntuó; la integridad del archivo publicado se verificó por hashes.
+Gretel acepta únicamente el archivo Spanish train de la revisión registrada,
+verifica su SHA antes/después de cargar y selecciona el holdout determinista
+10%, salt deidflow. La partición de entrenamiento interna y el test publicado
+quedan fuera de puntuación. Su ejecución real sigue pendiente, sin resultados
+fabricados. Las coincidencias de identidad/plantilla no se acreditan con ese hash.
+
+## Pruebas, TDD y empaquetado
+
+**1227 pruebas pasan, 11 omitidas**, 237.84 s. Cobertura: **86.61% sentencias,
+78.60% ramas, 84.21% combinada**. Las omisiones son activos opcionales OCR/spaCy
+ausentes; no se cuentan como aprobadas. Ruff, formato, mypy Python 3.12, pip check,
+microbenchmark, build, twine --strict y wheel base sin extras pasan.
+
+Pruebas rojas/verdes reproducen DNI con Cf, NLP que perdía el piso, Nº consumido
+como apellido, wrappers que perdían metadatos y alias de caché. La matriz de
+texto, CSV/TSV, JSON/JSONL, DOCX/XLSX, HTML y EML verifica los seis Cf pedidos,
+anchura completa, entidades HTML, canales OOXML y adjuntos. El caso de 200.000
+Cf dentro de un identificador supera 200 KB UTF-8 y cumple su presupuesto.
+ODT/ODS se añadirán cuando su PR llegue a master.
+
+El wheel se construyó desde git archive del código probado y se instaló sin red
+ni extras en un venv vacío, fuera del checkout. Se verificaron la API anterior,
+modelos empaquetados, retirada de Cf/anchura completa, revisión residual y
+cobertura del piso con NLP puro Python. No se publicó en PyPI.
 
 ## Reproducción
 
-Usar dos worktrees, uno limpio en la base y otro en el código candidato. Con
-las dependencias de desarrollo ya instaladas y sin red durante evaluación:
+Usar un worktree limpio en la base y otro en el código probado. El helper de
+la candidata debe ser el mismo en ambos comandos, con dependencias ya instaladas:
 
 ```sh
-PYTHONPATH=/ruta/base/src python /ruta/candidata/scripts/validate_unicode_detection.py \
-  --source-root /ruta/base --label baseline --source synthetic --output /ruta/nueva/base-synthetic.json
-PYTHONPATH=/ruta/candidata/src python /ruta/candidata/scripts/validate_unicode_detection.py \
-  --source-root /ruta/candidata --label candidate --source synthetic --output /ruta/nueva/candidate-synthetic.json
 PYTHONPATH=/ruta/base/src python /ruta/candidata/scripts/validate_unicode_detection.py \
   --source-root /ruta/base --label baseline --source meddocan \
   --corpus /ruta/meddocan-registrado --output /ruta/nueva/base-meddocan.json
@@ -93,29 +111,43 @@ PYTHONPATH=/ruta/candidata/src python /ruta/candidata/scripts/validate_unicode_d
   --corpus /ruta/meddocan-registrado --output /ruta/nueva/candidate-meddocan.json
 ```
 
-El helper rechaza sobrescrituras y selección de test; fija synthetic validation
-600/1729 y MEDDOCAN dev. Sus digests de corpus, modelo, configuración y código
-permiten comprobar que ambos lados usan las mismas entradas. Los resultados
-son evidencia de validación local, no calidad global, anonimato o independencia.
+Para sintético: sustituir --source meddocan por --source synthetic y omitir
+--corpus. Para Gretel: --source gretel y --corpus apuntando al Spanish train
+registrado; se rechazan test, SHA distinto, datos dentro de Git y sobrescrituras.
 
-## Revisión y condiciones externas
+[Reproductor clínico/auto](verify_clinical_routes.py), ejecutado en ambos runtimes:
 
-Revisión interna Matt Pocock a dos ejes, distinta de la auditoría de Claude:
-Standards, 0 infracciones/juicios pendientes; Spec, defectos ASCII y Pº resueltos,
-con aceptación de validación y condiciones externas todavía pendientes.
-Código revisado 93ed28c; cinco comprobaciones independientes de ordinales pasan.
+```sh
+PYTHONPATH=/ruta/base/src python /ruta/handoff/verify_clinical_routes.py \
+  --source-root /ruta/base --helper /ruta/candidata/scripts/validate_unicode_detection.py \
+  --corpus /ruta/meddocan-registrado --output /ruta/nueva/routes-base.json
+PYTHONPATH=/ruta/candidata/src python /ruta/handoff/verify_clinical_routes.py \
+  --source-root /ruta/candidata --helper /ruta/candidata/scripts/validate_unicode_detection.py \
+  --corpus /ruta/meddocan-registrado --output /ruta/nueva/routes-candidate.json
+```
 
-Antes de cualquier fusión siguen siendo obligatorios CI 11/11, ausencia de
-hallazgos bloqueantes de Claude, todos los hilos resueltos y aprobación de
-Giovanny. Ninguna revisión interna sustituye esas condiciones. No se activó
-NarrativeRecognizer, segundo pase de transformación ni un modelo nuevo; se
-mantuvieron los defaults de master. No se tocaron #32, hilos de #31, ramas
-ajenas, dependencias ni versión del paquete en este incremento.
+Los recibos incluyen pins de código, helper, datos, configuración y modelos,
+sin valores, textos o coordenadas individuales de los documentos.
 
-Los siguientes pasos de P1 siguen abiertos: cerrar esta aceptación, añadir las
-dos recetas BMX-12 en su PR correspondiente, corregir HTML H3/H4 y después H5
-sobre #32. H3/H4 ya se reprodujeron de forma aislada, sin cambios de código.
-No se avanzó a releases, limpieza de ramas ni decisiones pendientes del titular.
+## Auditoría y bloqueos externos
 
-Logs locales de la sesión: `/tmp/deidflow-unicode-evidence/`. Los comandos y
-resultados finales se adjuntan al cuerpo de PR preparado y al recibo de salud.
+Revisión interna Matt Pocock: Standards sin infracciones escritas; se acepta un
+juicio P3 sobre las listas paralelas source/view del protocolo por lotes, con
+validación de cardinalidad en cada frontera. Spec sin defectos de código
+pendientes; la evidencia de Gretel y los requisitos externos continúan pendientes.
+Esta revisión interna no sustituye la auditoría de Claude.
+
+No hay PR creado: el intento de GitHub API devolvió Forbidden. La rama y el
+cuerpo preparado están publicados. No se fusionará hasta CI 11/11, ningún
+hallazgo bloqueante de Claude, todos los hilos resueltos y aprobación de Giovanny.
+La aceptación completa de las tres fuentes exige todavía Gretel.
+
+Se guardó en el borrador de nube el acceso a huggingface.co conservando
+api.github.com. Solo cambió ese borrador: las reglas no están aplicadas al runtime.
+El producto requiere revisar, guardar y publicar el entorno desde ajustes para
+activar la configuración. No se agregaron credenciales, instalaciones ni
+repositorios a ese borrador y no se eludió la política de red.
+
+El resto del plan conserva su orden y sus PRs separados. No se modificaron #32,
+hilos de #31, defaults pendientes, ramas ajenas ni la versión del paquete.
+Logs locales: /tmp/deidflow-unicode-evidence/continuation/.
