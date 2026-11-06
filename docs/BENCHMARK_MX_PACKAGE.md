@@ -163,3 +163,31 @@ La calidad siempre es **`DESCRIPTIVE_ONLY`**. La admisión no acredita anonimato
 representatividad, permisos reales, independencia ni aislamiento nativo. Los
 binarios solo se comprueban por identidad/tamaño, sin afirmar que un DOCX/PDF
 sea válido o haya sido inspeccionado. Véase [el acta BMX-02](audit/BMX-02.md).
+
+## Detección por entidad (BMX-03)
+
+`profile="detection-descriptive-v1"` habilita la pista textual multientidad.
+El perfil debe existir en el paquete, seguir sin ratificar y declarar sus
+categorías en `scope.entity_types`. El perfil EMAIL anterior conserva su contrato.
+
+El informe conserva filas para todas las categorías declaradas, aunque su
+soporte sea cero. Cada fila publica TP/FP/FN, soporte, precision/recall/F1 y
+`undefined_reason`. `aggregates.micro` suma conteos; `aggregates.macro` promedia
+solo valores definidos y declara cuántas entidades entraron en cada cociente.
+Un denominador ausente es `null` con razón, nunca perfección implícita.
+
+El matching exacto usa tipo/inicio/fin por unidad y caso; deduplica candidatos
+idénticos, conserva solapamientos distintos y no remapea etiquetas según el
+gold. Las coordenadas se conservan sobre el texto original, incluidos CRLF y
+caracteres fuera de BMP.
+
+La política versionada `exclude_unit_entity_if_ambiguous.v1` excluye de métricas
+primarias una combinación unidad/entidad con alguna mención ambigua. También
+se excluye una combinación sin anotación exhaustiva. `partial_diagnostics`
+conserva TP/FN conocidos, soporte y predicciones no puntuadas; sus FP son `null`.
+`exclusions` informa ambigüedad, cobertura parcial y predicciones fuera de alcance.
+`reference_conformity=INCOMPLETE` mantiene visibles esas limitaciones.
+
+Un error del candidato deja todas las filas y agregados sin puntuación y
+conserva `execution.required_support_by_entity`. El resultado sigue siendo
+`DESCRIPTIVE_ONLY`. Véase [evidencia BMX-03](audit/BMX-03.md).

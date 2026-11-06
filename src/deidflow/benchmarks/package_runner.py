@@ -18,6 +18,7 @@ from deidflow.detectors import CORE_RULES_VERSION
 
 from ._package_io import MAX_RECORDS, is_sha256
 from .datasets import Example, GoldSpan
+from .detection_metrics import score_detection
 from .email import _source_digest, _write_report
 from .evaluation_package import load_evaluation_package
 
@@ -142,7 +143,8 @@ def run_package_benchmark(
     """Admit a full package and evaluate EMAIL with an explicit local profile."""
     started = datetime.now(UTC).isoformat()
     before = time.perf_counter()
-    if profile != "email-descriptive-v1":
+    multientity = profile == "detection-descriptive-v1"
+    if profile not in {"email-descriptive-v1", "detection-descriptive-v1"}:
         raise UnsupportedEvaluationError
     loaded = load_evaluation_package(package, manifest_sha256=manifest_sha256)
     records = loaded.records
@@ -155,22 +157,28 @@ def run_package_benchmark(
     if (
         not selected_cases
         or profile not in loaded.manifest["profiles"]
-        or set(loaded.manifest["scope"]["entity_types"]) != {"EMAIL"}
+        or (not multientity and set(loaded.manifest["scope"]["entity_types"]) != {"EMAIL"})
         or set(loaded.manifest["scope"]["formats"]) != {"text"}
         or any(
             row["format"] != "text" or set(row["capabilities_required"]) - {"text_detection"}
             for row in records["documents"]
             if row["case_id"] in selected_cases
         )
-        or any(
-            mention["certainty"] != "confirmed"
-            for mention in records["mentions"]
-            if mention["unit_id"] in selected_units
+        or (
+            not multientity
+            and any(
+                mention["certainty"] != "confirmed"
+                for mention in records["mentions"]
+                if mention["unit_id"] in selected_units
+            )
         )
-        or any(
-            "EMAIL" not in entry["exhaustive_entity_types"]
-            for entry in loaded.manifest["annotation_coverage"]
-            if entry["unit_id"] in selected_units
+        or (
+            not multientity
+            and any(
+                "EMAIL" not in entry["exhaustive_entity_types"]
+                for entry in loaded.manifest["annotation_coverage"]
+                if entry["unit_id"] in selected_units
+            )
         )
     ):
         raise UnsupportedEvaluationError
@@ -198,12 +206,38 @@ def run_package_benchmark(
     for example in examples:
         try:
             findings = _findings(detect(example.text), example.text)
-            predictions.append([finding for finding in findings if finding.entity_type == "EMAIL"])
+            predictions.append(
+                findings
+                if multientity
+                else [finding for finding in findings if finding.entity_type == "EMAIL"]
+            )
         except Exception:
             failed_units += 1
             failed_cases.add(unit_cases[example.id])
     metrics = _exact_metrics(examples, predictions) if not failed_units else None
-    report = {
+    entity_types = sorted(loaded.manifest["scope"]["entity_types"]) if multientity else ["EMAIL"]
+    detection = None
+    if multientity:
+        detection = (
+            score_detection(
+                examples,
+                predictions,
+                entity_types,
+                {
+                    entry["unit_id"]: set(entry["exhaustive_entity_types"])
+                    for entry in loaded.manifest["annotation_coverage"]
+                },
+                {
+                    (mention["unit_id"], mention["entity_type"], mention["start"], mention["end"])
+                    for mention in records["mentions"]
+                    if mention["unit_id"] in selected_units and mention["certainty"] == "ambiguous"
+                },
+            )
+            if not failed_units
+            else {"metrics": {label: None for label in entity_types}, "aggregates": None}
+        )
+    cells = detection["metrics"] if detection is not None else {"EMAIL": metrics}
+    report: dict[str, Any] = {
         "schema_version": "df-eval-mx.package-report.v1",
         "result": {
             "candidate": descriptor,
@@ -219,7 +253,7 @@ def run_package_benchmark(
             "profile": {"id": profile, "ratified": False},
             "scope": {
                 "track": "detection",
-                "entity_types": ["EMAIL"],
+                "entity_types": entity_types,
                 "source_format": "text",
                 "language": "es",
                 "country": "MX",
@@ -246,7 +280,7 @@ def run_package_benchmark(
             if failed_units
             else [],
             "quality": "DESCRIPTIVE_ONLY",
-            "metrics": {"EMAIL": metrics},
+            "metrics": cells,
             "limitations": [
                 "EMAIL_ONLY_KNOWN_REGRESSION",
                 "ANNOTATION_REVIEW_NOT_AUTHENTICATED",
@@ -262,5 +296,13 @@ def run_package_benchmark(
             "python_version": platform.python_version(),
         },
     }
+    if multientity:
+        assert detection is not None
+        report["result"].update(detection)
+        report["result"]["execution"]["required_support_by_entity"] = {
+            label: sum(span.entity_type == label for example in examples for span in example.spans)
+            for label in entity_types
+        }
+        report["result"]["limitations"][0] = "KNOWN_REGRESSION_ONLY"
     _write_report(Path(output), report)
     return report

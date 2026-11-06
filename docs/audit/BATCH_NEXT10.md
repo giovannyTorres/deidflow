@@ -1,0 +1,33 @@
+# Integración incremental del benchmark: siguientes diez tareas
+
+Base del lote: `69942cc8fe6e9fae9130ab2bdb8fb703991eb03c`.
+Objetivo solicitado: diez tareas una por una, TDD, revisión Matt Pocock y
+salud del repositorio, sin datos personales reales ni nuevas dependencias de
+producción, manteniendo API y privacidad, sin publicar PyPI.
+
+Orden técnico asumido mientras se resuelve la consulta de alcance:
+BMX-03, BMX-04, BMX-05, BMX-06, BMX-07, BMX-08, BMX-13, BMX-14, BMX-15, BMX-16.
+Se respeta el grafo; BMX-09 es una decisión humana y BMX-10/11/12 dependen de
+esa ratificación. No se transforma silencio en aprobación de perfiles.
+
+Salud inicial: Ruff y formato pasan (229 archivos), mypy pasa (68 módulos),
+pip check pasa y 142 pruebas focalizadas pasan. El último candidato base tenía
+1219 pruebas aprobadas y 11 omisiones OCR/spaCy, documentadas en BMX-02.
+
+Se registrarán checks focalizados y revisión por tarea antes de continuar.
+La suite completa con cobertura, el microbenchmark y el wheel se comprobarán
+sobre el candidato final integrado. Se conservan sin incluir en los commits
+los cambios previos de AGENTS.md, CLAUDE.md y docs/agents/.
+
+| Tarea | Estado del lote |
+| --- | --- |
+| BMX-03 | Implementada; revisión en curso |
+| BMX-04 | Pendiente |
+| BMX-05 | Pendiente |
+| BMX-06 | Pendiente |
+| BMX-07 | Pendiente |
+| BMX-08 | Pendiente |
+| BMX-13 | Pendiente |
+| BMX-14 | Pendiente |
+| BMX-15 | Pendiente |
+| BMX-16 | Pendiente |
