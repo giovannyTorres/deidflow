@@ -86,6 +86,7 @@ MEDIA_TYPES = {
 MAX_REPEAT = 16_384  # repeated rows/cells with content: at most this count each
 MAX_EXPANDED_CELLS = 2_000_000  # cell positions with content per sheet
 MAX_CLONED_CELLS = 200_000  # cell elements created when splitting repeats
+MAX_XML_DEPTH = 128
 _TEXT_NODES = {minidom.Node.TEXT_NODE, minidom.Node.CDATA_SECTION_NODE}
 
 # Text elements that end a block of text (a fragment boundary for the reader);
@@ -208,6 +209,25 @@ _SHEET_REFERENCE = "(?<![\\w'])"
 
 
 # --- shared walk --------------------------------------------------------------
+
+
+def _parse_odf(data: bytes) -> Node:
+    """Keep shared recursive DOM helpers behind an ODF-specific depth boundary."""
+    try:
+        document = _parse(data)
+    except RecursionError:
+        raise DocumentError("OpenDocument XML nesting exceeds the supported depth") from None
+    pending: list[tuple[Node, int]] = [(document.documentElement, 1)]
+    while pending:
+        element, depth = pending.pop()
+        if depth > MAX_XML_DEPTH:
+            raise DocumentError("OpenDocument XML nesting exceeds the supported depth")
+        pending.extend(
+            (child, depth + 1)
+            for child in element.childNodes
+            if child.nodeType == child.ELEMENT_NODE
+        )
+    return document
 
 
 def _qualified(node: Node) -> tuple[str, str]:
@@ -471,6 +491,16 @@ def attributes(root: Node) -> Iterator[tuple[Node, str, str]]:
                 # replaced blindly: changing one could break definitions/references.
                 kind = "structural"
             yield element, qualified, kind
+
+
+def structural_names(root: Node) -> Iterator[str]:
+    """Qualified names, including namespace aliases and empty attribute names."""
+    seen: set[str] = set()
+    for element in _elements(root):
+        for name in (element.tagName, *element.attributes.keys()):
+            if name not in seen:
+                seen.add(name)
+                yield name
 
 
 # --- spreadsheet grid ---------------------------------------------------------
@@ -737,14 +767,14 @@ def read_odf(path: Path, graph: Any, max_bytes: int) -> None:
                 _issue(graph, "office_drawing_content_requires_review")
                 if name.endswith(".xml"):
                     _read_part(
-                        _parse(archive.read(name)),
+                        _parse_odf(archive.read(name)),
                         graph,
                         name,
                         spreadsheet=False,
                         package_members=package_members,
                     )
             elif kind == "xml":
-                document = _parse(archive.read(name))
+                document = _parse_odf(archive.read(name))
                 if document.documentElement.namespaceURI != OFFICE:
                     raise DocumentError("Unexpected OpenDocument part root")
                 _read_part(
@@ -756,13 +786,20 @@ def read_odf(path: Path, graph: Any, max_bytes: int) -> None:
                 )
             elif kind == "manifest":
                 _read_part(
-                    _parse(archive.read(name)),
+                    _parse_odf(archive.read(name)),
                     graph,
                     name,
                     spreadsheet=False,
                     package_members=package_members,
                 )
             elif kind == "settings":
+                _read_part(
+                    _parse_odf(archive.read(name)),
+                    graph,
+                    name,
+                    spreadsheet=False,
+                    package_members=package_members,
+                )
                 root = _xml(archive.read(name))
                 for item in root.iter(f"{{{CONFIG}}}config-item"):
                     value = item.text or ""
@@ -773,6 +810,13 @@ def read_odf(path: Path, graph: Any, max_bytes: int) -> None:
                     elif value_type == "string" and value.strip():
                         _fragment(graph, value, part=name, kind="settings")
             elif kind in {"rdf", "signature"}:
+                _read_part(
+                    _parse_odf(archive.read(name)),
+                    graph,
+                    name,
+                    spreadsheet=False,
+                    package_members=package_members,
+                )
                 root = _xml(archive.read(name))
                 for element in root.iter():
                     value = element.text or ""
@@ -800,6 +844,8 @@ def _read_part(
 ) -> None:
     from deidflow.readers import _fragment, _issue
 
+    for name in structural_names(document):
+        _fragment(graph, name, part=part, kind="structural_name")
     for element in _elements(document):
         key = _qualified(element)
         if _active(element):
@@ -1021,18 +1067,30 @@ class _Writer:
 
     def collect_names(self, documents: list[Node]) -> None:
         """Names that carry data get neutral names, the same in every part."""
+        used = set(self.names.values())
+        candidates: dict[str, None] = {}
         for document in documents:
             for element, qualified, kind in attributes(document):
+                value = element.getAttribute(qualified)
+                # Reserve all retained attribute values before allocating names,
+                # including harmless or unmodeled bindings encountered later.
+                used.add(value)
                 if kind != "name":
                     continue
                 if _qualified(element) == (TABLE, "table") and _is_sheet(element):
                     continue
-                value = element.getAttribute(qualified)
-                if (
-                    value not in self.names
-                    and _standalone(value, self.rewrite, OfficeReport()) != value
-                ):
-                    self.names[value] = f"nombre-{len(self.names) + 1}"
+                candidates[value] = None
+        index = 1
+        for value in candidates:
+            if value in self.names or _standalone(value, self.rewrite, OfficeReport()) == value:
+                continue
+            replacement = f"nombre-{index}"
+            while replacement in used:
+                index += 1
+                replacement = f"nombre-{index}"
+            self.names[value] = replacement
+            used.add(replacement)
+            index += 1
 
     def criteria(self, document: Node) -> None:
         """Drop validations, named expressions, conditional formats and maps with data."""
@@ -1184,6 +1242,9 @@ class _Writer:
 
     def attributes(self, document: Node) -> None:
         report = self.report
+        for name in structural_names(document):
+            if _standalone(name, self.rewrite, OfficeReport()) != name:
+                raise DocumentError("Sensitive OpenDocument XML names are unsupported")
         for element, qualified, kind in list(attributes(document)):
             if not _attached(element):
                 continue
@@ -1286,7 +1347,7 @@ def rewrite_odf(
             package_members=package_members,
         )
         documents = {
-            name: _parse(archive.read(name))
+            name: _parse_odf(archive.read(name))
             for name in ("content.xml", "styles.xml", "meta.xml")
             if name in names
         }

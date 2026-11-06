@@ -241,3 +241,95 @@ def test_manifest_metadata_cannot_hide_identifier_in_syntactically_valid_media_t
     assert "12345678Z" not in emitted, result.status
     assert 'manifest:media-type="text/xml"' in emitted
     assert any("12345678Z" in fragment.text for fragment in read_document(source).fragments)
+
+
+@pytest.mark.parametrize("channel", ("standard_alias", "element_name", "empty_attribute_name"))
+def test_sensitive_xml_qualified_name_is_inspected_and_blocks_without_rewriting_syntax(
+    tmp_path, channel
+):
+    identifier = "12345678Z"
+    if channel == "standard_alias":
+        root_attributes = 'xmlns:dni-12345678Z="urn:oasis:names:tc:opendocument:xmlns:text:1.0"'
+        body = "<dni-12345678Z:p>Informe.</dni-12345678Z:p>"
+    else:
+        root_attributes = 'xmlns:private="urn:deidflow:fixture"'
+        body = (
+            "<private:dni-12345678Z>Informe.</private:dni-12345678Z>"
+            if channel == "element_name"
+            else '<text:p private:dni-12345678Z="">Informe.</text:p>'
+        )
+    source = package(tmp_path, body, root_attributes=root_attributes)
+    result = DeidEngine(country="ES").deidentify(
+        source, output=tmp_path / "safe.odt", policy=Policy.strict(require_ner=False)
+    )
+    assert result.status == "BLOCKED", result.status
+    assert result.output_path is None and not (tmp_path / "safe.odt").exists()
+    assert any(identifier in fragment.text for fragment in read_document(source).fragments)
+
+
+def test_neutral_names_do_not_collapse_existing_distinct_bookmarks(tmp_path):
+    from xml.etree import ElementTree as ET
+
+    source = package(
+        tmp_path,
+        '<text:p><text:bookmark text:name="nombre-1"/>'
+        '<text:bookmark text:name="12345678Z"/>'
+        '<text:a xlink:href="#nombre-1">primero</text:a>'
+        '<text:a xlink:href="#12345678Z">segundo</text:a></text:p>',
+    )
+    result = DeidEngine(country="ES").deidentify(
+        source, output=tmp_path / "safe.odt", policy=Policy.strict(require_ner=False)
+    )
+    assert result.output_path is not None, result.issues
+    with zipfile.ZipFile(result.output_path) as archive:
+        document = ET.fromstring(archive.read("content.xml"))
+    text_uri = "urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+    bookmarks = document.findall(f".//{{{text_uri}}}bookmark")
+    links = document.findall(f".//{{{text_uri}}}a")
+    assert [node.attrib[f"{{{text_uri}}}name"] for node in bookmarks] == ["nombre-1", "nombre-2"]
+    assert [node.attrib["{http://www.w3.org/1999/xlink}href"] for node in links] == [
+        "#nombre-1",
+        "#nombre-2",
+    ]
+    assert [node.text for node in links] == ["primero", "segundo"]
+
+
+def test_excessive_xml_depth_fails_closed_without_raw_recursion_error_or_partial_file(tmp_path):
+    source = package(
+        tmp_path,
+        "<text:p>" + "<text:span>" * 1100 + "Informe." + "</text:span>" * 1100 + "</text:p>",
+    )
+    result = DeidEngine(country="ES").deidentify(
+        source, output=tmp_path / "safe.odt", policy=Policy.strict(require_ner=False)
+    )
+    assert result.status == "BLOCKED"
+    assert result.output_path is None and not (tmp_path / "safe.odt").exists()
+    assert result.issues == ["MALFORMED_INPUT"]
+
+
+def test_normal_nested_text_remains_supported(tmp_path):
+    source = package(
+        tmp_path,
+        "<text:p>" + "<text:span>" * 32 + "Informe." + "</text:span>" * 32 + "</text:p>",
+    )
+    result = DeidEngine(country="ES").deidentify(
+        source, output=tmp_path / "safe.odt", policy=Policy.strict(require_ner=False)
+    )
+    assert result.output_path is not None, result.issues
+    assert any(
+        "Informe." in fragment.text for fragment in read_document(result.output_path).fragments
+    )
+
+
+def test_standalone_verification_inspects_qualified_names_in_auxiliary_metadata_xml(tmp_path):
+    settings = (
+        "<office:document-settings "
+        f"{NS} "
+        'xmlns:dni-12345678Z="urn:oasis:names:tc:opendocument:xmlns:config:1.0">'
+        "<office:settings><dni-12345678Z:config-item-set/></office:settings>"
+        "</office:document-settings>"
+    )
+    source = package(tmp_path, "<text:p>Informe.</text:p>", parts={"settings.xml": settings})
+    result = DeidEngine(country="ES").verify(source, policy=Policy.strict(require_ner=False))
+    assert result.status == "BLOCKED", result.status
+    assert any("12345678Z" in fragment.text for fragment in read_document(source).fragments)
