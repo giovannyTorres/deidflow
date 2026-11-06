@@ -1085,8 +1085,21 @@ def _zip_input_errors() -> Iterator[None]:
         raise DocumentError("Invalid or unsupported OpenDocument ZIP encoding") from None
 
 
+def _check_destructive_replacement(element: Node) -> None:
+    """Do not erase opaque binary evidence while retaining its displayed text."""
+    from deidflow.core import DocumentGraph
+
+    document = minidom.Document()
+    document.appendChild(document.importNode(element, deep=True))
+    graph = DocumentGraph(document_id="replacement", source_format="odf")
+    _read_part(document, graph, "replacement", spreadsheet=False, package_members=set())
+    if "uninspected_odf_binary_metadata" in graph.issues:
+        raise DocumentError("Opaque OpenDocument binary metadata cannot be flattened")
+
+
 def _flatten(element: Node) -> None:
     """Replace an element by a text node with its displayed text."""
+    _check_destructive_replacement(element)
     text = paragraph_text(element)
     parent = element.parentNode
     if parent is None:
@@ -1143,17 +1156,30 @@ def _rename_sheets(text: str, renames: dict[str, str]) -> str:
 
 
 def _set_cell(cell: Node, text: str) -> None:
-    for child in list(cell.childNodes):
-        if _cell_text_child(child) or child.nodeType in _TEXT_NODES:
-            cell.removeChild(child)
+    cell_text(cell)  # Validate raw cell content before clearing any holders.
+    _check_destructive_replacement(cell)
+    paragraphs = [child for child in cell.childNodes if _cell_text_child(child)]
+    for paragraph in paragraphs:
+        pieces: list[Piece] = []
+        _walk(paragraph, pieces, deque(), False)
+        for holder, _, _ in pieces:
+            if holder is None:
+                continue
+            if _is_text(holder):
+                holder.data = ""
+            else:
+                _remove(holder)
     _drop_typed_value(cell)
     document = cell.ownerDocument
     prefix = _prefix(document, TEXT)
-    for line in text.split("\n"):
-        paragraph = document.createElementNS(TEXT, f"{prefix}:p")
+    for index, line in enumerate(text.split("\n")):
+        if index < len(paragraphs) and _qualified(paragraphs[index]) in {(TEXT, "p"), (TEXT, "h")}:
+            paragraph = paragraphs[index]
+        else:
+            paragraph = document.createElementNS(TEXT, f"{prefix}:p")
+            cell.appendChild(paragraph)
         if line:
-            paragraph.appendChild(document.createTextNode(line))
-        cell.appendChild(paragraph)
+            paragraph.insertBefore(document.createTextNode(line), paragraph.firstChild)
 
 
 class _Writer:

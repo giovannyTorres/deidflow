@@ -50,6 +50,67 @@ def test_binary_media_removal_preserves_context_or_blocks_unsupported_placement(
         assert engine.verify(result.output_path, policy=policy).status == "APPROVED"
 
 
+@pytest.mark.parametrize("auxiliary", ("annotation", "text-box"))
+def test_changed_cell_preserves_and_rewrites_inline_auxiliary_content(tmp_path, auxiliary):
+    note = "<text:p>Control en tres meses. Avisar a auxiliar@example.test</text:p>"
+    deferred = (
+        f'<office:annotation office:name="nota">{note}</office:annotation>'
+        '<office:annotation-end office:name="nota"/>'
+        if auxiliary == "annotation"
+        else f'<draw:frame draw:name="Cuadro"><draw:text-box>{note}</draw:text-box></draw:frame>'
+    )
+    source = make_ods_cell(
+        tmp_path / "inline.ods",
+        f"<text:p><text:span>Correo paciente@example.test{deferred}</text:span></text:p>"
+        "<text:p>Tratamiento: 15 mg diarios.</text:p>",
+    )
+    engine = DeidEngine(country="ES")
+    policy = Policy.strict(require_ner=False)
+    result = engine.deidentify(source, output=tmp_path / "safe.ods", policy=policy)
+    assert result.output_path is not None, result.issues
+    with zipfile.ZipFile(result.output_path) as archive:
+        content = archive.read("content.xml").decode()
+    assert "paciente@example.test" not in content
+    assert "auxiliar@example.test" not in content
+    assert "Control en tres meses." in content
+    assert "Tratamiento: 15 mg diarios." in content
+    assert f"<{('office:' if auxiliary == 'annotation' else 'draw:')}{auxiliary}" in content
+    if auxiliary == "annotation":
+        assert '<office:annotation-end office:name="nota"' in content
+    assert read_document(result.output_path).complete
+    assert engine.verify(result.output_path, policy=policy).status == "REVIEW_REQUIRED"
+
+
+@pytest.mark.parametrize("channel", ("config", "signature", "rdf"))
+@pytest.mark.parametrize("in_field", (False, True))
+def test_changed_cell_cannot_launder_retained_typed_binary(tmp_path, channel, in_field):
+    payload = "cABhAGMAaQBlAG4AdABlAEAAZQBqAGUAbQBwAGwAbwAuAHQAZQBzAHQA"
+    opaque = {
+        "config": '<config:config-item config:type="base64Binary">'
+        + payload
+        + "</config:config-item>",
+        "signature": '<ds:SignatureValue xmlns:ds="http://www.w3.org/2000/09/xmldsig#">'
+        + payload
+        + "</ds:SignatureValue>",
+        "rdf": '<text:span xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" '
+        'rdf:datatype="http://www.w3.org/2001/XMLSchema#base64Binary">' + payload + "</text:span>",
+    }[channel]
+    if in_field and channel == "rdf":
+        opaque = opaque.replace("text:span", "text:variable-set")
+    elif in_field:
+        opaque = f"<text:variable-set>{opaque}</text:variable-set>"
+    source = make_ods_cell(
+        tmp_path / "binary.ods", f"<text:p>Correo paciente@example.test{opaque}</text:p>"
+    )
+    assert not read_document(source).complete
+    output = tmp_path / "safe.ods"
+    result = DeidEngine(country="ES").deidentify(
+        source, output=output, policy=Policy.strict(require_ner=False)
+    )
+    assert result.status == "BLOCKED"
+    assert result.output_path is None and not output.exists()
+
+
 @pytest.mark.parametrize("tag", ("s", "tab", "line-break"))
 @pytest.mark.parametrize("child", (SECRET, f"<text:span>{SECRET}</text:span>", "<text:span/>", " "))
 def test_whitespace_element_children_block_output_without_emitting_file(tmp_path, tag, child):
