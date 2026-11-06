@@ -2,6 +2,15 @@
 
 Auditoría Claude: pendiente
 
+Esta rama conserva una **referencia histórica combinada**, no el candidato a
+integrar. La revisión posterior de la extracción detectó contenido omitido dentro
+de elementos de espacio XML y una cobertura sobreestimada de datos binarios.
+Esas correcciones se realizan en los incrementos separados de
+`feat/opendocument-reader-review` y `feat/opendocument-output-preparation`.
+Los recibos de esta referencia describen sus SHAs originales; no acreditan la
+calidad ni la seguridad de una versión final. No abrir un PR del lote combinado
+contra master.
+
 ## Preparación documental inicial (`662585a`)
 
 Código heredado: `claude/opendocument`
