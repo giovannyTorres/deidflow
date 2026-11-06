@@ -46,6 +46,13 @@ end-of-stream checks; unused trailing payload stays incomplete. A clean text sca
 channels. Ordinary CDATA text is scanned normally. ODS always carries
 `ODS_REVIEW_REQUIRED`, including standalone verification.
 
+Nonempty declared binary settings, signature parts and opaque certificate/DSIG
+or typed-binary RDF material keep coverage incomplete. Extracted printable runs
+are diagnostic findings, not proof that arbitrary binary bytes were inspected.
+ODF space/tab/line-break elements must be empty; retained children are rejected.
+ODS cells require paragraph content and reject direct non-whitespace text/CDATA;
+ordinary paragraph cells and pretty-print whitespace remain supported.
+
 These checks use the configured local detectors and do not establish anonymity.
 See [the reader handoff](audit/OPENDOCUMENT_READER.md) for scope and validation.
 

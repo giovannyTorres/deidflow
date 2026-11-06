@@ -9,10 +9,12 @@ being prepared as a dependent change; its existence does not authorize a merge.
 - Base: `44d04b16fb1ec545161c4ef0c14f516c7b0d9d29`.
 - Frozen combined reference: `8cb3c5fc3a3568102620f69931c5990b2a64dba5`.
 - Initial reader source/tests: `b690f19d33b1a3e7c0af26ec84a8f20242481f80`.
-- Final reader source/tests: `9a27b832b6e15b461650dbabd6b49f3db5098cba`.
-- All 42 retained reader/shared function ASTs match the final frozen reference.
+- Compressed-stream reader source/tests: `9a27b832b6e15b461650dbabd6b49f3db5098cba`.
+- Current reader source/tests: `93242156e9cb259a01b6dba66bde7c3000f9c49c`.
+- The initial 42 retained reader/shared function ASTs matched the frozen reference.
   `_is_sheet` moved into the shared grid section. The text walk, grid and repeat
-  expansion helper are unchanged; there is one implementation of each.
+  expansion helper each have one shared implementation. Subsequent review fixes
+  deliberately strengthen the walk, cell-text grammar and binary coverage flags.
 - `engine.py`, `mail.py`, `office.py` and the frozen benchmark/spec tickets are
   unchanged in this increment. Only the public document-reader route is added.
 
@@ -34,6 +36,16 @@ payload bytes preserve incomplete coverage; invalid streams do not reach XML
 decoding. A declared-zero member expanding to 8 MiB stays below the regression's
 2 MiB allocation bound.
 
+Review corrections `e96677f`, `807ff3a` and `b40727f` close two reported privacy
+gaps and an equivalent skipped-text case. ODF spaces/tabs/line breaks reject
+retained child content; ODS cells reject direct non-whitespace character/CDATA
+content while preserving valid paragraphs and pretty-print whitespace. Nonempty
+declared binary settings are incomplete anywhere in inspected XML; signature
+parts and opaque certificate/DSIG or typed-binary RDF material remain incomplete.
+Printable-string extraction still supplies useful findings but never proves
+coverage of arbitrary binary data. No new encoding decoder or dependency was
+introduced. Existing `office:binary-data`/media incompleteness remains intact.
+
 ## Focused evidence
 
 Tests were copied to `/var/tmp/odf-reader-green`; `PYTHONPATH` explicitly selected
@@ -46,16 +58,17 @@ PYTHONPATH=/workspace/deidflow-odf-reader/src /workspace/deidflow/.venv/bin/pyth
 PYTHONPATH=/workspace/deidflow-odf-reader/src /workspace/deidflow/.venv/bin/python -m mypy --python-version 3.12 src/deidflow
 ```
 
-Observed: **58 passed** in 1.31 seconds; changed-file Ruff/format passed; mypy
-passed all 65 source files. A copied public reader test first failed on the base
+Observed: **92 passed** in 1.20 seconds; global Ruff/format passed (190 Python
+files); mypy passed all 65 source files. A copied public reader test first failed on the base
 with `UnsupportedFormat`, then passed after extraction. The two direct-output
 and two MIME-boundary cases passed before and after reader registration.
 The initial Python 3.11 mypy target could not parse the installed NumPy stubs;
 the passing target matches the shared venv's Python 3.12 interpreter.
 
-The source/test diff adds 1,621 physical lines. Excluding only 116 lines of
-synthetic input sample data gives **1,505 conservative code/test lines**, within
-the approximate 1,500-line guide. Imports, builders, namespace/base64 generation,
+The source/test diff adds 1,789 physical lines. Excluding only 116 lines of
+synthetic input sample data gives **1,673 conservative code/test lines**. The
+additional review corrections and public regressions are retained above the
+approximate 1,500-line guide. Imports, builders, namespace/base64 generation,
 validation assertions and expected values are included. Repeated manifest/ZIP
 fixture plumbing is shared without removing any case or assertion.
 
