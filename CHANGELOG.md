@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+- Added local ODT/ODS extraction and same-format output using a shared XML text
+  and content-attribute walk, with header-aware spreadsheet cells, typed-value
+  checks and removal of known hidden data copies. ODS output and standalone
+  verification always require review; retained uninspected media, unknown package
+  parts and unsupported/encrypted input cannot receive an approved output.
+- Added ODT/ODS e-mail attachment rewriting with canonical MIME types and the
+  existing attachment review/removal rules. A documented follow-up remains:
+  retaining a valid ODS attachment currently blocks the final message reread
+  because its review-only issue is treated as incomplete coverage. Documented
+  OpenDocument channels, package limits and local LibreOffice regression checks.
+
 ## 0.6.0b1 - Spanish context product candidate
 
 - Added versioned clinical, financial, legal starter and general domain packs,
