@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- Preserve low-confidence and unresolved model-window evidence through
+  CSV/TSV, JSON/JSONL and DataFrame transformations, including inferred-column
+  fast paths and JSON keys. A clean output rescan no longer discards source
+  review requirements; transformed JSON keys also count in the audit.
+- Block DOCX packages with unsupported internal parts instead of copying
+  uninspected XML or binary payloads into an approved output. Add regressions
+  for hidden package content and structured-format release decisions.
+- These corrections strengthen release decisions; they do not change measured
+  detector recall or establish unattended production readiness.
+
 ## 0.4.0 - 2026-11-05
 
 - Relicensed under Apache-2.0 (`LICENSE`, `NOTICE`); the earlier snapshots

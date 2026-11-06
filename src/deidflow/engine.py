@@ -94,6 +94,22 @@ def _countries(country: str | Iterable[str]) -> frozenset[str] | None:
     return frozenset(names)
 
 
+def _source_review_issues(findings: Iterable[Finding], policy: Policy) -> list[str]:
+    """Retain source uncertainty without keeping sensitive spans across batches."""
+    uncertain = boundary = False
+    for finding in findings:
+        uncertain |= finding.score < policy.review_below
+        boundary |= "window_boundary" in finding.context
+        if uncertain and boundary:
+            break
+    issues = []
+    if uncertain:
+        issues.append("UNCERTAIN_SOURCE_FINDINGS")
+    if boundary:
+        issues.append("UNRESOLVED_MODEL_WINDOW_BOUNDARY")
+    return issues
+
+
 def _json_pairs(items: list[tuple[str, Any]]) -> dict[str, Any]:
     if len({key for key, _ in items}) != len(items):
         raise ValueError("Duplicate JSON keys are unsupported")
@@ -328,9 +344,8 @@ class DeidEngine:
         blocked = bool(remaining) or not complete
         if policy.require_ner and self.nlp is None:
             problems.append("SEMANTIC_MODEL_REQUIRED")
-        if any(f.score < policy.review_below for f in original or []):
-            problems.append("UNCERTAIN_SOURCE_FINDINGS")
-        if any("window_boundary" in f.context for f in (original or []) + residual):
+        problems.extend(_source_review_issues(original or [], policy))
+        if any("window_boundary" in f.context for f in residual):
             problems.append("UNRESOLVED_MODEL_WINDOW_BOUNDARY")
         status = (
             ReleaseStatus.BLOCKED
@@ -581,6 +596,7 @@ class DeidEngine:
                         custom=self.custom_transforms,
                     )
                     out[i][j] = None if rule.action == "suppress" else transformed
+                    issues.extend(_source_review_issues([finding], policy))
                     count += len(mappings)
                 else:
                     pending.append((i, j, text))
@@ -606,8 +622,7 @@ class DeidEngine:
                 )
                 if mappings:
                     out[i][j] = transformed
-                if any(f.score < policy.review_below for f in findings):
-                    issues.append("UNCERTAIN_SOURCE_FINDINGS")
+                issues.extend(_source_review_issues(findings, policy))
                 count += len(mappings)
         return out, list(dict.fromkeys(issues)), count
 
@@ -1013,7 +1028,7 @@ class DeidEngine:
                 out = {}
                 for key, item in value.items():
                     key_findings = self.scan_text(key)
-                    new_key, _ = transform_text(
+                    new_key, key_mappings = transform_text(
                         key,
                         key_findings,
                         policy,
@@ -1024,6 +1039,8 @@ class DeidEngine:
                     )
                     if new_key in out:
                         raise ValueError("Transformed JSON keys would collide")
+                    issues.extend(_source_review_issues(key_findings, policy))
+                    count += len(key_mappings)
                     out[new_key] = walk(item, key)
                 return out
             if isinstance(value, list):

@@ -29,8 +29,9 @@ are documented in the current quality/security reports.
    discards original objects, metadata, attachments and hidden text, and verifies
    actual output pixels and OCR. Searchable/vector-preserving redaction, forms
    and signature workflows need separate implementation and adversarial review.
-   Office rewriting must account for revisions, orphan strings, hidden sheets,
-   formulas, comments, embedded objects and relationships. Office rewriting remains unsupported.
+   DOCX rewriting is implemented with hidden-content removal and package checks.
+   XLSX rewriting, including hidden sheets, formulas and orphan strings, remains
+   unsupported in the default branch.
 4. Strengthen independent verification beyond the detector used for transformation;
    implement signed transformation receipts, integrity-protected private audit
    stores and private review workflows. Policies/keys/adapters remain trusted code.

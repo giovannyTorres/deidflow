@@ -6,6 +6,8 @@ import csv
 import io
 import json
 import math
+import posixpath
+import re
 import uuid
 import warnings
 import zipfile
@@ -22,6 +24,73 @@ MAX_PIXELS = 40_000_000
 MAX_PAGES = 10_000
 _W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 _S = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
+
+# Only package parts whose contents are explicitly handled may participate in a
+# complete DOCX read or rewrite. Unknown/orphan ZIP members are recoverable data,
+# even when Word does not render them.
+_DOCX_WORD_ROOTS = {
+    "document": "document",
+    "styles": "styles",
+    "stylesWithEffects": "styles",
+    "settings": "settings",
+    "webSettings": "webSettings",
+    "fontTable": "fonts",
+    "numbering": "numbering",
+    "footnotes": "footnotes",
+    "endnotes": "endnotes",
+    "comments": "comments",
+}
+_DOCX_MEDIA_DIRS = (
+    "word/media/",
+    "word/embeddings/",
+    "word/charts/",
+    "word/diagrams/",
+    "word/activex/",
+)
+
+
+def docx_word_root(name: str) -> str | None:
+    """Expected XML root for the supported Word part names."""
+    if name.startswith("word/") and name.endswith(".xml"):
+        stem = name[5:-4]
+        if stem in _DOCX_WORD_ROOTS:
+            return _W + _DOCX_WORD_ROOTS[stem]
+        if re.fullmatch(r"header[0-9]+", stem):
+            return _W + "hdr"
+        if re.fullmatch(r"footer[0-9]+", stem):
+            return _W + "ftr"
+        if re.fullmatch(r"theme/theme[0-9]+", stem):
+            return "{http://schemas.openxmlformats.org/drawingml/2006/main}theme"
+    return None
+
+
+def docx_part_kind(name: str) -> str | None:
+    """Classify a canonical, explicitly supported DOCX package member."""
+    if "\\" in name or name.startswith("/") or posixpath.normpath(name) != name.rstrip("/"):
+        return None
+    if name.endswith("/"):
+        return "directory"
+    if name == "[Content_Types].xml":
+        return "content_types"
+    if name == "_rels/.rels":
+        return "relationships"
+    directory, base = posixpath.split(name)
+    if posixpath.basename(directory) == "_rels" and base.endswith(".rels"):
+        owner = posixpath.join(posixpath.dirname(directory), base[:-5])
+        if docx_part_kind(owner) in {"word", "properties", "custom", "media"}:
+            return "relationships"
+        return None
+    if name in {"docProps/core.xml", "docProps/app.xml", "docProps/custom.xml"}:
+        return "properties"
+    if re.fullmatch(r"customXml/item(?:Props)?[0-9]+\.xml", name):
+        return "custom"
+    if docx_word_root(name) is not None:
+        return "word"
+    if any(name.lower().startswith(prefix) for prefix in _DOCX_MEDIA_DIRS):
+        return "media"
+    if name.lower().startswith("docprops/thumbnail") or name == "word/vbaProject.bin":
+        return "media"
+    return None
 
 
 # Field instructions that only compute layout values from the document itself.
@@ -180,6 +249,8 @@ def _read_docx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
     with _archive(path, max_bytes) as archive:
         if "word/document.xml" not in archive.namelist():
             raise DocumentError("Missing DOCX document part")
+        if any(docx_part_kind(name) is None for name in archive.namelist()):
+            _issue(graph, "unsupported_docx_package_part")
         _read_metadata(archive, graph)
         for name in archive.namelist():
             if not name.startswith("word/") or not name.endswith(".xml"):
@@ -187,6 +258,9 @@ def _read_docx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
             if "/charts/" in name or "/diagrams/" in name:
                 _issue(graph, "office_drawing_content_requires_review")
             root = _xml(archive.read(name))
+            expected_root = docx_word_root(name)
+            if expected_root is not None and root.tag != expected_root:
+                raise DocumentError("Unexpected DOCX document part root")
             table_locations: dict[ET.Element, tuple[int, int, int]] = {}
             table_specs: list[dict[str, Any]] = []
             for table_index, table in enumerate(root.iter(_W + "tbl")):
@@ -210,7 +284,9 @@ def _read_docx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
                 graph.metadata.setdefault("tables", []).extend(table_specs)
             # Paragraphs include document tables, headers, footers, footnotes,
             # endnotes, comments, textboxes and both sides of tracked revisions.
+            paragraph_nodes: set[ET.Element] = set()
             for index, paragraph in enumerate(root.iter(_W + "p")):
+                paragraph_nodes.update(paragraph.iter())
                 pieces: list[str] = []
                 for child in paragraph.iter():
                     # Text runs of every namespace: w:t, DrawingML a:t, Office Math m:t.
@@ -242,15 +318,19 @@ def _read_docx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
             if any(True for _ in root.iter(_W + "altChunk")):
                 _issue(graph, "alternate_content_not_extracted")
             for element in root.iter():
-                # Revision authors, comment authors and filenames are personal
-                # metadata. Text-bearing attributes are scanned separately.
+                # Text-bearing metadata needs scanning, but formatting values
+                # (font names, style and relationship IDs) are not prose.
                 for attribute, value in element.attrib.items():
                     local = attribute.rsplit("}", 1)[-1]
-                    if (
+                    if value and (
                         local in {"author", "initials", "title", "descr", "name", "userId"}
-                        and value
+                        or (element.tag == _W + "docVar" and local == "val")
                     ):
                         _fragment(graph, value, part=name, kind="metadata")
+                if element not in paragraph_nodes and element.text and element.text.strip():
+                    _fragment(graph, element.text, part=name, kind="metadata")
+                if element.tail and element.tail.strip():
+                    _fragment(graph, element.tail, part=name, kind="metadata")
             instructions = _field_instructions(root)
             for instruction in instructions:
                 if instruction.strip():

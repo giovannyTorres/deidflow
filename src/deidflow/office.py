@@ -17,6 +17,7 @@ reader's XML guard (no DTDs or entities) before parsing.
 from __future__ import annotations
 
 import posixpath
+import re
 import zipfile
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -24,7 +25,14 @@ from pathlib import Path
 from typing import Any
 from xml.dom import minidom
 
-from deidflow.readers import DocumentError, _archive, _xml, benign_field
+from deidflow.readers import (
+    DocumentError,
+    _archive,
+    _xml,
+    benign_field,
+    docx_part_kind,
+    docx_word_root,
+)
 
 W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 A = "http://schemas.openxmlformats.org/drawingml/2006/main"
@@ -44,6 +52,43 @@ _PERSONAL_CORE = {"creator", "lastModifiedBy", "created", "modified", "lastPrint
 _PERSONAL_APP = {"Company", "Manager", "HyperlinkBase"}
 _ANONYMOUS = {"author": "DeidFlow", "initials": "DF"}
 _REMOVED_ATTRIBUTES = {"date", "dateUtc"}
+_RELATIONSHIP_TYPES = {
+    R + "/" + name
+    for name in (
+        "officeDocument",
+        "styles",
+        "stylesWithEffects",
+        "settings",
+        "webSettings",
+        "fontTable",
+        "numbering",
+        "theme",
+        "footnotes",
+        "endnotes",
+        "header",
+        "footer",
+        "comments",
+        "customXml",
+        "customXmlProps",
+        "extended-properties",
+        "custom-properties",
+        "hyperlink",
+        "image",
+        "chart",
+        "diagramData",
+        "diagramLayout",
+        "diagramQuickStyle",
+        "diagramColors",
+        "oleObject",
+        "package",
+        "control",
+        "attachedTemplate",
+    )
+} | {
+    PKG_REL + "/metadata/core-properties",
+    PKG_REL + "/metadata/thumbnail",
+    "http://schemas.microsoft.com/office/2007/relationships/stylesWithEffects",
+}
 
 
 @dataclass
@@ -58,7 +103,17 @@ class OfficeReport:
 
 def _parse(data: bytes) -> Node:
     _xml(data)  # rejects DTDs, entities and malformed XML
-    return minidom.parseString(data)
+    document = minidom.parseString(data)
+
+    def remove_hidden(node: Node) -> None:
+        for child in list(node.childNodes):
+            if child.nodeType in {child.COMMENT_NODE, child.PROCESSING_INSTRUCTION_NODE}:
+                node.removeChild(child)
+            else:
+                remove_hidden(child)
+
+    remove_hidden(document)
+    return document
 
 
 def _serialize(document: Node) -> bytes:
@@ -88,7 +143,9 @@ def _unwrap(node: Node) -> None:
 
 
 def _text_of(element: Node) -> str:
-    return "".join(c.data for c in element.childNodes if c.nodeType == c.TEXT_NODE)
+    return "".join(
+        c.data for c in element.childNodes if c.nodeType in {c.TEXT_NODE, c.CDATA_SECTION_NODE}
+    )
 
 
 def _set_text(element: Node, text: str, *, preserve: bool = True) -> None:
@@ -251,6 +308,15 @@ def _rewrite_word_part(
     walk(root)
     _rewrite_stream(segments, rewrite, report)
     for element in root.getElementsByTagName("*"):
+        # Content outside the rendered text stream is still recoverable XML.
+        # Transform metadata/extension text rather than silently retaining it.
+        if _local(element) not in {"t", "instrText"}:
+            for child in element.childNodes:
+                if (
+                    child.nodeType in {child.TEXT_NODE, child.CDATA_SECTION_NODE}
+                    and child.data.strip()
+                ):
+                    child.data = _standalone(child.data, rewrite, report)
         _anonymize_attributes(element, rewrite, report)
     return _serialize(root)
 
@@ -269,9 +335,9 @@ def _anonymize_attributes(element: Node, rewrite: Rewrite, report: OfficeReport)
         elif local in _REMOVED_ATTRIBUTES:
             element.removeAttribute(qualified)
             report.count("revision_dates_and_user_ids")
-        elif local in {"descr", "title"} and value:
+        elif local in {"descr", "title", "userId"} and value:
             element.setAttribute(qualified, _standalone(value, rewrite, report))
-        elif local == "val" and _local(element) == "docVar" and value:
+        elif local in {"name", "val"} and _local(element) == "docVar" and value:
             element.setAttribute(qualified, _standalone(value, rewrite, report))
 
 
@@ -339,16 +405,22 @@ def rewrite_docx(
         names = archive.namelist()
         if "word/document.xml" not in names:
             raise DocumentError("Missing DOCX document part")
+        kinds = {name: docx_part_kind(name) for name in names}
+        if None in kinds.values():
+            raise DocumentError("Unsupported DOCX package part")
+        for name, kind in kinds.items():
+            if kind == "word" and _xml(archive.read(name)).tag != docx_word_root(name):
+                raise DocumentError("Unexpected DOCX document part root")
         removed_parts: set[str] = set()
         for name in names:
             lower = name.lower()
-            if lower.startswith("docprops/thumbnail"):
+            if kinds[name] == "directory":
+                removed_parts.add(name)
+            elif lower.startswith("docprops/thumbnail"):
                 removed_parts.add(name)
                 report.count("thumbnail")
-            elif lower.startswith("customxml/") and not lower.endswith((".xml", ".rels")):
-                removed_parts.add(name)
             elif remove_media and (
-                any(lower.startswith(d) for d in _MEDIA_DIRS) or "vbaproject" in lower
+                any(lower.startswith(d.lower()) for d in _MEDIA_DIRS) or "vbaproject" in lower
             ):
                 removed_parts.add(name)
                 report.count("media_parts")
@@ -362,16 +434,55 @@ def rewrite_docx(
             if owner in removed_parts:
                 removed_parts.add(name)
                 continue
+            if owner and owner not in names:
+                raise DocumentError("DOCX relationship owner is missing")
             document = _parse(archive.read(name))
+            if (
+                document.documentElement.namespaceURI != PKG_REL
+                or _local(document.documentElement) != "Relationships"
+            ):
+                raise DocumentError("Invalid DOCX relationships part")
+            clean = minidom.Document()
+            root = clean.createElementNS(PKG_REL, "Relationships")
+            root.setAttribute("xmlns", PKG_REL)
+            clean.appendChild(root)
             ids: set[str] = set()
-            for relation in list(document.getElementsByTagNameNS(PKG_REL, "Relationship")):
+            seen_ids: set[str] = set()
+            for relation in document.documentElement.childNodes:
+                if relation.nodeType != relation.ELEMENT_NODE:
+                    if (
+                        relation.nodeType in {relation.TEXT_NODE, relation.CDATA_SECTION_NODE}
+                        and relation.data.strip()
+                    ):
+                        raise DocumentError("Unexpected DOCX relationship content")
+                    continue
+                if relation.namespaceURI != PKG_REL or _local(relation) != "Relationship":
+                    raise DocumentError("Unsupported DOCX relationship")
+                relation_id = relation.getAttribute("Id")
+                if not re.fullmatch(r"rId[0-9]+", relation_id) or relation_id in seen_ids:
+                    raise DocumentError("Unsupported DOCX relationship identifier")
+                seen_ids.add(relation_id)
+                mode = relation.getAttribute("TargetMode")
+                if mode not in {"", "Internal", "External"}:
+                    raise DocumentError("Unsupported DOCX relationship mode")
                 external = relation.getAttribute("TargetMode") == "External"
-                if external or _resolve(owner, relation.getAttribute("Target")) in removed_parts:
-                    ids.add(relation.getAttribute("Id"))
-                    _remove(relation)
+                target_name = _resolve(owner, relation.getAttribute("Target"))
+                if external or target_name in removed_parts:
+                    ids.add(relation_id)
                     report.count("external_links" if external else "relationships")
+                    continue
+                relation_type = relation.getAttribute("Type")
+                if relation_type not in _RELATIONSHIP_TYPES or target_name not in names:
+                    raise DocumentError("Unsupported DOCX relationship target or type")
+                new_relation = clean.createElementNS(PKG_REL, "Relationship")
+                new_relation.setAttribute("Id", relation_id)
+                new_relation.setAttribute("Type", relation_type)
+                new_relation.setAttribute(
+                    "Target", posixpath.relpath(target_name, posixpath.dirname(owner) or ".")
+                )
+                root.appendChild(new_relation)
             dropped_ids[owner] = ids
-            rels_out[name] = _serialize(document)
+            rels_out[name] = _serialize(clean)
         with zipfile.ZipFile(target, "w", compression=zipfile.ZIP_DEFLATED) as out:
             for info in archive.infolist():
                 name = info.filename
@@ -380,7 +491,7 @@ def rewrite_docx(
                 if name in rels_out:
                     data = rels_out[name]
                 elif name == "[Content_Types].xml":
-                    data = _content_types(archive.read(name), removed_parts)
+                    data = _content_types(archive.read(name), set(names) - removed_parts)
                 elif name.startswith("word/") and name.endswith(".xml"):
                     data = _rewrite_word_part(
                         archive.read(name),
@@ -393,8 +504,10 @@ def rewrite_docx(
                     data = _rewrite_properties(archive.read(name), rewrite, report)
                 elif name.lower().startswith("customxml/") and name.endswith(".xml"):
                     data = _rewrite_all_text(archive.read(name), rewrite, report)
-                else:
+                elif kinds[name] == "media":
                     data = archive.read(name)
+                else:
+                    raise DocumentError("Unsupported DOCX package part")
                 out.writestr(_copy_info(info), data)
     return report
 
@@ -406,12 +519,61 @@ def _copy_info(info: zipfile.ZipInfo) -> zipfile.ZipInfo:
     return copy
 
 
-def _content_types(data: bytes, removed: set[str]) -> bytes:
+def _content_types(data: bytes, retained: set[str]) -> bytes:
+    """Rebuild declarations; source metadata/extra attributes are not payloads."""
     document = _parse(data)
-    for override in list(document.getElementsByTagNameNS(CONTENT_TYPES, "Override")):
-        if override.getAttribute("PartName").lstrip("/") in removed:
-            _remove(override)
-    return _serialize(document)
+    if (
+        document.documentElement.namespaceURI != CONTENT_TYPES
+        or _local(document.documentElement) != "Types"
+    ):
+        raise DocumentError("Invalid DOCX content types part")
+    clean = minidom.Document()
+    root = clean.createElementNS(CONTENT_TYPES, "Types")
+    root.setAttribute("xmlns", CONTENT_TYPES)
+    clean.appendChild(root)
+    for extension, mime in (
+        ("rels", "application/vnd.openxmlformats-package.relationships+xml"),
+        ("xml", "application/xml"),
+    ):
+        default = clean.createElementNS(CONTENT_TYPES, "Default")
+        default.setAttribute("Extension", extension)
+        default.setAttribute("ContentType", mime)
+        root.appendChild(default)
+    prefix = "application/vnd.openxmlformats-officedocument."
+    for name in sorted(retained):
+        kind = docx_part_kind(name)
+        if kind in {"relationships", "content_types", "directory"}:
+            continue
+        if kind == "word":
+            local = (docx_word_root(name) or "").rsplit("}", 1)[-1]
+            local = {"hdr": "header", "ftr": "footer", "fonts": "fontTable"}.get(local, local)
+            mime = prefix + "wordprocessingml." + local + "+xml"
+            if local == "document":
+                mime = prefix + "wordprocessingml.document.main+xml"
+            elif local == "theme":
+                mime = prefix + "theme+xml"
+            elif name == "word/stylesWithEffects.xml":
+                mime = "application/vnd.ms-word.stylesWithEffects+xml"
+        elif name == "docProps/core.xml":
+            mime = "application/vnd.openxmlformats-package.core-properties+xml"
+        elif name == "docProps/app.xml":
+            mime = prefix + "extended-properties+xml"
+        elif name == "docProps/custom.xml":
+            mime = prefix + "custom-properties+xml"
+        elif name.startswith("customXml/itemProps"):
+            mime = prefix + "customXmlProperties+xml"
+        elif kind == "custom":
+            mime = "application/xml"
+        else:
+            # Retained media can only reach a blocked candidate, never release.
+            mime = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg"}.get(
+                Path(name).suffix.lower(), "application/octet-stream"
+            )
+        override = clean.createElementNS(CONTENT_TYPES, "Override")
+        override.setAttribute("PartName", "/" + name)
+        override.setAttribute("ContentType", mime)
+        root.appendChild(override)
+    return _serialize(clean)
 
 
 def _rewrite_properties(data: bytes, rewrite: Rewrite, report: OfficeReport) -> bytes:
@@ -435,7 +597,7 @@ def _rewrite_text_nodes(document: Node, rewrite: Rewrite, report: OfficeReport) 
     """Transform every text node and attribute value (data parts, properties)."""
     for element in document.getElementsByTagName("*"):
         for child in element.childNodes:
-            if child.nodeType == child.TEXT_NODE and child.data.strip():
+            if child.nodeType in {child.TEXT_NODE, child.CDATA_SECTION_NODE} and child.data.strip():
                 child.data = _standalone(child.data, rewrite, report)
         attributes = element.attributes
         for qualified in list(attributes.keys()) if attributes is not None else []:

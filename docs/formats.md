@@ -45,6 +45,16 @@ embedded binary is covered.
 
 ## DOCX output
 
+Only explicitly supported package parts are accepted for rewriting. An unknown
+part, even an unreferenced XML or binary file, blocks the operation without
+publishing an output. This prevents hidden package contents from bypassing the
+text rescan; it can also reject documents with unsupported vendor extensions.
+Relationship IDs must use `rId` followed by digits, and retained relationships
+must point to an existing, supported part. Package relationships and content-type
+declarations are rebuilt; XML comments, processing instructions and ZIP directory
+entries are discarded. These checks do not establish complete coverage of every
+possible XML extension inside a supported part.
+
 `engine.deidentify("in.docx", output="out.docx")` (CLI `deidflow deidentify`)
 edits the package in place, so styles, tables, numbering and page layout are
 kept. Text is scanned per part (body, each header and footer, footnotes,

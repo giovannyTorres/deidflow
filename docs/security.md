@@ -29,7 +29,14 @@ not. Tests deny sockets for the base pipeline and an actual local Spanish model.
 - Non-keep operators that return the exact sensitive source span unchanged fail.
   Short partial masks fully replace their content. Partial masks, date shifts,
   generalization and stable pseudonyms retain information and can permit linkage.
-- Office rewriting and automatic standalone image release cannot return APPROVED.
+- Source uncertainty survives structured transformations, including JSON keys
+  and inferred table fields. Low scores and unresolved model-window boundaries
+  require review even when the transformed output has no detected residuals.
+- DOCX rewriting checks supported package parts before transformation and
+  rereads the candidate before release. Unknown parts, including orphan XML or
+  binary payloads, block output rather than being silently copied. Supported
+  DOCX output can be APPROVED; this is not proof of complete PII detection.
+  Automatic standalone image release cannot return APPROVED.
   Supported PDFs use new raster-only reconstruction, closed object grammar and
   actual decoded-pixel/mask verification plus rerender/OCR. Source content is not
   copied; verified constant black regions alone can be whitened in temporary OCR
@@ -94,7 +101,8 @@ No automated detector proves the absence of unknown PII. Rules miss unlabelled
 names, free-form addresses, unknown secrets, multilingual variants, novel
 identifiers and domain-specific medical relationships. OCR can miss content or
 misread identifiers; damaged-ID candidates are not silently corrected into
-validity. Office revision text is scanned but automatic rewriting is unsupported.
+validity. DOCX rewriting accepts tracked changes and removes deleted revision
+text and personal revision metadata; other Office output remains unsupported.
 Native graph PDF extraction cannot prove visual/text equivalence or locate every glyph.
 The PDF removal backend uses its separate explicit character/glyph mapping and
 refuses unsupported geometry. It trades away searchability/vector structure,
