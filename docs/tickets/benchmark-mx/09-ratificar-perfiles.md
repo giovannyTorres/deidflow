@@ -19,10 +19,10 @@ Los IDs BMX son referencias locales, no números de GitHub. Al publicar, enlazar
 
 ## Estado humano actual
 
-Formatos confirmados: todos los previstos, incluido OCR. El solicitante pidió
-ajustar D1–D3 antes de ratificar; sigue pendiente su definición concreta.
-[Decisiones y escenarios preparados](../../audit/BMX-09-decisions-for-review.md).
-No hay ratificación ni cierre de esta tarea.
+D1–D3 ratificados por respuesta explícita: automático/global/adaptación local
+fácil, D2 y D3 recomendados aceptados; todos los formatos obligatorios.
+[Decisión versionada](../../adr/0001-bmx-09-operational-profiles-v1.md).
+Revisión documental pendiente; no se ratifica calidad del candidato.
 
 ## Qué entrega
 
@@ -30,21 +30,21 @@ Resolver con el responsable las decisiones D1–D3 y el alcance obligatorio por 
 
 ## Criterios de aceptación
 
-- [ ] Registrar si v1 respalda uso supervisado, automático o solo descriptivo, sin interpretar silencio como aprobación.
+- [x] Registrar si v1 respalda uso supervisado, automático o solo descriptivo, sin interpretar silencio como aprobación.
 
-- [ ] Resolver explícitamente tratamiento de identificadores plausibles inválidos frente a distractores no personales.
+- [x] Resolver explícitamente tratamiento de identificadores plausibles inválidos frente a distractores no personales.
 
-- [ ] Acordar expectativas clínicas/otros cuasiidentificadores y operadores permitidos por formato; no convertir retención clínica en afirmación de no sensibilidad.
+- [x] Acordar expectativas clínicas/otros cuasiidentificadores y operadores permitidos por formato; no convertir retención clínica en afirmación de no sensibilidad.
 
-- [ ] Definir celdas obligatorias/opcionales; conservar recomendación, decisión, responsable y fecha sin fabricar conformidad.
+- [x] Definir celdas obligatorias/opcionales; conservar recomendación, decisión, responsable y fecha sin fabricar conformidad.
 
 ## Pruebas y evidencia exigidas
 
-- [ ] Revisión de escenarios: CURP etiquetada con checksum malo, número inocuo similar, negación/dosis y PDF sin soporte del operador.
+- [x] Revisión de escenarios: CURP etiquetada con checksum malo, número inocuo similar, negación/dosis y PDF sin soporte del operador.
 
-- [ ] Comprobar que cada escenario tiene una expectativa no contradictoria por perfil.
+- [x] Comprobar que cada escenario tiene una expectativa no contradictoria por perfil.
 
-- [ ] Revisión documental de completitud y de los puntos aún pendientes; no pruebas ejecutadas del benchmark.
+- [x] Revisión documental de completitud y de los puntos aún pendientes; no pruebas ejecutadas del benchmark.
 
 ## Trazabilidad
 

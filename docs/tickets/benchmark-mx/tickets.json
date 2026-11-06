@@ -381,19 +381,18 @@
       "draft_file": "09-ratificar-perfiles.md",
       "github_title": "[DF-EVAL-MX][BMX-09] Ratificar perfiles operativos, sensibilidad y conservación",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-09 -->",
-      "body_sha256": "2a6441ca0e2716afc8444c6e2cef834a854e8c06451d3d000e935dfc4a629478",
+      "body_sha256": "522fb871f2611d41fd8cb85f899a5dc7fb9cd78c5f889e2973f243335820e3ff",
       "github_issue_number": null,
       "github_issue_url": null,
-      "implementation_status": "awaiting_human_adjustments",
-      "implementation_evidence": "../../audit/BMX-09-decisions-for-review.md",
+      "implementation_status": "ratified_documentation_pending_review",
+      "implementation_evidence": "../../audit/BMX-09.md",
       "human_decisions": {
+        "D1": "automatic_global_easy_local_retraining",
+        "D2": "accepted_recommendation",
+        "D3": "accepted_contextual_and_strict",
         "mandatory_formats": "all_planned_including_ocr",
-        "formats_decided_by": "requester",
-        "formats_decided_at": "2026-11-06",
-        "D1": "pending_adjustment",
-        "D2": "pending_adjustment",
-        "D3": "pending_adjustment",
-        "ratified": false
+        "ratified": true,
+        "quality_profile_ratified": false
       }
     },
     {
