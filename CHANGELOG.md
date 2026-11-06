@@ -11,7 +11,18 @@
 - Upgraded compatible actions/dependencies and made release builds depend on
   the full CI matrix. Kept historical dependency evidence separate from current
   Windows constraints; retained the thinc version required by spaCy.
-
+- XLSX output: cells are transformed with their column header as context
+  (recognized columns whole, as for CSV), changed cells become inline strings,
+  the shared-string table is rebuilt so replaced and orphaned values are gone,
+  formulas with literals or external references are replaced by their values,
+  sheets named after a person are renamed, and pivot caches, external links,
+  connections, threaded comments, printer settings and saved paths are removed.
+  XLSX output and standalone verification always require human review. Unknown
+  parts and retained media block output; VML is removed by default. Package
+  relationships/content types are rebuilt and source uncertainty is retained.
+- The DOCX reader scans `fldSimple` instructions and commenter account IDs,
+  flags package thumbnails, and no longer forces review for layout-only fields
+  such as `PAGE` or `TOC`.
 - Preserve low-confidence and unresolved model-window evidence through
   CSV/TSV, JSON/JSONL and DataFrame transformations, including inferred-column
   fast paths and JSON keys. A clean output rescan no longer discards source
@@ -68,18 +79,6 @@
   external links, mail-merge settings and data-bearing field codes, and by
   default images and embedded objects (`office_media`, CLI `--office-media`);
   the output is reread and rescanned before release.
-- XLSX output: cells are transformed with their column header as context
-  (recognized columns whole, as for CSV), changed cells become inline strings,
-  the shared-string table is rebuilt so replaced and orphaned values are gone,
-  formulas with literals or external references are replaced by their values,
-  sheets named after a person are renamed, and pivot caches, external links,
-  connections, threaded comments, printer settings and saved paths are removed.
-  XLSX output and standalone verification always require human review. Unknown
-  parts and retained media block output; VML is removed by default. Package
-  relationships/content types are rebuilt and source uncertainty is retained.
-- The DOCX reader scans `fldSimple` instructions and commenter account IDs,
-  flags package thumbnails, and no longer forces review for layout-only fields
-  such as `PAGE` or `TOC`.
 - Added a head-to-head comparison with Presidio and spaCy on the MEDDOCAN and
   Gretel test sets (`docs/COMPARISON.md`): exact F1 0.958 vs 0.363 vs 0.259
   (clinical) and 0.707 vs 0.177 vs 0.115 (financial).
