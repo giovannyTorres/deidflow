@@ -115,6 +115,11 @@
         "CONTRACT_ID": "CUSTOMER_ID",
         "PATIENT_ID": "CUSTOMER_ID",
         "TAX_ID": "NATIONAL_ID"
+      },
+      "synthetic_es": {
+        "CURP": "NATIONAL_ID",
+        "RFC": "TAX_ID",
+        "CLABE": "BANK_ACCOUNT"
       }
     },
     "excluded_prediction_categories": [
@@ -137,18 +142,18 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 1.6903087299999697,
+          "elapsed_seconds": 1.5065330609995726,
           "units": 250,
-          "records_per_second": 147.90197527998598,
-          "mb_per_second": 0.43006877211124206,
-          "peak_rss_bytes": 35561472,
-          "peak_process_tree_rss_bytes": 35561472,
-          "cpu_percent_one_core_scale": 98.79851948703063,
+          "records_per_second": 165.9439188371525,
+          "mb_per_second": 0.48253106341899665,
+          "peak_rss_bytes": 35500032,
+          "peak_process_tree_rss_bytes": 35500032,
+          "cpu_percent_one_core_scale": 99.5663513022915,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.006070607499964353,
-      "p95_seconds": 0.012258676999942963,
+      "p50_seconds": 0.005483294500209013,
+      "p95_seconds": 0.010736339649702126,
       "metrics": {
         "exact": {
           "precision": 0.6986666666666667,
@@ -344,18 +349,18 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 7.865916104000007,
+          "elapsed_seconds": 6.232476951000535,
           "units": 250,
-          "records_per_second": 31.782693419889007,
-          "mb_per_second": 0.09241758879557957,
-          "peak_rss_bytes": 215453696,
-          "peak_process_tree_rss_bytes": 215453696,
-          "cpu_percent_one_core_scale": 106.91698066450661,
+          "records_per_second": 40.11246282424936,
+          "mb_per_second": 0.116638858950501,
+          "peak_rss_bytes": 272003072,
+          "peak_process_tree_rss_bytes": 272003072,
+          "cpu_percent_one_core_scale": 106.69915111250332,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.02796697500002665,
-      "p95_seconds": 0.056117673850064866,
+      "p50_seconds": 0.023179610000170214,
+      "p95_seconds": 0.04493277309989025,
       "metrics": {
         "exact": {
           "precision": 0.967573410196361,
@@ -551,18 +556,18 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 8.617449567999984,
+          "elapsed_seconds": 7.394808506000118,
           "units": 250,
-          "records_per_second": 29.010903751424248,
-          "mb_per_second": 0.08435778988477642,
-          "peak_rss_bytes": 218419200,
-          "peak_process_tree_rss_bytes": 218419200,
-          "cpu_percent_one_core_scale": 105.83177688519567,
+          "records_per_second": 33.807501546138894,
+          "mb_per_second": 0.09830531776585648,
+          "peak_rss_bytes": 274530304,
+          "peak_process_tree_rss_bytes": 274530304,
+          "cpu_percent_one_core_scale": 106.69647487961439,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.03212860450003063,
-      "p95_seconds": 0.06089394824988403,
+      "p50_seconds": 0.026832286499484326,
+      "p95_seconds": 0.05205243029959091,
       "metrics": {
         "exact": {
           "precision": 0.8191343963553531,
@@ -758,18 +763,18 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 16.8258679380001,
+          "elapsed_seconds": 14.922900466000101,
           "units": 250,
-          "records_per_second": 14.858074538632962,
-          "mb_per_second": 0.043204249711138766,
-          "peak_rss_bytes": 1132265472,
-          "peak_process_tree_rss_bytes": 1132265472,
-          "cpu_percent_one_core_scale": 109.05826711356595,
+          "records_per_second": 16.752775411830473,
+          "mb_per_second": 0.048713653331419,
+          "peak_rss_bytes": 1181310976,
+          "peak_process_tree_rss_bytes": 1181310976,
+          "cpu_percent_one_core_scale": 108.42396246536683,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.061036820999902375,
-      "p95_seconds": 0.12032955369995747,
+      "p50_seconds": 0.054269511999791575,
+      "p95_seconds": 0.10803963489979647,
       "metrics": {
         "exact": {
           "precision": 0.28257686676427524,
@@ -965,18 +970,18 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 21.66320171800021,
+          "elapsed_seconds": 18.952900139999656,
           "units": 250,
-          "records_per_second": 11.540307072535454,
-          "mb_per_second": 0.0335568587442903,
-          "peak_rss_bytes": 1205854208,
-          "peak_process_tree_rss_bytes": 1205854208,
-          "cpu_percent_one_core_scale": 107.87879051406144,
+          "records_per_second": 13.19059342651106,
+          "mb_per_second": 0.03835555480323515,
+          "peak_rss_bytes": 1261178880,
+          "peak_process_tree_rss_bytes": 1261178880,
+          "cpu_percent_one_core_scale": 108.37391559221483,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.07959254699994744,
-      "p95_seconds": 0.14950851870004264,
+      "p50_seconds": 0.07084153749974575,
+      "p95_seconds": 0.12950339445028472,
       "metrics": {
         "exact": {
           "precision": 0.3545071609098568,
@@ -1172,18 +1177,18 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 18.07732966100002,
+          "elapsed_seconds": 15.62741459999961,
           "units": 250,
-          "records_per_second": 13.829476183053146,
-          "mb_per_second": 0.0402132955271772,
-          "peak_rss_bytes": 1970466816,
-          "peak_process_tree_rss_bytes": 1970466816,
-          "cpu_percent_one_core_scale": 108.0358679420111,
+          "records_per_second": 15.997527831635454,
+          "mb_per_second": 0.04651754743871824,
+          "peak_rss_bytes": 2018471936,
+          "peak_process_tree_rss_bytes": 2018471936,
+          "cpu_percent_one_core_scale": 108.07929803052903,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.065685306999967,
-      "p95_seconds": 0.12359336160010334,
+      "p50_seconds": 0.05778466249967096,
+      "p95_seconds": 0.10882383510038379,
       "metrics": {
         "exact": {
           "precision": 0.45156906350382997,
@@ -1379,7 +1384,7 @@
       "min_evidence": 0.5,
       "taggers": {
         "clinical": "es-clinical-meddocan-1",
-        "financial": "es-finance-gretel-1"
+        "financial": "es-general-1"
       },
       "routes": {
         "clinical": 250

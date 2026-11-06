@@ -24,6 +24,13 @@
   custom sort lists, data-validation lists or text conditional formats (worksheets
   and tables); the reader scans them. Changing the master cell of a shared
   formula now also flattens its dependents instead of leaving them orphaned.
+- Added the packaged `es-general` tagger, trained on MEDDOCAN, Gretel and 3,000
+  synthetic documents of many genres from 14 countries. `builtin:auto` now
+  sends non-clinical and low-evidence documents to it instead of `es-finance`
+  or both models: synthetic held-out test F1 0.544 to 0.785 (rules + auto
+  character recall 0.842 to 0.947), Gretel test F1 0.707 to 0.740; MEDDOCAN
+  unchanged. `DomainRouter(mixed=...)` chooses the taggers for low-evidence
+  documents. The benchmark and tuning scripts accept the synthetic corpus.
 - HTML input and output (`.html`, `.htm`): values are replaced at their source
   offsets so markup is unchanged; text is scanned as one stream with table-cell
   label context, character references are handled, content attributes are

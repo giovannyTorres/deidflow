@@ -84,7 +84,7 @@ class DomainRouter:
 
     ``taggers`` maps router domains to taggers. A document whose mean per-token
     log-likelihood ratio between the two best domains is below ``min_evidence``
-    runs every tagger instead (``"mixed"``).
+    is ``"mixed"`` and runs the ``mixed`` taggers (by default every tagger).
     """
 
     def __init__(
@@ -93,6 +93,7 @@ class DomainRouter:
         taggers: Mapping[str, Any],
         *,
         min_evidence: float = DEFAULT_MIN_EVIDENCE,
+        mixed: Sequence[Any] | None = None,
     ) -> None:
         if (
             model.get("format") != ROUTER_FORMAT
@@ -130,6 +131,13 @@ class DomainRouter:
         }
         self._unknown = [float(v) for v in unknown]
         self.taggers = dict(taggers)
+        fallback = list(self.taggers.values()) if mixed is None else list(mixed)
+        if not fallback:
+            raise ValueError("Mixed-domain documents need at least one tagger")
+        unique: dict[int, Any] = {}
+        for tagger in fallback:
+            unique.setdefault(id(tagger), tagger)
+        self.mixed: tuple[Any, ...] = tuple(unique.values())
         self.min_evidence = float(min_evidence)
         self.metadata = dict(model.get("metadata") or {})
 
@@ -150,15 +158,23 @@ class DomainRouter:
 
     @classmethod
     def builtin(cls, *, profile: str | None = None, **options: Any) -> DomainRouter:
-        """Packaged router over the built-in ``es-clinical`` and ``es-finance`` taggers."""
+        """Packaged router: clinical documents to ``es-clinical``, all others to ``es-general``.
+
+        ``es-general`` (trained on clinical, financial and multi-country synthetic
+        documents) replaced ``es-finance`` on the financial route and for
+        mixed-evidence documents because it scored higher on the financial and
+        synthetic validation splits (``docs/TAGGER.md``).
+        """
         resource, digest = BUILTIN_ROUTER
         payload = resources.files("deidflow.models").joinpath(resource).read_bytes()
         if hashlib.sha256(payload).hexdigest() != digest:
             raise ValueError("Packaged domain router SHA-256 mismatch")
+        general = SpanTagger.builtin("es-general", profile=profile)
         taggers = {
             "clinical": SpanTagger.builtin("es-clinical", profile=profile),
-            "financial": SpanTagger.builtin("es-finance", profile=profile),
+            "financial": general,
         }
+        options.setdefault("mixed", [general])
         return cls.from_bytes(payload, taggers, **options)
 
     def scores(self, text: str) -> dict[str, float]:
@@ -182,7 +198,7 @@ class DomainRouter:
 
     def detect(self, text: str) -> list[Finding]:
         domain = self.route(text)
-        selected = self.taggers.values() if domain == "mixed" else [self.taggers[domain]]
+        selected = self.mixed if domain == "mixed" else (self.taggers[domain],)
         findings: list[Finding] = []
         for tagger in selected:
             findings.extend(tagger.detect(text))

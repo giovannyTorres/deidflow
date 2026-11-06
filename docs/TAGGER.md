@@ -1,10 +1,13 @@
-# Built-in span taggers (`es-clinical`, `es-finance`)
+# Built-in span taggers (`es-clinical`, `es-finance`, `es-general`)
 
 Local statistical detectors for Spanish personal data in free text, packaged
 inside the wheel and usable with no optional dependency. `es-clinical` is
 trained on clinical case reports (MEDDOCAN); `es-finance` on synthetic financial
-documents (Gretel). Pick the one that matches your text, or combine both for
-mixed or unknown content (see [financial model](#financial-model-es-finance)).
+documents (Gretel); `es-general` on both plus synthetic letters, forms, e-mails,
+contracts, HR, legal, education and government documents from 14 countries
+(see [general model](#general-model-es-general)). For unknown content use the
+router, `--tagger builtin:auto`, which sends clinical text to `es-clinical` and
+everything else to `es-general`.
 
 ```python
 from deidflow import DeidEngine
@@ -178,6 +181,78 @@ rules-only gate for free-form financial text. Mexican financial identifiers
 validated by checksum. The corpus is LLM-generated and European in style, so
 evaluate on your own documents before relying on these numbers.
 
+## General model (`es-general`)
+
+| Field | Value |
+| --- | --- |
+| File | `src/deidflow/models/es-general-1.json.gz` (2.9 MB) |
+| SHA-256 | `bf7e257f363e17bcc6bee943f9dfaa0cd67e502cf8ac3fd90140bdd916a51903` |
+| Training data | MEDDOCAN train (CC-BY-4.0), Gretel Spanish train minus its 10% holdout (Apache-2.0), and 3,000 documents of `deidflow.benchmarks.synthetic_es` (seed 1729, Faker 40.44.0): 7,246 documents, 1.4 M tokens |
+| Protocol | Epoch selection and calibration on MEDDOCAN dev, the Gretel holdout and 600 synthetic documents from validation-only template families (1,252 documents). `min_feature_docs` 5 (validation F1 0.8456) beat 10 (0.8401, 2.2 MB). Test sets evaluated once after freezing; synthetic test documents come from a third, disjoint set of template families |
+| Labels | Union of both models' labels plus `TAX_ID`, `INSURANCE_ID`, `REGIONAL_ID` and `IP_ADDRESS` |
+
+The synthetic generator writes documents of many genres (appointment letters,
+payslips, rental contracts, court notices, school records, police reports,
+customer chats, insurance claims...) with names, companies and streets from
+Faker's Spanish locales and identifiers with valid check digits for Mexico,
+Spain, Argentina, Colombia, Chile, Peru, Ecuador, Venezuela, Uruguay,
+Guatemala, the Dominican Republic, El Salvador, Costa Rica and the United
+States. Template families are split three ways, so validation and test
+documents use phrasings never seen in training. Values still come from the same
+generator, so these figures measure robustness to new layouts and wording, not
+to real documents from those countries.
+
+Validation (choice of routing; `rules +` means `DeidEngine(nlp=...)`):
+
+| Validation set | Pipeline | Exact F1 | Sensitive-char recall |
+| --- | --- | ---: | ---: |
+| MEDDOCAN dev | `es-clinical` / `es-general` | **0.952** / 0.937 | **0.969** / 0.957 |
+| Gretel holdout | `es-finance` / `es-general` | 0.714 / **0.722** | 0.766 / **0.793** |
+| Synthetic, validation families | previous router / `es-general` | 0.426 / **0.737** | 0.602 / **0.787** |
+| Synthetic, validation families | rules + previous router / rules + `es-general` | 0.548 / **0.755** | 0.697 / **0.860** |
+
+`es-general` is weaker than `es-clinical` on clinical text, so the router keeps
+`es-clinical` for documents it classifies as clinical and sends financial and
+low-evidence documents to `es-general` (which replaced both `es-finance` and
+"run both" on those routes). Of the three configurations tried on validation,
+this one matched `es-clinical` on MEDDOCAN dev and scored best on the Gretel
+holdout; running `es-general` alone scored 0.01 higher F1 on synthetic
+validation but 0.013 lower on MEDDOCAN dev.
+
+Held-out test results, evaluated once (`benchmarks/results/comparison/`):
+
+| Test set | Pipeline | Exact F1 [95% CI] | Sensitive-char recall | Docs with any uncovered gold char | Over-redaction |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Synthetic, test families (600 docs, 3,450 mentions) | previous `auto` | 0.544 | 0.773 | 472 | 2.44% |
+| | **`auto`** | **0.785** [0.773, 0.797] | 0.929 | 295 | 1.97% |
+| | rules + previous `auto` | 0.624 | 0.842 | 388 | 4.55% |
+| | **rules + `auto`** | 0.786 | **0.947** | **236** | 3.72% |
+| Gretel Spanish test (461 docs) | previous `auto` | 0.707 [0.658, 0.744] | 0.789 | 216 | 0.89% |
+| | rules + previous `auto` | 0.629 | 0.830 | 184 | 2.34% |
+| | **`auto`** | **0.740** [0.715, 0.767] | 0.798 | 208 | 0.73% |
+| | **rules + `auto`** | 0.655 | **0.838** | **178** | 2.19% |
+| MEDDOCAN test (250 docs) | `auto` (all routed to `es-clinical`) | 0.958 | 0.966 | 100 | 0.09% |
+
+On the Gretel test the router now equals `es-finance` used with the domain known
+(0.740). `es-finance` remains available as `SpanTagger.builtin("es-finance")`.
+
+End to end with `Policy.strict()` (rules + `auto`, `balanced`; files
+`release-gate-v3-*.json`, test sets evaluated once):
+
+| Test set | APPROVED | Approved docs leaking a direct identifier [95% CI] | Approved docs leaking any category | Over-redaction | Output sensitive-character recall |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Gretel, previous router | 161 / 461 | 24 (14.9%) [10.2, 21.2] | 57 (35.4%) | 2.40% | 0.831 |
+| Gretel, `auto` | 207 / 461 | 31 (15.0%) [10.8, 20.5] | 69 (33.3%) | 2.41% | 0.838 |
+| Synthetic test families, `auto` | 291 / 600 | 46 (15.8%) [12.1, 20.4] | 89 (30.6%) | 3.61% | 0.947 |
+
+The new route approves more financial documents at the same leak rate, but
+about one approved document in seven still leaks a direct identifier.
+`es-general`'s `assurance` profile (`review_margin` 160, `redact_margin` 320)
+reached the 2% validation target only by approving 3 of 1,002 validation
+documents with a quarter of non-sensitive text redacted
+(`operating-points-es-general.json`); it is packaged for completeness but in
+practice sends every document to review.
+
 ## Operating profiles, domain routing and leak targets
 
 Three controls were added to trade review load and over-redaction for fewer
@@ -194,8 +269,10 @@ leaks, then measured end to end. Every choice below was made on validation data
   `operating-points-*.json`).
 - Domain router: `DomainRouter.builtin()` or CLI `--tagger builtin:auto`. A
   Naive Bayes document classifier (hashed features, trained on the training
-  splits only) sends each document to `es-clinical` or `es-finance` and runs both
-  when the evidence margin is below 0.5. That threshold was chosen on validation
+  splits only) classifies each document as clinical or financial; clinical
+  documents go to `es-clinical`, financial ones and those whose evidence margin
+  is below 0.5 to `es-general` (until the `es-general` release, to
+  `es-finance` and to both models; the measurements below used that version). That threshold was chosen on validation
   as the smallest with at most 1% of documents routed to the wrong single model;
   the misrouted ones were machine formats (BAI, CSV, FIX, MT940, SWIFT, EDI).
 
