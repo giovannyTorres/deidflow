@@ -176,6 +176,7 @@ def inspect_text_output(
             "review_required_spans",
             "unverifiable_spans",
             "failed_requirements",
+            "release_state_failures",
             "excluded_requirements",
         ),
         0,
@@ -239,6 +240,7 @@ def inspect_text_output(
             counts["failed_requirements"] += 1
         if output is not None and output.release_status not in requirement.release_states:
             counts["failed_requirements"] += 1
+            counts["release_state_failures"] += 1
     required = sum(preserve_required)
     retained = sum(
         bool(keep and present) for keep, present in zip(preserve_required, preserved, strict=True)

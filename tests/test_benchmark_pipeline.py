@@ -1,0 +1,119 @@
+from __future__ import annotations
+
+import pytest
+from benchmark_case_fixtures import fixture_records, profile_package
+
+from deidflow.engine import ReleaseStatus, Result
+
+
+def run_pipeline(tmp_path, callback="rules.mx"):
+    from deidflow.benchmarks.pipeline_runner import PipelineCandidate, run_pipeline_benchmark
+
+    records = fixture_records()
+    for expectation in records["expectations"]:
+        expectation["acceptable_release_states"] = ["APPROVED", "REVIEW_REQUIRED", "BLOCKED"]
+    _, digest = profile_package(tmp_path / "package", records, "pipeline-descriptive-v1", ["EMAIL"])
+    return run_pipeline_benchmark(
+        tmp_path / "package",
+        manifest_sha256=digest,
+        candidate=callback
+        if isinstance(callback, str)
+        else PipelineCandidate("candidate-a", "0" * 64, callback),
+        profile="pipeline-descriptive-v1",
+        output=tmp_path / "report",
+    )["result"]
+
+
+def test_pipeline_uses_existing_real_engine_and_independent_reference(tmp_path):
+    result = run_pipeline(tmp_path)
+    assert result["execution"]["required_documents"] == 2
+    assert result["execution"]["completed_documents"] == 2
+    assert result["detection"]["metrics"]["EMAIL"]["true_positives"] == 1
+    assert result["verdicts"]["quality"] == "DESCRIPTIVE_ONLY"
+    assert result["scope"]["track"] == "pipeline"
+
+
+def test_blocking_everything_does_not_claim_zero_risk_or_joint_success(tmp_path):
+    result = run_pipeline(tmp_path, lambda text, policy: Result(ReleaseStatus.BLOCKED))
+    assert result["metrics"]["joint_success_documents"] == 0
+    assert result["release"]["states"]["BLOCKED"] == 2
+    assert result["release"]["no_output_documents"] == 2
+    assert result["release"]["approved"]["emitted"] == 0
+    assert result["release"]["approved"]["risk_lower"] is None
+    assert result["release"]["emitted"]["risk_upper"] is None
+    assert result["metrics"]["required_removals"] == 2
+
+
+@pytest.mark.parametrize("status", list(ReleaseStatus))
+def test_all_observable_outputs_are_checked_regardless_of_status(tmp_path, status):
+    result = run_pipeline(tmp_path, lambda text, policy: Result(status, output_text=text))
+    assert result["release"]["states"][status.value] == 2
+    assert result["release"]["emitted"]["emitted"] == 2
+    assert result["release"]["emitted"]["leaked"] == 1
+    assert result["metrics"]["leaked_mentions"] == 2
+    if status == ReleaseStatus.APPROVED:
+        assert result["release"]["approved"]["leaked"] == 1
+        assert result["release"]["approved"]["risk_lower"] == 0.5
+
+
+def test_incomplete_maps_produce_empirical_risk_bounds(tmp_path):
+    def invalid_maps(text, policy):
+        return Result(ReleaseStatus.APPROVED, output_text="[REDACTED]")
+
+    result = run_pipeline(tmp_path, invalid_maps)
+    assert result["release"]["emitted"] == {
+        "emitted": 2,
+        "leaked": 0,
+        "unverified_without_confirmed_leak": 2,
+        "completely_inspected": 0,
+        "risk_lower": 0,
+        "risk_upper": 1,
+        "undefined_reason": None,
+    }
+    assert result["verdicts"]["technical_conformity"] == "INCOMPLETE"
+    assert result["verdicts"]["quality"] == "DESCRIPTIVE_ONLY"
+
+
+def test_copied_identifier_with_invalid_maps_is_still_confirmed_residual(tmp_path):
+    def duplicate(text, policy):
+        return Result(ReleaseStatus.APPROVED, output_text=text + text)
+
+    result = run_pipeline(tmp_path, duplicate)
+    assert result["release"]["approved"]["leaked"] == 1
+    assert result["metrics"]["removed_mentions"] == 0
+    assert result["metrics"]["required_removals"] == 2
+    assert result["verdicts"]["technical_conformity"] == "FAIL"
+
+
+def test_error_keeps_support_and_sanitizes_public_report(tmp_path):
+    def fail(text, policy):
+        raise RuntimeError("FICTIONAL_CANARY_FILENAME_TOKEN")
+
+    result = run_pipeline(tmp_path, fail)
+    assert result["execution"]["required_documents"] == 2
+    assert result["execution"]["failed_documents"] == 2
+    assert result["metrics"]["required_removals"] == 2
+    assert result["metrics"]["joint_success_documents"] == 0
+    assert result["detection"]["metrics"]["EMAIL"] is None
+    assert result["verdicts"]["execution"] == "INCOMPLETE"
+    assert "FICTIONAL_CANARY" not in (tmp_path / "report" / "report.json").read_text()
+
+
+def test_malformed_response_is_counted_without_dropping_case(tmp_path):
+    result = run_pipeline(tmp_path, lambda text, policy: {"status": "APPROVED"})
+    assert result["release"]["states"]["ERROR"] == 2
+    assert result["execution"]["failed_documents"] == 2
+    assert result["metrics"]["joint_success_documents"] == 0
+
+
+def test_changed_suffix_does_not_reduce_required_support(tmp_path):
+    def alter(text, policy):
+        return Result(
+            ReleaseStatus.APPROVED, output_text=text.replace("example.test", "example.tesX")
+        )
+
+    result = run_pipeline(tmp_path, alter)
+    assert result["metrics"]["required_removals"] == 2
+    assert result["metrics"]["removed_mentions"] == 0
+    assert result["metrics"]["joint_success_documents"] == 1
+    assert result["release"]["emitted"]["unverified_without_confirmed_leak"] == 1
