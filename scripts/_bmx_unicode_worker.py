@@ -11,6 +11,7 @@ import sys
 from contextlib import ExitStack, redirect_stdout
 from dataclasses import asdict
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any
 from unittest.mock import patch
 
@@ -56,6 +57,10 @@ def main():
         raise RuntimeError("Offline local candidate")
 
     with ExitStack() as stack:
+        cache_prefix = stack.enter_context(TemporaryDirectory(prefix=".bmx-unicode-cache-"))
+        sys.pycache_prefix = cache_prefix
+        if not sys.dont_write_bytecode:
+            raise ValueError
         for operation in (
             "getaddrinfo",
             "create_connection",
@@ -74,6 +79,9 @@ def main():
             ).strip()
             if live_revision != revision:
                 raise ValueError
+            cache_entries = sum(1 for _ in Path(cache_prefix).rglob("*"))
+            if sys.pycache_prefix != cache_prefix or cache_entries:
+                raise ValueError
             modules = []
             for name, module in sorted(sys.modules.items()):
                 if name == "deidflow" or name.startswith("deidflow."):
@@ -89,6 +97,8 @@ def main():
                     )
             return {
                 "revision": live_revision,
+                "cache_mode": "isolated_empty_cache_prefix",
+                "cache_entries": cache_entries,
                 "source_clean": not bool(
                     subprocess.check_output(
                         [
@@ -174,8 +184,15 @@ def main():
                             }
                         )
                         findings = [
-                            Finding(a, b, c, 1.0, "benchmark-gold", protected=True)
-                            for a, b, c in request["gold"]
+                            Finding(
+                                entity_type,
+                                source_start,
+                                source_end,
+                                1.0,
+                                "benchmark-gold",
+                                protected=True,
+                            )
+                            for entity_type, source_start, source_end in request["gold"]
                         ]
                         output, maps = transform_text(text, findings, policy)
                         response = {

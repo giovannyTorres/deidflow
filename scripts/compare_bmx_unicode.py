@@ -6,30 +6,31 @@ import hashlib
 import json
 import os
 import select
+import shutil
 import subprocess
 import sys
 import time
 from pathlib import Path
 from typing import Any
 
-from deidflow.benchmarks.transformation_metrics import (
-    TextRequirement,
-    TransformationOutput,
-    inspect_text_output,
-)
-from deidflow.transformations import SourceMap
-
 
 def transformation_output(observed):
+    from deidflow.benchmarks.transformation_metrics import TransformationOutput
+    from deidflow.transformations import SourceMap
+
     maps = tuple(
-        SourceMap(a, b, c, d, tuple(labels), action)
-        for a, b, c, d, labels, action in observed["mappings"]
+        SourceMap(source_start, source_end, output_start, output_end, tuple(entity_types), action)
+        for source_start, source_end, output_start, output_end, entity_types, action in observed[
+            "mappings"
+        ]
     )
     return TransformationOutput(observed["text"], maps, observed["state"])
 
 
 def inspect_probe(text, label, start, observed):
     """Inspect the complete independently supplied sensitive source interval."""
+    from deidflow.benchmarks.transformation_metrics import TextRequirement, inspect_text_output
+
     requirement = TextRequirement(
         start,
         len(text),
@@ -228,7 +229,10 @@ def evaluate_transformations(candidate, package, digest, case_ids=None):
     from dataclasses import asdict
 
     from deidflow.benchmarks.evaluation_package import load_evaluation_package
-    from deidflow.benchmarks.transformation_metrics import requirements_for_unit
+    from deidflow.benchmarks.transformation_metrics import (
+        inspect_text_output,
+        requirements_for_unit,
+    )
     from deidflow.benchmarks.transformation_runner import transformation_policy
 
     loaded = load_evaluation_package(package, manifest_sha256=digest)
@@ -260,6 +264,34 @@ def evaluate_transformations(candidate, package, digest, case_ids=None):
         "required_units": units,
         "metrics": totals,
         "quality": "DESCRIPTIVE_ONLY",
+    }
+
+
+def evaluator_snapshot():
+    """Bind loaded evaluator modules and distinguish uncontrolled caller caches."""
+    source_root = Path(__file__).resolve().parents[1] / "src/deidflow"
+    modules = []
+    for name, module in sorted(sys.modules.items()):
+        if name == "deidflow" or name.startswith("deidflow."):
+            path = Path(module.__file__ or "").resolve()
+            if not path.is_relative_to(source_root):
+                raise ValueError("Invalid comparison evaluator")
+            modules.append(
+                {
+                    "module": name,
+                    "path": path.relative_to(source_root.parent.parent).as_posix(),
+                    "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                }
+            )
+    cache_entries = (
+        sum(1 for _ in Path(sys.pycache_prefix).rglob("*")) if sys.pycache_prefix else None
+    )
+    return {
+        "cache_mode": "isolated_empty_cache_prefix"
+        if sys.pycache_prefix and sys.dont_write_bytecode and cache_entries == 0
+        else "caller_cache_not_execution_pinned",
+        "cache_entries": cache_entries,
+        "loaded_modules": modules,
     }
 
 
@@ -319,6 +351,7 @@ def compare(sources, targets, destination, seed=17):
                 "helper_sha256": helper_pins,
                 "evaluator_source_sha256": harness_pin,
                 "candidate_before": {label: c.descriptor for label, c in candidates.items()},
+                "evaluator_before": evaluator_snapshot(),
                 "probes": {label: evaluate_probes(c) for label, c in candidates.items()},
                 "corpora": [],
                 "limitations": [
@@ -438,6 +471,9 @@ def compare(sources, targets, destination, seed=17):
                         },
                         "transformation": transformations,
                     }
+                # Derived texts, maps and gold remain private temporary inputs.
+                # Source/seed/index pins permit their independent reproduction.
+                shutil.rmtree(base / "suite")
                 report["corpora"].append(corpus)
             report["candidate_after"] = {label: c.finish() for label, c in candidates.items()}
             for resource in ("model_sha256", "declarations_sha256", "dependencies_sha256"):
@@ -446,6 +482,9 @@ def compare(sources, targets, destination, seed=17):
                     != report["candidate_after"]["fixed"][resource]
                 ):
                     raise ValueError("Candidate resources differ")
+            report["evaluator_after"] = evaluator_snapshot()
+            if report["evaluator_before"]["cache_mode"] != report["evaluator_after"]["cache_mode"]:
+                raise ValueError("Comparison evaluator cache changed")
             if _source_digest() != harness_pin or any(
                 hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest() != digest
                 for name, digest in helper_pins.items()
@@ -460,8 +499,6 @@ def compare(sources, targets, destination, seed=17):
             for member in staging.iterdir():
                 member.rename(destination / member.name)
         except OSError:
-            import shutil
-
             shutil.rmtree(destination)
             raise ValueError("Invalid comparison output") from None
     return report
@@ -479,18 +516,28 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--seed", type=int, default=17)
     args = parser.parse_args()
-    try:
-        compare(
-            args.source,
-            [
-                ("baseline", args.baseline_root, args.baseline_revision),
-                ("fixed", args.fixed_root, args.fixed_revision),
-            ],
-            args.output,
-            args.seed,
-        )
-    except (ValueError, OSError, KeyError, TypeError, RecursionError):
-        raise SystemExit("Invalid local Unicode development comparison") from None
+    from tempfile import TemporaryDirectory
+
+    # Establish source compilation before the first evaluator import, even when
+    # ignored source-tree pyc files already exist in the checkout.
+    if any(name == "deidflow" or name.startswith("deidflow.") for name in sys.modules):
+        raise SystemExit("Invalid comparison evaluator")
+    with TemporaryDirectory(prefix=".bmx-evaluator-cache-") as cache_prefix:
+        sys.pycache_prefix, sys.dont_write_bytecode = cache_prefix, True
+        try:
+            compare(
+                args.source,
+                [
+                    ("baseline", args.baseline_root, args.baseline_revision),
+                    ("fixed", args.fixed_root, args.fixed_revision),
+                ],
+                args.output,
+                args.seed,
+            )
+            if any(Path(cache_prefix).rglob("*")):
+                raise ValueError
+        except (ValueError, OSError, KeyError, TypeError, RecursionError):
+            raise SystemExit("Invalid local Unicode development comparison") from None
 
 
 if __name__ == "__main__":

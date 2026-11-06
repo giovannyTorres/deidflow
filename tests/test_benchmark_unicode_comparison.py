@@ -39,6 +39,8 @@ def test_local_worker_pins_runtime_and_returns_real_zwnj_result():
             pass
     with helper.LocalCandidate(root, revision) as candidate:
         assert candidate.descriptor["revision"] == revision
+        assert candidate.descriptor["cache_mode"] == "isolated_empty_cache_prefix"
+        assert candidate.descriptor["cache_entries"] == 0
         observed = candidate.request("run", "DNI 1234\u200c5678Z", country="ES")
         assert observed["state"] in {"APPROVED", "REVIEW_REQUIRED", "BLOCKED"}
         assert isinstance(observed["mappings"], list)
@@ -46,6 +48,7 @@ def test_local_worker_pins_runtime_and_returns_real_zwnj_result():
         assert pins["source_sha256"] == candidate.descriptor["source_sha256"]
         assert pins["model_sha256"] == candidate.descriptor["model_sha256"]
         assert pins["network_attempts"] == 0
+        assert pins["cache_entries"] == 0
         assert pins["loaded_modules"]
         assert all(row["path"].startswith("src/deidflow/") for row in pins["loaded_modules"])
 
@@ -98,3 +101,26 @@ def test_comparison_rejects_wrong_runtime_pin_without_publishing_output(tmp_path
             tmp_path / "comparison",
         )
     assert not (tmp_path / "comparison").exists()
+
+
+def test_comparison_publishes_aggregate_reports_without_source_packages(tmp_path):
+    import json
+    import subprocess
+
+    from test_benchmark_perturbations import literal_package
+
+    helper = comparison_module()
+    source, _ = literal_package(tmp_path / "source")
+    root = Path(__file__).parents[1]
+    revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+    output = tmp_path / "published"
+    report = helper.compare(
+        [source], [("baseline", root, revision), ("fixed", root, revision)], output
+    )
+    assert json.loads((output / "report.json").read_text()) == report
+    published = [path for path in output.rglob("*") if path.is_file()]
+    assert not any(path.suffix == ".jsonl" or path.name == "suite.json" for path in published)
+    assert all(path.name == "report.json" for path in published)
+    for path in published:
+        assert "Ana María Sol" not in path.read_text()
+        assert "codepoint_boundaries" not in path.read_text()
