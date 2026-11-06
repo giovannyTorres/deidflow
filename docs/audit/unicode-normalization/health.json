@@ -1,0 +1,189 @@
+{
+  "available_corpora_non_regression": "PASS_EXACT_TYPED_PREDICTION_IDENTITY",
+  "base_commit": "44d04b16fb1ec545161c4ef0c14f516c7b0d9d29",
+  "cloud_configuration": {
+    "applied_or_published_by_agent": false,
+    "custom_allowed_domains": [
+      "api.github.com",
+      "huggingface.co"
+    ],
+    "draft_saved": true,
+    "new_domain_this_continuation": "huggingface.co",
+    "requires_publish": true,
+    "runtime_access_verified": false
+  },
+  "coverage": {
+    "covered_branches": 4062,
+    "covered_lines": 10448,
+    "excluded_lines": 29,
+    "missing_branches": 1106,
+    "missing_lines": 1615,
+    "num_branches": 5168,
+    "num_partial_branches": 832,
+    "num_statements": 12063,
+    "percent_branches_covered": 78.59907120743034,
+    "percent_branches_covered_display": "79",
+    "percent_covered": 84.2086936335674,
+    "percent_covered_display": "84",
+    "percent_statements_covered": 86.61195390864627,
+    "percent_statements_covered_display": "87"
+  },
+  "date_utc": "2026-11-06",
+  "development_regression_evidence": {
+    "adversarial_size": {
+      "characters": 200000,
+      "runtime_budget_seconds": 3,
+      "utf8_bytes": 600000
+    },
+    "format_control_codepoints": [
+      "U+00AD",
+      "U+200B",
+      "U+200C",
+      "U+200D",
+      "U+2060",
+      "U+FEFF"
+    ],
+    "format_matrix": "tests/test_unicode_formats.py",
+    "formats": [
+      "text",
+      "CSV",
+      "TSV",
+      "JSON",
+      "JSONL",
+      "DOCX",
+      "XLSX",
+      "HTML",
+      "EML"
+    ],
+    "normalization_contract": "tests/test_unicode_normalization.py",
+    "not_a_blind_or_population_evaluation": true,
+    "unicode_detection": "tests/test_unicode_detection.py"
+  },
+  "distribution": {
+    "artifacts": {
+      "deidflow-0.6.0b1-py3-none-any.whl": "89b3b746a2a07d4f368ae00a46ff2c1c05783ad1ada8e774bb171871fef13aaa",
+      "deidflow-0.6.0b1.tar.gz": "c1e9d15e00c4cbec51ebf652ed34f639d0dd43a5bc87a6f4415feaaff0f046a5"
+    },
+    "base_wheel_legacy_api": "PASS",
+    "base_wheel_ordinal_nlp_coverage": "PASS",
+    "base_wheel_unicode_and_fallback": "PASS",
+    "build_no_isolation": "PASS",
+    "clean_archive_commit": "3de9d732dca9a6df106a757836f0c8194be73916",
+    "installed_outside_checkout": true,
+    "twine_strict": "PASS"
+  },
+  "github": {
+    "branch": "fix/unicode-detection",
+    "code_branch_pushed": true,
+    "pull_request_body": "PR_BODY.md",
+    "pull_request_created": false,
+    "reason": "api.github.com is excluded by enforced cloud network policy; gh API call returns Forbidden"
+  },
+  "gretel_validation": "NOT_RUN_ASSET_UNAVAILABLE",
+  "held_out_test_scoring_passes": 0,
+  "historical_health_receipt": "history/93ed28c-health.json",
+  "internal_reviews": {
+    "Spec": {
+      "available_validation_non_regression": "PASS_EXACT_TYPED_PREDICTION_IDENTITY",
+      "open_code_defects": 0,
+      "remaining_acceptance_blockers": [
+        "Gretel holdout asset/access",
+        "Actual CI and external Claude/owner gates"
+      ]
+    },
+    "Standards": {
+      "accepted_nonblocking_judgments": [
+        {
+          "description": "Parallel source/view batch protocol",
+          "reason": "Explicit adapter cardinality checks preserve current batch interfaces; no correctness issue demonstrated",
+          "severity": "P3",
+          "smell": "Data Clumps"
+        }
+      ],
+      "open_written_violations": 0
+    },
+    "method": "Matt Pocock independent Standards/Spec internal review; NOT external Claude audit",
+    "reviewed_commit": "3de9d732dca9a6df106a757836f0c8194be73916"
+  },
+  "local_logs": "/tmp/deidflow-unicode-evidence/continuation/",
+  "merge_gates": {
+    "all_review_threads_resolved": "NOT_VERIFIED",
+    "ci_11_of_11": "NOT_OBSERVED",
+    "external_claude_audit": "PENDING",
+    "giovanny_approval": "NOT_GIVEN",
+    "merge_allowed": false,
+    "no_open_claude_blockers": "NOT_VERIFIED"
+  },
+  "microbenchmark": {
+    "budgets": {
+      "max_engine_to_same_run_rules_ratio": 5.0,
+      "max_seconds_per_record": 0.005,
+      "minimum_critical_exact_recall": 1.0
+    },
+    "critical_exact_recall": {
+      "API_KEY": 1.0,
+      "CLABE": 1.0,
+      "CURP": 1.0,
+      "EMAIL": 1.0,
+      "RFC": 1.0
+    },
+    "engine_seconds": [
+      0.3621159299946157,
+      0.32259040100325365,
+      0.3410308839956997,
+      0.3437431690035737,
+      0.3358053670017398
+    ],
+    "engine_to_same_run_reference_ratio": 1.0714305902069372,
+    "median_seconds_per_record": 0.0003410308839956997,
+    "passed": true,
+    "records": 1000,
+    "repeats": 5,
+    "same_run_reference_seconds": [
+      0.35804722100147046,
+      0.4479660380020505,
+      0.3182948920002673,
+      0.3093073819982237,
+      0.30937059400457656
+    ],
+    "scope": "Gross CI regression guard; identical contextual rules, engine wrapper versus direct detector, alternating timing order; no fine-grained cross-machine or statistical speedup claim"
+  },
+  "python_version": "Python 3.12.14",
+  "quality_acceptance": "AVAILABLE_VALIDATION_PASS_GRETEL_PENDING",
+  "schema_version": "deidflow.unicode-candidate-health.v1",
+  "static_checks": {
+    "format": "PASS",
+    "format_files": 196,
+    "mypy": "PASS",
+    "mypy_modules": 65,
+    "mypy_python_target": "3.12",
+    "pip_check": "PASS",
+    "ruff": "PASS"
+  },
+  "tested_code_commit": "3de9d732dca9a6df106a757836f0c8194be73916",
+  "tests": {
+    "elapsed_seconds": 237.84,
+    "passed": 1227,
+    "skip_reason": "Optional local OCR/spaCy assets unavailable; skipped checks are not passed",
+    "skipped": 11,
+    "software_full_suite_runs_at_tested_commit": 1
+  },
+  "unchanged": {
+    "branches_not_deleted": true,
+    "master_not_merged": true,
+    "model_assets_profiles_dependencies_version": true,
+    "models_weights_profiles": true,
+    "narrative_default": true,
+    "no_history_rewrite": true,
+    "no_runtime_cloud_configuration_changes": true,
+    "package_version": "0.6.0b1",
+    "preexisting_files_preserved": 6,
+    "production_dependencies": true,
+    "pypi_not_published": true,
+    "runtime_cloud_configuration": true,
+    "second_transform_pass": true
+  },
+  "unicode_database_version": "15.0.0",
+  "validation_comparison": "validation.json",
+  "validation_comparison_sha256": "2b99d48c6942bd96b30b12cc9baffcb6964ec6c7c083ec9bc098b36288547b2f"
+}

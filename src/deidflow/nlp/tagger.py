@@ -30,6 +30,7 @@ from pathlib import Path
 from typing import Any
 
 from deidflow.core import Finding
+from deidflow.normalization import DetectionView, ordinal_feature_text
 from deidflow.transformations import replacement_only
 
 FORMAT = "deidflow.span-tagger"
@@ -584,8 +585,16 @@ class SpanTagger:
 
     def decode(self, text: str) -> Decoded:
         """Tokenize and Viterbi-decode ``text``; independent of the margin settings."""
+        return self._decode_features(text, text)
+
+    def _decode_features(self, text: str, feature_text: str) -> Decoded:
+        """Keep normalized token coordinates while interpreting source token classes."""
         tokens = tokenize(text)
-        features = token_features(text, tokens) if tokens else []
+        if feature_text is not text and (
+            len(feature_text) != len(text) or tokenize(feature_text) != tokens
+        ):
+            raise ValueError("Lexical feature metadata changed normalized token coordinates")
+        features = token_features(feature_text, tokens) if tokens else []
         segments = []
         for begin, end in self._segments(text, tokens):
             if self._numpy is not None:
@@ -625,6 +634,30 @@ class SpanTagger:
 
     def detect(self, text: str) -> list[Finding]:
         return self.to_findings(self.predict(text))
+
+    def detect_views(self, sources: list[str], views: list[DetectionView]) -> list[list[Finding]]:
+        """Use source ordinal classes as lexical features at NFKC coordinates.
+
+        Tokenization, segmentation and replacement checks still use each full
+        normalized view. Only lexical feature spelling retains ordinal meaning
+        learned by the unchanged model; controls and width are never restored.
+        """
+        if len(sources) != len(views):
+            raise ValueError("Normalized inference source/view batch length differs")
+        try:
+            return [
+                self.to_findings(
+                    self.spans(
+                        view.text,
+                        self._decode_features(view.text, ordinal_feature_text(source, view)),
+                    )
+                )
+                for source, view in zip(sources, views, strict=True)
+            ]
+        except Exception:
+            raise RuntimeError(
+                "Local tagger inference failed; processing must be blocked"
+            ) from None
 
     def to_findings(self, spans: Iterable[TaggedSpan]) -> list[Finding]:
         """Map spans to findings under the current label mapping and margins."""
