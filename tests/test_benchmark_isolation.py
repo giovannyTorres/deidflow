@@ -13,6 +13,7 @@ def run_case(tmp_path, code=RESPONSE, **kwargs):
 
     script = tmp_path / "FICTIONAL_PRIVATE_FILENAME.py"
     script.write_text(code)
+    kwargs.setdefault("reference_root", tmp_path / "reference")
     return run_isolated_case(
         script,
         script_sha256=hashlib.sha256(script.read_bytes()).hexdigest(),
@@ -147,3 +148,11 @@ def test_malformed_successful_response_never_exposes_its_content(tmp_path):
     assert result["status"] == "MALFORMED_RESPONSE"
     assert result["counts"] is None
     assert "FICTIONAL_BODY" not in (tmp_path / "report" / "report.json").read_text()
+
+
+def test_undeclared_reference_boundary_cannot_accredit_strict_custody(tmp_path):
+    result = run_case(tmp_path, reference_root=None)
+    require_native(result)
+    assert result["status"] == "COMPLETED"
+    assert result["strict_custody_accredited"] is False
+    assert result["reference_boundary_declared"] is False

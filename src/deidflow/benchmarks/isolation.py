@@ -259,6 +259,9 @@ def run_isolated_case(
         raise ValueError("Invalid isolated benchmark configuration")
     result: dict[str, Any] = {
         "case_id": case_id,
+        "program_sha256": script_sha256,
+        "mechanism": "linux-bwrap-strace.v1",
+        "reference_boundary_declared": reference_root is not None,
         "status": "UNSUPPORTED",
         "counts": None,
         "required_support": {"documents": 1, "mentions": required_mentions},
@@ -404,6 +407,6 @@ def _execute(
                     result["required_support"]["mentions"],
                 )
                 result["status"] = "COMPLETED"
-                result["strict_custody_accredited"] = True
+                result["strict_custody_accredited"] = result["reference_boundary_declared"]
             except (ValueError, OSError, UnicodeError):
                 result["status"] = "MALFORMED_RESPONSE"
