@@ -106,6 +106,13 @@ de la fuente completa antes de emitir marcadores, para impedir que un token
 presente en otra celda se confunda con uno generado. Un mismo valor exacto y
 contexto compatible mantiene su marcador en el archivo. No se infieren alias.
 
+Con `Rule("pseudonym")` y `token_scope="document"`, el ámbito se liga al plan
+completo del CSV: un mismo correo recibe el mismo token aunque aparezca en
+celdas con textos distintos. Reaplicar el mismo plan conserva los tokens; un
+CSV diferente tiene un ámbito distinto. Los ámbitos explícitos de sesión,
+dataset o tenant conservan su continuidad configurada. Cada celda mantiene
+su plan, controles de residuos y recibo independiente.
+
 Esta revisión ejecuta detección de texto por celda. No reaplica automáticamente
 los perfiles de columnas de `DeidEngine.deidentify(csv)`: un nombre o ID sin
 etiqueta puede pasar inadvertido al detector. La revisión completa y las

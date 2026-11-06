@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Fixed supervised CSV review deriving document pseudonyms per cell: the whole
+  verified CSV now shares one scope while retaining each cell's release gates
+  and authenticated receipt. Text review and wider token scopes keep their
+  existing behavior.
 - Added bounded supervised CSV review: cell-local corrections including headers,
   file-wide indexed placeholders, canonical regeneration and reread checks,
   source/output-bound HMAC receipts and separate candidate/approved CLI bundles.

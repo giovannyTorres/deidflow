@@ -130,6 +130,46 @@ def test_all_source_tokens_including_header_and_late_cell_are_reserved_first():
     assert verify(reviewed, source, policy, require_approved=False)
 
 
+def test_document_pseudonym_is_shared_across_distinct_cell_plans():
+    source = b"correo,nota\r\nuno@example.test,Contacto: uno@example.test\r\n"
+    engine = DeidEngine(key=b"synthetic-document-scope-key-32-bytes")
+    policy = Policy(default=Rule("pseudonym"), require_ner=False)
+    plan = create_csv_review_plan(engine, source, policy=policy, model_digest=MODEL)
+    reviewed = apply(
+        engine, source, plan, confirm(plan), policy, approve=True, source_complete=True
+    )
+    token, contact = rows(reviewed.output_bytes)[1]
+    assert contact == "Contacto: " + token
+    assert "uno@example.test" not in reviewed.output_bytes.decode()
+    assert reviewed.result.release_approved
+    assert verify(reviewed, source, policy)
+
+
+@pytest.mark.parametrize("token_scope", ["document", "dataset", "tenant", "session"])
+def test_csv_pseudonyms_keep_the_configured_document_or_wider_boundary(token_scope):
+    engine = DeidEngine(
+        key=b"synthetic-scope-boundaries-key-32-bytes",
+        tenant_id="fictional-tenant",
+        dataset_id="fictional-dataset",
+    )
+    policy = Policy(default=Rule("pseudonym"), require_ner=False, token_scope=token_scope)
+    outputs = []
+    for source in (
+        b"correo,nota\nuno@example.test,primera\n",
+        b"correo,nota\nuno@example.test,segunda\n",
+        b"correo,nota\nuno@example.test,primera\n",
+    ):
+        plan = create_csv_review_plan(engine, source, policy=policy, model_digest=MODEL)
+        reviewed = apply(
+            engine, source, plan, confirm(plan), policy, approve=True, source_complete=True
+        )
+        assert reviewed.result.release_approved
+        assert verify(reviewed, source, policy)
+        outputs.append(rows(reviewed.output_bytes)[1][0])
+    assert outputs[0] == outputs[2]
+    assert (outputs[0] == outputs[1]) is (token_scope != "document")
+
+
 def test_exact_identity_reuses_compatible_context_without_merging_conflicting_roles():
     class Roles:
         def detect_batch(self, texts):

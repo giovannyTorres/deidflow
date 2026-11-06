@@ -26,7 +26,7 @@ from deidflow.review import (
     ReviewDecision,
     ReviewError,
     ReviewPlan,
-    apply_review,
+    _apply_review,
     create_review_plan,
     verify_review_receipt,
 )
@@ -478,6 +478,7 @@ def apply_csv_review(
             _fail("STALE_CSV_REVIEW_PLAN")
         chosen = _decisions(plan, decisions)
         source_rows = _parse(source)
+        scope = engine._scope(policy, plan.plan_digest)
         allocator = PlaceholderAllocator(compatible_context=True)
         for row in source_rows:
             for source_text in row:
@@ -487,7 +488,7 @@ def apply_csv_review(
         transformations = 0
         output_size = 0
         for cell, cell_decisions in zip(plan.cells, chosen, strict=True):
-            reviewed = apply_review(
+            reviewed = _apply_review(
                 engine,
                 source_rows[cell.row][cell.column],
                 cell.review,
@@ -500,6 +501,7 @@ def apply_csv_review(
                 source_complete=source_complete,
                 domain=domain,
                 placeholders=allocator,
+                scope=scope,
             )
             text = reviewed.result.output_text
             if not isinstance(text, str):
