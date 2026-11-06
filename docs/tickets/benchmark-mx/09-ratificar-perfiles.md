@@ -17,6 +17,13 @@ Los IDs BMX son referencias locales, no números de GitHub. Al publicar, enlazar
 
 **Alcance estimado:** Revisión humana; depende de insumos.
 
+## Estado humano actual
+
+Formatos confirmados: todos los previstos, incluido OCR. El solicitante pidió
+ajustar D1–D3 antes de ratificar; sigue pendiente su definición concreta.
+[Decisiones y escenarios preparados](../../audit/BMX-09-decisions-for-review.md).
+No hay ratificación ni cierre de esta tarea.
+
 ## Qué entrega
 
 Resolver con el responsable las decisiones D1–D3 y el alcance obligatorio por formato, dejando perfiles documentados y versionados antes de producir referencia de calificación.

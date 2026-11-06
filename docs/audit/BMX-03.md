@@ -1,6 +1,6 @@
 # BMX-03: detección por entidad
 
-Estado: implementada y revisada; verificación integrada final pendiente del lote.
+Estado: implementada, revisada y verificada en integración BMX-03–08.
 Base: `69942cc8fe6e9fae9130ab2bdb8fb703991eb03c`.
 Ticket: [BMX-03](../tickets/benchmark-mx/03-deteccion-por-entidad.md).
 Seam: paquete/candidato/perfil → informe, usando el mismo recorrido de BMX-02.
@@ -41,3 +41,8 @@ Spec 0 pendientes (1 resuelto). Sin peor hallazgo vigente en ninguno de los ejes
 La suite completa y el empaquetado se ejecutarán sobre la integración final del
 lote; no se afirman resultados futuros. No cambia código de detectores, API
 de producción, dependencias ni versión; no ratifica decisiones humanas.
+
+Integración final completada: 1314 pruebas pasan, 11 omisiones de activos
+opcionales, Ruff/formato/mypy, microbenchmark y wheel base verificados.
+[Acta integrada](BATCH_NEXT10.md) y [recibo de salud](BATCH_NEXT10_HEALTH.json)
+prevalecen sobre las notas históricas de integración pendiente de este paso.

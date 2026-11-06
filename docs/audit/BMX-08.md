@@ -1,6 +1,6 @@
 # BMX-08: clausura, similitud y exposición
 
-Base: `25a5c0f`. Estado: implementada y revisada; integración final pendiente.
+Base: `25a5c0f`. Estado: implementada, revisada y verificada en integración BMX-03–08.
 Código revisado: `4fa622e04f15aa990735eeb7523c98e1394ce6a4`.
 Contrato: [auditoría y límites](../BENCHMARK_MX_INDEPENDENCE.md).
 
@@ -32,3 +32,8 @@ reproducción original y 13 pruebas propias. Final: 0 abiertos.
 Salud: **243 pruebas focalizadas**, Ruff/formato y mypy76 pasan. Logs en
 `/tmp/deidflow-batch/BMX-08/`. No se cambian dependencias ni código de producción.
 Suite completa y empaquetado se comprobarán en integración final.
+
+Integración final completada: 1314 pruebas pasan, 11 omisiones de activos
+opcionales, Ruff/formato/mypy, microbenchmark y wheel base verificados.
+[Acta integrada](BATCH_NEXT10.md) y [recibo de salud](BATCH_NEXT10_HEALTH.json)
+prevalecen sobre las notas históricas de integración pendiente de este paso.

@@ -1,6 +1,6 @@
 # BMX-06: pipeline textual real
 
-Base: `ed3287b`. Estado: implementada y revisada; integración final pendiente.
+Base: `ed3287b`. Estado: implementada, revisada y verificada en integración BMX-03–08.
 Código revisado: `4d95eb85f9638776ed513e64371e5a8cd93eacf5`.
 Guía: [contratos y límites](../BENCHMARK_MX_PIPELINE.md).
 
@@ -40,3 +40,8 @@ máscaras internas ni nombres de artefacto.
 
 Salud: **214 pruebas focalizadas**, Ruff/formato y mypy74 pasan. Logs en
 `/tmp/deidflow-batch/BMX-06/`. Suite completa y wheel al integrar el lote.
+
+Integración final completada: 1314 pruebas pasan, 11 omisiones de activos
+opcionales, Ruff/formato/mypy, microbenchmark y wheel base verificados.
+[Acta integrada](BATCH_NEXT10.md) y [recibo de salud](BATCH_NEXT10_HEALTH.json)
+prevalecen sobre las notas históricas de integración pendiente de este paso.

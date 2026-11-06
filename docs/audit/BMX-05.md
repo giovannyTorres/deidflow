@@ -1,7 +1,6 @@
 # BMX-05: transformación aislada y conservación
 
-Base: `f391e5a` (cierre incremental BMX-04). Estado: implementada y revisada;
-integración completa al final del lote pendiente.
+Base: `f391e5a` (cierre incremental BMX-04). Estado: implementada, revisada y verificada en integración BMX-03–08.
 Código final: `16279a048448044669af4ea7558c959e534ba61e`.
 Contrato: [uso y límites](../BENCHMARK_MX_TRANSFORMATION.md).
 
@@ -42,3 +41,8 @@ y límites. Final BMX-05: 0 abiertos; no se acredita liberación completa aquí.
 
 Salud: **197 pruebas focalizadas**, Ruff/formato y mypy (73 módulos) pasan.
 Logs en `/tmp/deidflow-batch/BMX-05/`. No se ejecutó aún integración completa.
+
+Integración final completada: 1314 pruebas pasan, 11 omisiones de activos
+opcionales, Ruff/formato/mypy, microbenchmark y wheel base verificados.
+[Acta integrada](BATCH_NEXT10.md) y [recibo de salud](BATCH_NEXT10_HEALTH.json)
+prevalecen sobre las notas históricas de integración pendiente de este paso.

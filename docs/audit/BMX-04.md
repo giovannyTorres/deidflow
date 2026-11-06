@@ -1,6 +1,6 @@
 # BMX-04: validez de identificadores con referencia independiente
 
-Estado: implementación focalizada y dos revisiones verificadas; integración final pendiente.
+Estado: implementada, revisada y verificada en integración BMX-03–08.
 Código revisado: `5393abe64bde30c3cbf7218c9056d16ff46c856f`.
 Base: `c95967f67014d39cc9c1050ef8d594de2aa70daf`.
 Ticket: [BMX-04](../tickets/benchmark-mx/04-validez-independiente.md).
@@ -43,3 +43,8 @@ discrepancias RFC declaradas y PHONE sin denominador aplicable. Sin scope creep.
 No se modifica API de producción, algoritmos evaluados, dependencias ni versión.
 No se ratifican D1–D3. Los formatos obligatorios de primera versión se acordaron
 como todos los previstos incluido OCR; los ajustes D1–D3 siguen pendientes.
+
+Integración final completada: 1314 pruebas pasan, 11 omisiones de activos
+opcionales, Ruff/formato/mypy, microbenchmark y wheel base verificados.
+[Acta integrada](BATCH_NEXT10.md) y [recibo de salud](BATCH_NEXT10_HEALTH.json)
+prevalecen sobre las notas históricas de integración pendiente de este paso.

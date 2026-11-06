@@ -1,6 +1,6 @@
 # BMX-07: aislamiento local y límites
 
-Base: `a82b1c4`. Estado: implementada y revisada; integración final pendiente.
+Base: `a82b1c4`. Estado: implementada, revisada y verificada en integración BMX-03–08.
 Código revisado: `e8032793468f87fd399dddf65eb8db3332ba9afd`.
 Contrato: [API, requisitos y límites](../BENCHMARK_MX_ISOLATION.md).
 
@@ -44,3 +44,8 @@ omisiones en este host, Ruff/formato y mypy75 pasan. Logs en
 soporte, 0 intentos, 0 eventos de integridad, custodia acreditada únicamente
 para esa ejecución y su referencia declarada. No acredita calidad.
 Suite completa y wheel siguen pendientes de integración final.
+
+Integración final completada: 1314 pruebas pasan, 11 omisiones de activos
+opcionales, Ruff/formato/mypy, microbenchmark y wheel base verificados.
+[Acta integrada](BATCH_NEXT10.md) y [recibo de salud](BATCH_NEXT10_HEALTH.json)
+prevalecen sobre las notas históricas de integración pendiente de este paso.

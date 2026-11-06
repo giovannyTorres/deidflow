@@ -2,7 +2,7 @@
 
 **Gestor de destino: GitHub Issues de `giovannyTorres/deidflow`.**
 
-**Estado real: documentación y 27 borradores en una rama de revisión; 0 issues creados. BMX-01 y BMX-02 implementados y verificados; los otros 25 tickets no se han implementado.**
+**Estado real: documentación y 27 borradores en una rama de revisión; 0 issues creados. BMX-01 a BMX-08 implementados y verificados. BMX-09 espera ajustes humanos; BMX-10 a BMX-27 no se han implementado.**
 
 Rama: [`benchmark/evaluacion-mx-spec-tickets`](https://github.com/giovannyTorres/deidflow/tree/benchmark/evaluacion-mx-spec-tickets). La publicación documental no equivale al registro en GitHub Issues.
 
@@ -10,9 +10,10 @@ La lectura del repositorio por `gh repo view` devolvió HTTP 403 desde api.githu
 
 Estos archivos son cuerpos preparados para GitHub Issues, ahora visibles en GitHub como documentos; no son un cambio al gestor local de markdown. No se inventaron números, URLs, etiquetas aplicadas ni relaciones remotas.
 
-Las solicitudes `/implement` autorizaron BMX-01 y BMX-02. Sus actas registran
-pruebas y revisión: [BMX-01](../../audit/BMX-01.md),
-[BMX-02](../../audit/BMX-02.md). La creación de Issues sigue pendiente del
+Las solicitudes `/implement` autorizaron BMX-01 y BMX-02, y luego el bloque
+BMX-03 a BMX-12. BMX-03 a BMX-08 están verificadas; BMX-09 sigue sin ratificar
+y BMX-10/11/12 dependen de ella. Actas y evidencia: [lote actual](../../audit/BATCH_NEXT10.md),
+[BMX-01](../../audit/BMX-01.md), [BMX-02](../../audit/BMX-02.md). La creación de Issues sigue pendiente del
 acceso de red y la posterior comprobación de permisos del repositorio.
 
 Especificación fuente: [DF-EVAL-MX v0.1.0](../../specs/BENCHMARK_MX_SPEC.md).
@@ -63,9 +64,10 @@ Los bloqueos son prerrequisitos, no una prioridad ni una orden de comenzar. Todo
 
 - **BMX-01**: único incremento técnico sin bloqueos.
 - **BMX-09**, **BMX-19**, **BMX-21**: decisiones de perfiles, activos OCR y permisos de fuentes pueden trabajarse sin esperar al arnés.
-- Esta era la frontera al crear las tareas. Tras completar BMX-01 y BMX-02,
-  quedan técnicamente desbloqueadas BMX-03, BMX-05, BMX-07 y BMX-08;
-  ninguna se ha iniciado.
+- Esta era la frontera al crear las tareas. Tras completar BMX-01 a BMX-08,
+  la siguiente del bloque solicitado es BMX-09: el solicitante confirmó todos
+  los formatos y pidió ajustar D1–D3 antes de ratificar. No se sustituyen
+  BMX-10/11/12 por tareas posteriores para simular diez cierres.
 
 ## Grafo
 

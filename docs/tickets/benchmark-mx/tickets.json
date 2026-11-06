@@ -125,13 +125,16 @@
       "draft_file": "03-deteccion-por-entidad.md",
       "github_title": "[DF-EVAL-MX][BMX-03] Puntuar detección mexicana con matching exacto y errores por entidad",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-03 -->",
-      "body_sha256": "f299902aa1cb1ad020177066e27dd1704f50e984409aaf312b5f1b8957c94f66",
+      "body_sha256": "dd6939ea228816c11642265324a88a6bf135b4bcda9a8b511360196f1563ce48",
       "github_issue_number": null,
       "github_issue_url": null,
-      "implementation_status": "implemented_and_reviewed",
-      "integrated_validation_pending": true,
+      "implementation_status": "completed_and_verified",
+      "integrated_validation_pending": false,
       "implementation_evidence": "../../audit/BMX-03.md",
-      "reviewed_code_commit": "ee4c19c0fc9cf309179321e177429ba06fadd764"
+      "reviewed_code_commit": "ee4c19c0fc9cf309179321e177429ba06fadd764",
+      "integrated_verification_evidence": "../../audit/BATCH_NEXT10_HEALTH.json",
+      "tested_code_commit": "d17b7ae0f4e8010b15257e1d4da21e332bfe6bbe",
+      "tested_source_sha256": "1cfd725a6f9239a2c8b84ec87aa67b92204d87f1a72cce766a33ef4cdca8f08f"
     },
     {
       "id": "BMX-04",
@@ -163,13 +166,16 @@
       "draft_file": "04-validez-independiente.md",
       "github_title": "[DF-EVAL-MX][BMX-04] Medir validez de identificadores con vectores independientes",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-04 -->",
-      "body_sha256": "7ef84a007005d1edd2ec5ca628fb3c07214f0966e26fd30cc8b3baee44d95f43",
+      "body_sha256": "5f0ff4b6a0c387b028f6a17655338ced8e9624d2210e5ddbb16134a2b87fa7d0",
       "github_issue_number": null,
       "github_issue_url": null,
-      "implementation_status": "implemented_and_reviewed",
-      "integrated_validation_pending": true,
+      "implementation_status": "completed_and_verified",
+      "integrated_validation_pending": false,
       "implementation_evidence": "../../audit/BMX-04.md",
-      "reviewed_code_commit": "5393abe64bde30c3cbf7218c9056d16ff46c856f"
+      "reviewed_code_commit": "5393abe64bde30c3cbf7218c9056d16ff46c856f",
+      "integrated_verification_evidence": "../../audit/BATCH_NEXT10_HEALTH.json",
+      "tested_code_commit": "d17b7ae0f4e8010b15257e1d4da21e332bfe6bbe",
+      "tested_source_sha256": "1cfd725a6f9239a2c8b84ec87aa67b92204d87f1a72cce766a33ef4cdca8f08f"
     },
     {
       "id": "BMX-05",
@@ -202,13 +208,16 @@
       "draft_file": "05-transformacion-aislada.md",
       "github_title": "[DF-EVAL-MX][BMX-05] Verificar protección y conservación con menciones de referencia",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-05 -->",
-      "body_sha256": "2f05a1def5d31ac2e4ab98385cc5096293325d93c4b77bca609c46e6b7d6e88c",
+      "body_sha256": "237ec558d2c2c36321efbaf9dc79308eac04f36e0088c819c1a48523d178458d",
       "github_issue_number": null,
       "github_issue_url": null,
-      "implementation_status": "implemented_and_reviewed",
-      "integrated_validation_pending": true,
+      "implementation_status": "completed_and_verified",
+      "integrated_validation_pending": false,
       "implementation_evidence": "../../audit/BMX-05.md",
-      "reviewed_code_commit": "16279a048448044669af4ea7558c959e534ba61e"
+      "reviewed_code_commit": "16279a048448044669af4ea7558c959e534ba61e",
+      "integrated_verification_evidence": "../../audit/BATCH_NEXT10_HEALTH.json",
+      "tested_code_commit": "d17b7ae0f4e8010b15257e1d4da21e332bfe6bbe",
+      "tested_source_sha256": "1cfd725a6f9239a2c8b84ec87aa67b92204d87f1a72cce766a33ef4cdca8f08f"
     },
     {
       "id": "BMX-06",
@@ -244,13 +253,16 @@
       "draft_file": "06-pipeline-textual.md",
       "github_title": "[DF-EVAL-MX][BMX-06] Evaluar la salida real del pipeline textual y sus estados",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-06 -->",
-      "body_sha256": "d5ddf50271cdfd17b52f4675e30aa794eb818b0a1832edc2ee200b5434985e0c",
+      "body_sha256": "916b11f9a0869c628deeb524fe2ebd13e4da5a04e4a87477d0a77122fc4a14eb",
       "github_issue_number": null,
       "github_issue_url": null,
-      "implementation_status": "implemented_and_reviewed",
-      "integrated_validation_pending": true,
+      "implementation_status": "completed_and_verified",
+      "integrated_validation_pending": false,
       "implementation_evidence": "../../audit/BMX-06.md",
-      "reviewed_code_commit": "4d95eb85f9638776ed513e64371e5a8cd93eacf5"
+      "reviewed_code_commit": "4d95eb85f9638776ed513e64371e5a8cd93eacf5",
+      "integrated_verification_evidence": "../../audit/BATCH_NEXT10_HEALTH.json",
+      "tested_code_commit": "d17b7ae0f4e8010b15257e1d4da21e332bfe6bbe",
+      "tested_source_sha256": "1cfd725a6f9239a2c8b84ec87aa67b92204d87f1a72cce766a33ef4cdca8f08f"
     },
     {
       "id": "BMX-07",
@@ -285,13 +297,16 @@
       "draft_file": "07-ejecucion-segura.md",
       "github_title": "[DF-EVAL-MX][BMX-07] Ejecutar con aislamiento local, límites y diagnósticos sin datos",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-07 -->",
-      "body_sha256": "8647bf7f8e90f1a4249aa567dffca40e4dbde4c0dc0da2f33abbb9e21cf51a8e",
+      "body_sha256": "8c70555d194201ca49d4c5d6fbd50441d36520afdaf38b72ccb9bfcf843cc663",
       "github_issue_number": null,
       "github_issue_url": null,
-      "implementation_status": "implemented_and_reviewed",
-      "integrated_validation_pending": true,
+      "implementation_status": "completed_and_verified",
+      "integrated_validation_pending": false,
       "implementation_evidence": "../../audit/BMX-07.md",
-      "reviewed_code_commit": "e8032793468f87fd399dddf65eb8db3332ba9afd"
+      "reviewed_code_commit": "e8032793468f87fd399dddf65eb8db3332ba9afd",
+      "integrated_verification_evidence": "../../audit/BATCH_NEXT10_HEALTH.json",
+      "tested_code_commit": "d17b7ae0f4e8010b15257e1d4da21e332bfe6bbe",
+      "tested_source_sha256": "1cfd725a6f9239a2c8b84ec87aa67b92204d87f1a72cce766a33ef4cdca8f08f"
     },
     {
       "id": "BMX-08",
@@ -325,13 +340,16 @@
       "draft_file": "08-independencia-particiones.md",
       "github_title": "[DF-EVAL-MX][BMX-08] Auditar particiones por grupos, linajes y exposición",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-08 -->",
-      "body_sha256": "f037642c6da920c1b7296668755aa882a240acedfeb4218f4a6782f4229d9ee9",
+      "body_sha256": "ee27a5f9ed7db394000d64b15935dcee59f658c265d18478a89dc2441464bdca",
       "github_issue_number": null,
       "github_issue_url": null,
-      "implementation_status": "implemented_and_reviewed",
-      "integrated_validation_pending": true,
+      "implementation_status": "completed_and_verified",
+      "integrated_validation_pending": false,
       "implementation_evidence": "../../audit/BMX-08.md",
-      "reviewed_code_commit": "4fa622e04f15aa990735eeb7523c98e1394ce6a4"
+      "reviewed_code_commit": "4fa622e04f15aa990735eeb7523c98e1394ce6a4",
+      "integrated_verification_evidence": "../../audit/BATCH_NEXT10_HEALTH.json",
+      "tested_code_commit": "d17b7ae0f4e8010b15257e1d4da21e332bfe6bbe",
+      "tested_source_sha256": "1cfd725a6f9239a2c8b84ec87aa67b92204d87f1a72cce766a33ef4cdca8f08f"
     },
     {
       "id": "BMX-09",
@@ -363,9 +381,20 @@
       "draft_file": "09-ratificar-perfiles.md",
       "github_title": "[DF-EVAL-MX][BMX-09] Ratificar perfiles operativos, sensibilidad y conservación",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-09 -->",
-      "body_sha256": "3d9a48be73a530b6bd286b6211f1a248184605c17bd1d082b18e9f90a2690d28",
+      "body_sha256": "2a6441ca0e2716afc8444c6e2cef834a854e8c06451d3d000e935dfc4a629478",
       "github_issue_number": null,
-      "github_issue_url": null
+      "github_issue_url": null,
+      "implementation_status": "awaiting_human_adjustments",
+      "implementation_evidence": "../../audit/BMX-09-decisions-for-review.md",
+      "human_decisions": {
+        "mandatory_formats": "all_planned_including_ocr",
+        "formats_decided_by": "requester",
+        "formats_decided_at": "2026-11-06",
+        "D1": "pending_adjustment",
+        "D2": "pending_adjustment",
+        "D3": "pending_adjustment",
+        "ratified": false
+      }
     },
     {
       "id": "BMX-10",
@@ -401,9 +430,10 @@
       "draft_file": "10-corpus-identificadores.md",
       "github_title": "[DF-EVAL-MX][BMX-10] Preparar corpus sintético mexicano de identificadores y negativos",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-10 -->",
-      "body_sha256": "f3a49a25e425875876b5051457aab73f322219b1e00b1bade675a77d14998860",
+      "body_sha256": "7fcae3114b39c7d2fcf12359af49e38aadd488f863e019c59d7c791e5cbb7cc4",
       "github_issue_number": null,
-      "github_issue_url": null
+      "github_issue_url": null,
+      "implementation_status": "blocked_by_unratified_BMX-09"
     },
     {
       "id": "BMX-11",
@@ -438,9 +468,10 @@
       "draft_file": "11-corpus-contextual.md",
       "github_title": "[DF-EVAL-MX][BMX-11] Evaluar nombres, direcciones, clínica y homónimos con referencia adjudicada",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-11 -->",
-      "body_sha256": "2b592e4d3e19f368c39a7e875a8f4c473fb1891b5f0aeb55a30af7744efdb82e",
+      "body_sha256": "0356796b46913a1fef0e2d1d6d5981fa4fc8df728264c1468f53f0f3e4db3778",
       "github_issue_number": null,
-      "github_issue_url": null
+      "github_issue_url": null,
+      "implementation_status": "blocked_by_unratified_BMX-09"
     },
     {
       "id": "BMX-12",
@@ -475,9 +506,10 @@
       "draft_file": "12-perturbaciones.md",
       "github_title": "[DF-EVAL-MX][BMX-12] Evaluar perturbaciones textuales sin romper linaje ni referencia",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-12 -->",
-      "body_sha256": "95e57caff86621d8759eaaf58c92b5465fcbf3592c6039356b64eadb020e26f1",
+      "body_sha256": "f3a6baec09d23ecddaa2fb6d07bc1de949d416ee47eba5926408593b4207ae00",
       "github_issue_number": null,
-      "github_issue_url": null
+      "github_issue_url": null,
+      "implementation_status": "blocked_by_unratified_BMX-09"
     },
     {
       "id": "BMX-13",

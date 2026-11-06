@@ -5,7 +5,7 @@
 
 **Estado de publicación:** borrador; no existe número/URL de issue verificado.
 
-**Estado de implementación:** implementada y revisada; integración final del lote pendiente.
+**Estado de implementación:** implementada, revisada y verificada en integración BMX-03–08.
 Evidencia: [acta BMX-08](../../audit/BMX-08.md).
 
 **Tipo:** tarea técnica. **Etiqueta propuesta:** `ready-for-agent`; no aplicada.
