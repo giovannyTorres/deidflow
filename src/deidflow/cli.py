@@ -6,13 +6,18 @@ import argparse
 import json
 import sys
 from collections import Counter
+from dataclasses import replace
 from pathlib import Path
 
-from deidflow import DeidEngine, Policy, __version__
+from deidflow import DeidEngine, Policy, Rule, __version__
 
 
 def main(argv: list[str] | None = None) -> int:
     arguments = list(sys.argv[1:] if argv is None else argv)
+    if arguments[:1] and arguments[0] in {"domains", "keygen", "session", "review"}:
+        from deidflow.product_cli import main as product_main
+
+        return product_main(arguments)
     if arguments[:2] == ["benchmark", "private-gmail"]:
         from deidflow.private.cli import main as private_main
 
@@ -23,7 +28,14 @@ def main(argv: list[str] | None = None) -> int:
         return annotation_main(arguments[1:])
     parser = argparse.ArgumentParser(
         prog="deidflow",
+        description="Censurado local de archivos en español; sin LLMs ni llamadas remotas.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
+            "Paquetes, sesiones y revisión humana:\n"
+            "  deidflow domains                 Paquetes, modelos y límites\n"
+            "  deidflow keygen --help           Crear una clave local privada\n"
+            "  deidflow session --help          Guardar identidad y relaciones\n"
+            "  deidflow review --help           Corregir y verificar una revisión\n\n"
             "Private workflows (external terminal only): "
             "deidflow benchmark private-gmail --help; deidflow annotate --help. "
             "See docs/PRIVATE_GMAIL_BENCHMARK.md before using private data."
@@ -35,12 +47,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", type=Path)
     parser.add_argument("--policy", type=Path)
     parser.add_argument(
+        "--pack",
+        choices=["clinical", "financial", "legal", "general"],
+        help="Spanish context policy, domain rules and packaged model",
+    )
+    parser.add_argument(
         "--model", type=Path, help="Explicit local Spanish spaCy pipeline directory"
     )
     parser.add_argument(
         "--tagger",
         help="Local span tagger: a model file path, builtin:<name> for a packaged model, "
-        "or builtin:auto to route each document to the clinical or financial model",
+        "or builtin:auto to route each document to the clinical or general model",
     )
     parser.add_argument("--tagger-sha256", help="Required SHA-256 of a --tagger model file")
     parser.add_argument(
@@ -97,10 +114,12 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(arguments)
     if args.tagger_sha256 and not args.tagger:
         parser.error("--tagger-sha256 requires --tagger")
-    if (
-        args.review_margin is not None or args.redact_margin is not None or args.tagger_profile
-    ) and not args.tagger:
-        parser.error("--review-margin, --redact-margin and --tagger-profile require --tagger")
+    if (args.review_margin is not None or args.redact_margin is not None) and not args.tagger:
+        parser.error("--review-margin and --redact-margin require --tagger")
+    if args.tagger_profile and not (args.tagger or args.pack):
+        parser.error("--tagger-profile requires --tagger or --pack")
+    if args.pack and (args.tagger or args.model):
+        parser.error("--pack selects a model; use its Python API for custom adapters")
     try:
         adapters: list[object] = []
         if args.model:
@@ -148,8 +167,18 @@ def main(argv: list[str] | None = None) -> int:
             )
         elif args.tessdata_dir:
             parser.error("--tessdata-dir requires --ocr-executable")
+        pack = None
+        model_digest = None
+        if args.pack:
+            from deidflow.domains import get_domain_pack
+
+            pack = get_domain_pack(args.pack)
+            selected = pack.engine(profile=args.tagger_profile or "balanced")
+            nlp, model_digest = selected.nlp, selected.model_digest
         engine = DeidEngine(
             nlp=nlp,
+            model_digest=model_digest,
+            recognizers=pack.recognizers() if pack else (),
             ocr=ocr,
             pdf_dpi=args.pdf_dpi,
             pdf_max_pages=args.pdf_max_pages,
@@ -159,8 +188,24 @@ def main(argv: list[str] | None = None) -> int:
         policy = (
             Policy.from_yaml(args.policy)
             if args.policy
-            else (Policy.strict_pdf() if args.source.suffix.lower() == ".pdf" else Policy.strict())
+            else pack.policy()
+            if pack
+            else Policy.strict_pdf()
+            if args.source.suffix.lower() == ".pdf"
+            else Policy.strict()
         )
+        if pack and not args.policy and args.source.suffix.lower() == ".pdf":
+            # Physical PDF removal supports redaction/keep, not text placeholders.
+            policy = replace(
+                policy,
+                name=policy.name + "-pdf",
+                default=Rule("redact"),
+                entities={
+                    kind: rule if rule.action == "keep" else Rule("redact")
+                    for kind, rule in policy.entities.items()
+                },
+                token_scope="document",
+            )
         if args.command == "scan":
             found = (
                 engine.scan_csv(args.source, batch_size=args.batch_size)

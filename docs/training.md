@@ -107,6 +107,14 @@ The v0.2 labelled-field parsing update has rule provenance `rules-0.2`.
 Saved v0.1 score calibrators intentionally reject the updated candidates;
 refit/revalidate rather than applying a stale mapping across rule-pack changes.
 
+The v0.6 context, address and identifier-boundary changes use `rules-0.6` for
+core candidates, including unlabelled-address rules. Calibrators fitted to
+`rules.es_MX` / `rules-0.2` reject these candidates. Exact-header schema mappings
+retain their unchanged provenance; schema categories inferred from rule hits
+use `schema-rules-0.6`. Generic engine audits expose `rules_version`, and domain
+engine digests include the same core version. Refit and independently validate
+affected calibrators; these version changes do not establish calibrated quality.
+
 ## Public gold is evaluation evidence
 
 The v0.3 candidate's generic contextual rules were selected on MEDDOCAN dev and

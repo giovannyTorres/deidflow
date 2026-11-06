@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "runtime_git_revision": "d5e6d260cf7ce379321a71cd24689a2519b6e073",
+  "runtime_python_sources_sha256": "190ab7724f062a97fbf046286001ad4b0cfde0bb89135a80f47f4175a15026b5",
+  "candidate_git_revision": "042c62b6b9108817cf1cd1f508de11b9daa92c7a",
+  "candidate_model_sha256": "f3008720a246e32b7a2adaf4af2ba9a03fb665caadcf698658b029a73042c173",
+  "baseline_model_sha256": "bf7e257f363e17bcc6bee943f9dfaa0cd67e502cf8ac3fd90140bdd916a51903",
+  "script_sha256": "a57cfa38b76aa27206b047ff73a83218f318a214bc68e5f762f6a344038d08bd",
+  "artifacts": {
+    "comparison.csv": {
+      "sha256": "26df26cb80fe6f9826d2f3c209cd19a41e02fe83a80f581bbc6cce39209b57b7",
+      "bytes": 14725
+    },
+    "comparison.json": {
+      "sha256": "bfbf512f977ae4b767986c9e70075ce9f298d27d18d2b4e03633c85fb5049039",
+      "bytes": 28642
+    }
+  },
+  "interpretation": "Observed fictional regression. Rules, old generator, policies and balanced margins are frozen; only the general/legal model changes. Adoption may use this regression evidence but it is not independent real-world quality estimation. No training or threshold search performed."
+}

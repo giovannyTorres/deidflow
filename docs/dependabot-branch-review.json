@@ -1,0 +1,62 @@
+{
+  "repository": "giovannyTorres/deidflow",
+  "scope": "Read-only remote diff review; no package or source mutation",
+  "historical_lock_changed_by_these_prs": false,
+  "reviewed_prs": [
+    {
+      "number": 19,
+      "url": "https://github.com/giovannyTorres/deidflow/pull/19",
+      "title": "Bump polars from 1.44.2 to 2.1.0",
+      "state": "open",
+      "head_sha": "7ed563846263857af78b658767a1a54ff16a377f",
+      "base_sha": "ed426159a5876901c14ea19b41458ae4962e6fbd",
+      "patch": "diff --git a/pyproject.toml b/pyproject.toml\nindex 1d561fb..c10024f 100644\n--- a/pyproject.toml\n+++ b/pyproject.toml\n@@ -54,7 +54,7 @@ nlp = [\"spacy>=3.8,<3.9\"]\n pdf = [\"pypdf>=6.21.4,<7\"]\n ocr = [\"Pillow>=13,<14\", \"pypdfium2>=5.14,<6\"]\n ocr-build = [\"certifi>=2026.10.23,<2027\"]\n-tables = [\"pandas>=2.2,<4\", \"polars>=1.30,<2\", \"pyarrow>=20,<24\"]\n+tables = [\"pandas>=2.2,<4\", \"polars>=1.30,<3\", \"pyarrow>=20,<24\"]\n yaml = [\"PyYAML>=6.0.2,<7\"]\n training = [\"numpy>=1.26,<3\", \"scikit-learn>=1.6,<1.10\", \"joblib>=1.4,<2\", \"faker>=30,<41\"]\n benchmarks = [\"psutil>=7,<8\", \"reportlab>=4.4,<5\"]\ndiff --git a/requirements-constraints-windows-py311.txt b/requirements-constraints-windows-py311.txt\nindex 1e4a460..b35e89b 100644\n--- a/requirements-constraints-windows-py311.txt\n+++ b/requirements-constraints-windows-py311.txt\n@@ -62,7 +62,7 @@ pip-audit==2.10.1\n pip-requirements-parser==32.0.1\n platformdirs==4.14.3\n pluggy==1.7.0\n-polars==1.44.2\n+polars==2.1.0\n polars-runtime-32==1.44.2\n preshed==3.0.13\n presidio-analyzer==2.2.366\n",
+      "recommendation": "DEFER_MAJOR_UPGRADE",
+      "reason": "Broadens polars to <3 and pins polars 2.1.0 while leaving polars-runtime-32 1.44.2. The separate runtime PR must be combined and the major API migration validated; current candidate is tested with coherent 1.44.2/1.44.2."
+    },
+    {
+      "number": 20,
+      "url": "https://github.com/giovannyTorres/deidflow/pull/20",
+      "title": "Bump mypy from 1.20.2 to 2.4.1",
+      "state": "open",
+      "head_sha": "7480fa708eec7ce1eeb51240345f862f2f4cbbce",
+      "base_sha": "ed426159a5876901c14ea19b41458ae4962e6fbd",
+      "patch": "diff --git a/pyproject.toml b/pyproject.toml\nindex 1d561fb..0b9ab85 100644\n--- a/pyproject.toml\n+++ b/pyproject.toml\n@@ -60,7 +60,7 @@ training = [\"numpy>=1.26,<3\", \"scikit-learn>=1.6,<1.10\", \"joblib>=1.4,<2\", \"fake\n benchmarks = [\"psutil>=7,<8\", \"reportlab>=4.4,<5\"]\n baselines = [\"presidio-analyzer>=2.2,<3\", \"spacy>=3.8,<3.9\"]\n private-gmail = [\"google-auth>=2.40,<3\", \"google-auth-oauthlib>=1.2,<2\"]\n-dev = [\"pytest>=8.4,<10\", \"pytest-cov>=6,<8\", \"python-stdnum>=2,<3\", \"hypothesis>=6.135,<7\", \"ruff>=0.12,<1\", \"mypy>=1.16,<2\", \"build>=1.2,<2\", \"pip-audit>=2.9,<3\"]\n+dev = [\"pytest>=8.4,<10\", \"pytest-cov>=6,<8\", \"python-stdnum>=2,<3\", \"hypothesis>=6.135,<7\", \"ruff>=0.12,<1\", \"mypy>=1.16,<3\", \"build>=1.2,<2\", \"pip-audit>=2.9,<3\"]\n \n [project.scripts]\n deidflow = \"deidflow.cli:main\"\ndiff --git a/requirements-constraints-windows-py311.txt b/requirements-constraints-windows-py311.txt\nindex 1e4a460..e0b6e09 100644\n--- a/requirements-constraints-windows-py311.txt\n+++ b/requirements-constraints-windows-py311.txt\n@@ -45,7 +45,7 @@ markupsafe==3.0.4\n mdurl==0.1.2\n msgpack==1.2.4\n murmurhash==1.0.16\n-mypy==1.20.2\n+mypy==2.4.1\n mypy-extensions==1.1.0\n narwhals==2.28.0\n numpy==2.4.6\n",
+      "recommendation": "DEFER_MAJOR_UPGRADE",
+      "reason": "Broadens mypy to <3 and pins 2.4.1. Candidate currently passes supported mypy 1.20.2; the new major checker is not validated by this review and is not required to fix a reported dependency vulnerability."
+    },
+    {
+      "number": 21,
+      "url": "https://github.com/giovannyTorres/deidflow/pull/21",
+      "title": "Bump google-auth from 2.62.0 to 2.62.1",
+      "state": "open",
+      "head_sha": "9922c635643fa5100846db770718e785eea11be3",
+      "base_sha": "ed426159a5876901c14ea19b41458ae4962e6fbd",
+      "patch": "diff --git a/requirements-constraints-windows-py311.txt b/requirements-constraints-windows-py311.txt\nindex 1e4a460..8809877 100644\n--- a/requirements-constraints-windows-py311.txt\n+++ b/requirements-constraints-windows-py311.txt\n@@ -28,7 +28,7 @@ cymem==2.0.16\n defusedxml==0.7.1\n faker==40.44.0\n filelock==4.2.9\n-google-auth==2.62.0\n+google-auth==2.62.1\n google-auth-oauthlib==1.5.0\n h11==0.16.0\n httpcore==1.0.9\n",
+      "recommendation": "ADOPT_ACTIVE_CONSTRAINT",
+      "reason": "google-auth 2.62.1 is already installed and audited in the integration environment and satisfies declared >=2.40,<3. Update only current constraints, not the historical v0.3 lock."
+    },
+    {
+      "number": 22,
+      "url": "https://github.com/giovannyTorres/deidflow/pull/22",
+      "title": "Bump preshed from 3.0.13 to 3.0.15",
+      "state": "open",
+      "head_sha": "f920cc72a1a05d00c0e39164efb622599c44f975",
+      "base_sha": "ed426159a5876901c14ea19b41458ae4962e6fbd",
+      "patch": "diff --git a/requirements-constraints-windows-py311.txt b/requirements-constraints-windows-py311.txt\nindex 1e4a460..8442a49 100644\n--- a/requirements-constraints-windows-py311.txt\n+++ b/requirements-constraints-windows-py311.txt\n@@ -64,7 +64,7 @@ platformdirs==4.14.3\n pluggy==1.7.0\n polars==1.44.2\n polars-runtime-32==1.44.2\n-preshed==3.0.13\n+preshed==3.0.15\n presidio-analyzer==2.2.366\n psutil==7.2.2\n py-serializable==2.1.0\n",
+      "recommendation": "ADOPT_ACTIVE_CONSTRAINT",
+      "reason": "preshed 3.0.15 is already installed and audited. Compatible with spaCy 3.8.18 (>=3.0.2,<3.1.0,!=3.0.14), thinc 8.3.14 and current cymem/murmurhash. Update only current constraints."
+    },
+    {
+      "number": 23,
+      "url": "https://github.com/giovannyTorres/deidflow/pull/23",
+      "title": "Bump polars-runtime-32 from 1.44.2 to 2.1.0",
+      "state": "open",
+      "head_sha": "23f1c9196e0b666d472ed158b6aa47e34adda114",
+      "base_sha": "ed426159a5876901c14ea19b41458ae4962e6fbd",
+      "patch": "diff --git a/requirements-constraints-windows-py311.txt b/requirements-constraints-windows-py311.txt\nindex 1e4a460..d7bdcd7 100644\n--- a/requirements-constraints-windows-py311.txt\n+++ b/requirements-constraints-windows-py311.txt\n@@ -63,7 +63,7 @@ pip-requirements-parser==32.0.1\n platformdirs==4.14.3\n pluggy==1.7.0\n polars==1.44.2\n-polars-runtime-32==1.44.2\n+polars-runtime-32==2.1.0\n preshed==3.0.13\n presidio-analyzer==2.2.366\n psutil==7.2.2\n",
+      "recommendation": "DEFER_WITH_PR19",
+      "reason": "Runtime 2.1.0 alone conflicts with installed/current pinned polars 1.44.2, whose package metadata requires polars-runtime-32==1.44.2. Do not merge independently."
+    }
+  ]
+}

@@ -188,9 +188,16 @@ evaluate on your own documents before relying on these numbers.
 | File | `src/deidflow/models/es-general-2.json.gz` (3.1 MB) |
 | SHA-256 | `f3008720a246e32b7a2adaf4af2ba9a03fb665caadcf698658b029a73042c173` |
 | Training data | MEDDOCAN train (CC-BY-4.0), Gretel Spanish train minus its 10% holdout (Apache-2.0), and 5,000 documents of `deidflow.benchmarks.synthetic_es` from 51 training template families (seed 1729, Faker 40.44.0): 9,246 documents, 1.5 M tokens |
-| Protocol | Epoch selection and calibration on MEDDOCAN dev, the Gretel holdout and 600 synthetic documents from validation-only template families (1,252 documents); epoch 29 of 30, validation F1 0.8640. Test sets evaluated once after freezing; synthetic test documents come from a third, disjoint set of template families |
+| Protocol | Reported epoch selection and calibration on MEDDOCAN dev, the Gretel holdout and 600 synthetic documents from validation-only template families (1,252 documents); epoch 29 of 30, validation F1 0.8640. Synthetic test documents come from a third, disjoint set of template families; see the provenance audit below for the limits of this evidence |
 | History | `es-general-1` (3,000 synthetic documents from 21 families, validation F1 0.8456) shipped in the first `es-general` release; `es-general-2` added 30 training-only families (more genres and places in running text) without changing the validation or test families |
 | Labels | Union of both models' labels plus `TAX_ID`, `INSURANCE_ID`, `REGIONAL_ID` and `IP_ADDRESS` |
+
+The [reproducible provenance audit](GENERAL_MODEL_2_AUDIT.md) distinguishes
+verified asset and generator checks from publisher-reported training history.
+The committed artifacts cannot establish that a test set was evaluated only
+once. The synthetic test cases have also informed subsequent rule diagnostics,
+so current measurements are regression evidence, not an untouched estimate of
+real-world performance.
 
 The synthetic generator writes documents of many genres (appointment letters,
 payslips, rental contracts, court notices, school records, police reports,
@@ -203,7 +210,8 @@ documents use phrasings never seen in training. Values still come from the same
 generator, so these figures measure robustness to new layouts and wording, not
 to real documents from those countries.
 
-Validation (choice of routing; `rules +` means `DeidEngine(nlp=...)`):
+Historical validation for the `es-general-1` routing choice (`rules +` means
+`DeidEngine(nlp=...)`):
 
 | Validation set | Pipeline | Exact F1 | Sensitive-char recall |
 | --- | --- | ---: | ---: |
@@ -234,7 +242,8 @@ Location recall on the synthetic validation families rose from 0.20 to 0.49 and
 documents with an uncovered sensitive character fell from 443 to 338 of 600;
 clinical documents keep routing to `es-clinical`, so MEDDOCAN is unchanged.
 
-Held-out test results, evaluated once (`benchmarks/results/comparison/`):
+Reported test results (`benchmarks/results/comparison/`; the rows preserve
+their historical model and rule configurations):
 
 | Test set | Pipeline | Exact F1 [95% CI] | Sensitive-char recall | Docs with any uncovered gold char | Over-redaction |
 | --- | --- | ---: | ---: | ---: | ---: |
@@ -252,18 +261,20 @@ Held-out test results, evaluated once (`benchmarks/results/comparison/`):
 | | **rules + `auto` (`es-general-2`, address rules)** | 0.659 | **0.851** | **168** | 2.35% |
 | MEDDOCAN test (250 docs) | `auto` (all routed to `es-clinical`) | 0.958 | 0.966 | 100 | 0.09% |
 
-On the Gretel test the router now equals `es-finance` used with the domain known
-(0.740). `es-finance` remains available as `SpanTagger.builtin("es-finance")`.
+On the Gretel test, `auto` with `es-general-1` matched the reported exact F1 of
+`es-finance` used with the domain known (0.740). The `es-general-2` row reports
+0.743; the intervals overlap. `es-finance` remains available as
+`SpanTagger.builtin("es-finance")`.
 
-End to end with `Policy.strict()` (rules + `auto`, `balanced`; files
+Historical end-to-end results with `Policy.strict()` (rules + `auto`, `balanced`; files
 `release-gate-v3-*.json` for `es-general-1`, `release-gate-v4-*.json` for
-`es-general-2` with the address rules; test sets evaluated once):
+`es-general-2` with the address rules):
 
 | Test set | APPROVED | Approved docs leaking a direct identifier [95% CI] | Approved docs leaking any category | Over-redaction | Output sensitive-character recall |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Gretel, previous router | 161 / 461 | 24 (14.9%) [10.2, 21.2] | 57 (35.4%) | 2.40% | 0.831 |
-| Gretel, `auto` | 207 / 461 | 31 (15.0%) [10.8, 20.5] | 69 (33.3%) | 2.41% | 0.838 |
-| Synthetic test families, `auto` | 291 / 600 | 46 (15.8%) [12.1, 20.4] | 89 (30.6%) | 3.61% | 0.947 |
+| Gretel, `auto` (`es-general-1`) | 207 / 461 | 31 (15.0%) [10.8, 20.5] | 69 (33.3%) | 2.41% | 0.838 |
+| Synthetic test families, `auto` (`es-general-1`) | 291 / 600 | 46 (15.8%) [12.1, 20.4] | 89 (30.6%) | 3.61% | 0.947 |
 | Gretel, `auto` (`es-general-2`) | 196 / 461 | 27 (13.8%) [9.6, 19.3] | 60 (30.6%) | 2.57% | 0.851 |
 | Synthetic test families, `auto` (`es-general-2`) | 323 / 600 | 52 (16.1%) [12.5, 20.5] | 94 (29.1%) | 3.34% | 0.968 |
 
@@ -272,8 +283,13 @@ Gretel 18 instead of 15): in these the first scan missed a name or place that
 the verification rescan of the transformed text then found, so the gate
 refused to release them instead of approving a leak.
 
-The new route approves more financial documents at the same leak rate, but
-about one approved document in seven still leaks a direct identifier.
+In these historical Gretel runs, `es-general-2` approved fewer documents than
+`es-general-1` (196 versus 207 of 461). Direct-identifier leaks remained in
+27/196 (13.8%) versus 31/207 (15.0%) approved documents, with overlapping
+confidence intervals. These counts do not describe current domain-pack release
+eligibility: domain packs require human review. See the separate
+[controlled model comparison](GENERAL_MODEL_COMPARISON.md) for current domain
+policies under fixed rules.
 `es-general-2`'s `assurance` profile (`redact_margin` 320, re-tuned on
 validation) reached the 2% validation target by approving 107 of 1,002
 validation documents while redacting about 28% of non-sensitive text

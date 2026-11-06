@@ -43,14 +43,16 @@ _NUMBER = (
 _UNIT = (
     r"(?:,?\s*(?i:piso|planta|puerta|pta\.|depto\.?|dpto\.?|departamento|apto\.?|apartamento"
     r"|apt\.?|int\.?|interior|local|of\.|oficina|casa|torre|bloque|blq\.|escalera|esc\."
-    r"|portal|edificio|edif\.|manzana|mz\.?|lote|lt\.)\s*[\wºª°-]{1,8}"
+    r"|portal|edificio|edif\.|manzana|mz\.?|lote|lt\.)\s*[\wºª°-]{1,8}(?![\wºª°-])"
     r"|,?\s*\d{1,2}\s*[ºª°]\s*[A-Z]?(?![\w])"
     r"|,\s*\d{1,2}[A-Z](?![\w])"
     r"|,?\s*(?i:bajo|[áa]tico|entresuelo|principal)(?:\s+[A-Z])?(?![\w]))"
 )
+_POSTAL_LABEL = r"(?i:c\.\s?p\.|cp|c[óo]digo\s+postal)"
+_COLONY_WORD = rf"(?!{_POSTAL_LABEL}\s*:?\s*\d{{5}}){_CAP}{_WORD}"
 _TAIL = (
-    rf"(?:,?\s*(?i:col\.|colonia)\s+{_CAP}{_WORD}(?:\s+{_LINK}{{0,3}}{_CAP}{_WORD}){{0,4}})?"
-    r"(?:,?\s*(?i:c\.\s?p\.|cp|c[óo]digo\s+postal)\s*:?\s*\d{5})?"
+    rf"(?:,?\s*(?i:col\.|colonia)\s+{_COLONY_WORD}(?:\s+{_LINK}{{0,3}}{_COLONY_WORD}){{0,4}})?"
+    rf"(?:,?\s*{_POSTAL_LABEL}\s*:?\s*\d{{5}}(?!\d))?"
 )
 _COLOMBIAN = re.compile(
     r"(?<![\w])(?i:calle|cl\.?|cll\.?|carrera|cra\.?|kra\.?|kr\.?|avenida(?:\s+(?:calle|carrera))?"
@@ -66,15 +68,21 @@ _CONTEXT = (
     r"|localizad[oa]s?|con\s+domicilio)"
     r"\s+(?i:en)\s+(?:(?i:la|el)\s+)?"
 )
-_TYPED = rf"{_TYPE}\s*{_NAME},?\s+(?:{_NUMBER})(?![\w])(?:{_UNIT}){{0,4}}{_TAIL}"
-_UNTYPED = rf"{_NAME},?\s+(?:{_NUMBER})(?![\w])(?:{_UNIT}){{0,4}}{_TAIL}"
-_NUMBER_FIRST = rf"\d{{1,5}}\s+(?:{_TYPE}\s+)?{_NAME}(?:{_UNIT}){{0,4}}{_TAIL}"
+_TYPED = rf"{_TYPE}\s*{_NAME},?\s+(?:{_NUMBER})(?![\w])(?:{_UNIT}){{0,4}}{_TAIL}(?![\w])"
+_UNTYPED = rf"{_NAME},?\s+(?:{_NUMBER})(?![\w])(?:{_UNIT}){{0,4}}{_TAIL}(?![\w])"
+_NUMBER_FIRST = rf"\d{{1,5}}\s+(?:{_TYPE}\s+)?{_NAME}(?:{_UNIT}){{0,4}}{_TAIL}(?![\w])"
 _INTRODUCED = re.compile(rf"(?<![\w]){_CONTEXT}(?P<value>{_TYPED}|{_UNTYPED}|{_NUMBER_FIRST})")
-# Without a residence word, a lowercase word right after the number ("Plaza Mayor 3
-# veces") means the number was not a house number.
-_STREET = re.compile(rf"(?<![\w])(?P<value>{_TYPED})(?!\s+(?!(?:de|del|y|e)\b)[a-záéíóúüñ]{{3,}})")
+# Validate following measurement language after the greedy match in Python.
+# A trailing negative lookahead here let regex backtracking truncate a unit or
+# colony word ("302" -> "30", "Norte" -> "Nort") to evade that validation.
+_STREET = re.compile(rf"(?<![\w])(?P<value>{_TYPED})")
+_MEASUREMENT_AFTER = re.compile(
+    r"\s+(?i:veces?|puntos?|d[ií]as?|a[nñ]os?|meses?|semanas?|horas?|minutos?|segundos?|"
+    r"cm|mm|metros?|cent[ií]metros?|mil[ií]metros?|mg|miligramos?|kg|kilogramos?|"
+    r"comprimidos?|dosis)(?!\w)"
+)
 _COLONIA = re.compile(
-    rf"(?<![\w])(?P<value>(?i:col\.|colonia)\s+{_CAP}{_WORD}(?:\s+{_LINK}{{0,3}}{_CAP}{_WORD}){{0,4}}"
+    rf"(?<![\w])(?P<value>(?i:col\.|colonia)\s+{_COLONY_WORD}(?:\s+{_LINK}{{0,3}}{_COLONY_WORD}){{0,4}}"
     r",?\s*(?i:c\.\s?p\.|cp)\s*:?\s*\d{5})(?!\d)"
 )
 
@@ -97,8 +105,12 @@ def address_candidates(text: str) -> Iterator[AddressCandidate]:
     for match in _COLOMBIAN.finditer(text):
         yield AddressCandidate(*_trim(text, *match.span()), 0.9, ("address:grid",))
     for match in _INTRODUCED.finditer(text):
+        if _MEASUREMENT_AFTER.match(text, match.end("value")):
+            continue
         yield AddressCandidate(*_trim(text, *match.span("value")), 0.85, ("address:introduced",))
     for match in _STREET.finditer(text):
+        if _MEASUREMENT_AFTER.match(text, match.end("value")):
+            continue
         start, end = _trim(text, *match.span("value"))
         detailed = end - start > 0 and bool(
             re.search(r"[,ºª°]|\b(?i:piso|c\.\s?p|col)", text[start:end])

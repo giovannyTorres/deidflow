@@ -32,15 +32,51 @@ _NOT_NAME = (
 )
 _NAME_TOKEN = _NOT_NAME + rf"[{_UPPER}][{_LOWER}]+(?:[-'’][{_UPPER}{_LOWER}][{_LOWER}]+)?"
 _CONNECTOR = r"(?:de[ \t]+la|de[ \t]+las|de[ \t]+los|del|de|y|e|van|von|da|di)"
+_GIVEN_WORDS = "|".join(re.escape(n) for n in variants(GIVEN_NAMES))
+# A conjunction followed by another known given name and surname starts another
+# person. Keep surname conjunctions such as "Ortega y Gasset" intact.
+_NOT_COORDINATED_PERSON = rf"(?![ \t]+(?:y|e)[ \t]+(?:{_GIVEN_WORDS})[ \t]+{_NAME_TOKEN})"
 # A capitalized place word; a trailing period ends the phrase (sentence boundary).
 _PLACE_WORD = rf"[{_UPPER}](?:[\w'’-]|\.(?=\w))*\.?"
-_NAME_SEQ = rf"{_NAME_TOKEN}(?:[ \t]+(?:{_CONNECTOR}[ \t]+)?{_NAME_TOKEN}){{0,4}}"
+_NAME_SEQ = (
+    rf"{_NAME_TOKEN}(?:{_NOT_COORDINATED_PERSON}[ \t]+(?:{_CONNECTOR}[ \t]+)?{_NAME_TOKEN}){{0,4}}"
+)
 
 
 def _fold(value: str) -> str:
     return "".join(
         c for c in unicodedata.normalize("NFD", value.casefold()) if unicodedata.category(c) != "Mn"
     ).rstrip(".")
+
+
+_KNOWN_GIVEN = frozenset(_fold(name) for name in GIVEN_NAMES)
+
+
+def coordinated_person_spans(text: str, start: int, end: int) -> tuple[tuple[int, int], ...]:
+    """Split only full coordinated names with known given names and surnames.
+
+    This separates mentions, not identities. Unknown/ambiguous conjunctions keep
+    their full original coverage, including compound surnames and initials.
+    """
+    separators = list(re.finditer(r"[ \t]+(?:y|e)[ \t]+", text[start:end]))
+    if not separators or len(separators) > 3:
+        return ((start, end),)
+    spans = []
+    left = start
+    for separator in separators:
+        spans.append((left, start + separator.start()))
+        left = start + separator.end()
+    spans.append((left, end))
+    for left, right in spans:
+        value = text[left:right]
+        words = value.split()
+        if (
+            len(words) < 2
+            or _fold(words[0]) not in _KNOWN_GIVEN
+            or not re.fullmatch(_NAME_SEQ, value)
+        ):
+            return ((start, end),)
+    return tuple(spans)
 
 
 # title -> (role, grammatical gender). Role vocabulary: patient, clinician, family.
@@ -179,13 +215,13 @@ _INTRODUCED = re.compile(
 )
 _GIVEN = re.compile(
     r"(?<![\w])(?P<value>(?:"
-    + "|".join(re.escape(n) for n in variants(GIVEN_NAMES))
-    + rf")(?:[ \t]+(?:{_CONNECTOR}[ \t]+)?{_NAME_TOKEN}){{0,4}})(?![\w])"
+    + _GIVEN_WORDS
+    + rf")(?:{_NOT_COORDINATED_PERSON}[ \t]+(?:{_CONNECTOR}[ \t]+)?{_NAME_TOKEN}){{0,4}})(?![\w])"
 )
 _AMBIGUOUS_GIVEN = re.compile(
     r"(?<![\w])(?P<value>(?:"
     + "|".join(re.escape(n) for n in variants(AMBIGUOUS_GIVEN))
-    + rf")(?:[ \t]+(?:{_CONNECTOR}[ \t]+)?{_NAME_TOKEN}){{1,4}})(?![\w])"
+    + rf")(?:{_NOT_COORDINATED_PERSON}[ \t]+(?:{_CONNECTOR}[ \t]+)?{_NAME_TOKEN}){{1,4}})(?![\w])"
 )
 _LOCATION = re.compile(
     r"(?<![\w])(?:" + "|".join(re.escape(n) for n in variants(LOCATIONS)) + r")(?![\w])"
@@ -301,6 +337,24 @@ def narrative_spanish(text: str) -> list[Finding]:
         while end > start and text[end - 1] in " \t.,;":
             end -= 1
         if end > start:
+            spans = (
+                coordinated_person_spans(text, start, end) if kind == "PERSON" else ((start, end),)
+            )
+            # A regex stopped before another full given-name sequence. Mark the
+            # boundary decision even when no broad span needed splitting.
+            coordinated = len(spans) > 1 or (
+                kind == "PERSON"
+                and bool(
+                    re.match(
+                        rf"[ \t]+(?:y|e)[ \t]+(?:{_GIVEN_WORDS})[ \t]+{_NAME_TOKEN}", text[end:]
+                    )
+                )
+            )
+            if coordinated:
+                context = (*context, "person_coordination_split")
+        else:
+            spans = ()
+        for start, end in spans:
             findings.append(
                 Finding(
                     kind,
@@ -310,7 +364,7 @@ def narrative_spanish(text: str) -> list[Finding]:
                     "rules.es_narrative",
                     validation=validation,
                     context=context,
-                    model_version="narrative-0.4",
+                    model_version="narrative-0.5",
                     risk=risk,
                     protected=protected,
                 )

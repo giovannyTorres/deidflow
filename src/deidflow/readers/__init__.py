@@ -444,6 +444,7 @@ def _read_html(source: str, graph: DocumentGraph) -> None:
     from deidflow.markup import css_values, parse
 
     markup = parse(source)
+    graph.issues.append("HTML_REVIEW_REQUIRED")
     _fragment(graph, markup.text(), part="body", kind="html_text")
     for _, _, name, value in markup.attributes:
         for item in css_values(value) if name == "style" else [value]:
@@ -463,6 +464,8 @@ def _read_html(source: str, graph: DocumentGraph) -> None:
         _issue(graph, "html_embedded_data_requires_review")
     if "iframe_srcdoc" in reasons:
         _issue(graph, "html_iframe_srcdoc_requires_review")
+    if reasons & {"attribute", "css", "declaration"}:
+        _issue(graph, "html_unsupported_channels_require_review")
 
 
 def _read_eml(
@@ -472,31 +475,46 @@ def _read_eml(
     ocr: OCREngine | None,
     performance: str,
 ) -> None:
-    from deidflow.mail import ATTACHMENT_SUFFIXES, MAX_DEPTH, attachment_bytes, header_text, parse
+    from deidflow.mail import (
+        ATTACHMENT_SUFFIXES,
+        KEPT_HEADERS,
+        MAX_DEPTH,
+        attachment_bytes,
+        header_text,
+        parse,
+    )
 
+    graph.issues.append("EMAIL_REVIEW_REQUIRED")
     counter = [0]
+    extracted_bytes = [0]
+
+    def charge(text: str) -> None:
+        extracted_bytes[0] += len(text.encode("utf-8"))
+        if extracted_bytes[0] > max_bytes:
+            raise DocumentError("E-mail extracted text exceeds the byte limit")
+
+    def emit(text: str, *, part: str, kind: str, metadata: dict[str, Any] | None = None) -> None:
+        charge(text)
+        _fragment(graph, text, part=part, kind=kind, metadata=metadata)
 
     def visit(part: Any, depth: int) -> None:
         if depth > MAX_DEPTH:
             raise DocumentError("E-mail nesting limit exceeded")
-        for name, value in part.items():
+        for name, value in part.raw_items():
             text = header_text(value)
-            if name.lower() == "content-type":
-                # Boundaries are random digit runs; every other parameter is scanned.
-                text = "; ".join(
-                    f"{key}={item}" for key, item in (part.get_params() or [])[1:]
-                    if key.lower() != "boundary" and isinstance(item, str)
-                )  # fmt: skip
+            if name.lower() not in KEPT_HEADERS:
+                emit(name, part="header", kind="email_header_name")
             if text.strip():
-                _fragment(graph, text, part="header", kind="email_header",
+                emit(text, part="header", kind="email_header",
                           metadata={"name": name.lower()})  # fmt: skip
         for extra in (getattr(part, "preamble", None), getattr(part, "epilogue", None)):
             if isinstance(extra, str) and extra.strip():
-                _fragment(graph, extra, part="body", kind="email_body")
+                emit(extra, part="body", kind="email_body")
         filename = part.get_filename()
-        for value in (filename, part.get_param("name"), part.get("content-id")):
+        # Content-ID is already emitted once with its exact header location.
+        for value in (filename, part.get_param("name")):
             if isinstance(value, str) and value.strip():
-                _fragment(graph, header_text(value), part="attachment", kind="metadata")
+                emit(header_text(value), part="attachment", kind="metadata")
         content_type = part.get_content_type()
         if part.is_multipart():
             for child in part.iter_parts():
@@ -508,10 +526,12 @@ def _read_eml(
             return
         disposition = part.get_content_disposition()
         if content_type == "text/plain" and disposition != "attachment":
-            _fragment(graph, part.get_content(), part="body", kind="email_body")
+            emit(part.get_content(), part="body", kind="email_body")
             return
         if content_type == "text/html" and disposition != "attachment":
-            _read_html(part.get_content(), graph)
+            text = part.get_content()
+            charge(text)
+            _read_html(text, graph)
             return
         if content_type.startswith(("image/", "audio/", "video/")):
             _issue(graph, "email_media_requires_review")
@@ -522,18 +542,21 @@ def _read_eml(
             return
         raw = attachment_bytes(part)
         counter[0] += 1
+        remaining_bytes = max_bytes - extracted_bytes[0]
+        if len(raw) > remaining_bytes:
+            raise DocumentError("E-mail attachments exceed the remaining byte limit")
         with tempfile.TemporaryDirectory(prefix="deidflow-read-") as folder:
             path = Path(folder) / ("adjunto" + suffix)
             path.write_bytes(raw)
-            inner = read_document(path, max_bytes=max_bytes, ocr=ocr, performance=performance)
+            inner = read_document(path, max_bytes=remaining_bytes, ocr=ocr, performance=performance)
         for fragment in inner.fragments:
-            _fragment(graph, fragment.text, part=f"attachment:{counter[0]}", kind=fragment.kind)
+            emit(fragment.text, part=f"attachment:{counter[0]}", kind=fragment.kind)
         for issue in inner.issues:
             _issue(graph, issue)
         if not inner.complete:
             _issue(graph, "email_attachment_incomplete")
 
-    visit(parse(data), 0)
+    visit(parse(data, max_bytes=max_bytes), 0)
 
 
 def _read_xlsx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:

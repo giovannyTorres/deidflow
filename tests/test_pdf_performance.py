@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import threading
@@ -96,6 +97,7 @@ def test_actual_parallel_ocr_preserves_pixels_order_status_and_hash(tmp_path):
     _source(source)
     hashes = []
     masks = []
+    decisions = []
     for workers in (1, 2, 4, 8):
         engine = DeidEngine(
             ocr=_real_ocr(), pdf_workers=workers, pdf_profile=True, memory_budget_mb=1024
@@ -105,31 +107,61 @@ def test_actual_parallel_ocr_preserves_pixels_order_status_and_hash(tmp_path):
             output=tmp_path / f"safe-{workers}.pdf",
             policy=Policy.strict_pdf(require_ner=False),
         )
-        assert result.release_approved, result.issues
+        # Supported OCR runtimes may split the planted email before @. The
+        # unvalidated OCR candidate must retain its review gate in every worker
+        # mode; runtime accuracy is not a precondition for testing parallelism.
+        decision = (result.status, tuple(result.issues))
+        assert decision in {
+            (ReleaseStatus.APPROVED, ()),
+            (ReleaseStatus.REVIEW_REQUIRED, ("UNCERTAIN_SOURCE_FINDINGS",)),
+        }, result.issues
+        decisions.append(decision)
+        assert result.output_path is not None
+        assert hashlib.sha256(result.output_path.read_bytes()).hexdigest() == result.audit["sha256"]
         hashes.append(result.audit["sha256"])
         masks.append([page["masks"] for page in result.audit["page_receipts"]])
         assert [p["page"] for p in result.audit["page_receipts"]] == [1, 2, 3, 4]
         assert result.audit["performance"]["stages"]["ocr"]["calls"] == 8
         assert ACTIVE_PROFILER.get() is None
     assert len(set(hashes)) == 1 and all(value == masks[0] for value in masks)
+    assert len(set(decisions)) == 1
 
 
 def test_parallel_rag_uses_actual_verified_pixels(tmp_path):
     source = tmp_path / "source.pdf"
     _source(source, 2)
-    result = DeidEngine(
-        ocr=_real_ocr(), pdf_workers=2, pdf_profile=True, memory_budget_mb=512
-    ).deidentify(
-        source,
-        output=tmp_path / "bundle",
-        outputs=["pdf", "jsonl"],
-        policy=Policy.strict_pdf(require_ner=False),
-    )
-    assert result.release_approved, result.issues
-    assert result.safe_jsonl and result.audit_path and result.safe_pdf
-    text = result.safe_jsonl.read_text(encoding="utf-8")
-    assert "@example.test" not in text
-    assert "42" in text
+    decisions, hashes = [], []
+    for workers in (1, 2):
+        result = DeidEngine(
+            ocr=_real_ocr(), pdf_workers=workers, pdf_profile=True, memory_budget_mb=512
+        ).deidentify(
+            source,
+            output=tmp_path / f"bundle-{workers}",
+            outputs=["pdf", "jsonl"],
+            policy=Policy.strict_pdf(require_ner=False),
+        )
+        decision = (result.status, tuple(result.issues))
+        assert decision in {
+            (ReleaseStatus.APPROVED, ()),
+            (ReleaseStatus.REVIEW_REQUIRED, ("UNCERTAIN_SOURCE_FINDINGS",)),
+        }, result.issues
+        decisions.append(decision)
+        assert result.safe_jsonl and result.audit_path and result.safe_pdf
+        assert result.audit["joint_artifact_verification"] is True
+        audit = json.loads(result.audit_path.read_text(encoding="utf-8"))
+        assert audit["verification"]["shared_verified_pixel_decisions"] is True
+        digest = hashlib.sha256(result.safe_pdf.read_bytes()).hexdigest()
+        assert digest == audit["artifacts"]["pdf_sha256"]
+        assert (
+            hashlib.sha256(result.safe_jsonl.read_bytes()).hexdigest()
+            == (audit["artifacts"]["jsonl_sha256"])
+        )
+        hashes.append(digest)
+        text = result.safe_jsonl.read_text(encoding="utf-8")
+        assert "@example.test" not in text and "example.test" not in text
+        assert "42" in text
+        assert [json.loads(line)["page"] for line in text.splitlines()] == [1, 2]
+    assert len(set(decisions)) == len(set(hashes)) == 1
 
 
 def test_parallel_custom_adapter_is_not_silently_assumed_threadsafe(tmp_path):

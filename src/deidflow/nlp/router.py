@@ -1,8 +1,9 @@
 """Route each document to the span tagger trained for its domain.
 
 A multinomial Naive Bayes document classifier over hashed word features picks
-the clinical or financial tagger. When the evidence per token is weak, both
-taggers run and their findings are fused: higher recall, lower precision.
+the configured clinical or financial route. The packaged configuration uses the
+clinical tagger for clinical text and the general tagger for financial or weak
+domain evidence. Custom mixed routes can fuse several explicitly selected taggers.
 Inference is pure Python; model files are JSON (never pickle) and, like tagger
 models, store only keyed feature digests.
 """

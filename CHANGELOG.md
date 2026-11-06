@@ -1,5 +1,38 @@
 # Changelog
 
+## 0.6.0b1 - Spanish context product candidate
+
+- Added versioned clinical, financial, legal starter and general domain packs,
+  pinned model/configuration identities and Spanish role-aware placeholders.
+  Included the reviewed `es-general-2` model; general/legal packs are version 1.1.0.
+  Kept the clinical and financial models and their 1.0.0 packs.
+- Added neutral `Policy.context()` and `DeidSession`. Domain/context defaults
+  require human review in code; legacy policy behavior and fingerprints remain
+  available for compatibility. No LLM, remote inference or runtime downloads.
+- Persist complete sessions with AES-256-GCM, policy/model binding, expiry,
+  bounded schemas, transactional state updates and private exclusive files.
+  Exact-value compatible context preserves identity when role/gender evidence
+  is missing; explicit conflicts remain separate and ambiguities are rejected.
+- Added occurrence graphs and explicit, evidence-backed relationships without
+  original values. Session-aware review preserves mappings and graph continuity.
+- Added human span corrections, source/output-bound HMAC receipts, and local CLI
+  workflows for packs, keys, encrypted sessions, relations and review. Output
+  bundles publish atomically; existing artifacts are never overwritten.
+- Added warm-start span-model adaptation, replay, split contamination checks,
+  deterministic staged artifacts and separate privacy/context regression gates.
+  Fictional demonstrations cannot authorize production promotion.
+- Added independent privacy/context/identity/relationship evaluation and frozen
+  Spanish regression cases. Synthetic results are distinguished from real-domain
+  evidence, and forged replacement maps receive no privacy credit.
+- Fixed arbitrary `generalize` replacements incorrectly bypassing residual
+  checks. Added narrow, review-marked handling for clinical negations, kinship
+  nouns, coordinated names and identifier punctuation that preserves context.
+- Added audit entry points and reproducible validation instructions for external
+  review. Concurrent HTML and e-mail work is retained with additional coverage
+  controls and mandatory review for those formats.
+- Normalized HTML comment boundaries across supported Python patch releases,
+  preserving following prose and removing hidden content consistently on all platforms.
+
 ## 0.5.0b1 - Unreleased beta candidate
 
 - Consolidated reviewed branches while retaining Apache-2.0, current Spanish
