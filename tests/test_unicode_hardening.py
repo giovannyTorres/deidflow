@@ -95,13 +95,14 @@ def test_only_changed_words_are_traced_and_one_to_one_words_allocate_nothing():
 
 def test_large_document_with_common_spanish_symbols_is_processed(tmp_path):
     source = tmp_path / "grande.txt"
-    source.write_text(("Paciente en planta 3º, revisión del día 5. " * 30_000) + "DNI 12345678Z\n")
+    text = ("Paciente en planta 3º, revisión del día\u00a05. " * 30_000) + "DNI 12345678Z\n"
+    source.write_text(text, encoding="utf-8")
     start = time.perf_counter()
     result = DeidEngine(country="ES").deidentify(
         source, output=tmp_path / "salida.txt", policy=STRICT
     )
     assert result.status == "APPROVED", result.issues
-    assert "12345678Z" not in (tmp_path / "salida.txt").read_text()
+    assert "12345678Z" not in (tmp_path / "salida.txt").read_text(encoding="utf-8")
     assert time.perf_counter() - start < 60
 
 
