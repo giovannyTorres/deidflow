@@ -1178,6 +1178,21 @@ class _Writer:
         """Removals and flattening, before any text is scanned."""
         report = self.report
         for element in _elements(document):
+            if _qualified(element) != (OFFICE, "binary-data"):
+                continue
+            parent = element.parentNode
+            key = _qualified(parent) if parent is not None else ("", "")
+            if not (
+                (key[0] == DRAW and key[1] in _EMBEDDING)
+                or key
+                in {
+                    (STYLE, "background-image"),
+                    (DRAW, "fill-image"),
+                    (TEXT, "list-level-style-image"),
+                }
+            ):
+                raise DocumentError("Unsupported OpenDocument binary media placement")
+        for element in _elements(document):
             if not _attached(element):
                 continue
             key = _qualified(element)

@@ -18,6 +18,38 @@ from deidflow import DeidEngine, Policy
 from deidflow.readers import read_document
 
 
+@pytest.mark.parametrize("container", ("text:p", "text:span", "draw:image"))
+def test_binary_media_removal_preserves_context_or_blocks_unsupported_placement(
+    tmp_path, container
+):
+    binary = f"<{container}><office:binary-data>Ynl0ZXM=</office:binary-data></{container}>"
+    body = (
+        "<text:p>Tratamiento: 15 mg diarios."
+        + ("<office:binary-data>Ynl0ZXM=</office:binary-data>" if container == "text:p" else binary)
+        + " Control en tres meses.</text:p>"
+    )
+    source = package(
+        tmp_path,
+        body,
+    )
+    output = tmp_path / "safe.odt"
+    engine = DeidEngine(country="ES")
+    policy = Policy.strict(require_ner=False)
+    result = engine.deidentify(source, output=output, policy=policy)
+    if container != "draw:image":
+        assert result.status == "BLOCKED"
+        assert result.issues == ["MALFORMED_INPUT"]
+        assert result.output_path is None and not output.exists()
+    else:
+        assert result.output_path is not None, result.issues
+        with zipfile.ZipFile(result.output_path) as archive:
+            content = archive.read("content.xml").decode()
+        assert "Tratamiento: 15 mg diarios." in content
+        assert "Control en tres meses." in content
+        assert "binary-data" not in content and "draw:image" not in content
+        assert engine.verify(result.output_path, policy=policy).status == "APPROVED"
+
+
 @pytest.mark.parametrize("tag", ("s", "tab", "line-break"))
 @pytest.mark.parametrize("child", (SECRET, f"<text:span>{SECRET}</text:span>", "<text:span/>", " "))
 def test_whitespace_element_children_block_output_without_emitting_file(tmp_path, tag, child):
