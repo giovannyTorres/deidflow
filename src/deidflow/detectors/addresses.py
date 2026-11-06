@@ -35,16 +35,19 @@ _TYPE = (
     r"|andador|urbanizaci[óo]n|urb\.|v[íi]a|vial|ca[ñn]ada|diagonal|transversal|carrera"
     r"|cra\.|autopista|circunvalaci[óo]n|alameda|malec[óo]n|costanera|ruta)"
 )
+# A floor ordinal followed by its unit label is not a house number. NFKC
+# writes masculine/feminine ordinal indicators as the ASCII letters o/a.
 _NUMBER = (
     r"(?:(?i:n[úu]m(?:ero)?\.?|no\.|n[º°]\.?|nro\.?|\#)\s*)?"
-    r"\d{1,5}[A-Za-z]?(?:\s*[-–]\s*\d{1,5}[A-Za-z]?)?"
+    r"\d{1,5}(?![ao]\s+(?i:planta|piso|puerta)\b)[A-Za-z]?"
+    r"(?:\s*[-–]\s*\d{1,5}[A-Za-z]?)?"
     r"|(?i:s/n)"
 )
 _UNIT = (
     r"(?:,?\s*(?i:piso|planta|puerta|pta\.|depto\.?|dpto\.?|departamento|apto\.?|apartamento"
     r"|apt\.?|int\.?|interior|local|of\.|oficina|casa|torre|bloque|blq\.|escalera|esc\."
     r"|portal|edificio|edif\.|manzana|mz\.?|lote|lt\.)\s*[\wºª°-]{1,8}(?![\wºª°-])"
-    r"|,?\s*\d{1,2}\s*[ºª°]\s*[A-Z]?(?![\w])"
+    r"|,?\s*\d{1,2}\s*[ºª°oa]\s*[A-Z]?(?![\w])"
     r"|,\s*\d{1,2}[A-Z](?![\w])"
     r"|,?\s*(?i:bajo|[áa]tico|entresuelo|principal)(?:\s+[A-Z])?(?![\w]))"
 )

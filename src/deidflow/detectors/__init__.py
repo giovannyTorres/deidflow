@@ -14,6 +14,7 @@ from dataclasses import dataclass, replace
 from typing import Protocol
 
 from deidflow.core import Finding
+from deidflow.normalization import detection_view
 from deidflow.validators import (
     ValidationResult,
     validate_card,
@@ -34,7 +35,7 @@ from .international import (
 )
 from .narrative import coordinated_person_spans
 
-CORE_RULES_VERSION = "rules-0.6"
+CORE_RULES_VERSION = "rules-0.7"
 
 
 class Detector(Protocol):
@@ -266,6 +267,8 @@ class RuleDetector:
         self.countries: frozenset[str] | None = countries
 
     def detect(self, text: str) -> list[Finding]:
+        view = detection_view(text)
+        text = view.text
         findings: list[Finding] = []
 
         def add(
@@ -545,7 +548,7 @@ class RuleDetector:
             findings.extend(recognizer.detect(text))
         if self.contextual:
             findings.extend(contextual_spanish(text))
-        return fuse(findings)
+        return fuse(view.project(finding) for finding in findings)
 
     def detect_batch(self, texts: list[str]) -> list[list[Finding]]:
         return [self.detect(text) for text in texts]
