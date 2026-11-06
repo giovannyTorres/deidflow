@@ -5,7 +5,7 @@
 
 **Estado de publicación:** borrador; no existe número/URL de issue verificado.
 
-**Estado de implementación:** implementada y revisada; integración final del lote pendiente.
+**Estado de implementación:** implementada, revisada y verificada en la integración final del lote.
 Evidencia: [acta BMX-10](../../audit/BMX-10.md).
 
 **Tipo:** tarea técnica. **Etiqueta propuesta:** `ready-for-agent`; no aplicada.
@@ -22,7 +22,7 @@ Los IDs BMX son referencias locales, no números de GitHub. Al publicar, enlazar
 
 ## Estado del lote
 
-BMX-09 ratificada y revisada: se inicia la continuación secuencial autorizada
+BMX-09 ratificada y revisada: se completó la continuación secuencial autorizada
 del lote. Se conservan las dependencias y los criterios originales.
 [Decisión operativa ratificada](../../audit/BMX-09-decisions-for-review.md).
 

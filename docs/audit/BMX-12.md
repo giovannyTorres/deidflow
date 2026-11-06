@@ -115,7 +115,7 @@ comandos finales. `runs/` corresponde a un recorrido anterior; `runs-final/`
 fue interrumpido al aparecer los dos defectos de frontera. Ninguno sustituye
 los recibos finales ni se presenta como evidencia del código corregido.
 
-La revisión fresca de Standards/Spec del commit se registrará por el
+La revisión fresca de Standards/Spec del commit queda registrada abajo por el
 coordinador. Este acta no inventa su resultado ni ratifica calidad, independencia
 ciega, generalización global, OCR real o facilidad de ajuste local.
 
@@ -144,3 +144,32 @@ Verificación del delta: **238 pruebas focalizadas**, Ruff, formato y mypy Pytho
 históricos no se volvieron a ejecutar por este refactor y cierre de admisión;
 conservan su fingerprint original. La integración y revisión final del nuevo
 commit corresponden al coordinador.
+
+## Standards
+
+Revisión independiente /root/bmx12_standards del diff
+70465c7...3901470: **0 infracciones escritas y 0 juicios heurísticos pendientes**.
+El juicio Low Data Clumps inicial se resolvió con EditResult: texto, mapas,
+cobertura y parámetros permanecen juntos por unidad. La admisión vincula solo
+los vectores nuevos a su origen, receta, semilla y versión, y preserva el ledger
+histórico del origen. No quedaron hallazgos adicionales del baseline Fowler.
+
+## Spec
+
+Revisión independiente /root/bmx12_spec del mismo diff contra BMX-12,
+AC-05/12/14 y ADR 0001: **0 faltantes/parciales, ampliaciones o errores**.
+Reejecutó las dos manipulaciones con pins reconstruidos y la regresión del
+ledger histórico: 3 pasan. Confirmó rechazo antes del callback y atribución
+correcta de los 738 reportes a 52284a4.
+
+Resultado por eje: Standards 0 pendientes, peor ninguno; Spec 0 pendientes,
+peor ninguno. Código final revisado: 390147079908a7221098ca84af4befd3f48c88ff.
+La suite integrada se ejecutó después; su resultado se registra por separado.
+
+## Integración final del lote
+
+Incremento verificado posteriormente con la suite completa, cobertura, estáticos,
+microbenchmark y comparación fuente/wheel. Los resultados focalizados y hashes
+anteriores conservan su fecha y alcance; no se atribuye retrospectivamente la
+corrida final a esos commits. [Salud integrada vigente](BATCH_NEXT10.md) y
+[recibo estructurado](BATCH_NEXT10_CONTINUATION_HEALTH.json).

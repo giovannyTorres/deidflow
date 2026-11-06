@@ -82,3 +82,11 @@ token gigante tras corrección:2KB de overhead en su probe. Código final
 
 Salud final del paso:251 pruebas focalizadas; Ruff/formato y mypy77 pasan.
 La integración completa queda pendiente al final de BMX-12.
+
+## Integración final del lote
+
+Incremento verificado posteriormente con la suite completa, cobertura, estáticos,
+microbenchmark y comparación fuente/wheel. Los resultados focalizados y hashes
+anteriores conservan su fecha y alcance; no se atribuye retrospectivamente la
+corrida final a esos commits. [Salud integrada vigente](BATCH_NEXT10.md) y
+[recibo estructurado](BATCH_NEXT10_CONTINUATION_HEALTH.json).

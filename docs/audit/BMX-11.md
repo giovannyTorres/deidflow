@@ -102,3 +102,11 @@ Código final9b76cea6098f9d114ce94010f1a7e99a1663855e. Salud del paso:280
 pruebas focalizadas antes del refactor;29propias tras él, Ruff/formato270
 archivos y mypy78 pasan. Se formateó un bloque Python de documentación de10
 al ejecutar el formato global. Suite completa al integrar12.
+
+## Integración final del lote
+
+Incremento verificado posteriormente con la suite completa, cobertura, estáticos,
+microbenchmark y comparación fuente/wheel. Los resultados focalizados y hashes
+anteriores conservan su fecha y alcance; no se atribuye retrospectivamente la
+corrida final a esos commits. [Salud integrada vigente](BATCH_NEXT10.md) y
+[recibo estructurado](BATCH_NEXT10_CONTINUATION_HEALTH.json).

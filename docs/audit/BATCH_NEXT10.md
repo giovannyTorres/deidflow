@@ -1,121 +1,105 @@
-> Actualización de continuación: BMX-09 ratificada y revisada con objetivo
-> automático/global/reentrenamiento local fácil; BMX-10 y BMX-11 implementadas
-> y revisadas. BMX-12 sigue en ejecución. Las cifras que siguen son el recibo
-> histórico de la integración03–08; la continuación se verificará al final.
-> [Decisión vigente](BMX-09.md), [BMX-10](BMX-10.md), [BMX-11](BMX-11.md).
-
 # Lote solicitado BMX-03 a BMX-12
 
-**BMX-03 a BMX-08 implementadas, revisadas e integradas: seis tareas técnicas.**
-BMX-09 espera ajustes humanos; BMX-10/11/12 no se iniciaron porque dependen de
-esa ratificación. No se sustituyeron por tareas posteriores. Todos los formatos
-previstos, incluido OCR, son obligatorios por decisión explícita del solicitante.
-D1–D3 siguen sin ratificar: pidió ajustarlos antes.
-[Decisiones, escenarios y matriz preparados](BMX-09-decisions-for-review.md).
+**Las diez tareas del bloque están completadas y verificadas.** Las nueve tareas
+técnicas se implementaron secuencialmente; BMX-09 documenta la decisión del
+solicitante: automático, global y fácilmente reentrenable/ajustable localmente,
+identificadores plausibles protegidos y perfiles clínicos contextual/estricto.
+Todos los formatos previstos siguen siendo obligatorios.
 
-Base: `69942cc8fe6e9fae9130ab2bdb8fb703991eb03c`. Último código revisado:
-`4fa622e04f15aa990735eeb7523c98e1394ce6a4`. Verificación/build desde commit
-`d17b7ae0f4e8010b15257e1d4da21e332bfe6bbe`; cambios posteriores documentales.
-[Recibo estructurado de salud, hashes y métricas](BATCH_NEXT10_HEALTH.json).
+[Decisión vigente](../adr/0001-bmx-09-operational-profiles-v1.md),
+[recibo de salud final](BATCH_NEXT10_CONTINUATION_HEALTH.json),
+[archivos y estados de tareas](../tickets/benchmark-mx/README.md).
+La meta de producto no acredita calidad global ni facilidad de fine-tuning ya
+implementada. Este incremento evalúa regresión ficticia conocida en es-MX.
 
-## Archivos modificados
+## Salud integrada actual
 
-El recibo incluye la lista completa de archivos. El código se limita a
-src/deidflow/benchmarks/: dos módulos existentes de admisión/runner y ocho de
-métricas, cobertura, validez, transformación, pipeline, aislamiento e independencia.
-Hay seis archivos nuevos de pruebas y un constructor de fixtures compartido,
-un ejemplo ficticio de validez de 16 vectores, contratos de uso, actas y estados
-de tickets. No hay cambios en detectores, políticas, transformación productiva,
-pyproject.toml, dependencias ni versión.
-
-## Salud integrada
+Base del lote: `69942cc8fe6e9fae9130ab2bdb8fb703991eb03c`.
+Commit probado y extraído para build: `390147079908a7221098ca84af4befd3f48c88ff`.
+Último código de BMX-12 revisado: `390147079908a7221098ca84af4befd3f48c88ff`.
+Cambios posteriores de cierre son documentales.
 
 | Comprobación | Resultado real |
 | --- | --- |
-| Suite completa con ramas | **1314 pasan, 11 omitidas**, 204.79 s |
-| Cobertura de sentencias | **87.29%** (11727/13435) |
-| Cobertura de ramas | **79.21%** (4512/5696) |
-| Cobertura combinada | **84.88%**, umbral 78 superado |
-| Ruff / formato | Pasan; 256 archivos |
-| mypy Python 3.12 | Pasa; 76 módulos |
-| pip check | Sin dependencias rotas |
-| Microbenchmark | Pasa; 0.301 ms/registro, ratio 0.972 frente a referencia de esa corrida |
-| Build local / twine --strict | Wheel y sdist pasan; no upload |
-| Wheel base sin extras | API anterior y seis pistas nuevas pasan fuera del checkout |
-| Fuente frente a wheel | Recibos deterministas iguales, incluido SHA de fuentes |
+| Suite completa con ramas | **1392 pasan, 11 omitidas**, 281.82 s |
+| Cobertura de sentencias | **87.59%** (12382/14137) |
+| Cobertura de ramas | **79.57%** (4752/5972) |
+| Cobertura combinada | **85.21%**, supera umbral 78 |
+| Ruff, formato, mypy Python 3.12, pip check | Pasan |
+| Microbenchmark | Pasa; 0.309 ms/registro; ratio 1.018 frente a referencia de esa corrida |
+| Build local y twine --strict | Wheel/sdist pasan; no upload |
+| Wheel base sin extras | API anterior, seis pistas y generación de corpus/perturbaciones pasan fuera del checkout |
+| Fuente frente a wheel | Recibos deterministas idénticos, incluido SHA de fuentes |
 
-Las 11 omisiones son activos OCR/spaCy locales no configurados; ninguna prueba
-nativa de aislamiento se omitió en este host. No son pruebas OCR aprobadas.
-La base tenía 1219 aprobadas y las mismas 11 omisiones; cobertura 86.74% de
-sentencias, 78.51% de ramas y 84.26% combinada. Se comprobó Python 3.12.14;
-no se atribuyen resultados de CI remota. Los campos machine del microbenchmark
-no se publican en el recibo; los resultados operativos están separados.
+Python 3.12.14. Las omisiones corresponden a activos locales OCR/spaCy
+no configurados; ninguna prueba nativa de aislamiento se omitió. No se cuentan
+como pruebas OCR aprobadas ni se atribuyen resultados de CI remota.
+Se mantuvieron las guardas: basetemp en /var/tmp por el marcador Git ajeno en
+/tmp. Se preservaron los seis fingerprints previos de AGENTS.md, CLAUDE.md y
+docs/agents/ sin incluirlos en commits. Los 27 cuerpos de tareas coinciden con
+su manifiesto; la especificación conserva SHA `898610c7c700f1a1f67154662e2b6526ddbce8fcd7e7f90f43e9631f120ee987`.
 
-Se mantuvieron las guardas de privacidad: basetemp en /var/tmp porque /tmp
-contiene un marcador Git ajeno. No se desactivaron controles de Codex. Los seis
-fingerprints previos de AGENTS.md, CLAUDE.md y docs/agents/ permanecen idénticos
-y no se incluyeron esos cambios en commits. La especificación conserva su SHA
-`898610c7c700f1a1f67154662e2b6526ddbce8fcd7e7f90f43e9631f120ee987`;
-los 27 cuerpos de ticket coinciden con los hashes del manifiesto.
+## Entregas y revisiones Matt Pocock
 
-## Tareas y revisión Matt Pocock
+TDD por comportamiento y revisión oficial code-review en ejes independientes
+Standards/Spec, con diff fijado por tarea y correcciones red/green. Los conteos
+focalizados de cada acta son corridas distintas, no sumandos de la suite final.
 
-TDD por comportamiento y dos revisores nuevos por tarea, según la skill oficial
-code-review: Standards y Spec separados, diff fijado y correcciones rojo/verde.
-Los conjuntos focalizados de cada paso no son sumandos de una misma suite.
+| Acta | Entrega |
+| --- | --- |
+| [BMX-03](BMX-03.md) | Matching exacto, errores por entidad e incertidumbre |
+| [BMX-04](BMX-04.md) | Patrón, estructura y checksum con referencia independiente |
+| [BMX-05](BMX-05.md) | Transformación gold y conservación |
+| [BMX-06](BMX-06.md) | Pipeline real y todos sus outputs |
+| [BMX-07](BMX-07.md) | Aislamiento de proceso, límites y trazado nativo |
+| [BMX-08](BMX-08.md) | Particiones, linaje, similitud y exposición |
+| [BMX-09](BMX-09.md) | Objetivo y perfiles operativos ratificados |
+| [BMX-10](BMX-10.md) | 36 casos sintéticos de seis identificadores, negativos y oráculos |
+| [BMX-11](BMX-11.md) | 10 casos contextuales y 2 desafíos ambiguos, referencia revisada por agentes |
+| [BMX-12](BMX-12.md) | Nueve perturbaciones reproducibles y reportes por estrato |
 
-| Tarea / acta | Entrega | Salud del paso | Revisión final |
-| --- | --- | --- | --- |
-| [BMX-03](BMX-03.md) | Detección por entidad e incertidumbre | 151 pasan | Standards 0 / Spec 0 pendientes |
-| [BMX-04](BMX-04.md) | Validez con referencia independiente | 177 pasan | Standards 0 / Spec 0 |
-| [BMX-05](BMX-05.md) | Transformación gold y conservación | 197 pasan | Standards: 0 infracciones, 1 juicio P3 aceptado / Spec 0 |
-| [BMX-06](BMX-06.md) | Pipeline real y todos los outputs | 214 pasan | Standards 0 / Spec 0 |
-| [BMX-07](BMX-07.md) | Proceso aislado y trazado nativo | 230 pasan | Standards 0 / Spec 0 |
-| [BMX-08](BMX-08.md) | Clausura, similitud y exposición | 243 pasan | Standards 0 / Spec 0 |
-| BMX-09 | Decisiones y escenarios preparados | Sin ratificar | Pendiente ajuste D1–D3 |
-| BMX-10 / BMX-11 | Corpus de identificadores y contextual | No iniciadas | Bloqueadas por BMX-09 |
-| BMX-12 | Perturbaciones | No iniciada | Depende de BMX-10/11 |
+Standards: 0 infracciones escritas pendientes; se conserva el juicio P3
+aceptado de BMX-05 sobre comprobaciones separadas de contexto/operadores.
+Los juicios de duplicación de BMX-11 y Data Clumps de BMX-12 se resolvieron. Spec:
+0 hallazgos pendientes. Las actas registran agentes, commits y resultados;
+no se atribuye revisión humana experta a los corpus ficticios.
 
-Las actas conservan los hallazgos iniciales y su resolución, incluidos outputs
-secundarios con residuales o pérdida de negación, mapas malformados, capacidades
-ignoradas, supresión del trazado de hijos, límites heredados, JSON profundo y
-artefactos originales duplicados. El P3 aceptado de BMX-05 mantiene comprobaciones
-simples separadas de context_quality por sus reglas distintas de taxonomía y
-operadores; no es una infracción escrita pendiente.
+## Métricas y límites
 
-## Métricas de fixtures y alcance
+- El fixture anidado EMAIL da TP=1, FP=0, FN=1: precision=1, recall=0.5,
+  F1=0.667. El caso de control TP=FP=FN=1 da las tres métricas 0.5.
+- Validez: 16/16 vectores históricos completados. La referencia actual tiene
+  **un** desacuerdo RFC (6/7), no dos: XEXX tiene checksum ordinario válido.
+  [Fe de erratas](BMX-04-erratum.md). BMX-10 completa 36 vectores; PHONE/EMAIL
+  conservan predicciones de validez desconocidas.
+- Transformación/pipeline de control: retirada 2/2, conservación 34/34 y éxito
+  conjunto 2/2. Borrar todo o perder negaciones sigue fallando conservación.
+- El baseline `rules.mx` **sin NER** reconoce exactamente 2/47 menciones
+  contextuales, FP=3 y FN=45. Describe esa configuración y ficción; no es la
+  calidad de todos los modelos de DeidFlow. La referencia no se ajustó a sus fallos.
+- BMX-12 midió 369 pares/738 reportes reales y 36 auditorías sin cruces con su
+  commit de autoría, identificado en el acta. La integración final añade
+  32 pares/64 reportes fuente y los mismos en wheel con el código revisado.
+  Pesos por raíz suman 1; no se publica F1 mezclado ni falsa independencia.
+- Corrida aislada: 0 intentos de red y 0 eventos de integridad. RLIMIT_AS limita
+  espacio de direcciones por proceso, no RSS/cgroup agregado. Los callbacks
+  anteriores no adquieren aislamiento por usar la pista de proceso por separado.
+- Ningún paquete contiene blind_test acreditado. Calidad `DESCRIPTIVE_ONLY`;
+  umbrales/custodia pendientes de BMX-25. Ruido textual no es OCR real.
 
-- EMAIL anidado: TP=1, FP=0, FN=1; precision=1, recall=0.5, F1=0.667. El caso
-  controlado TP=FP=FN=1 produce las tres métricas 0.5.
-- Validez: 16/16 vectores completados. Checksum RFC: acuerdo 5/7; dos genéricos
-  discrepan entre checksum ordinario estricto y excepción del candidato.
-  [Recibo del oráculo independiente](BMX-04-vectors.json).
-- Transformación/pipeline del fixture: retirada 2/2, conservación 34/34, éxito
-  conjunto 2/2. Los adversarios mantienen soporte: bloquear todo da éxito 0,
-  sin aprobados da riesgo indefinido y perder No da contexto 0/1 y FAIL.
-- Aislamiento: sockets Python/libc/subproceso registrados aun capturados;
-  CLONE_UNTRACED/clone3, ptrace e io_uring invalidan la auditoría. Timeout,
-  ENOMEM y errores conservan soporte. Corrida limpia: 0 intentos de red.
-- Independencia del fixture conocido: 2 componentes, 0 documentos blind_test,
-  NO_BLIND_TEST y acreditación falsa. No se rebautizó material expuesto.
-- Recall crítico del microbenchmark: 1 en su fixture de presupuesto, distinto
-  del fixture anidado; no es una medición poblacional del benchmark MX.
+El recibo final incluye hashes de fuentes, modelos, corpus, decisión y artefactos,
+lista completa de archivos y resultados. Solo se tocó código del benchmark,
+pruebas, ejemplos y documentación: detectores, transformadores productivos,
+API previa, dependencias y versión permanecen sin cambios. Los documentos
+extensos y la densidad se evalúan como características de fixtures, sin afirmar
+rendimiento poblacional ni garantías de anonimato.
 
-Todo es ficción conocida y DESCRIPTIVE_ONLY. La entrada aislada de proceso no
-vuelve aislados los callbacks anteriores. RLIMIT_AS es por proceso y limita
-espacio de direcciones, no RSS/cgroup agregado; admisión de píxeles/expansión
-no prueba decodificación. La auditoría de independencia comprueba declaraciones,
-sin autenticar historial o custodia. Las celdas de formatos futuros siguen
-pendientes aunque sean obligatorias. No se afirma calidad profesional ni anonimato.
+## Reproducción y evidencia histórica
 
-## Reproducción
-
-Desde la raíz, con las herramientas de desarrollo ya instaladas:
+Desde la raíz, con herramientas ya instaladas:
 
 ```sh
 mkdir -p /tmp/deidflow-verification
-.venv/bin/python -m pytest -q tests/test_benchmark*.py tests/test_email_benchmark.py \
-  --basetemp=$(mktemp -d /var/tmp/deidflow-focused.XXXXXX)
 .venv/bin/python -m ruff check .
 .venv/bin/python -m ruff format --check .
 .venv/bin/python -m mypy --python-version 3.12 src/deidflow
@@ -127,28 +111,32 @@ mkdir -p /tmp/deidflow-verification
   --output /tmp/deidflow-verification/micro.json
 ```
 
-Para empaquetado: extraer git archive d17b7ae a un directorio vacío, ejecutar
-python -m build --no-isolation con outdir externo y twine check --strict.
-Instalar el wheel con pip --no-index --no-cache-dir en otro venv vacío, ejecutar
-fuera del checkout y comprobar la ruta de importación, sin numpy/spacy/cryptography.
-Las APIs de las seis pistas están en docs/BENCHMARK_MX_*.md; resultados comparados
-y hashes del wheel/sdist quedan en el recibo. Logs locales de esta ejecución:
-/tmp/deidflow-batch/integrated/. No hubo descargas durante evaluación.
+Para empaquetado, extraer git archive del commit probado en un directorio vacío,
+construir con python -m build --no-isolation y twine check --strict. Instalar el
+wheel con pip --no-index --no-cache-dir en venv vacío y ejecutar fuera del
+checkout, verificando ruta de importación y ausencia de numpy/spacy/cryptography.
+Logs locales: /tmp/deidflow-batch/final12/. APIs y reproducción de corpus:
+[identificadores](../BENCHMARK_MX_IDENTIFIERS.md),
+[contextual](../BENCHMARK_MX_CONTEXTUAL.md),
+[perturbaciones](../BENCHMARK_MX_PERTURBATIONS.md).
 
-## GitHub y siguiente paso
+El [recibo histórico03–08](BATCH_NEXT10_HEALTH.json) se conserva intacto: 1314
+pruebas, 11 omisiones y 84.88% combinada en su commit. Sus estados pendientes de BMX-09
+y el segundo desacuerdo RFC pertenecen a esa corrida previa, rectificada por
+la ADR y fe de erratas; no son el estado actual ni una nueva ejecución.
 
-Commits incrementales, actas y borradores están en la rama de revisión
+## GitHub y trabajo posterior
+
+Commits incrementales y evidencia están en la rama
 [benchmark/evaluacion-mx-spec-tickets](https://github.com/giovannyTorres/deidflow/tree/benchmark/evaluacion-mx-spec-tickets).
-No se fusionó master, creó tag ni publicó PyPI. API productiva, algoritmos,
-dependencias de producción y versión permanecen sin cambios.
+No se fusionó master, creó tag ni publicó PyPI. GitHub Issues sigue configurado:
+**0 issues creados**, porque api.github.com permanece fuera de la allowlist.
+Los 27 borradores están en GitHub como archivos, sin números remotos inventados.
+El destino necesario ya quedó preparado en el borrador de entorno para revisión;
+no se aplicaron cambios persistentes de nube. Bubblewrap/strace y las capacidades
+verificadas ya existen en este host.
 
-GitHub Issues sigue configurado: **0 issues creados**. api.github.com queda
-fuera de la allowlist; el borrador de entorno previo conserva ese destino
-preparado para revisión. Los borradores están en GitHub como archivos, sin
-inventar números de issue. No se aplicaron cambios persistentes de nube:
-bubblewrap/strace y las capacidades verificadas ya existen en este host.
-[Requisitos exactos para otros hosts](../BENCHMARK_MX_ISOLATION.md).
-
-Para continuar BMX-09–12 hace falta ajustar y ratificar D1–D3 con el solicitante.
-Ya están preparados los escenarios y la matriz; esa revisión no aprueba un
-perfil de calidad profesional ni autoriza liberación automática.
+BMX-13 a BMX-27 permanecen pendientes. Incluyen formatos reales, OCR, fuentes
+públicas autorizadas, estadísticas, custodia y calificación integrada. El objetivo
+global y de ajuste local fácil sigue vigente; este bloque no implementa todavía
+su flujo completo ni autoriza liberación automática con calidad sin medir.

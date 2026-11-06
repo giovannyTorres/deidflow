@@ -5,6 +5,9 @@
 
 **Estado de publicación:** borrador; no existe número/URL de issue verificado.
 
+**Estado de implementación:** implementada, revisada y verificada en la integración final del lote.
+Evidencia: [acta BMX-12](../../audit/BMX-12.md).
+
 **Tipo:** tarea técnica. **Etiqueta propuesta:** `ready-for-agent`; no aplicada.
 
 **Bloqueado por:** BMX-10, BMX-11.
@@ -19,9 +22,9 @@ Los IDs BMX son referencias locales, no números de GitHub. Al publicar, enlazar
 
 ## Estado del lote
 
-BMX-09 ratificada y revisada: se inicia la continuación secuencial autorizada
+BMX-09 ratificada y revisada: se completó la continuación secuencial autorizada
 del lote. Se conservan las dependencias y los criterios originales.
-[Revisión humana pendiente](../../audit/BMX-09-decisions-for-review.md).
+[Decisión operativa ratificada](../../adr/0001-bmx-09-operational-profiles-v1.md).
 
 ## Qué entrega
 
@@ -29,21 +32,21 @@ Generar derivados deterministas de formato/ruido textual, vinculados a su origen
 
 ## Criterios de aceptación
 
-- [ ] Cubrir mayúsculas, Unicode, separadores, saltos, columnas/texto desordenado, confusiones OCR simuladas y posiciones de corte/longitud/densidad.
+- [x] Cubrir mayúsculas, Unicode, separadores, saltos, columnas/texto desordenado, confusiones OCR simuladas y posiciones de corte/longitud/densidad.
 
-- [ ] Actualizar referencia y coordenadas de manera controlada; no normalizar el texto puntuado.
+- [x] Actualizar referencia y coordenadas de manera controlada; no normalizar el texto puntuado.
 
-- [ ] Todos los derivados permanecen con su grupo/partición y registran receta, versión y semilla.
+- [x] Todos los derivados permanecen con su grupo/partición y registran receta, versión y semilla.
 
-- [ ] No describir ruido textual como resultado de Tesseract ni aumentar el peso de un origen por tener más variantes.
+- [x] No describir ruido textual como resultado de Tesseract ni aumentar el peso de un origen por tener más variantes.
 
 ## Pruebas y evidencia exigidas
 
-- [ ] Repetición de recetas conserva hashes y anotaciones dentro de rango.
+- [x] Repetición de recetas conserva hashes y anotaciones dentro de rango.
 
-- [ ] Derivado mal asignado entre particiones es rechazado por auditoría.
+- [x] Derivado mal asignado entre particiones es rechazado por auditoría.
 
-- [ ] La misma mención cerca de cortes, con CRLF/diacríticos y texto desordenado tiene referencia trazable y métricas por estrato.
+- [x] La misma mención cerca de cortes, con CRLF/diacríticos y texto desordenado tiene referencia trazable y métricas por estrato.
 
 ## Trazabilidad
 
@@ -51,7 +54,7 @@ AC-05, AC-12, AC-14 de DF-EVAL-MX v0.1.0.
 
 ## Restricciones y fuera de alcance
 
-- Esta creación de tareas no inicia la implementación.
+- La solicitud actual autorizó implementar este incremento dentro del lote BMX-03 a BMX-12.
 - El trabajo futuro se limita al sistema de evaluación; no corregir detectores, políticas ni transformadores de producción para hacer pasar el benchmark.
 - Solo datos ficticios o fuentes públicas no personales con permisos comprobados; nunca documentos personales reales ni envío a servicios externos.
 - Evaluación local, sin descargas/inferencia/telemetría remotas ni dependencias obligatorias nuevas. Cualquier adquisición o publicación requiere autorización de su tarea.
