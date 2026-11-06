@@ -86,7 +86,8 @@ verification gate. It never establishes anonymous data. Always inspect
   labelled names/addresses/IDs and contextual clinical rules; custom recognizers.
 - Batched local spaCy adapter with long-document overlap and overlapping spans.
 - Column profiles, exhaustive streaming CSV/TSV processing, JSON/JSONL, pandas and
-  Polars APIs, bounded Parquet readers, native DOCX/XLSX/PDF extraction.
+  Polars APIs, bounded Parquet readers, native DOCX/XLSX/PDF extraction and
+  in-place DOCX output (tracked changes accepted, hidden metadata removed).
 - Redaction, typed placeholders, scoped HMAC pseudonyms, generalization,
   suppression, ISO date shifts, numeric buckets, partial masks and custom actions.
 - Strict Python/YAML policies, domain overrides, reread verification and release
@@ -120,7 +121,7 @@ customer model activation exists.
 
 ## Unsupported or unmeasured
 
-DOCX/XLSX/Parquet output transformation, automatic standalone image release,
+XLSX/Parquet output transformation, automatic standalone image release,
 transformer-based NER, cross-page clinical/coreference reasoning,
 ONNX acceleration and GPU performance. PDF rotation/cropping, interactive forms,
 encryption/signatures, searchable/vector output and non-removal PDF operators

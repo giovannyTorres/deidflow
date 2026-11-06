@@ -829,8 +829,19 @@ class DeidEngine:
         domain: str | None = None,
         outputs: list[str] | tuple[str, ...] | None = None,
         require_table_structure: bool = False,
+        office_media: str = "remove",
     ) -> Result:
+        """Write a de-identified copy of ``source`` and verify it by reading it back.
+
+        DOCX output keeps the layout; tracked changes are accepted, personal
+        properties, the thumbnail, external links and data-bearing field codes
+        are removed. ``office_media="remove"`` (default) also drops images,
+        charts and embedded objects, which cannot be checked without OCR;
+        ``"keep"`` copies them and the result is blocked as incomplete.
+        """
         source, target = Path(source), Path(output)
+        if office_media not in {"remove", "keep"}:
+            raise ValueError("office_media must be 'remove' or 'keep'")
         if type(require_table_structure) is not bool:
             raise ValueError("Table structure requirement must be boolean")
         if require_table_structure and (
@@ -886,7 +897,7 @@ class DeidEngine:
             )
         suffix = source.suffix.lower()
         if (
-            suffix not in {".txt", ".csv", ".tsv", ".json", ".jsonl"}
+            suffix not in {".txt", ".csv", ".tsv", ".json", ".jsonl", ".docx"}
             or target.suffix.lower() != suffix
         ):
             return Result(
@@ -901,6 +912,8 @@ class DeidEngine:
         try:
             if suffix in {".csv", ".tsv"}:
                 result = self._csv(source, candidate, policy, batch_size, domain)
+            elif suffix == ".docx":
+                result = self._docx(source, candidate, policy, domain, office_media == "remove")
             elif suffix == ".txt":
                 if source.stat().st_size > self.max_bytes:
                     raise ValueError("Text exceeds configured size limit")
@@ -931,6 +944,59 @@ class DeidEngine:
             return Result(ReleaseStatus.BLOCKED, issues=["MALFORMED_INPUT"])
         finally:
             candidate.unlink(missing_ok=True)
+
+    def _docx(
+        self, source: Path, output: Path, policy: Policy, domain: str | None, remove_media: bool
+    ) -> Result:
+        from deidflow.office import rewrite_docx
+        from deidflow.readers import DocumentError
+
+        if source.stat().st_size > self.max_bytes:
+            raise ValueError("Document exceeds configured size limit")
+        scope = self._scope(policy, secrets.token_hex(16))
+        originals: list[Finding] = []
+
+        def rewrite(text: str) -> tuple[str, list[tuple[int, int, str]]]:
+            findings = self.scan_text(text)
+            originals.extend(findings)
+            transformed, mappings = transform_text(
+                text,
+                findings,
+                policy,
+                key=self.key,
+                scope=scope,
+                domain=domain,
+                custom=self.custom_transforms,
+            )
+            return transformed, [
+                (m.source_start, m.source_end, transformed[m.output_start : m.output_end])
+                for m in mappings
+            ]
+
+        try:
+            report = rewrite_docx(
+                source, output, rewrite, max_bytes=self.max_bytes, remove_media=remove_media
+            )
+            graph = self.read(output)
+        except DocumentError:
+            return Result(ReleaseStatus.BLOCKED, issues=["MALFORMED_INPUT"])
+        residual: list[Finding] = []
+        for batch in _batches(graph.fragments, 32):
+            residual.extend(
+                f for items in self._rescan_texts([x.text for x in batch]) for f in items
+            )
+        result = self._gate(
+            policy=policy,
+            residual=residual,
+            original=originals,
+            complete=graph.complete,
+            issues=graph.issues,
+            domain=domain,
+        )
+        result.records = 1
+        result.audit["transformations"] = report.transformations
+        result.audit["office_removed"] = dict(sorted(report.removed.items()))
+        return result
 
     def _json_file(self, source: Path, output: Path, policy: Policy, domain: str | None) -> Result:
         issues, count, records = [], 0, 0

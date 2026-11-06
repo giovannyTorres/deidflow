@@ -40,6 +40,15 @@
 - `TAX_ID`, `INSURANCE_ID`, `REGIONAL_ID` and `IP_ADDRESS` count as direct
   identifiers in risk assessment. Generic `LATAM-*`/`BANK-ACCOUNT` fallbacks no
   longer raise the score of digits whose country check digit failed.
+- DOCX output: `deidentify("in.docx", output="out.docx")` rewrites the package
+  in place (formatting kept, values split across runs replaced), accepts
+  tracked changes, removes authors, personal properties, the thumbnail,
+  external links, mail-merge settings and data-bearing field codes, and by
+  default images and embedded objects (`office_media`, CLI `--office-media`);
+  the output is reread and rescanned before release.
+- The DOCX reader scans `fldSimple` instructions and commenter account IDs,
+  flags package thumbnails, and no longer forces review for layout-only fields
+  such as `PAGE` or `TOC`.
 - Added a head-to-head comparison with Presidio and spaCy on the MEDDOCAN and
   Gretel test sets (`docs/COMPARISON.md`): exact F1 0.958 vs 0.363 vs 0.259
   (clinical) and 0.707 vs 0.177 vs 0.115 (financial).
