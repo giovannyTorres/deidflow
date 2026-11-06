@@ -14,7 +14,7 @@ from deidflow.benchmarks.package_runner import run_package_benchmark
 
 report = run_package_benchmark(
     "examples/benchmark-mx-package",  # También acepta un ZIP local.
-    manifest_sha256="60649f3f48a350b1b04d8bf0c930e983e98ae5a9eacbcbd790bc422907d724f9",
+    manifest_sha256="7fd7f5a4808a85b3c73c9561c82b40eb06e91f9dd2e4c8165bc3b7b4bc8ddeb8",
     candidate="rules.mx",
     profile="email-descriptive-v1",
     output="/tmp/deidflow-package-run-001",  # Directorio nuevo.
@@ -80,6 +80,10 @@ Los recursos se hashean en bytes originales; el hash del manifiesto es externo.
 
 ## Relaciones y límites
 
+Cada `permission_review` contiene exactamente `status`, `evidence_ref` y
+`reviewed_at` (fecha UTC obligatoria). En fixtures se declara
+`status=synthetic_fixture`; la fecha no representa un revisor humano inventado.
+
 Las referencias deben existir y coincidir en ambos sentidos: documento/unidad,
 mención/unidad, expectativa/caso/perfil y artefacto/recurso/hash. Cada caso
 pertenece exactamente a una partición o panel, con grupos consistentes que no
@@ -120,6 +124,15 @@ miembros duplicados, cifrados o especiales y compresiones distintas de
 stored/deflate. No se extrae. Son límites de admisión, no de tiempo/RSS duros.
 
 ## Resultado y estados separados
+
+La acción y sus operadores también deben ser compatibles: `remove` admite
+redactar, suprimir, placeholders, pseudónimos o máscara; `preserve` exige `keep`;
+`generalize` admite generalización, desplazamiento de fecha o máscara. El efecto
+real de esos operadores se comprobará al implementar transformación; declarar
+una máscara permitida no demuestra que retire todos los caracteres sensibles.
+El conteo exacto deduplica claves tipo/inicio/fin por unidad y usa intersección
+de conjuntos: una predicción solo acierta una mención. No calcula matching
+solapado recursivo cuando este informe no lo publica.
 
 El informe `df-eval-mx.package-report.v1` separa `result` determinista de
 `operational`; publica hashes, configuración y conteos, sin textos, valores,

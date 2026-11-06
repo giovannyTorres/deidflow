@@ -44,7 +44,11 @@ def fixture_records():
             "permissions": dict.fromkeys(
                 ["evaluation", "annotation", "derivation", "training", "redistribution"], True
             ),
-            "permission_review": {"status": "synthetic_fixture", "evidence_ref": None},
+            "permission_review": {
+                "status": "synthetic_fixture",
+                "evidence_ref": None,
+                "reviewed_at": "2026-11-06T00:00:00Z",
+            },
             "personal_data_status": "fictional",
             "exposure": {
                 "training": "unknown",
@@ -1046,7 +1050,7 @@ def test_shipped_package_is_reproducible_offline_and_omits_source_values(tmp_pat
     from deidflow.benchmarks.runner import offline_network
 
     package = Path(__file__).resolve().parents[1] / "examples" / "benchmark-mx-package"
-    trusted = "60649f3f48a350b1b04d8bf0c930e983e98ae5a9eacbcbd790bc422907d724f9"
+    trusted = "7fd7f5a4808a85b3c73c9561c82b40eb06e91f9dd2e4c8165bc3b7b4bc8ddeb8"
     with offline_network() as network:
         first = run_package_benchmark(
             package,
@@ -1078,3 +1082,160 @@ def test_shipped_package_is_reproducible_offline_and_omits_source_values(tmp_pat
         '"u-1"',
     ):
         assert forbidden not in emitted
+
+
+def test_permission_review_preserves_an_explicit_utc_date(tmp_path):
+    from deidflow.benchmarks.package_runner import run_package_benchmark
+
+    records = fixture_records()
+    for source in records["sources"]:
+        source["permission_review"]["reviewed_at"] = "2026-11-06T00:00:00Z"
+    package = tmp_path / "package"
+    _, digest = write_fixture(package, records)
+
+    report = run_package_benchmark(
+        package,
+        manifest_sha256=digest,
+        candidate="rules.mx",
+        profile="email-descriptive-v1",
+        output=tmp_path / "result",
+    )
+
+    assert report["result"]["admission"]["status"] == "valid"
+
+
+def test_exact_scoring_deduplicates_predictions_without_rescuing_partial_boundaries(tmp_path):
+    from deidflow.benchmarks.package_runner import DetectionCandidate, run_package_benchmark
+    from deidflow.core import Finding
+
+    package = tmp_path / "package"
+    _, digest = write_fixture(package)
+
+    def detect(text):
+        return (
+            [
+                Finding("EMAIL", 8, 24, 0.9, "fixture"),
+                Finding("EMAIL", 8, 24, 0.9, "fixture"),
+                Finding("EMAIL", 8, 23, 0.9, "fixture"),
+            ]
+            if text.startswith("Correo:")
+            else []
+        )
+
+    report = run_package_benchmark(
+        package,
+        manifest_sha256=digest,
+        candidate=DetectionCandidate("candidate-f", "0" * 64, detect),
+        profile="email-descriptive-v1",
+        output=tmp_path / "result",
+    )
+
+    assert report["result"]["metrics"]["EMAIL"] == {
+        "true_positives": 1,
+        "false_positives": 1,
+        "false_negatives": 1,
+        "support": 2,
+        "precision": 0.5,
+        "recall": 0.5,
+        "f1": 0.5,
+    }
+
+
+def test_thousands_of_valid_crossed_mentions_do_not_require_recursive_overlap_matching(tmp_path):
+    from deidflow.benchmarks.package_runner import DetectionCandidate, run_package_benchmark
+    from deidflow.core import Finding
+
+    records = fixture_records()
+    text = "a" * 2102
+    records["units"][0].update(text=text, text_sha256=hashlib.sha256(text.encode()).hexdigest())
+    records["sources"][0]["content_sha256"] = records["units"][0]["text_sha256"]
+    template = records["mentions"][0]
+    records["mentions"] = [
+        {**template, "mention_id": f"m-{index + 1}", "start": index, "end": index + 2}
+        for index in range(2100)
+    ]
+    records["expectations"] = []
+    package = tmp_path / "package"
+    _, digest = write_fixture(package, records)
+
+    def detect(source):
+        return (
+            [Finding("EMAIL", index, index + 2, 0.9, "fixture") for index in range(2100)]
+            if source.startswith("aa")
+            else []
+        )
+
+    report = run_package_benchmark(
+        package,
+        manifest_sha256=digest,
+        candidate=DetectionCandidate("candidate-f", "0" * 64, detect),
+        profile="email-descriptive-v1",
+        output=tmp_path / "result",
+    )
+
+    assert report["result"]["attempt_status"] == "completed"
+    assert report["result"]["metrics"]["EMAIL"] == {
+        "true_positives": 2100,
+        "false_positives": 0,
+        "false_negatives": 0,
+        "support": 2100,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+    }
+
+
+@pytest.mark.parametrize("date", ["missing", "2026-11-06T00:00:00", "private-canary@example.test"])
+def test_permission_review_requires_a_valid_utc_date(tmp_path, date):
+    from deidflow.benchmarks.package_runner import run_package_benchmark
+
+    records = fixture_records()
+    if date == "missing":
+        records["sources"][0]["permission_review"].pop("reviewed_at", None)
+    else:
+        records["sources"][0]["permission_review"]["reviewed_at"] = date
+    package = tmp_path / "package"
+    _, digest = write_fixture(package, records)
+
+    with pytest.raises(ValueError, match="Invalid evaluation package") as error:
+        run_package_benchmark(
+            package,
+            manifest_sha256=digest,
+            candidate="rules.mx",
+            profile="email-descriptive-v1",
+            output=tmp_path / "result",
+        )
+
+    assert error.value.status == "INVALID_RUN"
+    assert "canary" not in str(error.value)
+
+
+@pytest.mark.parametrize(
+    "action,operator,verification",
+    [
+        ("remove", "keep", "complete_removal"),
+        ("preserve", "placeholder", "exact_preservation"),
+        ("generalize", "keep", "unverifiable"),
+    ],
+)
+def test_an_operator_cannot_contradict_its_own_required_action(
+    tmp_path, action, operator, verification
+):
+    from deidflow.benchmarks.package_runner import run_package_benchmark
+
+    records = fixture_records()
+    for expectation in records["expectations"]:
+        expectation.update(action=action, allowed_operators=[operator], verification=verification)
+    package = tmp_path / "package"
+    _, digest = write_fixture(package, records)
+
+    with pytest.raises(ValueError, match="Invalid evaluation package") as error:
+        run_package_benchmark(
+            package,
+            manifest_sha256=digest,
+            candidate="rules.mx",
+            profile="email-descriptive-v1",
+            output=tmp_path / "result",
+        )
+
+    assert error.value.status == "INVALID_RUN"

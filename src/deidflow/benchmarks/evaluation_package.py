@@ -130,7 +130,7 @@ def _source_contracts(value: Any) -> dict[str, dict[str, Any]]:
         permissions = _object(
             source["permissions"], "evaluation annotation derivation training redistribution"
         )
-        review = _object(source["permission_review"], "status evidence_ref")
+        review = _object(source["permission_review"], "status evidence_ref reviewed_at")
         exposure = _object(
             source["exposure"], "training tuning prior_evaluation candidate_exposure"
         )
@@ -138,6 +138,7 @@ def _source_contracts(value: Any) -> dict[str, dict[str, Any]]:
             any(type(item) is not bool for item in permissions.values())
             or permissions["evaluation"] is not True
             or review["status"] not in {"synthetic_fixture", "approved"}
+            or not _utc(review["reviewed_at"])
             or any(
                 type(exposure[key]) is not bool and exposure[key] != "unknown"
                 for key in ("training", "tuning", "prior_evaluation")
@@ -585,6 +586,11 @@ def _expectation_relations(indexed: _Indexes) -> None:
         "generalize": "unverifiable",
         "review_required": "human_review",
     }
+    compatible_operators = {
+        "remove": {"redact", "suppress", "placeholder", "indexed", "pseudonym", "mask"},
+        "preserve": {"keep"},
+        "generalize": {"generalize", "date_shift", "mask"},
+    }
     for expectation in indexed.expectations.values():
         if expectation["mention_id"] is not None:
             target = indexed.mentions[expectation["mention_id"]]
@@ -595,6 +601,11 @@ def _expectation_relations(indexed: _Indexes) -> None:
             indexed.units[unit_id]["case_id"] != expectation["case_id"]
             or expectation["case_id"] not in indexed.documents
             or expectation["verification"] != verification[expectation["action"]]
+            or (
+                expectation["action"] in compatible_operators
+                and not set(expectation["allowed_operators"])
+                <= compatible_operators[expectation["action"]]
+            )
             or (expectation["action"] != "review_required" and not expectation["allowed_operators"])
         ):
             raise ValueError

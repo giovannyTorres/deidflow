@@ -36,11 +36,16 @@ o módulos internos.
 | 12 | Panel y capacidades no soportadas | 5 fallos | 102 pasan |
 | 13 | Selectores con estado seguro | 2 fallos | 109 pasan |
 | 14 | Artefacto validado antes de declarar pista no soportada | 1 fallo | 111 pasan |
+| 15 | Operador compatible con la acción requerida | 3 fallos | 115 pasan |
+| 16 | Fecha UTC de revisión de permisos obligatoria y conservada | 2 fallos, otras fechas ya rechazadas | 119 pasan |
+| 17 | 2100 menciones cruzadas sin matching auxiliar recursivo | 1 fallo con RecursionError | 120 pasan |
 
 Las cinco variantes positivas adicionales (Unicode/CRLF, spans cruzados,
 precedencia, derivación y varias unidades) ya pasaron al añadirse; no se
 presentan como ciclos rojos. La repetición offline del ejemplo también pasa.
-**112 pruebas nuevas y las 21 de BMX-01 pasan.** Logs locales:
+Se añadió además una regresión que exige TP=FP=FN=1 y F1=0.5 con predicciones
+duplicadas y límites parciales; ya pasó al escribirse.
+**121 pruebas nuevas y las 21 de BMX-01 pasan.** Logs locales:
 `/tmp/deidflow-bmx02/`; este acta omite trazas con rutas/canarios ficticios de
 fallos intencionales.
 
@@ -49,17 +54,35 @@ fallos intencionales.
 Pendientes suite completa con cobertura, microbenchmark, empaquetado y wheel
 instalado. Ya pasan Ruff, formato y mypy durante la implementación.
 Manifiesto del ejemplo:
-`60649f3f48a350b1b04d8bf0c930e983e98ae5a9eacbcbd790bc422907d724f9`.
+`7fd7f5a4808a85b3c73c9561c82b40eb06e91f9dd2e4c8165bc3b7b4bc8ddeb8`.
 Métricas observadas: TP=1, FP=0, FN=1, soporte=2; precision=1.0,
 recall=0.5, F1=2/3. Calidad `DESCRIPTIVE_ONLY`; fixture conocido, no test ciego.
 
 ## Standards
 
-Pendiente revisión Matt Pocock con contexto fresco contra la base fija.
+El revisor independiente encontró un P2 en `5434f0c`: el evaluador genérico
+calculaba un matching solapado recursivo que no se publicaba y fallaba con
+2100 spans cruzados admitidos. No encontró smells Fowler sustantivos.
+Peor hallazgo del eje: caída ante entradas admitidas.
+
+Corrección: conteo exacto mediante conjuntos por unidad, sin emparejamiento
+solapado auxiliar. La regresión observó RecursionError antes y ahora obtiene
+TP=2100, FP=FN=0 con el candidato local controlado. Pendiente confirmación final
+del revisor.
 
 ## Spec
 
-Pendiente revisión independiente de BMX-02 y AC-01/AC-05.
+El revisor independiente encontró dos P2 en `5434f0c`: se permitía `remove` con
+operador `keep`, y faltaba una fecha en el contrato de revisión de permisos.
+No identificó ampliación injustificada de alcance. Peor hallazgo del eje:
+expectativas internamente contradictorias admitidas.
+
+Corrección: compatibilidad explícita acción/operadores y `reviewed_at` UTC
+obligatorio. Ambas correcciones tienen ciclos rojos y verdes. Se actualizó el
+fixture sintético y su hash para incluir la fecha; no se inventó revisión humana.
+Pendiente confirmación final del revisor.
+
+Recuento inicial: Standards 1; Spec 2. No se escoge un peor problema global.
 
 ## Límites pendientes
 

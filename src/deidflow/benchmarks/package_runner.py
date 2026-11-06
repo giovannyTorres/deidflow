@@ -20,7 +20,6 @@ from ._package_io import MAX_RECORDS, is_sha256
 from .datasets import Example, GoldSpan
 from .email import _source_digest, _write_report
 from .evaluation_package import load_evaluation_package
-from .metrics import evaluate
 
 
 @dataclass(frozen=True)
@@ -111,6 +110,27 @@ def _findings(response: Any, text: str) -> list[Finding]:
     return result
 
 
+def _exact_metrics(
+    examples: list[Example], predictions: list[list[Finding]]
+) -> dict[str, int | float | None]:
+    tp = fp = fn = 0
+    for example, findings in zip(examples, predictions, strict=True):
+        gold = {(span.entity_type, span.start, span.end) for span in example.spans}
+        predicted = {(span.entity_type, span.start, span.end) for span in findings}
+        tp += len(gold & predicted)
+        fp += len(predicted - gold)
+        fn += len(gold - predicted)
+    return {
+        "true_positives": tp,
+        "false_positives": fp,
+        "false_negatives": fn,
+        "support": tp + fn,
+        "precision": tp / (tp + fp) if tp + fp else None,
+        "recall": tp / (tp + fn) if tp + fn else None,
+        "f1": 2 * tp / (2 * tp + fp + fn) if 2 * tp + fp + fn else None,
+    }
+
+
 def run_package_benchmark(
     package: str | Path,
     *,
@@ -182,19 +202,7 @@ def run_package_benchmark(
         except Exception:
             failed_units += 1
             failed_cases.add(unit_cases[example.id])
-    metrics = None
-    if not failed_units:
-        measured = evaluate(examples, predictions)
-        tp, fp, fn = measured.true_positives, measured.false_positives, measured.false_negatives
-        metrics = {
-            "true_positives": tp,
-            "false_positives": fp,
-            "false_negatives": fn,
-            "support": tp + fn,
-            "precision": tp / (tp + fp) if tp + fp else None,
-            "recall": tp / (tp + fn) if tp + fn else None,
-            "f1": 2 * tp / (2 * tp + fp + fn) if 2 * tp + fp + fn else None,
-        }
+    metrics = _exact_metrics(examples, predictions) if not failed_units else None
     report = {
         "schema_version": "df-eval-mx.package-report.v1",
         "result": {
