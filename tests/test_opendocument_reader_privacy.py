@@ -9,6 +9,32 @@ from deidflow import DeidEngine, Policy
 from deidflow.readers import DocumentError, read_document
 
 
+@pytest.mark.parametrize("tag", ("s", "tab", "line-break"))
+@pytest.mark.parametrize(
+    "child", (samples.SECRET, f"<text:span>{samples.SECRET}</text:span>", "<text:span/>", " ")
+)
+def test_nonempty_whitespace_elements_reject_retained_children(tmp_path, tag, child):
+    source = samples.package(tmp_path, f"<text:p>Informe.<text:{tag}>{child}</text:{tag}></text:p>")
+    with pytest.raises(DocumentError, match="whitespace elements must be empty") as error:
+        read_document(source)
+    assert samples.SECRET not in str(error.value)
+    with pytest.raises(DocumentError, match="whitespace elements must be empty"):
+        DeidEngine(country="ES").verify(source, policy=Policy.strict(require_ner=False))
+
+
+def test_empty_whitespace_elements_preserve_visible_separators(tmp_path):
+    source = samples.package(
+        tmp_path, '<text:p>Informe.<text:s text:c="2"/>A<text:tab/>B<text:line-break/>C</text:p>'
+    )
+    graph = read_document(source)
+    assert graph.complete, graph.issues
+    assert any("Informe.  A\tB\nC" in fragment.text for fragment in graph.fragments)
+    assert (
+        DeidEngine(country="ES").verify(source, policy=Policy.strict(require_ner=False)).status
+        == "APPROVED"
+    )
+
+
 def assert_uninspected_source(source: Path):
     graph = read_document(source)
     assert not graph.complete

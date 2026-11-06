@@ -273,6 +273,8 @@ def _walk(root: Node, pieces: list[Piece], deferred: deque[Node], skip_cells: bo
         if namespace == OFFICE and local == "binary-data":
             continue
         if namespace == TEXT and local in {"s", "tab", "line-break"}:
+            if node.childNodes:
+                raise DocumentError("OpenDocument whitespace elements must be empty")
             value = {"tab": "\t", "line-break": "\n"}.get(local) or " " * _count(node)
             pieces.append((node, value, False))  # the element itself holds the value
             continue
