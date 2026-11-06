@@ -181,3 +181,14 @@ def test_oversized_changed_url_fails_closed_before_building_offset_map(tmp_path:
     assert result.status == "BLOCKED"
     assert result.output_path is None
     assert not (tmp_path / "output.html").exists()
+
+
+@pytest.mark.parametrize(
+    "prefix",
+    ("&copyContact:", "&ampContacto:", "&notinContacto:", "&#58Contacto:", "&unknownContacto:"),
+)
+def test_semicolonless_reference_keeps_its_literal_suffix(tmp_path: Path, prefix: str):
+    source = f'<a href="https://example.test/p?x={prefix}uno@example.test">Texto.</a>'
+    assert _rewrite(source, tmp_path) == (
+        f'<a href="https://example.test/p?x={prefix}[EMAIL]">Texto.</a>'
+    )

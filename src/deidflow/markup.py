@@ -143,10 +143,20 @@ def _replace_url_source_spans(raw: str, value: str, mappings: list[tuple[int, in
             chunks.append(text[cursor : match.start()])
             projected.extend(bounds[cursor : match.start()])
             token = match.group()
+            consumed = len(token)
+            if not percent and not token.startswith("&#"):
+                # HTML permits a legacy name without ';' before literal text.
+                # Only that recognized prefix is an indivisible source atom.
+                for length in range(len(token) - 1, 1, -1):
+                    if token[1 : length + 1] in html.entities.html5:
+                        consumed = length + 1
+                        break
+            suffix = token[consumed:]
+            token = token[:consumed]
             decoded = unquote(token, errors="strict") if percent else html.unescape(token)
             chunks.append(decoded)
             if decoded == token:
-                projected.extend(bounds[match.start() : match.end()])
+                projected.extend(bounds[match.start() : match.start() + consumed])
             elif percent:
                 offset = match.start()
                 for character in decoded:
@@ -155,8 +165,11 @@ def _replace_url_source_spans(raw: str, value: str, mappings: list[tuple[int, in
                     offset = end
             else:
                 projected.extend(
-                    [(bounds[match.start()][0], bounds[match.end() - 1][1])] * len(decoded)
+                    [(bounds[match.start()][0], bounds[match.start() + consumed - 1][1])]
+                    * len(decoded)
                 )
+            chunks.append(suffix)
+            projected.extend(bounds[match.start() + consumed : match.end()])
             cursor = match.end()
         chunks.append(text[cursor:])
         projected.extend(bounds[cursor:])
