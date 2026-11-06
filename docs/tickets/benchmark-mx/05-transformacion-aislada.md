@@ -5,6 +5,9 @@
 
 **Estado de publicación:** borrador; no existe número/URL de issue verificado.
 
+**Estado de implementación:** implementada y revisada; integración final del lote pendiente.
+Evidencia: [acta BMX-05](../../audit/BMX-05.md).
+
 **Tipo:** tarea técnica. **Etiqueta propuesta:** `ready-for-agent`; no aplicada.
 
 **Bloqueado por:** BMX-02.
@@ -23,21 +26,21 @@ Ejecutar transformación textual aislada usando el gold y un perfil explícito; 
 
 ## Criterios de aceptación
 
-- [ ] Evaluar remove, preserve, generalize y review_required bajo expectativas explícitas, incluso si son propuestas aún no ratificadas.
+- [x] Evaluar remove, preserve, generalize y review_required bajo expectativas explícitas, incluso si son propuestas aún no ratificadas.
 
-- [ ] Los mapas se contrastan con el contenido realmente emitido; copiar el original o conservar un sufijo no acredita retirada completa.
+- [x] Los mapas se contrastan con el contenido realmente emitido; copiar el original o conservar un sufijo no acredita retirada completa.
 
-- [ ] Medir contexto requerido, retención no sensible, sobretransformación y resultado conjunto; operador sin verificador produce UNVERIFIABLE.
+- [x] Medir contexto requerido, retención no sensible, sobretransformación y resultado conjunto; operador sin verificador produce UNVERIFIABLE.
 
-- [ ] Rechazar expectativas contradictorias sin precedencia declarada y conservar spans superpuestos admitidos.
+- [x] Rechazar expectativas contradictorias sin precedencia declarada y conservar spans superpuestos admitidos.
 
 ## Pruebas y evidencia exigidas
 
-- [ ] Transformador correcto frente a candidatos controlados que copian original, falsean mapas o dejan máscara parcial.
+- [x] Transformador correcto frente a candidatos controlados que copian original, falsean mapas o dejan máscara parcial.
 
-- [ ] Perfiles explícitos opuestos sobre el mismo contenido clínico; pérdida de «niega diabetes» reduce conservación y éxito conjunto.
+- [x] Perfiles explícitos opuestos sobre el mismo contenido clínico; pérdida de «niega diabetes» reduce conservación y éxito conjunto.
 
-- [ ] Marcador literal presente en la entrada y solapamientos con contexto que debe preservarse.
+- [x] Marcador literal presente en la entrada y solapamientos con contexto que debe preservarse.
 
 ## Trazabilidad
 
@@ -45,7 +48,7 @@ AC-06, AC-08 de DF-EVAL-MX v0.1.0.
 
 ## Restricciones y fuera de alcance
 
-- Esta creación de tareas no inicia la implementación.
+- La solicitud actual autorizó implementar este incremento dentro del lote BMX-03 a BMX-12.
 - El trabajo futuro se limita al sistema de evaluación; no corregir detectores, políticas ni transformadores de producción para hacer pasar el benchmark.
 - Solo datos ficticios o fuentes públicas no personales con permisos comprobados; nunca documentos personales reales ni envío a servicios externos.
 - Evaluación local, sin descargas/inferencia/telemetría remotas ni dependencias obligatorias nuevas. Cualquier adquisición o publicación requiere autorización de su tarea.

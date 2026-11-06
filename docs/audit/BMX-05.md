@@ -1,7 +1,8 @@
 # BMX-05: transformación aislada y conservación
 
-Base: `f391e5a` (cierre incremental BMX-04). Estado: código y pruebas focalizadas;
-revisiones independientes pendientes, integración completa al final del lote.
+Base: `f391e5a` (cierre incremental BMX-04). Estado: implementada y revisada;
+integración completa al final del lote pendiente.
+Código final: `16279a048448044669af4ea7558c959e534ba61e`.
 Contrato: [uso y límites](../BENCHMARK_MX_TRANSFORMATION.md).
 
 TDD: 11 pruebas fallaron por falta del módulo antes de implementarlo. Se ajustó
@@ -22,8 +23,22 @@ La ejecución es callback local de confianza; no constituye aislamiento nativo.
 
 ## Standards
 
-Pendiente revisión independiente Matt Pocock.
+Revisor `/root/batch05_standards`: 0 infracciones escritas, 3 juicios P3
+iniciales. Se aclararon nombres/coordenadas y eliminaron campos sin uso.
+Queda 1 P3 aceptado no bloqueante por verificaciones parecidas a context_quality:
+se conservan independientes dadas las diferencias de taxonomía y operadores;
+extraer dos comparaciones simples no justifica ampliar este ticket. Un renombrado
+afectó por error el prefijo de un literal de bytes; se corrigió antes de push
+y se repitieron los checks. Final: 0 infracciones, 1 juicio P3 aceptado.
 
 ## Spec
 
-Pendiente revisión independiente ticket/AC-06/AC-08.
+Revisor `/root/batch05_spec`: 2 P2 corregidos con pruebas rojas/verdes:
+coincidencias accidentales en placeholder y selección de la intersección de
+operadores. Confirmó ambos mediante endpoint público y 14 pruebas propias.
+Una observación inicial de métricas documentales/estados se reasignó, de acuerdo
+con el revisor, a BMX-06: esa tarea evaluará el pipeline real y sus denominadores
+y límites. Final BMX-05: 0 abiertos; no se acredita liberación completa aquí.
+
+Salud: **197 pruebas focalizadas**, Ruff/formato y mypy (73 módulos) pasan.
+Logs en `/tmp/deidflow-batch/BMX-05/`. No se ejecutó aún integración completa.

@@ -202,9 +202,13 @@
       "draft_file": "05-transformacion-aislada.md",
       "github_title": "[DF-EVAL-MX][BMX-05] Verificar protección y conservación con menciones de referencia",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-05 -->",
-      "body_sha256": "98f01ba3acb9939f94087a0be73449128ad8f0f433b866a3522ba1acefb02bba",
+      "body_sha256": "2f05a1def5d31ac2e4ab98385cc5096293325d93c4b77bca609c46e6b7d6e88c",
       "github_issue_number": null,
-      "github_issue_url": null
+      "github_issue_url": null,
+      "implementation_status": "implemented_and_reviewed",
+      "integrated_validation_pending": true,
+      "implementation_evidence": "../../audit/BMX-05.md",
+      "reviewed_code_commit": "16279a048448044669af4ea7558c959e534ba61e"
     },
     {
       "id": "BMX-06",
