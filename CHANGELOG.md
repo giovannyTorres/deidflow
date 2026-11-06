@@ -20,6 +20,9 @@
   non-whitespace text/CDATA. Opaque binary settings, signatures and certificate/
   typed-binary metadata preserve incomplete coverage; printable runs alone do
   not establish inspection of the underlying bytes.
+- OpenDocument media removal rejects unsupported binary-data parents. Changed
+  ODS cells retain and transform inline comments/text boxes and their anchors;
+  cell/field flattening cannot erase retained opaque binary coverage markers.
 
 ## 0.6.0b1 - Spanish context product candidate
 

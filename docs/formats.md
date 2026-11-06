@@ -257,12 +257,16 @@ Before writing, the supported-package writer:
   and removes external linked objects/sections;
 - with `office_media="remove"` (default), removes images and embedded objects,
   including charts. Retaining uninspected media with `"keep"` leaves coverage
-  incomplete and blocks output;
+  incomplete and blocks output. Binary data under an unsupported parent blocks
+  before removal, preserving clinical prose from accidental parent deletion;
 - rebuilds the package manifest, storing `mimetype` first and uncompressed.
 
 ODS sheets use the first nonempty row as column context, as XLSX does. Both
 displayed cell text and separate typed values are checked. Changed cells become
-strings; sensitive typed copies are dropped. Formulas carrying string literals
+strings; sensitive typed copies are dropped. Supported inline comments/text boxes
+and their anchors remain attached and their text is transformed independently.
+Cell/field flattening blocks retained opaque binary metadata before clearing
+its coverage marker. Formulas carrying string literals
 or external references become their retained values, while supported arithmetic
 is kept. Sensitive sheet/object/bookmark names are replaced consistently with
 their supported references. Known pivot/data-source copies, filter values and
