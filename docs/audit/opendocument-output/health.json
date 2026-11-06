@@ -5,7 +5,7 @@
     "parameter_and_skip_decorators_retained": 12,
     "shared_reader_functions_unchanged": 42
   },
-  "base_commit": "a29183c9d43327bf978f168b66dfcf693d92b72f",
+  "base_commit": "ec3dd3f6ee1e1409bcee1956be911b9d20022f64",
   "base_reader_branch": "feat/opendocument-reader-review",
   "base_reader_source_commit": "93242156e9cb259a01b6dba66bde7c3000f9c49c",
   "branch": "feat/opendocument-output-preparation",

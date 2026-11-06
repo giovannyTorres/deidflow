@@ -26,6 +26,6 @@ Revisión interna Matt: Standards 0 pendientes; Spec 0 pendientes. No es aprobac
 - [ ] Todos los hilos resueltos.
 - [ ] Aprobación de Giovanny.
 
-Base de revisión actual: `feat/opendocument-reader-review` (`a29183c`, fuente `9324215`). El lector aún no está en master; esta rama sigue siendo preparación. ODS requiere revisión y el adjunto ODS retenido en EML sigue bloqueado por una limitación documentada. El ticket BMX-14b está redactado; la API bloqueada impide crearlo como issue.
+Base de revisión actual: `feat/opendocument-reader-review` (`ec3dd3f`, fuente `9324215`). El lector aún no está en master; esta rama sigue siendo preparación. ODS requiere revisión y el adjunto ODS retenido en EML sigue bloqueado por una limitación documentada. El ticket BMX-14b está redactado; la API bloqueada impide crearlo como issue.
 
 El cambio mantiene las 128 aserciones y 12 decoradores originales; 1.617 líneas Python cambiadas con helpers/comentarios/pruebas, sin exclusiones. El escritor conserva y transforma el contexto auxiliar, bloquea ubicaciones binarias no soportadas y normaliza únicamente errores de entrada ZIP. No intercepta errores de callbacks confiables.
