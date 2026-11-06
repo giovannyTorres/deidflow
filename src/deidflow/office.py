@@ -965,9 +965,16 @@ def rewrite_xlsx(
         for (_, part, _), located, changed in zip(sheets, cells, changes, strict=True):
             document = documents[part]
             report.transformations += len(changed)
+            # A changed cell may be the master of a shared formula: record the
+            # group before its formula is replaced, so dependents do not keep
+            # references to a master that no longer exists.
+            removed_groups: set[str] = set()
+            for position in changed:
+                for formula in _children(located[position], S, "f"):
+                    if formula.getAttribute("t") == "shared" and formula.getAttribute("ref"):
+                        removed_groups.add(formula.getAttribute("si"))
             for position, text in changed.items():
                 _set_inline(located[position], text)
-            removed_groups = set()
             formulas = _elements(document, S, "f")
             for formula in formulas:
                 text = _text_of(formula)
@@ -993,6 +1000,7 @@ def rewrite_xlsx(
                     new = _rewrite_header_footer(text, rewrite, report)
                     if new != text:
                         _set_text(element, new, preserve=False)
+            _drop_value_criteria(document, report)
             _drop_references(document, dropped_ids.get(part, set()), report)
             for container in ("oleObjects", "controls", "hyperlinks"):
                 for element in _elements(document, S, container):
@@ -1097,8 +1105,57 @@ def _table_headers(
                     if formula_carries_data(_text_of(formula)):
                         _remove(formula)
                         report.count("formulas_replaced_by_values")
+            _drop_value_criteria(document, report)
             out[target] = _serialize(document)
     return out
+
+
+def _deep_text(element: Node) -> str:
+    parts: list[str] = []
+    for child in element.childNodes:
+        if child.nodeType == child.TEXT_NODE:
+            parts.append(child.data)
+        elif child.nodeType == child.ELEMENT_NODE:
+            parts.append(_deep_text(child))
+    return "".join(parts)
+
+
+def _drop_value_criteria(document: Node, report: OfficeReport) -> None:
+    """Remove filter, sort, validation and conditional-format criteria holding values.
+
+    AutoFilter criteria (``<filter val="...">``), custom sort lists, validation
+    lists (``"Ana,Luis"``) and text rules keep copies of cell values that the
+    cell transformation does not reach. The filter range and buttons stay.
+    """
+    from deidflow.readers import formula_carries_data
+
+    for element in list(document.getElementsByTagName("*")):
+        local = _local(element)
+        if local == "filterColumn":
+            _remove(element)
+            report.count("filter_criteria")
+        elif local == "sortCondition" and element.getAttribute("customList"):
+            element.removeAttribute("customList")
+            report.count("filter_criteria")
+        elif local in {"dataValidation", "cfRule"} and (
+            formula_carries_data(_deep_text(element)) or element.getAttribute("text")
+        ):
+            _remove(element)
+            report.count("value_criteria")
+    for container, item in (
+        ("dataValidations", "dataValidation"),
+        ("conditionalFormatting", "cfRule"),
+    ):
+        for element in list(document.getElementsByTagName("*")):
+            if _local(element) != container:
+                continue
+            items = [
+                c for c in element.childNodes if c.nodeType == c.ELEMENT_NODE and _local(c) == item
+            ]
+            if not items:
+                _remove(element)
+            elif element.hasAttribute("count"):
+                element.setAttribute("count", str(len(items)))
 
 
 def _rewrite_header_footer(text: str, rewrite: Rewrite, report: OfficeReport) -> str:
