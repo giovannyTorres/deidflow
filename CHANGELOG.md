@@ -12,6 +12,17 @@
   retaining a valid ODS attachment currently blocks the final message reread
   because its review-only issue is treated as incomplete coverage. Documented
   OpenDocument channels, package limits and local LibreOffice regression checks.
+- Closed OpenDocument retained-metadata gaps: style display labels are scanned
+  and transformed, other structural values are inspected and block when unsafe
+  to rewrite, manifest XML types are canonicalized, and package links resolve
+  against a bounded inventory of actual members and implicit directories.
+- Inspect XML qualified names/prefixes, allocate neutral names without colliding
+  with existing bindings, and fail closed on excessive ODF XML nesting instead
+  of exposing a raw recursion exception. The shared OOXML helpers are unchanged.
+- Preserve incomplete coverage when original ODF packages contain XML comments
+  or processing instructions, opaque configuration/layout/directory payloads, or
+  uninspected ZIP comments, extra fields and layout data. Standalone verification
+  cannot approve these channels merely because the writer would remove them.
 
 ## 0.6.0b1 - Spanish context product candidate
 

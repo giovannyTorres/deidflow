@@ -55,6 +55,10 @@ localizadores, contenido inspeccionado y límites.
   miniaturas, firmas, macros, medios/objetos y enlaces externos se retiran o quedan
   explícitamente sin verificar. Un canal retenido no inspeccionado nunca permite
   una conclusión favorable.
+- [ ] Cubrir también comentarios/PIs XML, alias/nombres XML, comentarios ZIP y
+  campos extra locales/centrales, payloads de entradas directorio y otros canales
+  opacos. Distinguir verificación del original de la salida reconstruida; un
+  canal eliminado y comprobado no debe seguir bloqueando el artefacto limpio.
 - [ ] Las referencias usan localizadores estables por parte, hoja y celda o flujo;
   el informe utiliza IDs opacos, sin nombres de archivo, valores ni ubicaciones
   sensibles. Mantener linajes/grupos/particiones al generar variantes.

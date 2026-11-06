@@ -243,6 +243,17 @@ typed values and declared formulas are inspected separately. Sharing that walk
 keeps scanned and rewritten text aligned; it does not establish coverage of every
 OpenDocument extension or replace independent output evaluation.
 
+Every retained nonempty attribute value, including namespace bindings and
+manifest fields, is exposed to inspection. Element/attribute qualified names and
+namespace prefixes are inspected too, even for empty-valued attributes; sensitive
+structural syntax blocks instead of being renamed blindly. Known human labels such as
+`style:display-name` are transformed as text. Other structural attributes are
+inspected without blindly inserting placeholders: if the configured detector and
+policy would change such a value, output is blocked rather than corrupting style
+definitions/references or silently retaining it. Benign structural values stay
+unchanged. This is inspection of declared text/value channels, not a decoder for
+every possible vendor-specific encoding or semantic extension.
+
 Before writing, the supported-package writer:
 
 - accepts tracked changes, drops revision content that is not retained, and
@@ -260,12 +271,24 @@ Before writing, the supported-package writer:
   incomplete and blocks output;
 - rebuilds the package manifest, storing `mimetype` first and uncompressed.
 
+Package-relative links must resolve against actual ZIP members or their implicit
+directories, relative to the owning XML part. Missing targets, root escapes and
+unsupported package query/fragment references are unlinked or removed; visible
+link text still goes through detection. Safe percent-encoded spellings remain
+unchanged, while encoded path separators are rejected as ambiguous. An embedded
+asset can therefore resolve without an explicit directory entry, but retaining
+its uninspected bytes still blocks release. The reference inventory is bounded
+to 20,000 entries, paths of 4,096 characters and 32 directory separators, in
+addition to the archive limits. These are admission bounds, not a hard RSS claim.
+
 ODS sheets use the first nonempty row as column context, as XLSX does. Both
 displayed cell text and separate typed values are checked. Changed cells become
 strings; sensitive typed copies are dropped. Formulas carrying string literals
 or external references become their retained values, while supported arithmetic
 is kept. Sensitive sheet/object/bookmark names are replaced consistently with
-their supported references. Known pivot/data-source copies, filter values and
+their supported references. Neutral object names are allocated after reserving
+existing attribute values, so a replacement cannot collapse an existing harmless
+bookmark/reference. Known pivot/data-source copies, filter values and
 data-bearing validations, conditional formats and named expressions are removed.
 Nonempty repeated cells/rows have expansion limits; large empty repetitions stay
 compact. Display formats, formulas and vendor extensions are not exhaustively
@@ -273,11 +296,29 @@ modeled: **every ODS output and standalone verification requires review**
 (`ODS_REVIEW_REQUIRED`), and confirmed residuals/incomplete coverage still block.
 
 The output is reread and rescanned, and `audit["office_removed"]` counts removals.
-Unknown ZIP parts, mismatched package media types, encrypted packages and
-unsupported/malformed XML block rather than yielding a successful empty scan.
+Unknown ZIP parts, a `mimetype` member that disagrees with the file extension,
+encrypted packages and XML parse errors block rather than yielding a successful
+empty scan.
 The common archive guards also reject duplicate members, excessive expansion and
-XML DTD/entity declarations. Supported content in an ODT follows the engine's
+XML DTD/entity declarations. Retained XML parts receive canonical `text/xml`
+manifest types, rather than arbitrary input metadata that merely matches MIME
+syntax. The supported text/attribute inventory does not prove full semantics for
+all unknown elements inside an admitted XML part. ODT follows the engine's
 ordinary policy/model gates; a clean reread alone is not an anonymity guarantee.
+The ODF DOM boundary rejects nesting beyond 128 elements and converts recursive
+parse exhaustion into a sanitized document error; excessive nesting blocks
+without publishing a partial file. This guard is specific to OpenDocument and
+does not change the shared OOXML helpers.
+
+Standalone verification evaluates the original container. XML comments and
+processing instructions are recorded as uninspected before the shared parser
+discards them; parser events handle accepted encodings, including UTF-16, without
+mistaking CDATA text for hidden markup. Nonempty configuration/layout-cache or
+directory payloads, ZIP archive/member comments, central/local extra fields and
+unaccounted container layout data make coverage incomplete. Opaque payloads are
+not decoded. Empty directory entries without other uninspected channels remain
+benign. The writer removes those channels and rebuilds its ZIP headers, so a
+sanitized output can verify complete even when its original source cannot.
 
 ODT and ODS e-mail attachments use the same writer and canonical OpenDocument
 MIME types and are renamed like other attachments. ODT attachment rewriting is
