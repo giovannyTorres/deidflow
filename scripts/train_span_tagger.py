@@ -140,8 +140,11 @@ def main() -> None:
             validation += list(
                 generate(args.synthetic_validation or 1, split="validation", seed=args.seed)
             )
+            import importlib.metadata
+
             provenance["components"]["synthetic_es"] = {
                 "generator": "deidflow.benchmarks.synthetic_es",
+                "faker": importlib.metadata.version("faker"),  # values depend on it
                 "seed": args.seed,
                 "documents": {
                     "train": args.synthetic_train,

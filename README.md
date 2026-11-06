@@ -85,8 +85,10 @@ verification gate. It never establishes anonymous data. Always inspect
   EC, PY), cédula (EC, DO, CR, NI, PA, VE, ...), RIF (VE), RNC (DO), NIT/DPI (GT),
   DUI (SV), INE/IMSS (MX), SSN (US/PR); international phones, IPv4/IPv6 and
   textual Spanish dates. Check digits are cross-checked against python-stdnum.
-- Domain router (`--tagger builtin:auto`) picks the clinical or financial model
-  per document; `balanced`/`assurance` operating profiles (`--tagger-profile`).
+- Domain router (`--tagger builtin:auto`) sends each document to the clinical
+  model or to `es-general` (trained on clinical, financial and synthetic
+  documents from 14 countries); `balanced`/`assurance` operating profiles
+  (`--tagger-profile`).
 - Train your own tagger from span JSONL (`scripts/train_span_tagger.py`).
 - Verification no longer blocks on its own placeholders: rescans ignore findings
   made only of replacement tokens, so `APPROVED` is reachable on real text.
@@ -210,9 +212,11 @@ Details and caveats: [docs/COMPARISON.md](docs/COMPARISON.md).
 | MEDDOCAN clinical, exact F1 | **0.958** | 0.881 | 0.363 | 0.259 |
 | MEDDOCAN, sensitive-character recall | 0.966 | **0.969** | 0.661 | 0.496 |
 | MEDDOCAN, over-redaction | **0.09%** | 0.29% | 3.87% | 3.82% |
-| Gretel financial (ES), exact F1 | **0.707** | 0.629 | 0.177 | 0.115 |
-| Gretel, sensitive-character recall | 0.789 | **0.830** | 0.637 | 0.513 |
-| Gretel, over-redaction | **0.89%** | 2.34% | 8.44% | 6.15% |
+| Gretel financial (ES), exact F1 | **0.740** | 0.655 | 0.177 | 0.115 |
+| Gretel, sensitive-character recall | 0.798 | **0.838** | 0.637 | 0.513 |
+| Gretel, over-redaction | **0.73%** | 2.19% | 8.44% | 6.15% |
+| Synthetic 14-country test families, exact F1 | 0.785 | **0.786** | 0.455 | 0.408 |
+| Synthetic, sensitive-character recall | 0.929 | **0.947** | 0.684 | 0.610 |
 
 DeidFlow's taggers were trained on these corpora's training splits; the
 baselines were not. No configuration removes every sensitive character from

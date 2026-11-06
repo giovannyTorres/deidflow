@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "description": "One-time evaluation of the previous builtin:auto configuration (es-clinical / es-finance / both when mixed) on the synthetic test families, for comparison with es-general routing. Same generator, seed 1729, 600 documents, same scoring as benchmarks/results/comparison/synthetic-es-test.json.",
+  "faker": "40.44.0",
+  "results": {
+    "previous_auto": {
+      "precision": 0.5556897072140055,
+      "recall": 0.5336231884057971,
+      "f1": 0.5444329439597813,
+      "f1_ci": {
+        "status": "measured",
+        "unit": "document bootstrap",
+        "seed": 1729,
+        "repeats": 500,
+        "confidence": 0.95,
+        "intervals": {
+          "precision": [
+            0.5415940184961924,
+            0.5697285225288898
+          ],
+          "recall": [
+            0.5138571433833451,
+            0.5512408290543422
+          ],
+          "f1": [
+            0.5307090301211613,
+            0.557272512814199
+          ],
+          "document_leakage_rate": [
+            0.9066666666666666,
+            0.945
+          ]
+        }
+      },
+      "sensitive_character_recall": 0.7726577028783964,
+      "documents_with_uncovered_gold_characters": 472,
+      "false_redaction_rate": 0.024388811221672677
+    },
+    "rules_plus_previous_auto": {
+      "precision": 0.5665327345781139,
+      "recall": 0.6947826086956522,
+      "f1": 0.6241374820986851,
+      "f1_ci": {
+        "status": "measured",
+        "unit": "document bootstrap",
+        "seed": 1729,
+        "repeats": 500,
+        "confidence": 0.95,
+        "intervals": {
+          "precision": [
+            0.555868885823605,
+            0.5772756131976541
+          ],
+          "recall": [
+            0.6795409418780272,
+            0.7090047088302075
+          ],
+          "f1": [
+            0.6142456073338427,
+            0.6335806267266039
+          ],
+          "document_leakage_rate": [
+            0.8416666666666667,
+            0.895
+          ]
+        }
+      },
+      "sensitive_character_recall": 0.8420091173905172,
+      "documents_with_uncovered_gold_characters": 388,
+      "false_redaction_rate": 0.04549993538609744
+    }
+  }
+}

@@ -60,8 +60,10 @@ def _baseline_model_metadata(path: Path) -> dict[str, object]:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("source", choices=["meddocan", "tab", "gretel_finance"])
-    parser.add_argument("--corpus", type=Path, required=True)
+    parser.add_argument("source", choices=["meddocan", "tab", "gretel_finance", "synthetic_es"])
+    parser.add_argument("--corpus", type=Path, help="Not used for synthetic_es")
+    parser.add_argument("--synthetic-documents", type=int, default=600)
+    parser.add_argument("--seed", type=int, default=1729, help="synthetic_es generator seed")
     parser.add_argument(
         "--baseline", type=Path, help="Frozen v0.2.0 source tree; omit to skip that comparison"
     )
@@ -86,7 +88,38 @@ def main() -> None:
         help="MEDDOCAN test articles absent from official train/dev; metadata-only selection",
     )
     args = parser.parse_args()
-    if args.source == "gretel_finance":
+    if args.source != "synthetic_es" and args.corpus is None:
+        parser.error("--corpus is required")
+    if args.source == "synthetic_es":
+        import importlib.metadata
+
+        from deidflow.benchmarks.synthetic_es import generate
+
+        split = {"dev": "validation", "test": "test"}[args.split]
+        examples = tuple(generate(args.synthetic_documents, split=split, seed=args.seed))
+        integrity = {
+            "generator": "deidflow.benchmarks.synthetic_es",
+            "seed": args.seed,
+            "faker": importlib.metadata.version("faker"),
+        }
+        corpus = PublicCorpus(
+            "synthetic_es",
+            "es",
+            "synthetic",
+            examples,
+            {
+                "split": split,
+                "documents": len(examples),
+                "gold_span_count": sum(len(e.spans) for e in examples),
+                "selection": "Template families held out from training and validation",
+            },
+        )
+        source_description = {
+            "name": "DeidFlow synthetic multi-country Spanish documents",
+            "license": "Apache-2.0 (generator); values from Faker (MIT) locales",
+            "provenance_kind": "synthetic",
+        }
+    elif args.source == "gretel_finance":
         integrity = verify_registered_files(args.corpus, args.source)
         if args.split != "test":
             parser.error("gretel_finance publishes train and test only; evaluate --split test")

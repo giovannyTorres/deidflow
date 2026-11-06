@@ -50,6 +50,16 @@ def test_router_routes_by_domain_and_falls_back_to_both():
     assert router.route("") == "mixed"
     mixed = router.detect("zzz qqq")  # no known evidence: both taggers run
     assert {f.entity_type for f in mixed} == {"PERSON", "ORGANIZATION"}
+    general = _Fixed("LOCATION")
+    fallback = DomainRouter(
+        model,
+        {"clinical": _Fixed("PERSON"), "financial": general},
+        mixed=[general, general],
+    )
+    assert fallback.mixed == (general,)  # deduplicated
+    assert {f.entity_type for f in fallback.detect("zzz qqq")} == {"LOCATION"}
+    with pytest.raises(ValueError):
+        DomainRouter(model, {"clinical": general, "financial": general}, mixed=[])
     with pytest.raises(ValueError):
         DomainRouter(model, {"clinical": _Fixed("PERSON")})
     with pytest.raises(ValueError):
@@ -59,6 +69,9 @@ def test_router_routes_by_domain_and_falls_back_to_both():
 def test_builtin_router_and_cli(tmp_path, capsys):
     router = DomainRouter.builtin()
     assert set(router.taggers) == {"clinical", "financial"}
+    assert router.taggers["clinical"].model_version == "es-clinical-meddocan-1"
+    assert router.taggers["financial"].model_version == "es-general-1"
+    assert router.mixed == (router.taggers["financial"],)
     clinical = "Paciente de 70 años con hematuria macroscópica. Se realiza ecografía renal."
     financial = "Estimado cliente, adjuntamos el estado de cuenta de su préstamo hipotecario."
     assert router.route(clinical) == "clinical" and router.route(financial) == "financial"
@@ -152,7 +165,7 @@ class _PersonOnly:
         return self.to_findings(self.spans(text, self.decode(text)))
 
 
-@pytest.mark.parametrize("name", ["es-clinical", "es-finance"])
+@pytest.mark.parametrize("name", ["es-clinical", "es-finance", "es-general"])
 def test_cached_tagger_matches_live_inference_for_every_margin_pair(name):
     texts = [
         "Juan Pérez vive en Madrid y trabaja en Acme Corp. Su teléfono es 5551234567.",

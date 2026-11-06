@@ -55,6 +55,8 @@ _CODE_TYPES = {
 }
 
 
+_SYNTHETIC_PREDICTION_ALIASES = {"CURP": "NATIONAL_ID", "RFC": "TAX_ID", "CLABE": "BANK_ACCOUNT"}
+
 _GRETEL_PREDICTION_ALIASES = {
     "CLABE": "BANK_ACCOUNT",
     "RFC": "NATIONAL_ID",
@@ -83,6 +85,8 @@ def map_predictions(source: str, findings: Sequence[Finding]) -> list[Finding]:
             }.get(kind, kind)
         elif source == "gretel_finance":
             kind = _GRETEL_PREDICTION_ALIASES.get(kind, kind)
+        elif source == "synthetic_es":
+            kind = _SYNTHETIC_PREDICTION_ALIASES.get(kind, kind)
         elif source == "tab":
             if kind in _CODE_TYPES:
                 kind = "CODE"
@@ -504,6 +508,7 @@ def taxonomy_description(source: str) -> dict[str, Any]:
             "meddocan": MEDDOCAN_LABELS,
             "tab": TAB_LABELS,
             "gretel_finance": GRETEL_LABELS,
+            "synthetic_es": "generator slots map directly to DeidFlow categories",
         }[source],
         "prediction_aliases": {
             "meddocan": {
@@ -513,6 +518,7 @@ def taxonomy_description(source: str) -> dict[str, Any]:
             },
             "tab": "regional/document/contact identifiers -> CODE; AGE/OCCUPATION -> DEMOGRAPHIC",
             "gretel_finance": _GRETEL_PREDICTION_ALIASES,
+            "synthetic_es": _SYNTHETIC_PREDICTION_ALIASES,
         },
         "excluded_prediction_categories": sorted(_CLINICAL_NOT_ANNOTATED),
         "exclusion_reason": "These clinical attributes are outside the PHI/masking gold annotation task, so unlabeled medical spans cannot be asserted false positives",
