@@ -5,6 +5,10 @@
 
 **Estado de publicación:** borrador; no existe número/URL de issue verificado.
 
+**Estado de implementación:** completada y verificada. Véase el
+[acta de aceptación BMX-01](../../audit/BMX-01.md), con TDD, pruebas integradas,
+revisión independiente y límites del informe descriptivo.
+
 **Tipo:** tarea técnica. **Etiqueta propuesta:** `ready-for-agent`; no aplicada.
 
 **Bloqueado por:** Ninguna (puede comenzar cuando se autorice la ejecución).
@@ -23,21 +27,21 @@ Ejecutar una pista de detección mínima con el reconocedor existente: un caso E
 
 ## Criterios de aceptación
 
-- [ ] El recorrido carga un paquete sintético mínimo versionado y usa el detector real sin modificarlo.
+- [x] El recorrido carga un paquete sintético mínimo versionado y usa el detector real sin modificarlo.
 
-- [ ] El informe identifica candidato, dataset, pista, perfil y alcance EMAIL; la calidad permanece DESCRIPTIVE_ONLY sin ratificación.
+- [x] El informe identifica candidato, dataset, pista, perfil y alcance EMAIL; la calidad permanece DESCRIPTIVE_ONLY sin ratificación.
 
-- [ ] Dos ejecuciones conservan conteos/decisiones y no sobrescriben resultados; timestamps y medidas operativas se separan.
+- [x] Dos ejecuciones conservan conteos/decisiones y no sobrescriben resultados; timestamps y medidas operativas se separan.
 
-- [ ] Los documentos, valores y nombres originales no aparecen en el resumen; ninguna adquisición o descarga se ejecuta.
+- [x] Los documentos, valores y nombres originales no aparecen en el resumen; ninguna adquisición o descarga se ejecuta.
 
 ## Pruebas y evidencia exigidas
 
-- [ ] Fixture positivo/negativo con conteos exactos conocidos.
+- [x] Fixture positivo/negativo con conteos exactos conocidos.
 
-- [ ] Repetición en dos destinos nuevos y comparación de campos deterministas.
+- [x] Repetición en dos destinos nuevos y comparación de campos deterministas.
 
-- [ ] Destino ya existente rechazado y canario ausente del resumen.
+- [x] Destino ya existente rechazado y canario ausente del resumen.
 
 ## Trazabilidad
 
@@ -45,7 +49,7 @@ AC-12, AC-13 de DF-EVAL-MX v0.1.0.
 
 ## Restricciones y fuera de alcance
 
-- Esta creación de tareas no inicia la implementación.
+- La creación original de tareas no inició la implementación; la solicitud `/implement` autorizó únicamente este incremento.
 - El trabajo futuro se limita al sistema de evaluación; no corregir detectores, políticas ni transformadores de producción para hacer pasar el benchmark.
 - Solo datos ficticios o fuentes públicas no personales con permisos comprobados; nunca documentos personales reales ni envío a servicios externos.
 - Evaluación local, sin descargas/inferencia/telemetría remotas ni dependencias obligatorias nuevas. Cualquier adquisición o publicación requiere autorización de su tarea.

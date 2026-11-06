@@ -10,7 +10,7 @@
   "github_created_count": 0,
   "existing_github_issues_checked": false,
   "native_dependencies_created": false,
-  "implementation_started": false,
+  "implementation_started": true,
   "initial_frontier": [
     "BMX-01",
     "BMX-09",
@@ -47,9 +47,12 @@
       "draft_file": "01-primer-recorrido-local.md",
       "github_title": "[DF-EVAL-MX][BMX-01] Evaluar un correo de un paquete local a un informe reproducible",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-01 -->",
-      "body_sha256": "2ea33697e3e2e9e0221d7be53855c971a131503a8427c5c778e75ab0587b3037",
+      "body_sha256": "2b5a00ccedc2d0ed65d47a44e362fda4ae2498598cd8ccbbdb1c7988fe6eef7f",
       "github_issue_number": null,
-      "github_issue_url": null
+      "github_issue_url": null,
+      "implementation_status": "completed_and_verified",
+      "implementation_evidence": "../../audit/BMX-01.md",
+      "reviewed_code_commit": "72015f7f4abd776ce2c900f7764a3d242575ec7f"
     },
     {
       "id": "BMX-02",
