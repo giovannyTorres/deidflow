@@ -1,6 +1,6 @@
 # BMX-03: detección por entidad
 
-Estado: implementación verificada con pruebas focalizadas; revisión pendiente.
+Estado: implementada y revisada; verificación integrada final pendiente del lote.
 Base: `69942cc8fe6e9fae9130ab2bdb8fb703991eb03c`.
 Ticket: [BMX-03](../tickets/benchmark-mx/03-deteccion-por-entidad.md).
 Seam: paquete/candidato/perfil → informe, usando el mismo recorrido de BMX-02.
@@ -25,14 +25,18 @@ Son fixtures conocidos, no estimaciones de calidad poblacional.
 ## Standards
 
 Revisión inicial: 1 P2 por pérdida de metadatos de incertidumbre tras error del
-candidato, y 1 juicio P3 de fórmulas duplicadas. Corregidos con regresión y
-refactorización; pendiente confirmación del revisor. No se mezcla este eje con Spec.
+candidato, y 1 juicio P3 de fórmulas duplicadas. Corregidos y confirmados por el
+revisor en `ee4c19c`: 0 pendientes. No se mezcla este eje con Spec.
 
 ## Spec
 
 Revisión inicial: 1 P2 por falta de cobertura diagnóstica de spans predichos.
 Se añadió unión de caracteres y matching de intersección iterativo uno a uno,
-separado del exacto; pendiente confirmación del revisor.
+separado del exacto. El revisor confirmó 0 pendientes en `ee4c19c` y verificó
+30 976 combinaciones contra un conteo y matching exhaustivos independientes.
+
+Resumen de revisión: Standards 0 pendientes (1 infracción y 1 juicio resueltos),
+Spec 0 pendientes (1 resuelto). Sin peor hallazgo vigente en ninguno de los ejes.
 
 La suite completa y el empaquetado se ejecutarán sobre la integración final del
 lote; no se afirman resultados futuros. No cambia código de detectores, API

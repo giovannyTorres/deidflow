@@ -125,9 +125,13 @@
       "draft_file": "03-deteccion-por-entidad.md",
       "github_title": "[DF-EVAL-MX][BMX-03] Puntuar detección mexicana con matching exacto y errores por entidad",
       "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-03 -->",
-      "body_sha256": "7e581bfd627db2e009ba12497ecb3d40efcc29e5f068d811d806da51231d9f33",
+      "body_sha256": "f299902aa1cb1ad020177066e27dd1704f50e984409aaf312b5f1b8957c94f66",
       "github_issue_number": null,
-      "github_issue_url": null
+      "github_issue_url": null,
+      "implementation_status": "implemented_and_reviewed",
+      "integrated_validation_pending": true,
+      "implementation_evidence": "../../audit/BMX-03.md",
+      "reviewed_code_commit": "ee4c19c0fc9cf309179321e177429ba06fadd764"
     },
     {
       "id": "BMX-04",

@@ -5,6 +5,9 @@
 
 **Estado de publicación:** borrador; no existe número/URL de issue verificado.
 
+**Estado de implementación:** implementada y revisada; integración final del lote pendiente.
+Evidencia: [acta BMX-03](../../audit/BMX-03.md).
+
 **Tipo:** tarea técnica. **Etiqueta propuesta:** `ready-for-agent`; no aplicada.
 
 **Bloqueado por:** BMX-02.
@@ -23,23 +26,23 @@ Evaluar un paquete textual multientidad y publicar filas independientes RFC, CUR
 
 ## Criterios de aceptación
 
-- [ ] Matching de máxima cardinalidad uno a uno con clave caso/unidad/tipo/inicio/fin y desempate canónico.
+- [x] Matching de máxima cardinalidad uno a uno con clave caso/unidad/tipo/inicio/fin y desempate canónico.
 
-- [ ] Deduplicar predicciones idénticas sin borrar spans solapados distintos; error de tipo/límite produce los FP/FN correspondientes.
+- [x] Deduplicar predicciones idénticas sin borrar spans solapados distintos; error de tipo/límite produce los FP/FN correspondientes.
 
-- [ ] Informar TP/FP/FN, precision/recall/F1, soporte, micro/macro y exclusiones explícitas; sin denominador usar null y razón.
+- [x] Informar TP/FP/FN, precision/recall/F1, soporte, micro/macro y exclusiones explícitas; sin denominador usar null y razón.
 
-- [ ] Conservar offsets Unicode originales y no rescatar errores mediante equivalencias guiadas por el gold.
+- [x] Conservar offsets Unicode originales y no rescatar errores mediante equivalencias guiadas por el gold.
 
-- [ ] Predicción malformada se registra como error del candidato; no se convierte en resultado perfecto ni desaparece del alcance.
+- [x] Predicción malformada se registra como error del candidato; no se convierte en resultado perfecto ni desaparece del alcance.
 
 ## Pruebas y evidencia exigidas
 
-- [ ] TP=1, FP=1, FN=1 da precision=recall=F1=0.5.
+- [x] TP=1, FP=1, FN=1 da precision=recall=F1=0.5.
 
-- [ ] Ejemplos exactos, parciales, cruzados, repetidos y de etiqueta errónea; una predicción no acierta dos menciones.
+- [x] Ejemplos exactos, parciales, cruzados, repetidos y de etiqueta errónea; una predicción no acierta dos menciones.
 
-- [ ] Diacríticos, caracteres fuera de BMP y saltos CRLF mantienen índices; categorías sin soporte siguen visibles.
+- [x] Diacríticos, caracteres fuera de BMP y saltos CRLF mantienen índices; categorías sin soporte siguen visibles.
 
 ## Trazabilidad
 
@@ -47,7 +50,7 @@ AC-02, AC-03, AC-05 de DF-EVAL-MX v0.1.0.
 
 ## Restricciones y fuera de alcance
 
-- Esta creación de tareas no inicia la implementación.
+- La solicitud actual autorizó implementar este incremento dentro del lote BMX-03 a BMX-12.
 - El trabajo futuro se limita al sistema de evaluación; no corregir detectores, políticas ni transformadores de producción para hacer pasar el benchmark.
 - Solo datos ficticios o fuentes públicas no personales con permisos comprobados; nunca documentos personales reales ni envío a servicios externos.
 - Evaluación local, sin descargas/inferencia/telemetría remotas ni dependencias obligatorias nuevas. Cualquier adquisición o publicación requiere autorización de su tarea.
