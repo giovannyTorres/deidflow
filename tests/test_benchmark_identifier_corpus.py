@@ -19,6 +19,24 @@ def generate(root: Path, seed: int = 104729):
     )
 
 
+def test_one_oversized_string_is_rejected_before_encoding_a_second_copy(tmp_path):
+    import tracemalloc
+
+    import pytest
+
+    from deidflow.benchmarks.synthetic_package import write_package_records
+
+    records = {"units": [{"text": "x" * (32 * 1024**2)}]}
+    tracemalloc.start()
+    try:
+        with pytest.raises(ValueError, match="Invalid synthetic package"):
+            write_package_records(tmp_path / "oversized", records, {"profiles": {}})
+        assert tracemalloc.get_traced_memory()[1] < 16 * 1024**2
+    finally:
+        tracemalloc.stop()
+    assert not (tmp_path / "oversized").exists()
+
+
 def test_seeded_public_generator_produces_reproducible_admissible_known_regression(tmp_path):
     from deidflow.benchmarks.evaluation_package import load_evaluation_package
 

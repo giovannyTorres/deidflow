@@ -41,6 +41,26 @@ def canonical_json(value: Any) -> bytes:
     ).encode("utf-8")
 
 
+def _check_json_tokens(value: Any, limit: int, seen: set[int], depth: int = 0) -> None:
+    # iterencode creates a complete string token; reject oversized strings before
+    # invoking it. Container/depth admission also precedes sorting or traversal.
+    if depth > 32 or (isinstance(value, str) and len(value) > limit):
+        raise ValueError
+    if isinstance(value, (dict, list, tuple)):
+        if len(value) > MAX_RECORDS:
+            raise ValueError
+        if id(value) in seen:
+            return
+        seen.add(id(value))
+        if isinstance(value, dict):
+            for key, item in value.items():
+                _check_json_tokens(key, limit, seen, depth + 1)
+                _check_json_tokens(item, limit, seen, depth + 1)
+        else:
+            for item in value:
+                _check_json_tokens(item, limit, seen, depth + 1)
+
+
 def _bounded_json(value: Any, limit: int, *, jsonl: bool = False) -> bytes:
     """Stop encoding at the remaining resource/package budget, including newlines."""
     encoder = json.JSONEncoder(
@@ -48,6 +68,7 @@ def _bounded_json(value: Any, limit: int, *, jsonl: bool = False) -> bytes:
     )
     payload = bytearray()
     for row in value if jsonl else (value,):
+        _check_json_tokens(row, limit - len(payload), set())
         for chunk in encoder.iterencode(row):
             if len(chunk) > limit - len(payload):
                 raise ValueError
