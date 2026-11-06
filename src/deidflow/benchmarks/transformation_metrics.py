@@ -142,21 +142,21 @@ def inspect_text_output(
     operators: list[tuple[int, int, str]] = []
     if mappings is not None and output is not None and output.text is not None:
         for mapping in mappings:
-            a, b, c, d = (
+            source_start, source_end, output_start, output_end = (
                 mapping.source_start,
                 mapping.source_end,
                 mapping.output_start,
                 mapping.output_end,
             )
-            original, replacement = text[a:b], output.text[c:d]
-            preserved[a:b] = (
+            original, replacement = text[source_start:source_end], output.text[output_start:output_end]
+            preserved[source_start:source_end] = (
                 bytes(left == right for left, right in zip(original, replacement, strict=True))
                 if len(original) == len(replacement)
-                else bytes(b - a)
+                else bytes(source_end - source_start)
             )
             if _removal_verified(text, output.text, mapping):
-                removed[a:b] = b"\x01" * (b - a)
-            operators.append((a, b, mapping.action))
+                removed[source_start:source_end] = source_end"\x01" * (source_end - source_start)
+            operators.append((source_start, source_end, mapping.action))
     preserve_required = bytearray(b"\x01") * len(text)
     for requirement in requirements:
         if requirement.action != "preserve":
