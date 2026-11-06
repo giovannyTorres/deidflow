@@ -266,3 +266,25 @@ def test_iban_checksum_and_grouping():
     assert not engine.scan_text("Referencia interna AB12CDEF3456GH sin cuenta.")
     labelled = engine.scan_text("IBAN: ES0000000000000000000000")
     assert [(f.validation, f.score < 0.75) for f in labelled] == [("invalid", True)]
+
+
+def test_span_model_roles_become_role_context(tmp_path):
+    spacy = pytest.importorskip("spacy")
+    nlp = spacy.blank("es")
+    ruler = nlp.add_pipe("span_ruler")
+    ruler.add_patterns([{"label": "NOMBRE_PERSONAL_SANITARIO", "pattern": "Ana López"}])
+    model = tmp_path / "role-model"
+    nlp.to_disk(model)
+    adapter = SpacyNER(
+        model,
+        labels={"NOMBRE_PERSONAL_SANITARIO": "PERSON"},
+        roles={"NOMBRE_PERSONAL_SANITARIO": "clinician"},
+    )
+    (found,) = adapter.detect("Ana López")
+    assert found.entity_type == "PERSON" and "role:clinician" in found.context
+
+
+@pytest.mark.parametrize("roles", [{"MISSING": "patient"}, {"PERSON": ""}, {"PERSON": 1}])
+def test_span_model_rejects_invalid_role_mapping(tmp_path, roles):
+    with pytest.raises(ValueError, match="roles"):
+        SpacyNER(tmp_path, roles=roles)

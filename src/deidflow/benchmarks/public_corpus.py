@@ -120,12 +120,7 @@ def acquire(
     if archive.exists():
         payload = archive.read_bytes()
     else:
-        try:
-            import certifi
-
-            context = ssl.create_default_context(cafile=certifi.where())
-        except ImportError:
-            context = ssl.create_default_context()
+        context = _tls_context()
         request = urllib.request.Request(
             specification["archive_url"],
             headers={"User-Agent": "DeidFlow-explicit-public-acquisition"},
@@ -214,6 +209,20 @@ def acquire(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
     )
     return manifest
+
+
+def _tls_context() -> ssl.SSLContext:
+    """Honor an explicitly configured CA bundle (corporate proxies) before certifi."""
+    for variable in ("SSL_CERT_FILE", "REQUESTS_CA_BUNDLE"):
+        cafile = os.environ.get(variable)
+        if cafile:
+            return ssl.create_default_context(cafile=cafile)
+    try:
+        import certifi
+
+        return ssl.create_default_context(cafile=certifi.where())
+    except ImportError:
+        return ssl.create_default_context()
 
 
 def _digest_manifest(digests: dict[str, str]) -> str:
@@ -579,6 +588,33 @@ def load_tab(root: str | Path, split: str = "test") -> PublicCorpus:
             "gold_verified_against_text": True,
         },
     )
+
+
+MEDDOCAN_ROLES = {
+    "NOMBRE_SUJETO_ASISTENCIA": "patient",
+    "NOMBRE_PERSONAL_SANITARIO": "clinician",
+    "FAMILIARES_SUJETO_ASISTENCIA": "family",
+}
+
+
+def load_meddocan_roles(root: str | Path, split: str = "test") -> list[list[tuple[int, int, str]]]:
+    """Person-role gold spans per document, aligned with ``load_meddocan`` order."""
+    if split not in {"train", "dev", "test"}:
+        raise ValueError("Unknown public corpus split")
+    # Validate every annotation and its Unicode offsets before extracting role labels.
+    load_meddocan(root, split)
+    documents = []
+    for text_path in sorted((Path(root) / split).glob("*.txt")):
+        spans = []
+        for line in text_path.with_suffix(".ann").read_text(encoding="utf-8").splitlines():
+            if not line.startswith("T"):
+                continue
+            label, coordinates = line.split("\t", 2)[1].split(" ", 1)
+            if label in MEDDOCAN_ROLES and ";" not in coordinates:
+                start, end = map(int, coordinates.split())
+                spans.append((start, end, MEDDOCAN_ROLES[label]))
+        documents.append(spans)
+    return documents
 
 
 def load_public(root: str | Path, source: str, split: str = "test") -> PublicCorpus:

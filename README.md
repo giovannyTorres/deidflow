@@ -2,7 +2,7 @@
 
 Local-first sensitive-data detection and verified transformations for Spanish across
 Spain, Latin America and Spanish-language US documents.
-Release **0.4.0** (beta), licensed under [Apache-2.0](LICENSE). It runs fully
+Development version **0.5.0b1** (beta candidate), licensed under [Apache-2.0](LICENSE). It runs fully
 offline, has no mandatory runtime dependencies and now ships a trained Spanish
 span tagger. It is not a guarantee of anonymity or a compliance certification:
 every result carries a release status, and `APPROVED` still needs the
@@ -48,6 +48,26 @@ assert rules_only.deidentify_text("correo: persona@example.test").status == "REV
 verification gate. It never establishes anonymous data. Always inspect
 `release_approved`, not merely the existence of an output path.
 
+## New in 0.5.0b1
+
+- Structured outputs preserve source uncertainty; unsupported Office package
+  parts and retained uninspected media cannot be approved.
+- XLSX rewriting removes hidden copies of data and preserves supported layout
+  and arithmetic. Every output remains `REVIEW_REQUIRED`; see [format limits](docs/formats.md).
+- Optional `Policy.llm()` and `deidflow.llm.DeidSession` provide indexed
+  placeholders with exact-value identity. Sessions never call a model or upload
+  text. Reversible sessions use a memory vault unless an explicit encrypted vault
+  is supplied; install `deidflow[vault]` for `EncryptedVault`.
+- Encrypted vault format v2 authenticates session and expiry metadata and rejects
+  legacy v1. Resumption requires the matching in-memory allocator. Policy
+  fingerprints change with the new independent-check field; revalidate old
+  receipts rather than assuming equivalence. See [security](docs/security.md).
+- Optional `NarrativeRecognizer` and role/leakage metrics retain useful audit
+  features without changing the default rules, packaged models or tuned profiles.
+- Updated compatible dependencies/actions; release publication now waits for
+  the complete reusable CI workflow. This candidate has no production-readiness
+  claim and merging it does not publish a package or tag.
+
 ## New in 0.4.0
 
 - **Apache-2.0 license** with a `NOTICE` file (the previous snapshot reserved all rights).
@@ -87,7 +107,9 @@ verification gate. It never establishes anonymous data. Always inspect
 - Batched local spaCy adapter with long-document overlap and overlapping spans.
 - Column profiles, exhaustive streaming CSV/TSV processing, JSON/JSONL, pandas and
   Polars APIs, bounded Parquet readers, native DOCX/XLSX/PDF extraction and
-  in-place DOCX output (tracked changes accepted, hidden metadata removed).
+  in-place DOCX and supervised XLSX output (formatting kept; tracked changes,
+  orphaned strings and pivot caches removed). XLSX transformation and verification
+  always require review; automatic XLSX release is unavailable.
 - Redaction, typed placeholders, scoped HMAC pseudonyms, generalization,
   suppression, ISO date shifts, numeric buckets, partial masks and custom actions.
 - Strict Python/YAML policies, domain overrides, reread verification and release
@@ -121,7 +143,7 @@ customer model activation exists.
 
 ## Unsupported or unmeasured
 
-XLSX/Parquet output transformation, automatic standalone image release,
+Parquet output transformation, automatic standalone image release,
 transformer-based NER, cross-page clinical/coreference reasoning,
 ONNX acceleration and GPU performance. PDF rotation/cropping, interactive forms,
 encryption/signatures, searchable/vector output and non-removal PDF operators
@@ -239,8 +261,11 @@ without transformation context. Large CSV users should consume `scan_csv()` as
 an iterator, and choose bounded batches. Default whole-document limits still
 apply to graph-based readers; see [format support](docs/formats.md).
 
-`requirements-lock-windows-py311.txt` is the v0.3 tested dependency snapshot.
-Use it as constraints in a matching environment; it is not a cross-platform lock.
+`requirements-lock-windows-py311.txt` preserves the historical v0.3 dependency
+snapshot unchanged. Current Windows x64 / Python 3.11 constraints are in
+`requirements-constraints-windows-py311.txt`, exercised by that CI matrix job.
+Neither file is a cross-platform or hash-locked installation manifest. Other
+supported platforms resolve within the ranges in `pyproject.toml`.
 The optional Spanish model used for real baseline comparison is **GPL-3.0** and
 kept outside the repository/package. Select and review model terms independently.
 No PyMuPDF dependency exists.

@@ -5,6 +5,13 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    # Retain the v0.3 evidence snapshot; update current constraints instead.
+    exclude-paths:
+      - requirements-lock-windows-py311.txt
+    ignore:
+      # spaCy 3.8 requires thinc >=8.3.12,<8.4.0.
+      - dependency-name: thinc
+        versions: [">=8.4"]
   - package-ecosystem: github-actions
     directory: /
     schedule:

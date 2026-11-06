@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from deidflow import DeidEngine, Policy
+from deidflow.nlp import SpanTagger
 from deidflow.readers import benign_field, read_document
 
 W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
@@ -182,6 +183,172 @@ def test_docx_rejects_malformed_package_without_output(tmp_path):
         out.writestr("word/document.xml", "<w:document")
     result = DeidEngine().deidentify(source, output=tmp_path / "out.docx")
     assert result.status == "BLOCKED" and not (tmp_path / "out.docx").exists()
+
+
+@pytest.fixture(scope="module")
+def strict_tagger_engine():
+    return DeidEngine(nlp=SpanTagger.builtin("es-clinical"))
+
+
+def _update_package(path: Path, updates: dict[str, bytes | str]) -> None:
+    with zipfile.ZipFile(path) as archive:
+        parts = {name: archive.read(name) for name in archive.namelist()}
+    parts.update(updates)
+    with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for name, value in parts.items():
+            archive.writestr(name, value)
+
+
+@pytest.mark.parametrize("related", [False, True])
+@pytest.mark.parametrize(
+    "part", ["extra/data.xml", "word/private.xml", "extra/data.bin", "customXml/opaque.bin"]
+)
+def test_strict_docx_rejects_unknown_parts(tmp_path, strict_tagger_engine, part, related):
+    # Start with the same complete fixture that opens in LibreOffice below.
+    source = make_docx(tmp_path / "source.docx")
+    updates = {part: b"<private>synthetic.leak@example.test</private>"}
+    if related:
+        updates["[Content_Types].xml"] = CONTENT_TYPES.replace(
+            "</Types>",
+            f'<Override PartName="/{part}" ContentType="application/xml"/></Types>',
+        ).encode()
+        updates["word/_rels/document.xml.rels"] = DOCUMENT_RELS.replace(
+            "</Relationships>",
+            f'<Relationship Id="rId99" Type="{R_CUSTOM}" Target="/{part}"/></Relationships>',
+        ).encode()
+    _update_package(source, updates)
+    source_bytes = source.read_bytes()
+    graph = read_document(source)
+    assert "unsupported_docx_package_part" in graph.issues
+    output = tmp_path / "candidate.docx"
+    result = strict_tagger_engine.deidentify(source, output=output, policy=Policy.strict())
+    assert result.status == "BLOCKED" and not result.release_approved
+    assert result.output_path is None and not output.exists()
+    assert not list(tmp_path.glob(".deidflow-*"))
+    assert source.read_bytes() == source_bytes
+
+
+R_CUSTOM = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml"
+
+
+def test_strict_docx_drops_hidden_package_metadata(tmp_path, strict_tagger_engine):
+    source = make_docx(tmp_path / "source.docx")
+    canary = "synthetic.leak@example.test"
+    _update_package(
+        source,
+        {
+            "extra/": canary,
+            "word/document.xml": DOCUMENT.replace(
+                "<w:body>", f"<w:body><!--{canary}--><?private {canary}?>"
+            ),
+            "[Content_Types].xml": CONTENT_TYPES.replace(
+                "<Default Extension=", f'<Default private="{canary}" Extension=', 1
+            ),
+            "word/_rels/document.xml.rels": DOCUMENT_RELS.replace(
+                '<Relationship Id="rId1"', f'<Relationship private="{canary}" Id="rId1"'
+            ),
+            "word/settings.xml": (
+                f'<w:settings xmlns:w="{W}"><w:docVars>'
+                f'<w:docVar w:name="{canary}" w:val="{canary}"/>'
+                f"</w:docVars><w:extension>{canary}</w:extension>"
+                "</w:settings>"
+            ),
+        },
+    )
+    result = strict_tagger_engine.deidentify(
+        source, output=tmp_path / "candidate.docx", policy=Policy.strict()
+    )
+    assert result.output_path is not None, result.issues
+    with zipfile.ZipFile(result.output_path) as archive:
+        assert "extra/" not in archive.namelist()
+        assert all(canary.encode() not in archive.read(name) for name in archive.namelist())
+        assert b"<w:b/>" in archive.read("word/document.xml")
+        assert b'Id="rId1"' in archive.read("word/_rels/document.xml.rels")
+        assert b'Target="footer1.xml"' in archive.read("word/_rels/document.xml.rels")
+        assert b'PartName="/word/settings.xml"' in archive.read("[Content_Types].xml")
+
+
+@pytest.mark.parametrize(
+    "updates",
+    [
+        {"word/settings.xml": "<private>synthetic.leak@example.test</private>"},
+        {"word/_rels/styles.xml.rels": DOCUMENT_RELS},
+        {
+            "word/_rels/document.xml.rels": DOCUMENT_RELS.replace(
+                'Target="footer1.xml"', 'Target="missing.xml"'
+            )
+        },
+    ],
+)
+def test_strict_docx_rejects_unvalidated_structure(tmp_path, strict_tagger_engine, updates):
+    source = make_docx(tmp_path / "source.docx")
+    _update_package(source, updates)
+    output = tmp_path / "candidate.docx"
+    result = strict_tagger_engine.deidentify(source, output=output, policy=Policy.strict())
+    assert result.status == "BLOCKED" and not output.exists()
+
+
+@pytest.mark.parametrize("media_policy", ["keep", "remove"])
+@pytest.mark.parametrize(
+    "part", ["word/CHARTS/payload.bin", "word/charts/payload.bin", "word/diagrams/payload.bin"]
+)
+def test_docx_opaque_media_never_bypasses_coverage(
+    tmp_path, strict_tagger_engine, part, media_policy
+):
+    source, output = tmp_path / "source.docx", tmp_path / "candidate.docx"
+    canary = b"synthetic.leak@example.test"
+    with zipfile.ZipFile(source, "w") as archive:
+        archive.writestr("[Content_Types].xml", CONTENT_TYPES)
+        archive.writestr(
+            "_rels/.rels",
+            '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+            '<Relationship Id="rId1" '
+            'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" '
+            'Target="word/document.xml"/></Relationships>',
+        )
+        archive.writestr(
+            "word/document.xml",
+            f'<w:document xmlns:w="{W}"><w:body><w:p><w:r>'
+            "<w:t>Texto general.</w:t></w:r></w:p></w:body></w:document>",
+        )
+        archive.writestr(part, canary)
+    graph = read_document(source)
+    assert not graph.complete and "office_media_requires_review" in graph.issues
+    result = strict_tagger_engine.deidentify(
+        source, output=output, policy=Policy.strict(), office_media=media_policy
+    )
+    if media_policy == "keep":
+        assert result.status == "BLOCKED" and not result.release_approved
+        assert not output.exists() and not list(tmp_path.glob(".deidflow-*"))
+    else:
+        assert result.release_approved, result.issues
+        with zipfile.ZipFile(output) as archive:
+            assert part not in archive.namelist()
+            assert all(canary not in archive.read(name) for name in archive.namelist())
+
+
+def test_docx_financial_tagger_preserves_fonts_styles_and_namespaces(tmp_path):
+    source = make_docx(tmp_path / "source.docx")
+    _update_package(
+        source,
+        {
+            "word/document.xml": DOCUMENT.replace(
+                "<w:b/>",
+                '<w:b/><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/>'
+                '<w:rStyle w:val="Normal"/>',
+            )
+        },
+    )
+    result = DeidEngine(nlp=SpanTagger.builtin("es-finance")).deidentify(
+        source, output=tmp_path / "candidate.docx", policy=Policy.strict()
+    )
+    assert result.output_path is not None, result.issues
+    with zipfile.ZipFile(result.output_path) as archive:
+        document = archive.read("word/document.xml")
+    assert b'w:ascii="Times New Roman"' in document
+    assert b'w:hAnsi="Times New Roman"' in document
+    assert b'w:val="Normal"' in document
+    assert b'xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"' in document
 
 
 @pytest.mark.skipif(shutil.which("soffice") is None, reason="LibreOffice not installed")

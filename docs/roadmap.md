@@ -29,18 +29,42 @@ are documented in the current quality/security reports.
    discards original objects, metadata, attachments and hidden text, and verifies
    actual output pixels and OCR. Searchable/vector-preserving redaction, forms
    and signature workflows need separate implementation and adversarial review.
-   Office rewriting must account for revisions, orphan strings, hidden sheets,
-   formulas, comments, embedded objects and relationships. Office rewriting remains unsupported.
+   DOCX rewriting is implemented with hidden-content removal and package checks.
+   XLSX rewriting now removes supported hidden copies and produces supervised
+   candidates. Broader Excel extension/formula semantics and safe automatic
+   release remain unvalidated.
 4. Strengthen independent verification beyond the detector used for transformation;
    implement signed transformation receipts, integrity-protected private audit
    stores and private review workflows. Policies/keys/adapters remain trusted code.
+
+## Supervised tabular release workflow
+
+The local annotation interface currently stores labels for evaluation and
+training. It is not yet a complete human-correction and output-approval workflow.
+The next operational milestone is a local, single-user workflow for a known
+CSV/JSONL schema and one independently evaluated domain:
+
+1. Connect import, detection, original/candidate comparison, manual corrections,
+   regeneration, verification and explicit export. Newly marked sensitive values
+   must disappear from the exported artifact; source changes invalidate review.
+2. Link the approval receipt to source/output hashes, policy and model versions,
+   human corrections and the reviewer without recording original values in logs.
+3. Measure residual sensitive content, retained utility and total review time
+   on an authorized, independently annotated holdout. Fix acceptance thresholds
+   before tuning and compare with the manual workflow.
+4. Separate candidate and approved output locations. Blocked files must never
+   enter approved exports. Require the OCR/NER integrations used by the selected
+   workflow to run in CI rather than accepting unexpected skipped tests.
+5. Validate retention, recovery, resource isolation and key storage in a limited
+   supervised pilot before expanding deployment topology or supported formats.
 
 ## Accuracy and customer adaptation
 
 - Token/span NER with BIO conversion is delivered (`SpanTagger`, trained on
   public MEDDOCAN). Still open: training and evaluating on representative
-  Mexican clinical/financial annotations, running the Gretel financial
-  evaluation, and encoder (transformer/ONNX) adapters, which remain unvalidated.
+  Mexican clinical/financial annotations and external financial holdouts beyond
+  the published Gretel evaluation. Encoder (transformer/ONNX) adapters remain
+  unvalidated.
 - Reduce misses that survive into `APPROVED` output (an independent second
   detector for verification, document-level abstention, organization/phone
   coverage).

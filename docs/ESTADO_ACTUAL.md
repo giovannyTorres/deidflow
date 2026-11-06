@@ -1,4 +1,36 @@
-# DeidFlow: estado del proyecto (v0.4.0)
+# DeidFlow: estado del proyecto (candidata beta v0.5.0b1)
+
+## Consolidación de ramas, 6 de noviembre de 2026
+
+Se revisaron las 19 ramas remotas existentes. La rama principal sigue siendo
+`master`; no se renombra ni se crea una publicación de PyPI al integrar código.
+La consolidación conserva Apache-2.0, los modelos empaquetados y los perfiles
+de v0.4, y añade los controles de liberación corregidos, salida XLSX supervisada,
+funciones opcionales de sesión y métricas de auditoría. Las reglas narrativas
+adicionales son optativas: no reemplazan silenciosamente los detectores actuales.
+El formato cifrado de vault pasa a v2 y rechaza v1; reanudarlo exige su allocator
+correspondiente. Los fingerprints de política incluyen el nuevo control de
+verificación independiente, por lo que deben revalidarse los recibos previos.
+
+| Ramas revisadas | Decisión de integración |
+| --- | --- |
+| `master` | Base de la consolidación. |
+| `claude/v0.4.0-apache-tagger`, `claude/leak-target-profiles` | Ya estaban incorporadas; se preservan modelos y perfiles. |
+| `claude/pan-hispanic-identifiers`, `claude/docx-output` | Sus árboles coinciden con los respectivos merges existentes. |
+| `fix/release-approval-gates` | Se incorporan incertidumbre estructurada, bloqueo de partes Office desconocidas y cobertura de medios retenidos. |
+| `fix/v0.3.1-release-evidence` | Corrección ya incluida en la rama anterior; se recupera su plan de revisión humana sin volver a la versión 0.3.1. |
+| `claude/xlsx-output` | Se integra con controles adicionales y salida siempre supervisada (`REVIEW_REQUIRED`). |
+| `claude/audit-anonymization-metrics-57htz7` | Integración selectiva de funciones y métricas; se corrigen controles de sesión/cifrado y se conserva Apache-2.0. No se adoptan sus afirmaciones históricas como evidencia de la versión actual. |
+| `dependabot/github_actions/actions/{checkout-7,setup-python-7,upload-artifact-7,download-artifact-8,attest-build-provenance-4}` | Se actualizan las cinco acciones. El release debe esperar los checks del mismo código. |
+| `dependabot/pip/{pandas-3.1.0,scikit-learn-1.9.1,pip-26.3}` | Se amplía soporte compatible; las constraints actuales están separadas del snapshot histórico. |
+| `dependabot/pip/filelock-4.2.7` | Se utiliza una versión compatible posterior, 4.2.9, sin degradar el entorno. |
+| `dependabot/pip/thinc-10.0.0` | No se incorpora: spaCy 3.8 requiere `thinc>=8.3.12,<8.4.0`; se conserva 8.3.14. |
+
+Los snapshots, corpus y resultados anteriores conservan su versión y contexto.
+Las nuevas funciones no demuestran que haya mejorado el recall del modelo ni
+eliminan la necesidad de evaluación representativa antes de una liberación
+automática. El flujo completo de corrección y aprobación humana sigue en el
+[roadmap](roadmap.md#supervised-tabular-release-workflow).
 
 ## Novedades de la versión 0.4.0
 
@@ -84,11 +116,11 @@ autenticación y consentimiento. Solo se probaron datos ficticios: no se accedi�
 Gmail, credenciales ni documentos privados reales. La ejecución privada queda a
 cargo del usuario en un entorno externo a Codex.
 
-El proyecto tiene una base técnica verificable para evaluación supervisada. La
-publicación como solución lista para producción sigue pendiente: faltan mayor
-cobertura en documentos reales, evaluación privada autorizada y una licencia
-pública de uso definida. (Resuelto en 0.4.0: licencia Apache-2.0.)
-El código se publicó únicamente en GitHub el 3 de noviembre de 2026 como
-versión experimental, con la licencia actual de derechos reservados. No se
-publicó en PyPI. Los documentos originales y los conjuntos privados permanecen
-fuera del repositorio.
+El proyecto tiene una base técnica verificable para evaluación supervisada.
+La preparación para producción sin supervisión sigue pendiente: faltan mayor
+cobertura y evaluación independiente representativa del dominio de uso. La
+licencia pública quedó resuelta en v0.4.0 con Apache-2.0.
+El registro histórico de v0.3 corresponde a la publicación experimental en
+GitHub del 3 de noviembre de 2026, con los términos de derechos reservados que
+regían entonces; no describe la licencia actual. Los documentos originales y
+los conjuntos privados permanecen fuera del repositorio.

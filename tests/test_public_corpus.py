@@ -193,3 +193,49 @@ def test_git_acquisition_pins_commit_and_digest_manifest(tmp_path, monkeypatch):
     with pytest.raises(ValueError, match="digest"):
         acquire_git("meddocan", tmp_path / "other")
     assert not (tmp_path / "other/meddocan").exists()
+
+
+@pytest.mark.parametrize("variable", ["SSL_CERT_FILE", "REQUESTS_CA_BUNDLE"])
+def test_acquisition_honors_explicit_ca_bundle(tmp_path, monkeypatch, variable):
+    from deidflow.benchmarks import public_corpus
+
+    monkeypatch.delenv("SSL_CERT_FILE", raising=False)
+    monkeypatch.delenv("REQUESTS_CA_BUNDLE", raising=False)
+    bundle = tmp_path / "bundle.pem"
+    bundle.write_text("configured certificate")
+    monkeypatch.setenv(variable, str(bundle))
+    sentinel = object()
+    calls = []
+
+    def context(*, cafile):
+        calls.append(cafile)
+        return sentinel
+
+    monkeypatch.setattr(public_corpus.ssl, "create_default_context", context)
+    assert public_corpus._tls_context() is sentinel
+    assert calls == [str(bundle)]
+
+
+def test_acquisition_missing_explicit_ca_fails_closed(tmp_path, monkeypatch):
+    from deidflow.benchmarks.public_corpus import _tls_context
+
+    monkeypatch.setenv("SSL_CERT_FILE", str(tmp_path / "missing.pem"))
+    with pytest.raises(FileNotFoundError):
+        _tls_context()
+
+
+def test_meddocan_roles_validate_gold_and_preserve_document_order(tmp_path):
+    from deidflow.benchmarks.public_corpus import load_meddocan_roles
+
+    root = tmp_path / "test"
+    root.mkdir()
+    for name, label, text in [
+        ("b", "NOMBRE_SUJETO_ASISTENCIA", "Luis"),
+        ("a", "NOMBRE_PERSONAL_SANITARIO", "Ana"),
+    ]:
+        (root / (name + ".txt")).write_text(text)
+        (root / (name + ".ann")).write_text(f"T1\t{label} 0 {len(text)}\t{text}\n")
+    assert load_meddocan_roles(tmp_path) == [[(0, 3, "clinician")], [(0, 4, "patient")]]
+    (root / "a.ann").write_text("T1\tNOMBRE_PERSONAL_SANITARIO 0 8\tAna\n")
+    with pytest.raises(ValueError, match="annotation"):
+        load_meddocan_roles(tmp_path)

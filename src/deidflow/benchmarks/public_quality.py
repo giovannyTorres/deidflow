@@ -20,6 +20,7 @@ from deidflow.core import Finding
 from .datasets import Example
 from .metrics import evaluate
 from .public_corpus import MEDDOCAN_LABELS, TAB_LABELS, PublicCorpus
+from .release_gate import DIRECT_IDENTIFIERS
 from .runner import measure
 
 _CLINICAL_NOT_ANNOTATED = {
@@ -247,6 +248,7 @@ def quality_metrics(
             else None,
             "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities.",
         },
+        "leakage_breakdown": leakage_breakdown(corpus, predictions),
         "uncertain_candidate_document_rate": review_documents / len(examples),
         "review_rate_definition": "candidate uncertainty proxy only; no transformation or semantic-model release gating evaluated",
         "strata": {
@@ -261,6 +263,102 @@ def quality_metrics(
         "ocr_wer": None,
         "table_reconstruction_quality": None,
         "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated",
+    }
+
+
+def leakage_breakdown(
+    corpus: PublicCorpus, predictions: Sequence[Sequence[Finding]]
+) -> dict[str, Any]:
+    """Leak-oriented view (audit F0.1): a gold mention is protected only if every one
+    of its characters is covered by some prediction, whatever the predicted category."""
+    if len(corpus.examples) != len(predictions):
+        raise ValueError("Gold and predictions must align")
+    gold_n: Counter[str] = Counter()
+    full: Counter[str] = Counter()
+    chars: Counter[str] = Counter()
+    chars_hit: Counter[str] = Counter()
+    pred_n: Counter[str] = Counter()
+    pred_typed: Counter[str] = Counter()
+    docs_direct_leak = 0
+    for example, predicted in zip(corpus.examples, predictions, strict=True):
+        covered = bytearray(len(example.text))
+        for finding in predicted:
+            if not 0 <= finding.start < finding.end <= len(example.text):
+                raise ValueError("Prediction offsets exceed document bounds")
+            covered[finding.start : finding.end] = b"\x01" * (finding.end - finding.start)
+        leak = False
+        for gold in example.spans:
+            gold_n[gold.entity_type] += 1
+            chars[gold.entity_type] += gold.end - gold.start
+            chars_hit[gold.entity_type] += sum(covered[gold.start : gold.end])
+            complete = all(covered[gold.start : gold.end])
+            full[gold.entity_type] += int(complete)
+            leak |= gold.entity_type in DIRECT_IDENTIFIERS and not complete
+        docs_direct_leak += int(leak)
+        for kind, start, end in {(f.entity_type, f.start, f.end) for f in predicted}:
+            pred_n[kind] += 1
+            pred_typed[kind] += int(
+                any(
+                    g.entity_type == kind and g.start < end and g.end > start for g in example.spans
+                )
+            )
+    direct_total = sum(gold_n[k] for k in DIRECT_IDENTIFIERS)
+    return {
+        "fully_covered_mention_rate": sum(full.values()) / sum(gold_n.values()) if gold_n else None,
+        "direct_fully_covered_mention_rate": sum(full[k] for k in DIRECT_IDENTIFIERS) / direct_total
+        if direct_total
+        else None,
+        "documents_with_direct_identifier_leak": docs_direct_leak,
+        "documents": len(corpus.examples),
+        "by_type": {
+            kind: {
+                "gold_mentions": gold_n[kind],
+                "fully_covered_rate": full[kind] / gold_n[kind] if gold_n[kind] else None,
+                "character_coverage": chars_hit[kind] / chars[kind] if chars[kind] else None,
+                "predictions": pred_n[kind],
+                "typed_overlap_precision": pred_typed[kind] / pred_n[kind]
+                if pred_n[kind]
+                else None,
+            }
+            for kind in sorted(set(gold_n) | set(pred_n), key=lambda k: (-gold_n[k], k))
+        },
+        "direct_identifier_types": sorted(DIRECT_IDENTIFIERS),
+        "definition": "fully covered = every gold character covered by any prediction, any category; detection coverage only, not transformed-output verification",
+    }
+
+
+def role_metrics(
+    roles: Sequence[Sequence[tuple[int, int, str]]], raw: Sequence[Sequence[Finding]]
+) -> dict[str, Any]:
+    """Person-role evidence (``role:<name>`` context) against role gold (audit F0.2)."""
+    if len(roles) != len(raw):
+        raise ValueError("Role gold and predictions must align")
+    gold: Counter[str] = Counter()
+    with_role: Counter[str] = Counter()
+    correct: Counter[str] = Counter()
+    for spans, findings in zip(roles, raw, strict=True):
+        people = [f for f in findings if f.entity_type == "PERSON"]
+        for start, end, role in spans:
+            gold[role] += 1
+            predicted = {
+                c[5:]
+                for f in people
+                if f.start < end and f.end > start
+                for c in f.context
+                if c.startswith("role:")
+            }
+            if len(predicted) == 1:
+                with_role[role] += 1
+                correct[role] += int(predicted == {role})
+    return {
+        role: {
+            "gold_mentions": gold[role],
+            "role_assigned_rate": with_role[role] / gold[role] if gold[role] else None,
+            "role_accuracy_when_assigned": correct[role] / with_role[role]
+            if with_role[role]
+            else None,
+        }
+        for role in sorted(gold)
     }
 
 

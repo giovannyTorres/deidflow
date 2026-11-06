@@ -54,8 +54,8 @@ collecting `scan(path)` naturally retains its resulting findings in memory.
 `scan_dataframe`, `deidentify_dataframe`, `scan_many`, `deidentify_many`,
 `profile`, `verify` and `benchmark` are executable APIs. `readers.iter_parquet_batches`
 provides Arrow record batches for large Parquet inputs; automatic Parquet output
-transformation is currently unsupported. DOCX output is rewritten in place
-(`deidflow.office`). See `docs/formats.md` for details.
+transformation is currently unsupported. DOCX and XLSX output is rewritten in
+place (`deidflow.office`). See `docs/formats.md` for details.
 
 Standalone structured `verify()` lacks the original transformation receipt. It
 therefore requires review for nonempty identity-schema fields, even when text
