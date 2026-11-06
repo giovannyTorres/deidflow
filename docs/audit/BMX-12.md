@@ -63,7 +63,7 @@ restantes y no queda salida. El índice, evidencia y serialización final usan
 el mismo codificador incremental acotado del escritor. Esto prueba admisión
 acotada de salida; no afirma un límite duro de RSS.
 
-Verificación final: **235 pruebas focalizadas** de perturbaciones, procedencia,
+Verificación del commit autor `52284a4`: **235 pruebas focalizadas** de perturbaciones, procedencia,
 admisión, corpus, independencia y validación. Ruff, formato y mypy Python 3.12
 pasan en los cuatro módulos modificados y sus tres archivos de pruebas.
 No se ejecutó suite completa, cobertura, microbenchmark ni wheel en este paso;
@@ -73,7 +73,8 @@ AGENTS.md, CLAUDE.md y docs/agents/ fuera de este incremento.
 La [evidencia sanitizada](BMX-12-vectors.json) registra todas las recetas,
 hashes, soportes, densidades y métricas sin valores fuente. Su SHA-256 es
 `76d4d62ea2301b0f5fca26b24c49cb74a0b7b2719aa3a397cae38fa898a2acd0`.
-El fingerprint de fuentes Python de la candidata y el evaluador es
+El fingerprint histórico de fuentes Python de la candidata y el evaluador del
+recorrido en `52284a4` es
 `713dd6c45bc29ecb13aedf4e32a3e1df8eea78b2c814dcfdc3129a2a5499a0a8`.
 Las cuatro suites se generaron dos veces con igualdad de bytes/hashes, y se
 midieron con `rules.mx`, `detection-descriptive-v1`, semilla 17:
@@ -85,7 +86,7 @@ midieron con `rules.mx`, `detection-descriptive-v1`, semilla 17:
 | Estricto | 180 | 100 | 99 |
 | Ambiguo | 36 | 20 | 27 |
 
-Son **369 pares y 738 reportes reales** completados. Las auditorías de las 36
+Son **369 pares y 738 reportes reales** completados en `52284a4`. Las auditorías de las 36
 combinaciones fuente/receta informan cero cruces entre particiones y conservan
 `NO_BLIND_TEST` e `independence_accredited:false`. Los soportes ambiguos siguen
 excluidos de métricas exhaustivas conforme al scorer vigente. Los errores de
@@ -117,3 +118,29 @@ los recibos finales ni se presenta como evidencia del código corregido.
 La revisión fresca de Standards/Spec del commit se registrará por el
 coordinador. Este acta no inventa su resultado ni ratifica calidad, independencia
 ciega, generalización global, OCR real o facilidad de ajuste local.
+
+## Delta de revisión
+
+La revisión de Standards señaló un Data Clumps menor: la tupla devuelta por
+`_edit` se repartía en cuatro diccionarios paralelos. `EditResult` mantiene ahora
+texto, mapas de copias, rangos de relleno y parámetros juntos por unidad, con
+tipos explícitos. Se regeneraron los 36 paquetes y los cuatro índices; todos
+conservan los hashes publicados, incluido el ejemplo NFD contextual.
+
+La revisión también encontró que el SHA de origen de una evidencia nueva solo
+se validaba sintácticamente. Dos pruebas públicas cambiaron ese SHA y una
+versión coherente del generador, reconstruyendo paquete, manifiesto, índice y
+todos sus pins. Ambas fallaron realmente antes del arreglo y ahora se rechazan
+antes de cualquier callback. La suite liga la evidencia de los vectores añadidos
+al SHA de la fuente admitida, receta, semilla y versión del índice; comprueba
+cantidad, método y pertenencia a unidades hijas nuevas. Una regresión pública
+con `rules.mx` confirma que el prefijo y la evidencia histórica de una fuente
+con derivaciones previas permanecen intactos. Esto no autentica declaraciones
+de procedencia ni inventa revisión de referencia.
+
+Verificación del delta: **238 pruebas focalizadas**, Ruff, formato y mypy Python
+3.12 pasan. Logs `review-binding-{red,green}.txt`, `review-focused-static.txt` y
+`review-hash-conformance.txt` en el directorio temporal indicado. Los 738 reportes
+históricos no se volvieron a ejecutar por este refactor y cierre de admisión;
+conservan su fingerprint original. La integración y revisión final del nuevo
+commit corresponden al coordinador.

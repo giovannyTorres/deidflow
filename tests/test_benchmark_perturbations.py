@@ -450,3 +450,133 @@ def test_report_budget_stops_remaining_candidate_work_and_leaves_no_output(tmp_p
         )
     assert 0 < calls < 1008  # 9 recipes × 56 pairs × 2 one-unit callbacks.
     assert not (tmp_path / "reports").exists()
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("source_manifest_sha256", "f" * 64),
+        ("version", "foreign-generator-2.0.0"),
+    ],
+)
+def test_suite_binds_new_derivation_evidence_before_any_candidate_execution(tmp_path, field, value):
+    import json
+
+    from deidflow.benchmarks.package_runner import DetectionCandidate
+    from deidflow.benchmarks.perturbation_package import (
+        generate_perturbation_suite,
+        run_perturbation_suite,
+    )
+    from deidflow.benchmarks.synthetic_package import canonical_json, write_package_records
+
+    source, digest = literal_package(tmp_path / "source")
+    suite = tmp_path / "suite"
+    generate_perturbation_suite(
+        source, manifest_sha256=digest, destination=suite, seed=17, recipes=("nfd.v1",)
+    )
+    index_path = suite / "suite.json"
+    index = json.loads(index_path.read_bytes())
+    entry = index["packages"][0]
+    package_path = suite / entry["path"]
+    loaded = load_evaluation_package(package_path, manifest_sha256=entry["manifest_sha256"])
+    new_vectors = loaded.records["validation_vectors"][1:]
+    evidence_ref = new_vectors[0]["provenance"]["evidence_ref"]
+    evidence = json.loads(loaded.records[evidence_ref])
+    evidence[field] = value
+    loaded.records[evidence_ref] = canonical_json(evidence)
+    if field == "version":
+        for vector in new_vectors:
+            vector["provenance"]["version"] = value
+    package_path.rename(tmp_path / "untampered-package")
+    # This is a valid package with an internally coherent ledger. Rewrite every
+    # transport pin so rejection must come from the supplied source/suite binding.
+    rewritten = write_package_records(package_path, loaded.records, loaded.manifest)
+    entry["manifest_sha256"] = rewritten.manifest_sha256
+    index_bytes = canonical_json(index)
+    index_path.write_bytes(index_bytes)
+    calls = []
+
+    def detect(text):
+        calls.append(True)
+        return []
+
+    with pytest.raises(ValueError, match="^Invalid perturbation suite evaluation$"):
+        run_perturbation_suite(
+            source,
+            manifest_sha256=digest,
+            suite=suite,
+            index_sha256=hashlib.sha256(index_bytes).hexdigest(),
+            candidate=DetectionCandidate("candidate-a", "a" * 64, detect),
+            profile="detection-descriptive-v1",
+            output=tmp_path / "reports",
+        )
+    assert calls == []
+    assert not (tmp_path / "reports").exists()
+
+
+def test_suite_preserves_a_historical_source_derivation_ledger_while_binding_new_vectors(tmp_path):
+    import json
+
+    from deidflow.benchmarks.perturbation_package import (
+        generate_perturbation_suite,
+        run_perturbation_suite,
+    )
+    from deidflow.benchmarks.synthetic_package import write_package_records
+
+    source, digest = literal_package(tmp_path / "source")
+    first = generate_perturbation_suite(
+        source,
+        manifest_sha256=digest,
+        destination=tmp_path / "first-suite",
+        seed=17,
+        recipes=("nfd.v1",),
+    )
+    first_entry = first["packages"][0]
+    historical = load_evaluation_package(
+        tmp_path / "first-suite" / first_entry["path"],
+        manifest_sha256=first_entry["manifest_sha256"],
+    )
+    source_vectors = deepcopy(historical.records["validation_vectors"])
+    ledger_ref = source_vectors[1]["provenance"]["evidence_ref"]
+    ledger = historical.records[ledger_ref]
+    for document in historical.records["documents"]:
+        document["strata"] = [
+            stratum for stratum in document["strata"] if not stratum.startswith("perturbation:")
+        ]
+    eligible_source = tmp_path / "eligible-source"
+    eligible = write_package_records(eligible_source, historical.records, historical.manifest)
+    assert json.loads(ledger)["source_manifest_sha256"] == digest
+    assert eligible.manifest_sha256 != digest
+
+    suite = tmp_path / "new-suite"
+    generated = generate_perturbation_suite(
+        eligible_source,
+        manifest_sha256=eligible.manifest_sha256,
+        destination=suite,
+        seed=23,
+        recipes=("uppercase.v1",),
+    )
+    entry = generated["packages"][0]
+    loaded = load_evaluation_package(
+        suite / entry["path"], manifest_sha256=entry["manifest_sha256"]
+    )
+    assert loaded.records["validation_vectors"][: len(source_vectors)] == source_vectors
+    assert loaded.records[ledger_ref] == ledger
+
+    report = run_perturbation_suite(
+        eligible_source,
+        manifest_sha256=eligible.manifest_sha256,
+        suite=suite,
+        index_sha256=generated["index_sha256"],
+        candidate="rules.mx",
+        profile="detection-descriptive-v1",
+        output=tmp_path / "reports",
+    )
+    assert report["quality"] == "DESCRIPTIVE_ONLY"
+    assert len(report["results"]) == 2
+    assert all(
+        pair[track]["attempt_status"] == "completed"
+        and pair[track]["execution"]["required_documents"] == 2
+        for pair in report["results"]
+        for track in ("clean", "perturbed")
+    )

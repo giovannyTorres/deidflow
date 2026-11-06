@@ -73,6 +73,10 @@ enlace al vector padre. El cargador exige un documento hijo real, proyección
 válida, validez coherente y ausencia de revisión/identidad inventada. Este
 contrato no convierte una derivación en referencia independiente.
 
+El evaluador de suite liga la evidencia de los vectores nuevos al hash de la
+fuente admitida, receta, semilla y versión del índice. Conserva sin reinterpretar
+la evidencia histórica de los vectores que ya estaban en la fuente.
+
 El texto añadido está declarado como relleno sintético no personal. La cobertura
 mantiene las limitaciones originales y añade `SYNTHETIC_DERIVATION_NOT_REVIEWED`;
 no convierte una categoría originalmente no exhaustiva en exhaustiva.
@@ -88,15 +92,20 @@ from deidflow.benchmarks.perturbation_package import (
 source = "examples/benchmark-mx-contextual/contextual"
 digest = "89dcd192cda75e6d9465742d4e4890181823eb596ec49117f65d985dd1e2296c"
 suite = generate_perturbation_suite(
-    source, manifest_sha256=digest,
-    destination="/tmp/mx-perturbations", seed=17,
+    source,
+    manifest_sha256=digest,
+    destination="/tmp/mx-perturbations",
+    seed=17,
     # Omitir recipes ejecuta las nueve. Un ejemplo acotado:
     recipes=("nfd.v1",),
 )
 report = run_perturbation_suite(
-    source, manifest_sha256=digest,
-    suite="/tmp/mx-perturbations", index_sha256=suite["index_sha256"],
-    candidate="rules.mx", profile="detection-descriptive-v1",
+    source,
+    manifest_sha256=digest,
+    suite="/tmp/mx-perturbations",
+    index_sha256=suite["index_sha256"],
+    candidate="rules.mx",
+    profile="detection-descriptive-v1",
     output="/tmp/mx-perturbation-reports",
 )
 ```

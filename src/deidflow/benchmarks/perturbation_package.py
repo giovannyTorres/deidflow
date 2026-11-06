@@ -8,6 +8,7 @@ import shutil
 import unicodedata
 from collections import Counter
 from copy import deepcopy
+from dataclasses import dataclass
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
@@ -39,6 +40,15 @@ VERSION = "mx-perturbations-1.0.0"
 MAX_SOURCE_CODEPOINTS = 50_000
 MAX_SOURCE_UNITS = 512
 MAX_REPORT_PAIRS = 512
+CodepointMap = list[tuple[int, int] | None]
+
+
+@dataclass(frozen=True)
+class EditResult:
+    text: str
+    copies: list[CodepointMap]
+    authored_ranges: list[tuple[int, int]]
+    parameters: dict[str, Any]
 
 
 def _sha(payload: bytes) -> str:
@@ -97,9 +107,11 @@ def _merged(intervals: list[tuple[int, int]]) -> list[tuple[int, int]]:
     return result
 
 
-def _edit(text: str, recipe: str, targets: list[tuple[int, int]], first: int, seed: int):
+def _edit(
+    text: str, recipe: str, targets: list[tuple[int, int]], first: int, seed: int
+) -> EditResult:
     """Map every input codepoint to output intervals, including duplicated copies."""
-    identity = [(i, i + 1) for i in range(len(text))]
+    identity: CodepointMap = [(i, i + 1) for i in range(len(text))]
     authored: list[tuple[int, int]] = []
     parameters: dict[str, Any] = {}
     if recipe == "columns.v1":
@@ -109,11 +121,11 @@ def _edit(text: str, recipe: str, targets: list[tuple[int, int]], first: int, se
             if text[i - 1].isspace() and not any(start < i < end for start, end in targets)
         ]
         if not cuts:
-            return text, [identity], authored, {"cut": None}
+            return EditResult(text, [identity], authored, {"cut": None})
         cut = min(cuts, key=lambda i: (abs(i - len(text) // 2), i))
         text_out = text[cut:] + text[:cut]
         positions = [len(text) - cut + i if i < cut else i - cut for i in range(len(text))]
-        return text_out, [[(i, i + 1) for i in positions]], authored, {"cut": cut}
+        return EditResult(text_out, [[(i, i + 1) for i in positions]], authored, {"cut": cut})
     if recipe in {"near_cut.v1", "long_low_density.v1"}:
         if recipe == "near_cut.v1":
             boundary = next(
@@ -134,9 +146,9 @@ def _edit(text: str, recipe: str, targets: list[tuple[int, int]], first: int, se
         authored = [(0, prefix)] if prefix else []
         if suffix:
             authored.append((prefix + len(text), prefix + len(text) + suffix))
-        return (
+        return EditResult(
             left + text + right,
-            [[(a + prefix, b + prefix) for a, b in identity]],
+            [[(i + prefix, i + prefix + 1) for i in range(len(text))]],
             authored,
             parameters,
         )
@@ -150,9 +162,13 @@ def _edit(text: str, recipe: str, targets: list[tuple[int, int]], first: int, se
             for i in range(start, end):
                 copied[i] = (offset + i - start, offset + i - start + 1)
             output += text[start:end]
-        return output, [identity, copied], authored, {"copies": 2, "selection": "target_union"}
+        return EditResult(
+            output, [identity, copied], authored, {"copies": 2, "selection": "target_union"}
+        )
     output, offsets = _parts(text, recipe)
-    return output, [[(offsets[i], offsets[i + 1]) for i in range(len(text))]], authored, parameters
+    return EditResult(
+        output, [[(offsets[i], offsets[i + 1]) for i in range(len(text))]], authored, parameters
+    )
 
 
 def _project(mapping, start: int, end: int) -> tuple[int, int]:
@@ -199,7 +215,7 @@ def _derive(package: EvaluationPackage, recipe: str, seed: int) -> tuple[Any, An
         for r in originals["mentions"]
     }
     old_units = {r["unit_id"]: r["text"] for r in originals["units"]}
-    maps, new_units, edit_parameters, authored = {}, {}, {}, {}
+    edits: dict[str, EditResult] = {}
     for original in originals["units"]:
         key = original["unit_id"]
         targets = [
@@ -212,27 +228,22 @@ def _derive(package: EvaluationPackage, recipe: str, seed: int) -> tuple[Any, An
             (r["start"], r["end"]) for r in originals["expectations"] if r["unit_id"] == key
         ]
         first = min((r["start"] for r in originals["mentions"] if r["unit_id"] == key), default=0)
-        text, mappings, padding, parameters = _edit(original["text"], recipe, targets, first, seed)
-        maps[key], new_units[key], edit_parameters[key], authored[key] = (
-            mappings,
-            text,
-            parameters,
-            padding,
-        )
+        edit = _edit(original["text"], recipe, targets, first, seed)
+        edits[key] = edit
         row = deepcopy(original)
         row.update(
             unit_id=unit_ids[key],
             case_id=case_ids[row["case_id"]],
-            text=text,
-            text_sha256=_sha(text.encode()),
+            text=edit.text,
+            text_sha256=_sha(edit.text.encode()),
         )
         records["units"].append(row)
 
     def project(original, copy):
         key = original["unit_id"]
-        start, end = _project(maps[key][copy], original["start"], original["end"])
+        start, end = _project(edits[key].copies[copy], original["start"], original["end"])
         before = old_units[key][original["start"] : original["end"]]
-        after = new_units[key][start:end]
+        after = edits[key].text[start:end]
         if (
             after
             != _parts(
@@ -265,7 +276,7 @@ def _derive(package: EvaluationPackage, recipe: str, seed: int) -> tuple[Any, An
                 "version": "1.0.0",
                 "operation": recipe,
                 "seed": seed,
-                "parameters": {unit_ids[k]: edit_parameters[k] for k in original["unit_ids"]},
+                "parameters": {unit_ids[k]: edits[k].parameters for k in original["unit_ids"]},
             },
         )
         records["documents"].append(row)
@@ -341,21 +352,20 @@ def _derive(package: EvaluationPackage, recipe: str, seed: int) -> tuple[Any, An
     for original in package.manifest["annotation_coverage"]:
         row = deepcopy(original)
         row["unit_id"] = unit_ids[original["unit_id"]]
-        ranges = list(authored[original["unit_id"]])
-        for mapping in maps[original["unit_id"]]:
+        edit = edits[original["unit_id"]]
+        ranges = list(edit.authored_ranges)
+        for mapping in edit.copies:
             for region in original["inspected_ranges"]:
                 if recipe == "nfd.v1" and region["start"] < region["end"]:
                     start, end = _project(mapping, region["start"], region["end"])
                     before = old_units[original["unit_id"]][region["start"] : region["end"]]
-                    if new_units[original["unit_id"]][start:end] != unicodedata.normalize(
-                        "NFD", before
-                    ):
+                    if edit.text[start:end] != unicodedata.normalize("NFD", before):
                         raise ValueError("Unrepresentable perturbation reference boundary")
                 ranges.extend(
                     piece for piece in mapping[region["start"] : region["end"]] if piece is not None
                 )
         row["inspected_ranges"] = [{"start": start, "end": end} for start, end in _merged(ranges)]
-        if not new_units[original["unit_id"]]:
+        if not edit.text:
             row["inspected_ranges"] = [{"start": 0, "end": 0}]
         row["limitations"] = list(
             dict.fromkeys(row["limitations"] + ["SYNTHETIC_DERIVATION_NOT_REVIEWED"])
@@ -370,7 +380,7 @@ def _derive(package: EvaluationPackage, recipe: str, seed: int) -> tuple[Any, An
             "source_manifest_sha256": package.manifest_sha256,
             "recipe": recipe,
             "seed": seed,
-            "codepoint_boundaries": maps,
+            "codepoint_boundaries": {key: edit.copies for key, edit in edits.items()},
             "vector_derivations": vector_derivations,
         },
         MAX_RESOURCE_BYTES,
@@ -391,7 +401,7 @@ def _derive(package: EvaluationPackage, recipe: str, seed: int) -> tuple[Any, An
         records,
         manifest,
         {
-            "changed_units": sum(old_units[key] != text for key, text in new_units.items()),
+            "changed_units": sum(old_units[key] != edit.text for key, edit in edits.items()),
             "clean_density": _density(originals["units"], originals["mentions"]),
             "perturbed_density": _density(
                 records["units"][len(originals["units"]) :],
@@ -603,6 +613,25 @@ def _admit_suite(source: EvaluationPackage, suite: Path, digest: str):
                 raise ValueError
         new_units = loaded.records["units"][len(source.records["units"]) :]
         new_mentions = loaded.records["mentions"][len(source.records["mentions"]) :]
+        source_vectors = source.records.get("validation_vectors", [])
+        new_vectors = loaded.records.get("validation_vectors", [])[len(source_vectors) :]
+        copies = 2 if entry["recipe"] == "high_density.v1" else 1
+        new_unit_ids = {unit["unit_id"] for unit in new_units}
+        if len(new_vectors) != len(source_vectors) * copies or any(
+            vector["provenance"]["method"] != "synthetic_derivation"
+            or vector["unit_id"] not in new_unit_ids
+            for vector in new_vectors
+        ):
+            raise ValueError
+        for reference in {vector["provenance"]["evidence_ref"] for vector in new_vectors}:
+            evidence = strict_json(loaded.records[reference])
+            if (
+                evidence["source_manifest_sha256"] != source.manifest_sha256
+                or evidence["recipe"] != entry["recipe"]
+                or evidence["seed"] != index["seed"]
+                or evidence["version"] != index["generator_version"]
+            ):
+                raise ValueError
         if (
             entry["clean_density"] != _density(source.records["units"], source.records["mentions"])
             or entry["perturbed_density"] != _density(new_units, new_mentions)
