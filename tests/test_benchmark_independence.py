@@ -205,3 +205,46 @@ def test_frozen_unexposed_declaration_fixture_passes_only_declaration_checks(tmp
     assert result["accreditation_scope"] == "DECLARED_PACKAGE_RELATIONSHIPS_AND_EXPOSURE"
     assert "CUSTODY_NOT_ACCREDITED_BY_THIS_AUDIT" in result["limitations"]
     assert result["quality"] == "DESCRIPTIVE_ONLY"
+
+
+def test_same_original_artifact_cannot_cross_partitions_with_different_extracted_text(tmp_path):
+    from io import BytesIO
+    from zipfile import ZipFile
+
+    records, _, _ = partition_package(tmp_path, historical=False)
+    for document in records["documents"]:
+        document.update(format="docx", artifact_ref="artifact-a")
+    payload = BytesIO()
+    with ZipFile(payload, "w") as archive:
+        archive.writestr("word/document.xml", "<document>Texto ficticio compartido</document>")
+    raw = payload.getvalue()
+    digest = hashlib.sha256(raw).hexdigest()
+    for document in records["documents"]:
+        document["artifact_sha256"] = digest
+    manifest, _ = profile_package(tmp_path, records, "detection-descriptive-v1", ["EMAIL"])
+    (tmp_path / "artifact.bin").write_bytes(raw)
+    manifest["resources"]["artifact-a"] = {
+        "path": "artifact.bin",
+        "kind": "binary",
+        "sha256": digest,
+        "bytes": len(raw),
+        "records": 0,
+    }
+    manifest["scope"]["formats"] = ["docx"]
+    manifest["panels"]["known_regression"] = {"case_ids": [], "group_ids": []}
+    for index, partition in enumerate(("train", "blind_test"), 1):
+        manifest["partitions"][partition] = {
+            "case_ids": [f"c-{index}"],
+            "group_ids": [f"g-{index}"],
+        }
+    manifest["freeze"] = {
+        "status": "frozen",
+        "frozen_at": manifest["created_at"],
+        "resource_sha256": {role: row["sha256"] for role, row in manifest["resources"].items()},
+        "exposure": "unexposed",
+        "custody": "fictional-contract-fixture-only",
+    }
+    result = audit(tmp_path, save_manifest(tmp_path, manifest))
+    assert result["independence_accredited"] is False
+    assert result["components"] == 1
+    assert result["cross_partition_components"] == 1

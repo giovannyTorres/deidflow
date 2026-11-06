@@ -106,6 +106,11 @@ def audit_independence(
     for case, document in documents.items():
         hashes[sources[document["source_id"]]["content_sha256"]].append(case)
     connect(hashes, "original_source_hash")
+    artifacts: dict[Any, list[str]] = defaultdict(list)
+    for case, document in documents.items():
+        if document["artifact_sha256"] is not None:
+            artifacts[document["artifact_sha256"]].append(case)
+    connect(artifacts, "original_artifact_hash", "ORIGINAL_ARTIFACT_DUPLICATE")
     identities: dict[Any, list[str]] = defaultdict(list)
     for mention in records["mentions"]:
         if mention["entity_id"] is not None and mention["identity_evidence"] is not None:
@@ -217,6 +222,7 @@ def audit_independence(
                     "group_id",
                     "template_family_id",
                     "original_source_hash",
+                    "original_artifact_hash",
                     "explicit_identity",
                     "exact_text",
                     "normalized_text",
