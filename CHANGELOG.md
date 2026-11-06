@@ -24,6 +24,12 @@
   custom sort lists, data-validation lists or text conditional formats (worksheets
   and tables); the reader scans them. Changing the master cell of a shared
   formula now also flattens its dependents instead of leaving them orphaned.
+- E-mail input and output (`.eml`): an allowlist of headers is kept, with display
+  names and addresses transformed and message IDs replaced by keyed pseudonyms
+  so threads survive; `Received`, `X-*`, DKIM, authentication and `Date`
+  headers are removed. Text and HTML bodies are rewritten, attachments are
+  renamed and de-identified recursively (unsupported or blocked ones are
+  removed), and the reader decodes RFC 2047 headers and reads attachments.
 - HTML input and output (`.html`, `.htm`): values are replaced at their source
   offsets so markup is unchanged; text is scanned as one stream with table-cell
   label context, character references are handled, content attributes are

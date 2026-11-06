@@ -8,6 +8,7 @@ import json
 import math
 import posixpath
 import re
+import tempfile
 import uuid
 import warnings
 import zipfile
@@ -458,6 +459,75 @@ def _read_html(source: str, graph: DocumentGraph) -> None:
         _issue(graph, "html_embedded_images_require_ocr")
     if "iframe_srcdoc" in reasons:
         _issue(graph, "html_iframe_srcdoc_requires_review")
+
+
+def _read_eml(
+    data: bytes,
+    graph: DocumentGraph,
+    max_bytes: int,
+    ocr: OCREngine | None,
+    performance: str,
+) -> None:
+    from deidflow.mail import (
+        ATTACHMENT_SUFFIXES,
+        MAX_DEPTH,
+        STRUCTURE_HEADERS,
+        attachment_bytes,
+        header_text,
+        parse,
+    )
+
+    counter = [0]
+
+    def visit(part: Any, depth: int) -> None:
+        if depth > MAX_DEPTH:
+            raise DocumentError("E-mail nesting limit exceeded")
+        for name, value in part.items():
+            if name.lower() in STRUCTURE_HEADERS:
+                continue  # MIME structure; boundaries are random digits, file names below
+            _fragment(graph, header_text(value), part="header", kind="email_header",
+                      metadata={"name": name.lower()})  # fmt: skip
+        filename = part.get_filename()
+        for value in (filename, part.get_param("name"), part.get("content-id")):
+            if isinstance(value, str) and value.strip():
+                _fragment(graph, header_text(value), part="attachment", kind="metadata")
+        content_type = part.get_content_type()
+        if part.is_multipart():
+            for child in part.iter_parts():
+                visit(child, depth + 1)
+            return
+        if content_type == "message/rfc822":
+            for inner in part.get_payload() or []:
+                visit(inner, depth + 1)
+            return
+        disposition = part.get_content_disposition()
+        if content_type == "text/plain" and disposition != "attachment":
+            _fragment(graph, part.get_content(), part="body", kind="email_body")
+            return
+        if content_type == "text/html" and disposition != "attachment":
+            _read_html(part.get_content(), graph)
+            return
+        if content_type.startswith(("image/", "audio/", "video/")):
+            _issue(graph, "email_media_requires_review")
+            return
+        suffix = Path(filename or "").suffix.lower()
+        if suffix not in ATTACHMENT_SUFFIXES:
+            _issue(graph, "email_attachment_not_extracted")
+            return
+        raw = attachment_bytes(part)
+        counter[0] += 1
+        with tempfile.TemporaryDirectory(prefix="deidflow-read-") as folder:
+            path = Path(folder) / ("adjunto" + suffix)
+            path.write_bytes(raw)
+            inner = read_document(path, max_bytes=max_bytes, ocr=ocr, performance=performance)
+        for fragment in inner.fragments:
+            _fragment(graph, fragment.text, part=f"attachment:{counter[0]}", kind=fragment.kind)
+        for issue in inner.issues:
+            _issue(graph, issue)
+        if not inner.complete:
+            _issue(graph, "email_attachment_incomplete")
+
+    visit(parse(data), 0)
 
 
 def _read_xlsx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
@@ -1081,6 +1151,8 @@ def read_document(
                         )
         elif suffix in {".html", ".htm"}:
             _read_html(source.read_bytes().decode("utf-8"), graph)
+        elif suffix == ".eml":
+            _read_eml(source.read_bytes(), graph, max_bytes, ocr, performance)
         elif suffix == ".docx":
             _read_docx(source, graph, max_bytes)
         elif suffix == ".xlsx":

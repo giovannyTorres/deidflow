@@ -110,7 +110,8 @@ verification gate. It never establishes anonymous data. Always inspect
   in-place DOCX, HTML and supervised XLSX output (formatting kept; tracked
   changes, orphaned strings, pivot caches, HTML comments and scripts removed).
   XLSX transformation and verification always require review; automatic XLSX
-  release is unavailable. Markdown and log files are de-identified as text.
+  release is unavailable. E-mail (`.eml`): headers, bodies and attachments,
+  trace headers removed. Markdown and log files are de-identified as text.
 - Redaction, typed placeholders, scoped HMAC pseudonyms, generalization,
   suppression, ISO date shifts, numeric buckets, partial masks and custom actions.
 - Strict Python/YAML policies, domain overrides, reread verification and release
