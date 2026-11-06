@@ -12,12 +12,10 @@ from ._package_io import MAX_RECORDS, MAX_RESOURCE_BYTES
 
 @dataclass(frozen=True)
 class TextRequirement:
-    requirement_id: str
     start: int
     end: int
     action: str
     operators: tuple[str, ...]
-    verification: str
     release_states: tuple[str, ...]
     entity_type: str
     ranges: tuple[tuple[int, int], ...]
@@ -56,12 +54,10 @@ def resolve_requirements(
                 ranges[row["expectation_id"]].append((start, end))
     return [
         TextRequirement(
-            row["expectation_id"],
             target["start"],
             target["end"],
             row["action"],
             tuple(row["allowed_operators"]),
-            row["verification"],
             tuple(row["acceptable_release_states"]),
             target.get("entity_type", "REGION"),
             tuple(ranges[row["expectation_id"]]),
@@ -70,7 +66,7 @@ def resolve_requirements(
     ], overridden
 
 
-def _maps(text: str, output: TransformationOutput) -> tuple[SourceMap, ...] | None:
+def _validated_source_maps(text: str, output: TransformationOutput) -> tuple[SourceMap, ...] | None:
     if (
         not isinstance(output, TransformationOutput)
         or not isinstance(output.text, str)
@@ -80,26 +76,43 @@ def _maps(text: str, output: TransformationOutput) -> tuple[SourceMap, ...] | No
         or len(output.mappings) > MAX_RECORDS
     ):
         return None
-    before = after = 0
+    source_cursor = output_cursor = 0
     copied = []
     for item in output.mappings:
         if not isinstance(item, SourceMap):
             return None
-        a, b, c, d = item.source_start, item.source_end, item.output_start, item.output_end
+        source_start, source_end, output_start, output_end = (
+            item.source_start,
+            item.source_end,
+            item.output_start,
+            item.output_end,
+        )
         if (
-            any(type(value) is not int for value in (a, b, c, d))
-            or not before <= a < b <= len(text)
-            or not after <= c <= d <= len(output.text)
-            or text[before:a] != output.text[after:c]
+            any(
+                type(value) is not int
+                for value in (source_start, source_end, output_start, output_end)
+            )
+            or not source_cursor <= source_start < source_end <= len(text)
+            or not output_cursor <= output_start <= output_end <= len(output.text)
+            or text[source_cursor:source_start] != output.text[output_cursor:output_start]
             or not isinstance(item.action, str)
             or not isinstance(item.entity_types, tuple)
             or not item.entity_types
             or any(not isinstance(label, str) for label in item.entity_types)
         ):
             return None
-        copied.append(SourceMap(a, b, c, d, tuple(item.entity_types), item.action))
-        before, after = b, d
-    if text[before:] != output.text[after:]:
+        copied.append(
+            SourceMap(
+                source_start,
+                source_end,
+                output_start,
+                output_end,
+                tuple(item.entity_types),
+                item.action,
+            )
+        )
+        source_cursor, output_cursor = source_end, output_end
+    if text[source_cursor:] != output.text[output_cursor:]:
         return None
     return tuple(copied)
 
@@ -122,7 +135,7 @@ def _removal_verified(text: str, emitted: str, mapping: SourceMap) -> bool:
 def inspect_text_output(
     text: str, requirements: list[TextRequirement], output: TransformationOutput | None
 ) -> dict[str, Any]:
-    mappings = _maps(text, output) if output is not None else None
+    mappings = _validated_source_maps(text, output) if output is not None else None
     valid_maps = mappings is not None
     preserved = bytearray(b"\x01") * len(text) if valid_maps else bytearray(len(text))
     removed = bytearray(len(text))
