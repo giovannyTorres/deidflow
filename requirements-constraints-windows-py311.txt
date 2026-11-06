@@ -28,7 +28,7 @@ cymem==2.0.16
 defusedxml==0.7.1
 faker==40.44.0
 filelock==4.2.9
-google-auth==2.62.0
+google-auth==2.62.1
 google-auth-oauthlib==1.5.0
 h11==0.16.0
 httpcore==1.0.9
