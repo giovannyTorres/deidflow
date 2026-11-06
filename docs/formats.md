@@ -56,9 +56,13 @@ Visible text is scanned as one stream (block elements start new lines, table
 cells are separated by spaces), so `<td>Nombre:</td><td>Ana</td>` keeps its label
 context; a value split by inline tags (`<b>María</b> López`) or written with
 character references (`L&oacute;pez`) is replaced across them, references whole.
-Content attributes are scanned one by one (`href="mailto:..."` becomes
-`mailto:[EMAIL]`). Comments, `<script>` elements, embedded `data:` images and
-`<iframe srcdoc>` are removed; `<style>` is kept. The output is reread and
+Content and URL attributes (`alt`, `title`, `href`, `src`, `srcset`, `value`,
+`content`, `data-*`...) are scanned one by one (`href="mailto:..."` becomes
+`mailto:[EMAIL]`), and so are CSS string literals and `url()` values in
+`<style>` and `style=""` (generated `content: "..."` is visible text).
+Comments, `<script>` elements, `data:` URLs with a payload (images, SVG,
+documents, in any attribute or stylesheet) and `<iframe srcdoc>` are removed;
+the rest of `<style>` is kept. The output is reread and
 rescanned like other formats. Input must be UTF-8.
 
 ## DOCX output

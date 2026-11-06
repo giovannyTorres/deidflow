@@ -66,7 +66,7 @@ def test_html_output_keeps_markup_and_removes_values(tmp_path):
     assert 'href="mailto:[EMAIL]"' in output
     assert read_document(result.output_path).complete
     removed = result.audit["markup_removed"]
-    assert removed == {"comment": 1, "embedded_image": 1, "script": 1}
+    assert removed == {"comment": 1, "embedded_data": 1, "script": 1}
 
 
 def test_character_references_are_replaced_whole():
@@ -87,9 +87,34 @@ def test_reader_flags_scripts_and_embedded_images(tmp_path):
     path.write_text(PAGE, "utf-8")
     graph = read_document(path)
     assert not graph.complete
-    assert {"html_scripts_require_review", "html_embedded_images_require_ocr"} <= set(graph.issues)
+    assert {"html_scripts_require_review", "html_embedded_data_requires_review"} <= set(
+        graph.issues
+    )
     kinds = {f.kind for f in graph.fragments}
     assert {"html_text", "attribute", "comment", "script"} <= kinds
+
+
+@pytest.mark.parametrize(
+    "fragment",
+    [
+        '<img src="https://example.com/fotos/ana.ruiz@example.com.png">',
+        '<img srcset="data:image/svg+xml;base64,PHN2Zz5hbmFAZXhhbXBsZS5jb208L3N2Zz4= 2x">',
+        '<style>p::before { content: "ana.ruiz@example.com"; }</style><p>Informe</p>',
+        "<p style=\"background: url('https://example.com/u/ana.ruiz@example.com')\">x</p>",
+        '<object data="data:application/pdf;base64,JVBERi0xLjQ="></object>',
+    ],
+)
+def test_urls_data_urls_and_css_values_are_covered(tmp_path, fragment):
+    source = tmp_path / "page.html"
+    source.write_text(f"<html><body>{fragment}</body></html>", "utf-8")
+    result = DeidEngine(country="ES").deidentify(
+        source, output=tmp_path / "out.html", policy=Policy.strict(require_ner=False)
+    )
+    assert result.output_path is not None, result.issues
+    output = result.output_path.read_text("utf-8")
+    assert "ana.ruiz@example.com" not in output
+    assert "base64" not in output
+    assert read_document(result.output_path).complete
 
 
 @pytest.mark.parametrize("suffix", [".md", ".log", ".text"])

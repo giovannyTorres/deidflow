@@ -30,8 +30,17 @@ BLOCK = frozenset(
 CELL = frozenset({"td", "th", "option", "label"})
 CONTENT_ATTRIBUTES = frozenset(
     {"alt", "title", "value", "href", "content", "placeholder", "aria-label", "label",
-     "summary", "abbr", "cite", "action", "srcset", "poster", "download"}
+     "summary", "abbr", "cite", "action", "srcset", "poster", "download", "src", "data",
+     "background", "longdesc", "formaction", "ping", "manifest", "codebase", "xlink:href",
+     "imagesrcset", "style"}
 )  # fmt: skip
+# A data: URL with a payload (images, SVG, documents) cannot be verified by text scanning.
+_DATA_URL = re.compile(r"(?<![\w-])data:[^\s,]*,\S", re.IGNORECASE)
+# CSS string literals and url() arguments: generated content and resource URLs.
+_CSS_VALUE = re.compile(
+    r'"((?:[^"\\\n]|\\.)*)"|\'((?:[^\'\\\n]|\\.)*)\'|url\(\s*([^)"\'\s][^)\s]*)\s*\)',
+    re.IGNORECASE,
+)
 _ATTRIBUTE = re.compile(
     r"""([^\s"'>/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?""", re.DOTALL
 )
@@ -52,6 +61,7 @@ class Markup:
     segments: list[Segment | str] = field(default_factory=list)  # str: virtual separator
     attributes: list[tuple[int, int, str, str]] = field(default_factory=list)  # raw span, name
     removable: list[tuple[int, int, str]] = field(default_factory=list)  # raw span, reason
+    css: list[tuple[int, int, str]] = field(default_factory=list)  # <style> values, raw span
     comments: list[str] = field(default_factory=list)
     scripts: list[str] = field(default_factory=list)
 
@@ -102,14 +112,8 @@ class _Parser(HTMLParser):
             else:
                 continue
             value = html.unescape(self.source[value_start:value_end])
-            data_uri = value.strip().lower()
-            if (
-                tag == "img"
-                and name == "src"
-                and data_uri.startswith("data:")
-                and data_uri != "data:,"
-            ):
-                self.result.removable.append((value_start, value_end, "embedded_image"))
+            if _DATA_URL.search(value):
+                self.result.removable.append((value_start, value_end, "embedded_data"))
             elif tag == "iframe" and name == "srcdoc":
                 self.result.removable.append((value_start, value_end, "iframe_srcdoc"))
             elif name in CONTENT_ATTRIBUTES or name.startswith("data-"):
@@ -132,6 +136,14 @@ class _Parser(HTMLParser):
             self.result.scripts.append(data)
             return
         if self.raw_mode == "style":
+            for match in _CSS_VALUE.finditer(data):
+                group = next(g for g in (1, 2, 3) if match.group(g) is not None)
+                value = match.group(group)
+                begin, end = start + match.start(group), start + match.end(group)
+                if _DATA_URL.search(value):
+                    self.result.removable.append((begin, end, "embedded_data"))
+                else:
+                    self.result.css.append((begin, end, value))
             return
         self.result.segments.append(Segment(start, start + len(data), data, True))
 
@@ -211,18 +223,61 @@ def rewrite_html(source: str, rewrite: Rewrite) -> tuple[str, MarkupReport]:
                     (left, right, html.escape(replacement, quote=False) if not placed else "")
                 )
                 placed = True
-    for start, end, _name, value in markup.attributes:
+    for start, end, name, value in markup.attributes:
         if not value.strip():
             continue
+        if name == "style":
+            output, count = rewrite_css(value, rewrite)
+        else:
+            output, mappings = rewrite(value)
+            count = len(mappings)
+        if count:
+            report.transformations += count
+            edits.append((start, end, html.escape(output, quote=True)))
+    for start, end, value in markup.css:
         output, mappings = rewrite(value)
         if mappings:
             report.transformations += len(mappings)
-            edits.append((start, end, html.escape(output, quote=True)))
+            edits.append((start, end, _css_escape(output)))
     for start, end, reason in markup.removable:
         replacement = "" if reason in {"comment", "script", "iframe_srcdoc"} else "data:,"
         edits.append((start, end, replacement))
         report.removed[reason] = report.removed.get(reason, 0) + 1
     return _apply(source, edits), report
+
+
+def css_values(css: str) -> list[str]:
+    """String literals and url() arguments of a CSS text (style attributes, readers)."""
+    values = []
+    for match in _CSS_VALUE.finditer(css):
+        values.append(next(g for g in match.groups() if g is not None))
+    return values
+
+
+def rewrite_css(css: str, rewrite: Rewrite) -> tuple[str, int]:
+    """Rewrite each CSS string literal and url() argument; data: URLs are emptied."""
+    count = 0
+
+    def replace(match: re.Match[str]) -> str:
+        nonlocal count
+        group = next(g for g in (1, 2, 3) if match.group(g) is not None)
+        value = match.group(group)
+        if _DATA_URL.search(value):
+            count += 1
+            new = "data:,"
+        else:
+            new, mappings = rewrite(value)
+            count += len(mappings)
+            new = _css_escape(new)
+        text = match.group(0)
+        offset = match.start(group) - match.start(0)
+        return text[:offset] + new + text[offset + len(value) :]
+
+    return _CSS_VALUE.sub(replace, css), count
+
+
+def _css_escape(value: str) -> str:
+    return re.sub(r"""(["'\\()\n])""", r"\\\1", value)
 
 
 def _apply(source: str, edits: list[tuple[int, int, str]]) -> str:
@@ -248,4 +303,4 @@ def _apply(source: str, edits: list[tuple[int, int, str]]) -> str:
     return "".join(parts)
 
 
-__all__ = ["Markup", "MarkupReport", "parse", "rewrite_html"]
+__all__ = ["Markup", "MarkupReport", "css_values", "parse", "rewrite_css", "rewrite_html"]

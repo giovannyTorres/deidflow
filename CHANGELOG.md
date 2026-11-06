@@ -27,8 +27,10 @@
 - HTML input and output (`.html`, `.htm`): values are replaced at their source
   offsets so markup is unchanged; text is scanned as one stream with table-cell
   label context, character references are handled, content attributes are
-  rewritten, and comments, scripts, embedded images and `iframe srcdoc` are
-  removed. `.md`, `.text` and `.log` files are de-identified as text.
+  rewritten (including `src` URLs and CSS strings and `url()` values in
+  `<style>` and `style=""`), and comments, scripts, `data:` URLs with a payload
+  in any attribute or stylesheet, and `iframe srcdoc` are removed. `.md`,
+  `.text` and `.log` files are de-identified as text.
 - The DOCX reader scans `fldSimple` instructions and commenter account IDs,
   flags package thumbnails, and no longer forces review for layout-only fields
   such as `PAGE` or `TOC`.

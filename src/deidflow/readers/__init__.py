@@ -440,13 +440,17 @@ def _read_docx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
 
 
 def _read_html(source: str, graph: DocumentGraph) -> None:
-    from deidflow.markup import parse
+    from deidflow.markup import css_values, parse
 
     markup = parse(source)
     _fragment(graph, markup.text(), part="body", kind="html_text")
     for _, _, name, value in markup.attributes:
+        for item in css_values(value) if name == "style" else [value]:
+            if item.strip():
+                _fragment(graph, item, part="attribute", kind="attribute", metadata={"name": name})
+    for _, _, value in markup.css:
         if value.strip():
-            _fragment(graph, value, part="attribute", kind="attribute", metadata={"name": name})
+            _fragment(graph, value, part="style", kind="css")
     for comment in markup.comments:
         _fragment(graph, comment, part="comment", kind="comment")
     for script in markup.scripts:
@@ -454,8 +458,8 @@ def _read_html(source: str, graph: DocumentGraph) -> None:
     reasons = {reason for _, _, reason in markup.removable}
     if markup.scripts:
         _issue(graph, "html_scripts_require_review")
-    if "embedded_image" in reasons:
-        _issue(graph, "html_embedded_images_require_ocr")
+    if "embedded_data" in reasons:
+        _issue(graph, "html_embedded_data_requires_review")
     if "iframe_srcdoc" in reasons:
         _issue(graph, "html_iframe_srcdoc_requires_review")
 
