@@ -29,9 +29,12 @@ para mejorar resultados. Los recuentos corresponden a la prueba del incremento.
 | 3 | Rechazar entrada ilegible, metadatos no admitidos e intervalos inválidos | 3 fallos, 3 pasan | 6 pasan |
 | 4 | Sanitizar errores del destino | 1 fallo, 6 pasan | 7 pasan |
 | 5 | Sanitizar fallo de lectura al identificar el candidato | 1 fallo, 14 pasan | 15 pasan |
+| 6 | Sanitizar destino demasiado largo y paquete con enlace circular | 2 fallos, 15 pasan | 17 pasan |
+| 7 | Rechazar claves JSON repetidas y manifiesto no UTF-8 | 4 fallos, 17 pasan | 21 pasan |
 
 La refactorización separó admisión, identificación y escritura del informe y
-concentró la creación de paquetes en las pruebas: **15 pruebas pasan** después.
+concentró la creación de paquetes en las pruebas. Después de las correcciones
+de revisión, **21 pruebas pasan**.
 Las verificaciones adicionales que ya pasaron al escribirse no se presentan
 como ciclos rojos: matching exacto, repetición sin red, canarios, denominadores
 ausentes, configuración no admitida y el ejemplo distribuido.
@@ -57,8 +60,33 @@ calidad poblacional ni garantía de anonimato.
 
 ## Revisión Matt Pocock
 
-Pendientes dos revisiones independientes con contexto fresco, ejes Standards
-y Spec. Se comparará la base fija con el commit de implementación.
+Dos revisores independientes, con contexto fresco, compararon la base fija con
+`fc32b301a1b1fcba16a3bbe61e56e4db96d2941e`. Pendiente su comprobación de las
+correcciones siguientes; no se mezclan los ejes.
+
+### Standards
+
+Dos hallazgos documentados P2: la comprobación inicial del destino podía exponer
+una ruta demasiado larga; el parser aceptaba claves JSON duplicadas y descartaba
+contenido. Peor problema de este eje: exposición de rutas en excepciones.
+No se identificaron smells Fowler sustantivos.
+
+Resolución: se eliminó la consulta duplicada al destino y se utiliza la creación
+exclusiva con errores sanitizados. El parser rechaza claves repetidas en todos
+los niveles y constantes no finitas. Regresiones observadas rojas y verdes.
+
+### Spec
+
+Un hallazgo: la sanitización prometida era incompleta para enlaces circulares de
+entrada y rutas de salida demasiado largas. No se encontraron otros requisitos
+faltantes ni ampliación del alcance. Peor problema de este eje: nombres
+originales expuestos mediante excepciones.
+
+Resolución: errores de resolución de enlaces se convierten en diagnóstico
+genérico de paquete inválido; el destino usa la frontera de escritura sanitizada.
+Dos regresiones observadas rojas y verdes.
+
+Recuento inicial: Standards 2; Spec 1. No se escoge un peor problema global.
 
 ## Riesgos y trabajo posterior
 

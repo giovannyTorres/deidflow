@@ -45,7 +45,8 @@ El directorio contiene exactamente dos recursos necesarios:
   deben ser únicos y no vacíos. Cada span contiene `entity_type="EMAIL"`,
   `start` y `end`: enteros, intervalo semiabierto de índices de caracteres
   Python sobre el texto original, dentro del documento. No se permiten
-  duplicados idénticos ni campos adicionales en estos objetos.
+  duplicados idénticos ni campos adicionales en estos objetos. El parser
+  rechaza claves JSON repetidas y constantes no finitas antes de validar.
 
 Límites de lectura: 4096 bytes de manifiesto y 1 MiB de corpus. Los recursos
 fijos no pueden resolver fuera del directorio del paquete. Un paquete vacío,

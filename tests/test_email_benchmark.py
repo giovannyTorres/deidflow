@@ -210,6 +210,37 @@ def test_output_io_errors_do_not_expose_paths(tmp_path):
     assert parent.read_text() == "existing user work"
 
 
+def test_unrepresentable_output_path_has_a_sanitized_error(tmp_path):
+    from deidflow.benchmarks.email import run_email_benchmark
+
+    package = email_package(tmp_path / "package")
+    output = tmp_path / ("private-canary@example.test" * 16)
+
+    with pytest.raises(OSError, match="Cannot write email benchmark report") as error:
+        run_email_benchmark(
+            package, candidate="rules.mx", profile="email-descriptive-v1", output=output
+        )
+
+    assert "canary" not in str(error.value)
+    assert set(tmp_path.iterdir()) == {package}
+
+
+def test_circular_package_link_has_a_sanitized_error(tmp_path):
+    from deidflow.benchmarks.email import run_email_benchmark
+
+    package = tmp_path / "private-canary@example.test"
+    package.symlink_to(package, target_is_directory=True)
+    output = tmp_path / "result"
+
+    with pytest.raises(ValueError, match="Invalid email benchmark package") as error:
+        run_email_benchmark(
+            package, candidate="rules.mx", profile="email-descriptive-v1", output=output
+        )
+
+    assert "canary" not in str(error.value)
+    assert not output.exists()
+
+
 def test_unreadable_candidate_source_fails_without_echoing_the_os_error(tmp_path, monkeypatch):
     from deidflow.benchmarks.email import run_email_benchmark
 
@@ -266,7 +297,44 @@ def test_unsupported_configurations_fail_without_a_report(tmp_path, candidate, p
     assert not output.exists()
 
 
-@pytest.mark.parametrize("damage", ["missing", "metadata", "checksum", "annotation"])
+@pytest.mark.parametrize("location", ["manifest", "record", "span"])
+def test_duplicate_json_keys_cannot_hide_replaced_content(tmp_path, location):
+    from deidflow.benchmarks.email import run_email_benchmark
+
+    package = email_package(tmp_path / "package")
+    manifest = package / "manifest.json"
+    if location == "manifest":
+        payload = manifest.read_text().replace(
+            '"synthetic": true', '"synthetic": false, "synthetic": true'
+        )
+        manifest.write_text(payload, encoding="utf-8")
+    else:
+        if location == "record":
+            payload = (
+                '{"id":"x","text":"private-canary@example.test",'
+                '"text":"Sin contacto.","spans":[]}\n'
+            )
+        else:
+            payload = (
+                '{"id":"x","text":"Correo: canary-7f82@example.test.",'
+                '"spans":[{"entity_type":"EMAIL","start":9000,"start":8,"end":32}]}\n'
+            )
+        (package / "corpus.jsonl").write_bytes(payload.encode())
+        metadata = json.loads(manifest.read_text())
+        metadata["corpus_sha256"] = hashlib.sha256(payload.encode()).hexdigest()
+        manifest.write_text(json.dumps(metadata), encoding="utf-8")
+    output = tmp_path / "result"
+
+    with pytest.raises(ValueError, match="Invalid email benchmark package") as error:
+        run_email_benchmark(
+            package, candidate="rules.mx", profile="email-descriptive-v1", output=output
+        )
+
+    assert "canary" not in str(error.value)
+    assert not output.exists()
+
+
+@pytest.mark.parametrize("damage", ["missing", "metadata", "checksum", "annotation", "encoding"])
 def test_unusable_packages_fail_without_echoing_paths_or_source(tmp_path, damage):
     from deidflow.benchmarks.email import run_email_benchmark
 
@@ -281,6 +349,8 @@ def test_unusable_packages_fail_without_echoing_paths_or_source(tmp_path, damage
         manifest.write_text(json.dumps(data), encoding="utf-8")
     elif damage == "checksum":
         corpus.write_text("not the declared corpus", encoding="utf-8")
+    elif damage == "encoding":
+        manifest.write_bytes(manifest.read_text().encode("utf-16"))
     else:
         records = [json.loads(line) for line in corpus.read_text().splitlines()]
         records[0]["spans"][0]["end"] = 500

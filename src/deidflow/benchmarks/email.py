@@ -28,6 +28,19 @@ class _EmailPackage:
     examples: list[Example]
 
 
+def _unique_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError
+        result[key] = value
+    return result
+
+
+def _reject_constant(_value: str) -> None:
+    raise ValueError
+
+
 def _read_member(root: Path, name: str, limit: int) -> bytes:
     path = root / name
     if not path.resolve().is_relative_to(root) or not path.is_file():
@@ -43,7 +56,11 @@ def _load_package(path: str | Path) -> _EmailPackage:
     try:
         root = Path(path).resolve()
         manifest_bytes = _read_member(root, "manifest.json", 4096)
-        manifest = json.loads(manifest_bytes)
+        manifest = json.loads(
+            manifest_bytes.decode("utf-8"),
+            object_pairs_hook=_unique_pairs,
+            parse_constant=_reject_constant,
+        )
         corpus_bytes = _read_member(root, "corpus.jsonl", 1_048_576)
         corpus_digest = hashlib.sha256(corpus_bytes).hexdigest()
         if (
@@ -60,7 +77,9 @@ def _load_package(path: str | Path) -> _EmailPackage:
         examples: list[Example] = []
         ids: set[str] = set()
         for line in corpus_bytes.decode("utf-8").splitlines():
-            record = json.loads(line)
+            record = json.loads(
+                line, object_pairs_hook=_unique_pairs, parse_constant=_reject_constant
+            )
             if (
                 not isinstance(record, dict)
                 or set(record) != {"id", "text", "spans"}
@@ -100,7 +119,7 @@ def _load_package(path: str | Path) -> _EmailPackage:
             corpus_digest,
             examples,
         )
-    except (OSError, ValueError, TypeError, KeyError, RecursionError):
+    except (OSError, ValueError, TypeError, KeyError, RuntimeError):
         raise ValueError("Invalid email benchmark package") from None
 
 
@@ -155,8 +174,6 @@ def run_email_benchmark(
     if candidate != "rules.mx" or profile != "email-descriptive-v1":
         raise ValueError("Unsupported email benchmark candidate or profile")
     destination = Path(output)
-    if destination.exists() or destination.is_symlink():
-        raise FileExistsError("Benchmark output already exists; choose a new directory")
     started = datetime.now(UTC).isoformat()
     before = time.perf_counter()
     loaded = _load_package(package)
