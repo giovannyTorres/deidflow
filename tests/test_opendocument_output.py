@@ -265,3 +265,39 @@ def test_ods_shapes_tables_manifest_types_and_empty_repeats(tmp_path):
     for secret in ("12345678Z", "87654321X", "maria.lopez@example.com"):
         assert secret not in package, secret
     assert 'table:number-columns-repeated="16000"' in package  # empty cells not expanded
+
+
+@pytest.mark.parametrize("suffix", [".ods", ".xlsx"])
+def test_eml_spreadsheet_attachment_is_kept_for_review(tmp_path, suffix):
+    import email
+    import email.policy
+    from email.message import EmailMessage
+
+    from test_office_xlsx import make_xlsx
+
+    maker = make_ods if suffix == ".ods" else make_xlsx
+    subtype = (
+        "vnd.oasis.opendocument.spreadsheet"
+        if suffix == ".ods"
+        else "vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    message = EmailMessage()
+    message["From"] = "ana@example.com"
+    message["Subject"] = "Hoja"
+    message.set_content("Adjunto la hoja.\n")
+    message.add_attachment(
+        maker(tmp_path / f"hoja{suffix}").read_bytes(),
+        maintype="application",
+        subtype=subtype,
+        filename=f"pacientes{suffix}",
+    )
+    source = tmp_path / "con-hoja.eml"
+    source.write_bytes(message.as_bytes(policy=email.policy.default))
+    result = DeidEngine(country="ES").deidentify(
+        source, output=tmp_path / "out.eml", policy=Policy.strict(require_ner=False)
+    )
+    assert result.status == "REVIEW_REQUIRED", result.issues
+    assert "INCOMPLETE_COVERAGE" not in result.issues
+    parsed = email.message_from_bytes(result.output_path.read_bytes(), policy=email.policy.default)
+    attachment = next(parsed.iter_attachments())
+    assert attachment.get_filename() == f"adjunto-1{suffix}"

@@ -551,8 +551,11 @@ def _read_eml(
             inner = read_document(path, max_bytes=remaining_bytes, ocr=ocr, performance=performance)
         for fragment in inner.fragments:
             emit(fragment.text, part=f"attachment:{counter[0]}", kind=fragment.kind)
+        # Review-only issues of a completely read attachment (XLSX/ODS/HTML review)
+        # keep the message in review; only incomplete coverage makes it incomplete.
         for issue in inner.issues:
-            _issue(graph, issue)
+            if issue not in graph.issues:
+                graph.issues.append(issue)
         if not inner.complete:
             _issue(graph, "email_attachment_incomplete")
 

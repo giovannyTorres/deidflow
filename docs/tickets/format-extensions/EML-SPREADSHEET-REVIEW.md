@@ -1,3 +1,5 @@
+> **Resuelto** en `feat/opendocument`: el lector de correo conserva los avisos de revisión de adjuntos leídos por completo sin marcarlos como cobertura incompleta.
+
 <!-- deidflow-format:EML-SPREADSHEET-REVIEW -->
 # EML: separar la revisión de adjuntos de su cobertura incompleta
 

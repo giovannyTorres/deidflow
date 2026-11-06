@@ -8,10 +8,11 @@
   verification always require review; retained uninspected media, unknown package
   parts and unsupported/encrypted input cannot receive an approved output.
 - Added ODT/ODS e-mail attachment rewriting with canonical MIME types and the
-  existing attachment review/removal rules. A documented follow-up remains:
-  retaining a valid ODS attachment currently blocks the final message reread
-  because its review-only issue is treated as incomplete coverage. Documented
-  OpenDocument channels, package limits and local LibreOffice regression checks.
+  existing attachment review/removal rules. Documented OpenDocument channels,
+  package limits and local LibreOffice regression checks.
+- E-mail with a completely read XLSX or ODS attachment now needs review instead
+  of being blocked: the attachment's review-only issue was re-raised as
+  incomplete coverage of the whole message. Incomplete attachments still block.
 - Retained structural metadata and qualified XML names are scanned; unsupported
   sensitive syntax and excessive XML depth fail closed. Standalone verification
   preserves uncertainty for opaque XML/package/ZIP channels; rewriting removes
