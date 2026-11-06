@@ -90,4 +90,4 @@ maliciosos al sistema de archivos.
 Las [pruebas del recorrido](../tests/test_email_benchmark.py) ejercitan el
 detector real, repetición, conteos conocidos, matching exacto, denominadores
 ausentes, destino existente, canarios y errores de paquete/salida. La evidencia
-de aceptación se registra en [el acta BMX-01](audit/BMX-01.md).
+de aceptación se registra en [el acta BMX-01](https://github.com/giovannyTorres/deidflow/blob/f2e4751d280a100e5af450337d70db78a8fefa03/docs/audit/BMX-01.md).

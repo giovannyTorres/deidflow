@@ -8,6 +8,33 @@ from pathlib import Path
 import pytest
 
 
+@pytest.mark.parametrize("separator", ("\u2028", "\u2029"))
+def test_valid_jsonl_keeps_unicode_separators_inside_document(tmp_path, separator):
+    from deidflow.benchmarks.email import run_email_benchmark
+
+    package = write_package(
+        tmp_path / "package", [{"id": "neutral", "text": f"Texto{separator}final.", "spans": []}]
+    )
+    report = run_email_benchmark(
+        package, candidate="rules.mx", profile="email-descriptive-v1", output=tmp_path / "report"
+    )
+    assert report["result"]["documents"] == {"total": 1, "positive": 0, "negative": 1}
+
+
+@pytest.mark.parametrize("suffix", ("\ud800", "\x00"))
+def test_invalid_output_path_uses_generic_error(tmp_path, suffix):
+    from deidflow.benchmarks.email import run_email_benchmark
+
+    package = email_package(tmp_path / "package")
+    with pytest.raises(OSError, match="^Cannot write email benchmark report$"):
+        run_email_benchmark(
+            package,
+            candidate="rules.mx",
+            profile="email-descriptive-v1",
+            output=str(tmp_path / "canary@example.test") + suffix,
+        )
+
+
 def write_package(root: Path, records) -> Path:
     root.mkdir(exist_ok=True)
     payload = "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in records).encode()
