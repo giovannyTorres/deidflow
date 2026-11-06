@@ -58,3 +58,5 @@ Las dos P2 de la revisión interna se reprodujeron en rojo y quedaron corregidas
 ODS conserva su revisión obligatoria. El adjunto ODS retenido en EML todavía bloquea la salida por una limitación anterior; existe un borrador separado para corregir esa propagación. No se presenta como entrega funcional de adjuntos ODS. BMX-14b también es un borrador documental, no un issue de GitHub creado.
 
 Tamaño: 1.617 líneas Python cambiadas frente al lector, contando comentarios/blancos/helpers/pruebas y sin excluir fixtures. La guía aproximada se aplica preservando las regresiones de privacidad y contexto. Las variables de hilos solo controlaron las comprobaciones; no son cambios persistentes. Las métricas son regresión ficticia de desarrollo, no calidad profesional o anonimato acreditados.
+
+Borradores reproducibles: [BMX-14b](../../tickets/benchmark-mx-extensions/BMX-14b.md) y [revisión de adjuntos de hojas](../../tickets/format-extensions/EML-SPREADSHEET-REVIEW.md). No son issues remotos.
