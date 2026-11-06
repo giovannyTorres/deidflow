@@ -251,6 +251,12 @@ def _lineage(case: _Case) -> dict[str, Any]:
     }
 
 
+def _action_for(mode: str, row: dict[str, Any]) -> str:
+    if row["certainty"] == "ambiguous":
+        return "review_required"
+    return "preserve" if mode == "contextual" and row["entity_type"] in _CLINICAL else "remove"
+
+
 def _snapshot(guide: bytes) -> bytes:
     return canonical_json(
         {
@@ -273,13 +279,7 @@ def _snapshot(guide: bytes) -> bytes:
                 row
                 | {
                     "actions_by_mode": {
-                        mode: "review_required"
-                        if row["certainty"] == "ambiguous"
-                        else (
-                            "preserve"
-                            if mode == "contextual" and row["entity_type"] in _CLINICAL
-                            else "remove"
-                        )
+                        mode: _action_for(mode, row)
                         for mode in ("contextual", "strict", "ambiguous")
                         if (mode == "ambiguous") == (row["certainty"] == "ambiguous")
                     }
@@ -579,13 +579,7 @@ def generate_contextual_package(
                 },
             }
         )
-        action = (
-            "review_required"
-            if row["certainty"] == "ambiguous"
-            else (
-                "preserve" if mode == "contextual" and row["entity_type"] in _CLINICAL else "remove"
-            )
-        )
+        action = _action_for(mode, row)
         for profile in _PROFILES:
             records["expectations"].append(
                 {

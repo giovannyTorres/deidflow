@@ -22,12 +22,18 @@ package = load_evaluation_package(
 )
 for runner, profile, output in (
     (run_package_benchmark, "detection-descriptive-v1", "/tmp/deidflow-identifiers-detection-001"),
-    (run_validation_benchmark, "validation-descriptive-v1", "/tmp/deidflow-identifiers-validation-001"),
+    (
+        run_validation_benchmark,
+        "validation-descriptive-v1",
+        "/tmp/deidflow-identifiers-validation-001",
+    ),
 ):
     runner(
         "/tmp/deidflow-identifiers-001",
         manifest_sha256=summary["manifest_sha256"],
-        candidate="rules.mx", profile=profile, output=output,
+        candidate="rules.mx",
+        profile=profile,
+        output=output,
     )
 ```
 
