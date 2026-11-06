@@ -31,6 +31,12 @@
   character recall 0.842 to 0.947), Gretel test F1 0.707 to 0.740; MEDDOCAN
   unchanged. `DomainRouter(mixed=...)` chooses the taggers for low-evidence
   documents. The benchmark and tuning scripts accept the synthetic corpus.
+- E-mail input and output (`.eml`): an allowlist of headers is kept, with display
+  names and addresses transformed and message IDs replaced by keyed pseudonyms
+  so threads survive; `Received`, `X-*`, DKIM, authentication and `Date`
+  headers are removed. Text and HTML bodies are rewritten, attachments are
+  renamed and de-identified recursively (unsupported or blocked ones are
+  removed), and the reader decodes RFC 2047 headers and reads attachments.
 - HTML input and output (`.html`, `.htm`): values are replaced at their source
   offsets so markup is unchanged; text is scanned as one stream with table-cell
   label context, character references are handled, content attributes are

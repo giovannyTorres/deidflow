@@ -990,6 +990,7 @@ class DeidEngine:
                 ".xlsx",
                 ".html",
                 ".htm",
+                ".eml",
             }
             or target.suffix.lower() != suffix
         ):
@@ -1009,6 +1010,8 @@ class DeidEngine:
                 result = self._office(source, candidate, policy, domain, office_media == "remove")
             elif suffix in {".html", ".htm"}:
                 result = self._html(source, candidate, policy, domain)
+            elif suffix == ".eml":
+                result = self._eml(source, candidate, policy, domain, office_media)
             elif suffix in {".txt", ".text", ".md", ".log"}:
                 if source.stat().st_size > self.max_bytes:
                     raise ValueError("Text exceeds configured size limit")
@@ -1170,6 +1173,90 @@ class DeidEngine:
         result.records = 1
         result.audit["transformations"] = report.transformations
         result.audit["markup_removed"] = dict(sorted(report.removed.items()))
+        return result
+
+    def _eml(
+        self, source: Path, output: Path, policy: Policy, domain: str | None, office_media: str
+    ) -> Result:
+        from deidflow.mail import rewrite_message
+        from deidflow.markup import rewrite_html
+        from deidflow.readers import DocumentError
+
+        if source.stat().st_size > self.max_bytes:
+            raise ValueError("Message exceeds configured size limit")
+        scope = self._scope(policy, secrets.token_hex(16))
+        allocator = PlaceholderAllocator()
+        originals: list[Finding] = []
+
+        def rewrite(text: str) -> tuple[str, list[tuple[int, int, str]]]:
+            findings = self.scan_text(text)
+            originals.extend(findings)
+            transformed, mappings = transform_text(
+                text,
+                findings,
+                policy,
+                key=self.key,
+                scope=scope,
+                domain=domain,
+                custom=self.custom_transforms,
+                placeholders=allocator,
+            )
+            return transformed, [
+                (m.source_start, m.source_end, transformed[m.output_start : m.output_end])
+                for m in mappings
+            ]
+
+        def whole(value: str, entity_type: str) -> str:
+            # Header semantics: a display name is a person, an address an e-mail.
+            finding = Finding(entity_type, 0, len(value), 1.0, "email.header", protected=True)
+            transformed, _ = transform_text(
+                value,
+                [finding],
+                policy,
+                key=self.key,
+                scope=scope,
+                domain=domain,
+                custom=self.custom_transforms,
+                placeholders=allocator,
+            )
+            return transformed
+
+        def attachment(path: Path, target: Path) -> tuple[str, list[str]]:
+            result = self.deidentify(
+                path, policy=policy, output=target, domain=domain, office_media=office_media
+            )
+            return str(result.status), list(result.issues)
+
+        try:
+            data, report = rewrite_message(
+                source.read_bytes(),
+                rewrite=rewrite,
+                whole=whole,
+                attachment=attachment,
+                rewrite_html=lambda text: rewrite_html(text, rewrite)[0],
+                key=self.key or secrets.token_bytes(32),
+                remove_media=office_media == "remove",
+            )
+            output.write_bytes(data)
+            graph = self.read(output)
+        except (DocumentError, ValueError, LookupError):
+            return Result(ReleaseStatus.BLOCKED, issues=["MALFORMED_INPUT"])
+        residual: list[Finding] = []
+        for batch in _batches(graph.fragments, 32):
+            residual.extend(
+                f for items in self._rescan_texts([x.text for x in batch], allocator) for f in items
+            )
+        result = self._gate(
+            policy=policy,
+            residual=residual,
+            original=originals,
+            complete=graph.complete,
+            issues=graph.issues + report.issues,
+            domain=domain,
+        )
+        result.records = 1
+        result.audit["transformations"] = report.transformations
+        result.audit["email_removed"] = dict(sorted(report.removed.items()))
         return result
 
     def _sheet_cells(

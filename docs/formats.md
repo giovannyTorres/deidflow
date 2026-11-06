@@ -9,6 +9,7 @@ finding list on an incomplete graph must never approve a release.
 | Format | Extraction | Automatic output |
 |---|---|---|
 | UTF-8 TXT, Markdown, log | Exact text, including original CR/LF | Same format (`.txt`, `.text`, `.md`, `.log`) |
+| E-mail (`.eml`) | Headers (RFC 2047 decoded), text and HTML bodies, attached messages, supported attachments read recursively | Rewritten message (see below) |
 | HTML (`.html`, `.htm`) | Visible text as one stream, content attributes (`alt`, `title`, `href`, `value`, `content`...), comments, scripts | In-place rewrite by source offsets (see below) |
 | JSON/JSONL | All string keys/values and numeric values, ordinal JSON locations | See structured engine |
 | CSV/TSV | All headers and cells; quoted multiline cells preserved | Use streaming table engine for large files |
@@ -47,6 +48,31 @@ deleted cell values can remain in the archive. Invalid negative shared-string
 references and inconsistent CSV/TSV row widths are rejected. No claim is made
 that every possible proprietary extension or
 embedded binary is covered.
+
+## E-mail output
+
+`engine.deidentify("mensaje.eml", output="mensaje.safe.eml")` rewrites a MIME
+message:
+
+- **Headers** are kept on an allowlist. In `From`, `To`, `Cc`, `Reply-To` and the
+  other address headers each display name is transformed as a person and each
+  address as an e-mail; `Subject`, `Comments` and `Keywords` are scanned as text;
+  `Message-ID`, `In-Reply-To`, `References` and `Content-ID` become keyed
+  pseudonyms (`<df…@deidflow>`), so replies still thread. Trace and vendor
+  headers (`Received`, `X-*`, `DKIM-Signature`, `Authentication-Results`…),
+  which carry IP addresses, host names and mailbox details, and `Date` are
+  removed.
+- **Bodies**: `text/plain` is rewritten as text and `text/html` as HTML (above).
+- **Attachments** are renamed `adjunto-<n><ext>` and de-identified with the same
+  engine and policy when their format is supported (text, Markdown, CSV/TSV,
+  JSON/JSONL, HTML, DOCX, XLSX, PDF); a blocked or unsupported attachment is
+  removed (`EMAIL_ATTACHMENT_REMOVED`) and one that needs review makes the
+  message need review (`EMAIL_ATTACHMENT_REVIEW_REQUIRED`). Images, audio and
+  video are removed with `office_media="remove"` (default). Attached messages
+  are processed recursively, up to eight levels.
+
+The output is reread (headers, bodies and attachments) and rescanned like
+other formats; `audit["email_removed"]` counts what was removed.
 
 ## HTML output
 
