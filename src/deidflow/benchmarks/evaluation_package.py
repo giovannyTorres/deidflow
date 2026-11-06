@@ -643,12 +643,72 @@ def _expectation_relations(indexed: _Indexes) -> None:
                 raise ValueError
 
 
+def _derivation_contract(
+    payload: bytes,
+    reference: str,
+    vectors: dict[str, dict[str, Any]],
+    units: dict[str, dict[str, Any]],
+) -> tuple[dict[str, Any], dict[str, str]]:
+    derivation = _object(
+        strict_json(payload),
+        "schema_version version source_manifest_sha256 recipe seed codepoint_boundaries vector_derivations",
+    )
+    mappings = derivation["codepoint_boundaries"]
+    if (
+        derivation["schema_version"] != "df-eval-mx.synthetic-derivation.v1"
+        or not is_sha256(derivation["source_manifest_sha256"])
+        or not _text(derivation["version"])
+        or not _text(derivation["recipe"])
+        or type(derivation["seed"]) is not int
+        or not 0 <= derivation["seed"] < 2**64
+        or not isinstance(mappings, dict)
+        or not mappings
+    ):
+        raise ValueError
+    for unit_id, copies in mappings.items():
+        if (
+            not _identifier(unit_id, "u")
+            or unit_id not in units
+            or not isinstance(copies, list)
+            or not 1 <= len(copies) <= 2
+        ):
+            raise ValueError
+        for mapping in copies:
+            if not isinstance(mapping, list) or len(mapping) != len(units[unit_id]["text"]):
+                raise ValueError
+            for piece in mapping:
+                if piece is not None and (
+                    not isinstance(piece, list)
+                    or len(piece) != 2
+                    or any(type(offset) is not int for offset in piece)
+                    or not 0 <= piece[0] < piece[1]
+                ):
+                    raise ValueError
+    links = _indexed(derivation["vector_derivations"], "vector_id", "v")
+    parents = {}
+    for child_id, link in links.items():
+        _object(link, "vector_id parent_vector_id")
+        parent_id = link["parent_vector_id"]
+        if (
+            not _identifier(parent_id, "v")
+            or child_id not in vectors
+            or parent_id not in vectors
+            or vectors[child_id]["provenance"]["method"] != "synthetic_derivation"
+            or vectors[child_id]["provenance"]["evidence_ref"] != reference
+        ):
+            raise ValueError
+        parents[child_id] = parent_id
+    return derivation, parents
+
+
 def _validation_vectors(
     manifest: dict[str, Any], records: dict[str, Any], indexed: _Indexes
 ) -> None:
     if "validation_vectors" not in records:
         return
     vectors = _indexed(records["validation_vectors"], "vector_id", "v")
+    derivations: dict[str, tuple[dict[str, Any], dict[str, str]]] = {}
+    checked_mappings: set[tuple[str, str, str]] = set()
     for vector in vectors.values():
         _object(
             vector,
@@ -665,13 +725,81 @@ def _validation_vectors(
                 state not in {"valid", "invalid", "unknown", "not_applicable"}
                 for state in validity.values()
             )
-            or provenance["method"] not in {"independent_reference", "independent_worksheet"}
+            or provenance["method"]
+            not in {"independent_reference", "independent_worksheet", "synthetic_derivation"}
             or not _text(provenance["version"])
         ):
             raise ValueError
         evidence = manifest["resources"][provenance["evidence_ref"]]
         if evidence["kind"] != "binary" or not provenance["evidence_ref"].startswith("evidence-"):
             raise ValueError
+        if provenance["method"] == "synthetic_derivation":
+            reference = provenance["evidence_ref"]
+            if reference not in derivations:
+                derivations[reference] = _derivation_contract(
+                    records[reference], reference, vectors, indexed.units
+                )
+            derivation, parents = derivations[reference]
+            document = indexed.documents[unit["case_id"]]
+            if (
+                derivation["version"] != provenance["version"]
+                or document["parent_case_id"] is None
+                or derivation["recipe"] != document["perturbation_recipe"]["operation"]
+                or derivation["seed"] != document["perturbation_recipe"]["seed"]
+                or vector["vector_id"] not in parents
+            ):
+                raise ValueError
+            parent = vectors[parents[vector["vector_id"]]]
+            parent_unit = indexed.units[parent["unit_id"]]
+            parent_evidence = manifest["resources"][parent["provenance"]["evidence_ref"]]
+            mappings = derivation["codepoint_boundaries"][parent["unit_id"]]
+            mapping_key = (reference, parent["unit_id"], vector["unit_id"])
+            if mapping_key not in checked_mappings:
+                if any(
+                    piece is not None and piece[1] > len(unit["text"])
+                    for mapping in mappings
+                    for piece in mapping
+                ):
+                    raise ValueError
+                checked_mappings.add(mapping_key)
+            projected = set()
+            for mapping in mappings:
+                pieces = mapping[parent["start"] : parent["end"]]
+                if (
+                    pieces
+                    and all(piece is not None for piece in pieces)
+                    and all(
+                        left[1] == right[0] for left, right in zip(pieces, pieces[1:], strict=False)
+                    )
+                ):
+                    projected.add((pieces[0][0], pieces[-1][1]))
+            before = parent_unit["text"][parent["start"] : parent["end"]]
+            after = unit["text"][vector["start"] : vector["end"]]
+            expected_validity = {
+                key: "unknown" if before != after and value != "not_applicable" else value
+                for key, value in parent["validity"].items()
+            }
+            if (
+                parent_unit["case_id"] != document["parent_case_id"]
+                or parent_unit["locator"] != unit["locator"]
+                or parent_unit["content_role"] != unit["content_role"]
+                or parent["entity_type"] != vector["entity_type"]
+                or parent["sensitivity"] != vector["sensitivity"]
+                or parent_evidence["sha256"] == evidence["sha256"]
+                or (vector["start"], vector["end"]) not in projected
+                or validity != expected_validity
+            ):
+                raise ValueError
+            if vector["sensitivity"] == "sensitive":
+                mention = indexed.mentions[vector["mention_id"]]
+                parent_mention = indexed.mentions[parent["mention_id"]]
+                if (
+                    mention["entity_id"] != parent_mention["entity_id"]
+                    or mention["certainty"] != parent_mention["certainty"]
+                    or mention["annotation_provenance"]["method"] != "synthetic_fixture"
+                    or mention["annotation_provenance"]["reviews"]
+                ):
+                    raise ValueError
         key = (vector["unit_id"], vector["entity_type"], vector["start"], vector["end"])
         if vector["sensitivity"] == "sensitive":
             mention = indexed.mentions[vector["mention_id"]]

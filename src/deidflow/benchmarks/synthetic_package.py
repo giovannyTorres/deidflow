@@ -61,7 +61,7 @@ def _check_json_tokens(value: Any, limit: int, seen: set[int], depth: int = 0) -
                 _check_json_tokens(item, limit, seen, depth + 1)
 
 
-def _bounded_json(value: Any, limit: int, *, jsonl: bool = False) -> bytes:
+def bounded_canonical_json(value: Any, limit: int, *, jsonl: bool = False) -> bytes:
     """Stop encoding at the remaining resource/package budget, including newlines."""
     encoder = json.JSONEncoder(
         ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False
@@ -123,12 +123,14 @@ def _write_records(
                 if len(record) > MAX_RECORDS:
                     raise ValueError
                 kind, count, extension = "jsonl", len(record), ".jsonl"
-                payload = _bounded_json(
+                payload = bounded_canonical_json(
                     record, min(MAX_RESOURCE_BYTES, MAX_PACKAGE_BYTES - total), jsonl=True
                 )
             elif isinstance(record, dict):
                 kind, count, extension = "json", 1, ".json"
-                payload = _bounded_json(record, min(MAX_RESOURCE_BYTES, MAX_PACKAGE_BYTES - total))
+                payload = bounded_canonical_json(
+                    record, min(MAX_RESOURCE_BYTES, MAX_PACKAGE_BYTES - total)
+                )
             else:
                 raise ValueError("Invalid synthetic package resource")
             total += len(payload)
@@ -161,7 +163,7 @@ def _write_records(
                 }
                 for name in names
             }
-        payload = _bounded_json(value, min(MAX_MANIFEST_BYTES, MAX_PACKAGE_BYTES - total))
+        payload = bounded_canonical_json(value, min(MAX_MANIFEST_BYTES, MAX_PACKAGE_BYTES - total))
         digest = hashlib.sha256(payload).hexdigest()
         (staging / "manifest.json").write_bytes(payload)
         admitted = load_evaluation_package(staging, manifest_sha256=digest)

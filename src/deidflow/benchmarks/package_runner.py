@@ -133,8 +133,12 @@ def run_package_benchmark(
     candidate: str | DetectionCandidate,
     profile: str,
     output: str | Path,
+    strata: tuple[str, ...] | None = None,
 ) -> dict[str, Any]:
-    """Admit a full package and evaluate EMAIL with an explicit local profile."""
+    """Admit a full package, then score cases matching any requested stratum.
+
+    Omitting ``strata`` retains the complete known-regression evaluation.
+    """
     started = datetime.now(UTC).isoformat()
     before = time.perf_counter()
     multientity = profile == "detection-descriptive-v1"
@@ -142,8 +146,22 @@ def run_package_benchmark(
         raise UnsupportedEvaluationError
     loaded = load_evaluation_package(package, manifest_sha256=manifest_sha256)
     records = loaded.records
+    requested_strata = None
+    if strata is not None:
+        declared_strata = set(
+            loaded.manifest["scope"]["required_strata"]
+            + loaded.manifest["scope"]["optional_strata"]
+        )
+        if type(strata) is not tuple or not strata or any(type(item) is not str for item in strata):
+            raise UnsupportedEvaluationError
+        requested_strata = set(strata)
+        if len(requested_strata) != len(strata) or not requested_strata <= declared_strata:
+            raise UnsupportedEvaluationError
     selected_cases = {
-        row["case_id"] for row in records["documents"] if row["panel"] == "known_regression"
+        row["case_id"]
+        for row in records["documents"]
+        if row["panel"] == "known_regression"
+        and (requested_strata is None or requested_strata.intersection(row["strata"]))
     }
     selected_units = {
         unit["unit_id"] for unit in records["units"] if unit["case_id"] in selected_cases
@@ -288,6 +306,8 @@ def run_package_benchmark(
             "python_version": platform.python_version(),
         },
     }
+    if strata is not None:
+        report["result"]["scope"]["requested_strata"] = list(strata)
     if multientity:
         assert detection is not None
         report["result"].update(detection)

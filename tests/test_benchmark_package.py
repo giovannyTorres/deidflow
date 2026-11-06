@@ -1239,3 +1239,166 @@ def test_an_operator_cannot_contradict_its_own_required_action(
         )
 
     assert error.value.status == "INVALID_RUN"
+
+
+def test_stratum_filter_scores_only_matching_cases_after_admitting_the_full_package(tmp_path):
+    from deidflow.benchmarks.package_runner import run_package_benchmark
+
+    records = fixture_records()
+    records["documents"][0]["strata"] = ["contact"]
+    package = tmp_path / "package"
+    manifest, _ = write_fixture(package, records)
+    manifest["scope"]["optional_strata"] = ["contact"]
+    digest = save_manifest(package, manifest)
+
+    report = run_package_benchmark(
+        package,
+        manifest_sha256=digest,
+        candidate="rules.mx",
+        profile="email-descriptive-v1",
+        output=tmp_path / "result",
+        strata=("contact",),
+    )
+
+    result = report["result"]
+    assert result["admission"]["documents"] == 2
+    assert result["execution"]["required_documents"] == 1
+    assert result["execution"]["required_units"] == 1
+    assert result["metrics"]["EMAIL"]["support"] == 2
+    assert result["scope"]["requested_strata"] == ["contact"]
+
+
+@pytest.mark.parametrize(
+    "strata",
+    [
+        (),
+        ("private-canary-stratum",),
+        ["standard"],
+        "standard",
+        ("standard", "standard"),
+        (1,),
+        ("unused",),
+    ],
+)
+def test_invalid_stratum_filters_reject_before_candidate_or_report(tmp_path, strata):
+    from deidflow.benchmarks.package_runner import (
+        DetectionCandidate,
+        UnsupportedEvaluationError,
+        run_package_benchmark,
+    )
+
+    package = tmp_path / "package"
+    manifest, _ = write_fixture(package)
+    manifest["scope"]["optional_strata"] = ["unused"]
+    digest = save_manifest(package, manifest)
+    observed = []
+
+    def detect(text):
+        observed.append(text)
+        return []
+
+    output = tmp_path / "result"
+    with pytest.raises(UnsupportedEvaluationError) as error:
+        run_package_benchmark(
+            package,
+            manifest_sha256=digest,
+            candidate=DetectionCandidate("candidate-f", "0" * 64, detect),
+            profile="email-descriptive-v1",
+            output=output,
+            strata=strata,
+        )
+
+    assert error.value.status == "UNSUPPORTED"
+    assert "canary" not in str(error.value)
+    assert observed == []
+    assert not output.exists()
+
+
+def test_stratum_filter_cannot_hide_corruption_in_an_unselected_document(tmp_path):
+    from deidflow.benchmarks.evaluation_package import InvalidPackageError
+    from deidflow.benchmarks.package_runner import DetectionCandidate, run_package_benchmark
+
+    records = fixture_records()
+    records["documents"][0]["strata"] = ["contact"]
+    records["units"][1]["text"] = "private-canary-unselected-document"
+    package = tmp_path / "package"
+    manifest, _ = write_fixture(package, records)
+    manifest["scope"]["optional_strata"] = ["contact"]
+    digest = save_manifest(package, manifest)
+    observed = []
+
+    def detect(text):
+        observed.append(text)
+        return []
+
+    output = tmp_path / "result"
+    with pytest.raises(InvalidPackageError) as error:
+        run_package_benchmark(
+            package,
+            manifest_sha256=digest,
+            candidate=DetectionCandidate("candidate-f", "0" * 64, detect),
+            profile="email-descriptive-v1",
+            output=output,
+            strata=("contact",),
+        )
+
+    assert "canary" not in str(error.value)
+    assert observed == []
+    assert not output.exists()
+
+
+def test_multiple_requested_strata_select_the_union_of_matching_cases(tmp_path):
+    from deidflow.benchmarks.package_runner import run_package_benchmark
+
+    records = fixture_records()
+    records["documents"][0]["strata"] = ["contact"]
+    package = tmp_path / "package"
+    manifest, _ = write_fixture(package, records)
+    manifest["scope"]["optional_strata"] = ["contact"]
+    digest = save_manifest(package, manifest)
+
+    report = run_package_benchmark(
+        package,
+        manifest_sha256=digest,
+        candidate="rules.mx",
+        profile="email-descriptive-v1",
+        output=tmp_path / "result",
+        strata=("contact", "standard"),
+    )
+
+    result = report["result"]
+    assert result["execution"]["required_documents"] == 2
+    assert result["execution"]["required_units"] == 2
+    assert result["scope"]["requested_strata"] == ["contact", "standard"]
+
+
+def test_omitted_or_none_stratum_filter_preserves_the_existing_result_shape(tmp_path):
+    from deidflow.benchmarks.package_runner import run_package_benchmark
+
+    package = tmp_path / "package"
+    _, digest = write_fixture(package)
+    omitted = run_package_benchmark(
+        package,
+        manifest_sha256=digest,
+        candidate="rules.mx",
+        profile="email-descriptive-v1",
+        output=tmp_path / "omitted",
+    )
+    explicit_none = run_package_benchmark(
+        package,
+        manifest_sha256=digest,
+        candidate="rules.mx",
+        profile="email-descriptive-v1",
+        output=tmp_path / "none",
+        strata=None,
+    )
+
+    assert omitted["result"] == explicit_none["result"]
+    assert omitted["result"]["scope"] == {
+        "track": "detection",
+        "entity_types": ["EMAIL"],
+        "source_format": "text",
+        "language": "es",
+        "country": "MX",
+        "matching": "exact",
+    }
