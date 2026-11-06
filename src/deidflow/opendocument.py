@@ -35,12 +35,14 @@ from __future__ import annotations
 
 import base64
 import binascii
+import posixpath
 import re
 import zipfile
 from collections import deque
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
+from urllib.parse import unquote, urlsplit
 from xml.dom import minidom
 from xml.etree import ElementTree as ET
 
@@ -105,7 +107,8 @@ _DATA_ATTRIBUTES = frozenset(
         "publisher", "report-type", "school", "series", "title", "url", "volume", "year",
         "custom1", "custom2", "custom3", "custom4", "custom5", "label", "value",
     )}
-    | {(OFFICE, "title"), (XLINK, "title"), (TABLE, "title"), (META, "name")}
+    | {(OFFICE, "title"), (XLINK, "title"), (TABLE, "title"), (META, "name"),
+       (STYLE, "display-name")}
 )  # fmt: skip
 # Typed values stored apart from the displayed text.
 _VALUE_ATTRIBUTES = frozenset(
@@ -200,7 +203,7 @@ _REMOVED_ELEMENTS = {
     (TABLE, "database-source-query"): "data_sources",
     (TABLE, "filter"): "criteria",
 }
-_EXTERNAL = re.compile(r"^(?:[a-zA-Z][a-zA-Z0-9+.-]*:|/|\\|\.\./)")
+_EXTERNAL = re.compile(r"^(?:[a-zA-Z][a-zA-Z0-9+.-]*:|/|\\)")
 _SHEET_REFERENCE = "(?<![\\w'])"
 
 
@@ -372,6 +375,7 @@ def formula_carries_data(formula: str) -> bool:
 
 
 def _href_kind(href: str) -> str:
+    href = _decoded_href(href)
     if not href:
         return "empty"
     if href.startswith("#"):
@@ -381,13 +385,49 @@ def _href_kind(href: str) -> str:
     return "package"
 
 
-def _package_target(href: str) -> str:
-    target = href[2:] if href.startswith("./") else href
-    return target.rstrip("/")
+def _decoded_href(href: str) -> str:
+    try:
+        return unquote(href, errors="strict")
+    except UnicodeError:
+        raise DocumentError("Malformed OpenDocument link encoding") from None
+
+
+def _package_target(href: str, part: str) -> str | None:
+    try:
+        parsed = urlsplit(href)
+        path = _decoded_href(parsed.path)
+    except ValueError:
+        return None
+    if (
+        parsed.scheme
+        or parsed.netloc
+        or parsed.query
+        or parsed.fragment
+        or "\\" in path
+        or re.search(r"%(?:2f|5c)", parsed.path, re.IGNORECASE)
+        or any(ord(character) <= 32 or ord(character) == 127 for character in href)
+        or path.startswith("/")
+    ):
+        return None
+    target = posixpath.normpath(posixpath.join(posixpath.dirname(part), path))
+    return None if target in {".", ".."} or target.startswith("../") else target.rstrip("/")
+
+
+def _package_members(names: list[str]) -> set[str]:
+    """Actual ZIP members plus implicit directories, built once per archive."""
+    members: set[str] = set()
+    for name in names:
+        if len(name) > 4096 or name.count("/") > 32:
+            raise DocumentError("OpenDocument package path exceeds the reference limit")
+        members.add(name.rstrip("/"))
+        members.update(name[:index] for index, character in enumerate(name) if character == "/")
+        if len(members) > 20_000:
+            raise DocumentError("OpenDocument reference inventory exceeds the limit")
+    return members
 
 
 def _href_name(href: str) -> str:
-    return href[1:].split("|", 1)[0]
+    return _decoded_href(href)[1:].split("|", 1)[0]
 
 
 def attributes(root: Node) -> Iterator[tuple[Node, str, str]]:
@@ -407,11 +447,11 @@ def attributes(root: Node) -> Iterator[tuple[Node, str, str]]:
         for qualified in list(attributes_.keys()):
             node = attributes_[qualified]
             key = (node.namespaceURI or "", node.localName or qualified.rsplit(":", 1)[-1])
-            if qualified == "xmlns" or qualified.startswith("xmlns:"):
-                continue
             if not node.value.strip():
                 continue
-            if in_form and key[0] == FORM:
+            if qualified == "xmlns" or qualified.startswith("xmlns:"):
+                kind = "structural"
+            elif in_form and key[0] == FORM:
                 kind = "data"
             elif key == (XLINK, "href"):
                 kind = "href"
@@ -426,7 +466,10 @@ def attributes(root: Node) -> Iterator[tuple[Node, str, str]]:
             elif key in _ADDRESS_ATTRIBUTES:
                 kind = "address"
             else:
-                continue
+                # Retained attributes are never invisible to the reader. Values
+                # with unmodeled structural meaning may be inspected, but not
+                # replaced blindly: changing one could break definitions/references.
+                kind = "structural"
             yield element, qualified, kind
 
 
@@ -674,6 +717,7 @@ def read_odf(path: Path, graph: Any, max_bytes: int) -> None:
     with _archive(path, max_bytes) as archive:
         entries = check_package(archive, suffix)
         embedded = subdocuments(entries)
+        package_members = _package_members(archive.namelist())
         if suffix == ".ods":
             # As for XLSX: cell display formats and extensions are not all modelled.
             graph.issues.append("ODS_REVIEW_REQUIRED")
@@ -692,7 +736,10 @@ def read_odf(path: Path, graph: Any, max_bytes: int) -> None:
             elif kind == "embedded":
                 _issue(graph, "office_drawing_content_requires_review")
                 if name.endswith(".xml"):
-                    _read_part(_parse(archive.read(name)), graph, name, spreadsheet=False)
+                    _read_part(
+                        _parse(archive.read(name)), graph, name,
+                        spreadsheet=False, package_members=package_members,
+                    )
             elif kind == "xml":
                 document = _parse(archive.read(name))
                 if document.documentElement.namespaceURI != OFFICE:
@@ -702,6 +749,12 @@ def read_odf(path: Path, graph: Any, max_bytes: int) -> None:
                     graph,
                     name,
                     spreadsheet=suffix == ".ods" and name == "content.xml",
+                    package_members=package_members,
+                )
+            elif kind == "manifest":
+                _read_part(
+                    _parse(archive.read(name)), graph, name,
+                    spreadsheet=False, package_members=package_members,
                 )
             elif kind == "settings":
                 root = _xml(archive.read(name))
@@ -736,7 +789,9 @@ def _all_text(root: ET.Element, graph: Any, part: str, kind: str) -> None:
                 _fragment(graph, value, part=part, kind=kind)
 
 
-def _read_part(document: Node, graph: Any, part: str, *, spreadsheet: bool) -> None:
+def _read_part(
+    document: Node, graph: Any, part: str, *, spreadsheet: bool, package_members: set[str]
+) -> None:
     from deidflow.readers import _fragment, _issue
 
     for element in _elements(document):
@@ -754,11 +809,13 @@ def _read_part(document: Node, graph: Any, part: str, *, spreadsheet: bool) -> N
     for element, qualified, attribute_kind in attributes(document):
         value = element.getAttribute(qualified)
         if attribute_kind == "href":
-            if _href_kind(value) == "external":
-                _fragment(graph, value, part=part, kind="external_relationship")
+            decoded = _decoded_href(value)
+            _fragment(graph, decoded, part=part, kind="link_target")
+            kind = _href_kind(value)
+            if kind == "external":
                 _issue(graph, "external_relationships_require_review")
-            elif _href_kind(value) == "internal":
-                _fragment(graph, _href_name(value), part=part, kind="link_target")
+            elif kind == "package" and _package_target(value, part) not in package_members:
+                _issue(graph, "unresolved_odf_package_reference")
             continue
         if attribute_kind == "value" and _qualified(element) in {
             (TABLE, "table-cell"),
@@ -867,15 +924,17 @@ class _Writer:
         *,
         remove_media: bool,
         removed_parts: set[str],
+        package_members: set[str],
     ) -> None:
         self.rewrite = rewrite
         self.report = report
         self.remove_media = remove_media
         self.removed_parts = removed_parts
+        self.package_members = package_members
         self.names: dict[str, str] = {}
         self.sheet_renames: dict[str, str] = {}
 
-    def scrub(self, document: Node) -> None:
+    def scrub(self, document: Node, *, part: str) -> None:
         """Removals and flattening, before any text is scanned."""
         report = self.report
         for element in _elements(document):
@@ -916,7 +975,11 @@ class _Writer:
             key = _qualified(element)
             kind = _href_kind(href)
             if kind == "external" or (
-                kind == "package" and _package_target(href) in self.removed_parts
+                kind == "package"
+                and (
+                    _package_target(href, part) not in self.package_members
+                    or _package_target(href, part) in self.removed_parts
+                )
             ):
                 if key in {(TEXT, "a"), (DRAW, "a")}:
                     _unwrap(element)
@@ -1123,16 +1186,20 @@ class _Writer:
                 new = _standalone(value, self.rewrite, report)
                 if new != value:
                     element.setAttribute(qualified, new)
+            elif kind == "structural":
+                if _standalone(value, self.rewrite, OfficeReport()) != value:
+                    raise DocumentError("Sensitive OpenDocument structural metadata is unsupported")
             elif kind == "name":
                 if value in self.names:
                     element.setAttribute(qualified, self.names[value])
             elif kind == "href" and _href_kind(value) == "internal":
                 target = _href_name(value)
+                decoded = _decoded_href(value)
                 if target in self.names:
                     element.setAttribute(
-                        qualified, "#" + self.names[target] + value[1 + len(target) :]
+                        qualified, "#" + self.names[target] + decoded[1 + len(target) :]
                     )
-                elif _standalone(target, self.rewrite, OfficeReport()) != target:
+                elif _standalone(decoded, self.rewrite, OfficeReport()) != decoded:
                     if _qualified(element) in {(TEXT, "a"), (DRAW, "a")}:
                         _unwrap(element)
                     else:
@@ -1182,6 +1249,7 @@ def rewrite_odf(
         entries = check_package(archive, suffix)
         embedded = subdocuments(entries)
         names = archive.namelist()
+        package_members = _package_members(names)
         kinds = {name: part_kind(name, embedded) for name in names}
         if None in kinds.values():
             raise DocumentError("Unsupported OpenDocument package part")
@@ -1204,16 +1272,19 @@ def rewrite_odf(
         removed_targets = {name.rstrip("/") for name in removed} | {
             directory.rstrip("/") for directory in embedded if remove_media
         }
-        writer = _Writer(rewrite, report, remove_media=remove_media, removed_parts=removed_targets)
+        writer = _Writer(
+            rewrite, report, remove_media=remove_media,
+            removed_parts=removed_targets, package_members=package_members,
+        )
         documents = {
             name: _parse(archive.read(name))
             for name in ("content.xml", "styles.xml", "meta.xml")
             if name in names
         }
-        for document in documents.values():
+        for name, document in documents.items():
             if document.documentElement.namespaceURI != OFFICE:
                 raise DocumentError("Unexpected OpenDocument part root")
-            writer.scrub(document)
+            writer.scrub(document, part=name)
         if "meta.xml" in documents:
             writer.meta(documents["meta.xml"])
         if spreadsheet:
@@ -1274,7 +1345,11 @@ def _manifest_xml(entries: dict[str, str], retained: list[str], suffix: str) -> 
         entry.setAttribute("manifest:full-path", path)
         if path == "/":
             entry.setAttribute("manifest:version", "1.3")
-        media_type = MEDIA_TYPES[suffix] if path == "/" else entries.get(path, "")
+        media_type = (
+            MEDIA_TYPES[suffix] if path == "/"
+            else "text/xml" if path.endswith(".xml")
+            else entries.get(path, "")
+        )
         if not re.fullmatch(r"[\w.+-]{1,64}/[\w.+-]{1,128}", media_type):  # not free text
             media_type = "text/xml" if path.endswith(".xml") else "application/octet-stream"
         entry.setAttribute("manifest:media-type", media_type)
