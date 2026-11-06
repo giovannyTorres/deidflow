@@ -16,6 +16,10 @@
   sensitive syntax and excessive XML depth fail closed. Standalone verification
   preserves uncertainty for opaque XML/package/ZIP channels; rewriting removes
   those channels and rebuilds package metadata before the final reread.
+- ODF whitespace elements reject retained children and ODS cells reject direct
+  non-whitespace text/CDATA. Opaque binary settings, signatures and certificate/
+  typed-binary metadata preserve incomplete coverage; printable runs alone do
+  not establish inspection of the underlying bytes.
 
 ## 0.6.0b1 - Spanish context product candidate
 
