@@ -106,8 +106,11 @@ _CSS_VALUE = re.compile(
     r'"((?:[^"\\\n]|\\.)*)"|\'((?:[^\'\\\n]|\\.)*)\'|url\(\s*([^()"\'\s][^()\s]*)\s*\)',
     re.IGNORECASE,
 )
+# Unquoted values follow the standard library tokenizer (and browsers): anything
+# but whitespace and '>', not starting with a quote. Query strings such as
+# href=https://example.test/?a=1&b=2 are common in e-mail HTML.
 _ATTRIBUTE = re.compile(
-    r"""([^\s"'>/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?""", re.DOTALL
+    r"""([^\s"'>/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|(?!["'])([^\s>]+)))?""", re.DOTALL
 )
 _CHARACTER_REFERENCE = re.compile(r"&(?:#[0-9]+;?|#[xX][0-9a-fA-F]+;?|[^\t\n\f <&#;]{1,32};?)")
 _PERCENT_RUN = re.compile(r"(?:%[0-9a-fA-F]{2})+")

@@ -192,3 +192,19 @@ def test_semicolonless_reference_keeps_its_literal_suffix(tmp_path: Path, prefix
     assert _rewrite(source, tmp_path) == (
         f'<a href="https://example.test/p?x={prefix}[EMAIL]">Texto.</a>'
     )
+
+
+def test_unquoted_url_with_query_string_is_supported(tmp_path: Path):
+    source = tmp_path / "consulta.html"
+    source.write_text(
+        "<p><a href=https://example.test/p?x=1&amp;y=2>Ver</a> "
+        "<a href=https://example.test/p?dni=12345678Z&amp;x=1>Ficha</a></p>\n"
+    )
+    result = DeidEngine(country="ES").deidentify(
+        source, output=tmp_path / "salida.html", policy=Policy.strict(require_ner=False)
+    )
+    assert result.output_path is not None, result.issues
+    output = result.output_path.read_text()
+    assert "<a href=https://example.test/p?x=1&amp;y=2>Ver</a>" in output  # unchanged
+    assert "12345678Z" not in output
+    assert '<a href="https://example.test/p?dni=[NATIONAL_ID]&amp;x=1">Ficha</a>' in output
