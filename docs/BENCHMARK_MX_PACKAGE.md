@@ -187,6 +187,14 @@ se excluye una combinación sin anotación exhaustiva. `partial_diagnostics`
 conserva TP/FN conocidos, soporte y predicciones no puntuadas; sus FP son `null`.
 `exclusions` informa ambigüedad, cobertura parcial y predicciones fuera de alcance.
 `reference_conformity=INCOMPLETE` mantiene visibles esas limitaciones.
+Esos metadatos de referencia se conservan también ante `candidate_error`;
+cantidades desconocidas de predicciones quedan en `null`.
+
+`coverage_diagnostics` separa la cobertura predicha: menciones completamente,
+parcialmente o no cubiertas; caracteres de gold conocidos y cubiertos por unión
+(sin inflar denominadores por solapamientos); y matching de intersección uno a
+uno de máxima cardinalidad, implementado sin recursión. La cobertura por unión
+no convierte una predicción en dos TP exactos ni demuestra retirada de datos.
 
 Un error del candidato deja todas las filas y agregados sin puntuación y
 conserva `execution.required_support_by_entity`. El resultado sigue siendo

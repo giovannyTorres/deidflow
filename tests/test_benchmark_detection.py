@@ -167,6 +167,34 @@ def test_failed_candidate_keeps_required_support_per_entity(tmp_path):
     assert result["execution"]["required_support_by_entity"] == {"EMAIL": 2, "PERSON": 0}
 
 
+def test_failed_candidate_does_not_erase_reference_uncertainty(tmp_path):
+    from deidflow.benchmarks.package_runner import DetectionCandidate, run_package_benchmark
+
+    records = fixture_records()
+    records["mentions"][1]["certainty"] = "ambiguous"
+    package = tmp_path / "package"
+    manifest, _ = detection_package(package, records=records)
+    manifest["annotation_coverage"][0]["exhaustive_entity_types"] = []
+    digest = save_manifest(package, manifest)
+
+    def detect(_text):
+        return [Finding("EMAIL", 1, 999, 0.9, "fixture")]
+
+    result = run_package_benchmark(
+        package,
+        manifest_sha256=digest,
+        candidate=DetectionCandidate("candidate-f", "0" * 64, detect),
+        profile="detection-descriptive-v1",
+        output=tmp_path / "result",
+    )["result"]
+    assert result["metrics"]["EMAIL"] is None
+    assert result["reference_conformity"] == "INCOMPLETE"
+    assert result["exclusions"]["ambiguous_mentions"] == 1
+    assert result["exclusions"]["nonexhaustive_unit_entity_pairs"] == 1
+    assert result["exclusions"]["out_of_scope_predictions"] is None
+    assert result["ambiguity_policy"] == "exclude_unit_entity_if_ambiguous.v1"
+
+
 def test_real_detector_keeps_original_unicode_and_crlf_offsets(tmp_path):
     import hashlib
 
@@ -189,3 +217,65 @@ def test_real_detector_keeps_original_unicode_and_crlf_offsets(tmp_path):
     )["result"]
     assert result["metrics"]["EMAIL"]["true_positives"] == 1
     assert result["metrics"]["EMAIL"]["false_negatives"] == 1
+
+
+def test_partial_prediction_coverage_is_distinct_from_exact_matching(tmp_path):
+    from deidflow.benchmarks.package_runner import DetectionCandidate, run_package_benchmark
+
+    package = tmp_path / "package"
+    _, digest = detection_package(package)
+    results = []
+    for index, (start, end) in enumerate(((8, 11), (0, 3))):
+
+        def detect(text, start=start, end=end):
+            return (
+                [Finding("EMAIL", start, end, 0.9, "fixture")] if text.startswith("Correo:") else []
+            )
+
+        results.append(
+            run_package_benchmark(
+                package,
+                manifest_sha256=digest,
+                candidate=DetectionCandidate("candidate-f", "0" * 64, detect),
+                profile="detection-descriptive-v1",
+                output=tmp_path / f"result-{index}",
+            )["result"]
+        )
+    assert results[0]["metrics"] == results[1]["metrics"]
+    partial, disjoint = (result["coverage_diagnostics"]["EMAIL"] for result in results)
+    assert partial["known_gold_characters"] == 16
+    assert partial["covered_gold_characters"] == 3
+    assert partial["partially_covered_mentions"] == 2
+    assert partial["one_to_one_overlap_matches"] == 1
+    assert disjoint["covered_gold_characters"] == 0
+    assert disjoint["one_to_one_overlap_matches"] == 0
+
+
+def test_overlap_diagnostic_reassigns_pairs_for_maximum_cardinality(tmp_path):
+    from deidflow.benchmarks.package_runner import DetectionCandidate, run_package_benchmark
+
+    records = fixture_records()
+    for mention, bounds in zip(records["mentions"], ((0, 10), (1, 2)), strict=True):
+        mention.update(entity_type="OTHER_SENSITIVE", start=bounds[0], end=bounds[1])
+    package = tmp_path / "package"
+    _, digest = detection_package(package, records=records, labels=["OTHER_SENSITIVE"])
+
+    def detect(text):
+        return (
+            [
+                Finding("OTHER_SENSITIVE", 0, 3, 0.9, "fixture"),
+                Finding("OTHER_SENSITIVE", 5, 6, 0.9, "fixture"),
+            ]
+            if text.startswith("Correo:")
+            else []
+        )
+
+    result = run_package_benchmark(
+        package,
+        manifest_sha256=digest,
+        candidate=DetectionCandidate("candidate-f", "0" * 64, detect),
+        profile="detection-descriptive-v1",
+        output=tmp_path / "result",
+    )["result"]
+    assert result["coverage_diagnostics"]["OTHER_SENSITIVE"]["one_to_one_overlap_matches"] == 2
+    assert result["metrics"]["OTHER_SENSITIVE"]["true_positives"] == 0

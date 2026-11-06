@@ -5,10 +5,10 @@ Objetivo solicitado: diez tareas una por una, TDD, revisión Matt Pocock y
 salud del repositorio, sin datos personales reales ni nuevas dependencias de
 producción, manteniendo API y privacidad, sin publicar PyPI.
 
-Orden técnico asumido mientras se resuelve la consulta de alcance:
-BMX-03, BMX-04, BMX-05, BMX-06, BMX-07, BMX-08, BMX-13, BMX-14, BMX-15, BMX-16.
+Orden confirmado por el solicitante: BMX-03 a BMX-12, una por una.
 Se respeta el grafo; BMX-09 es una decisión humana y BMX-10/11/12 dependen de
-esa ratificación. No se transforma silencio en aprobación de perfiles.
+esa ratificación. La consulta sobre D1–D3 y formatos está pendiente; seleccionar
+el bloque numérico no se registra como aprobación de esos perfiles.
 
 Salud inicial: Ruff y formato pasan (229 archivos), mypy pasa (68 módulos),
 pip check pasa y 142 pruebas focalizadas pasan. El último candidato base tenía
@@ -27,7 +27,7 @@ los cambios previos de AGENTS.md, CLAUDE.md y docs/agents/.
 | BMX-06 | Pendiente |
 | BMX-07 | Pendiente |
 | BMX-08 | Pendiente |
-| BMX-13 | Pendiente |
-| BMX-14 | Pendiente |
-| BMX-15 | Pendiente |
-| BMX-16 | Pendiente |
+| BMX-09 | Decisiones humanas consultadas; pendientes |
+| BMX-10 | Pendiente; depende de BMX-09 |
+| BMX-11 | Pendiente; depende de BMX-09 |
+| BMX-12 | Pendiente; depende de BMX-10/11 |

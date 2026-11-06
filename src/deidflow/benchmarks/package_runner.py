@@ -18,7 +18,7 @@ from deidflow.detectors import CORE_RULES_VERSION
 
 from ._package_io import MAX_RECORDS, is_sha256
 from .datasets import Example, GoldSpan
-from .detection_metrics import score_detection
+from .detection_metrics import metric_cell, score_detection
 from .email import _source_digest, _write_report
 from .evaluation_package import load_evaluation_package
 
@@ -121,15 +121,9 @@ def _exact_metrics(
         tp += len(gold & predicted)
         fp += len(predicted - gold)
         fn += len(gold - predicted)
-    return {
-        "true_positives": tp,
-        "false_positives": fp,
-        "false_negatives": fn,
-        "support": tp + fn,
-        "precision": tp / (tp + fp) if tp + fp else None,
-        "recall": tp / (tp + fn) if tp + fn else None,
-        "f1": 2 * tp / (2 * tp + fp + fn) if 2 * tp + fp + fn else None,
-    }
+    cell = metric_cell(tp, fp, fn)
+    cell.pop("undefined_reason")
+    return cell
 
 
 def run_package_benchmark(
@@ -214,27 +208,25 @@ def run_package_benchmark(
         except Exception:
             failed_units += 1
             failed_cases.add(unit_cases[example.id])
-    metrics = _exact_metrics(examples, predictions) if not failed_units else None
+    metrics = (
+        _exact_metrics(examples, predictions) if not failed_units and not multientity else None
+    )
     entity_types = sorted(loaded.manifest["scope"]["entity_types"]) if multientity else ["EMAIL"]
     detection = None
     if multientity:
-        detection = (
-            score_detection(
-                examples,
-                predictions,
-                entity_types,
-                {
-                    entry["unit_id"]: set(entry["exhaustive_entity_types"])
-                    for entry in loaded.manifest["annotation_coverage"]
-                },
-                {
-                    (mention["unit_id"], mention["entity_type"], mention["start"], mention["end"])
-                    for mention in records["mentions"]
-                    if mention["unit_id"] in selected_units and mention["certainty"] == "ambiguous"
-                },
-            )
-            if not failed_units
-            else {"metrics": {label: None for label in entity_types}, "aggregates": None}
+        detection = score_detection(
+            examples,
+            predictions if not failed_units else None,
+            entity_types,
+            {
+                entry["unit_id"]: set(entry["exhaustive_entity_types"])
+                for entry in loaded.manifest["annotation_coverage"]
+            },
+            {
+                (mention["unit_id"], mention["entity_type"], mention["start"], mention["end"])
+                for mention in records["mentions"]
+                if mention["unit_id"] in selected_units and mention["certainty"] == "ambiguous"
+            },
         )
     cells = detection["metrics"] if detection is not None else {"EMAIL": metrics}
     report: dict[str, Any] = {
