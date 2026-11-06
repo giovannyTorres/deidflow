@@ -15,38 +15,11 @@ finding list on an incomplete graph must never approve a release.
 | CSV/TSV | All headers and cells; quoted multiline cells preserved | Use streaming table engine for large files |
 | DOCX | OOXML paragraphs, tables, revisions, headers, footers, footnotes, endnotes, comments, property metadata, field instructions, external relationship targets | In-place DOCX rewrite, verified by rereading (see below) |
 | XLSX | Visible/hidden/very-hidden sheets, cells, formulas and cached values, comments, headers/footers, names and metadata | Supervised XLSX rewrite; always `REVIEW_REQUIRED` or `BLOCKED` |
-| ODT | Shared XML text stream, content and structural attributes, metadata and package inspection | Unsupported; original can be read and verified |
-| ODS | ODT inspection plus sheet/cell coordinates, repeated cells, formulas and typed values | Unsupported; standalone verification always needs review or blocks |
+| OpenDocument (`.odt`, `.ods`) | Shared XML walk for text and content attributes, ODS cells and typed values, supported package metadata | Same-format package rewrite; ODS always `REVIEW_REQUIRED` or `BLOCKED` (see below) |
 | PDF | Native pypdf text, page coordinates, Info metadata and annotation text; selective page OCR when configured | Lossless image-only reconstruction with physical removal and verified output; supported geometry only |
 | PNG/JPEG/TIFF | Every frame through explicit local OCR adapter | Separate pixel operator; always review required |
 | Parquet | All flat columns through bounded Arrow batches; graph size limits apply | Automatic Parquet rewrite unsupported |
 | DataFrames | See structured engine | See structured engine |
-
-## ODT and ODS reading
-
-`read_document()` and `engine.verify()` accept `.odt` and `.ods` without optional
-dependencies. This increment does not provide an OpenDocument writer:
-`engine.deidentify(source, output=...)` returns `UNSUPPORTED` for these formats
-without creating an output file. E-mail output continues to remove unsupported
-ODT/ODS attachments with `EMAIL_ATTACHMENT_REMOVED`.
-
-The reader scans paragraphs, spans, tables, headers/footers, notes, comments,
-tracked text, shapes, displayed fields, content attributes, qualified XML names,
-namespace aliases and retained structural attribute values. ODS grids include
-sheet names, cell coordinates, repeated content, typed values and formulas.
-Settings, RDF/signature XML, manifest entries and package member names are
-inspected where supported. Archive and XML limits apply; malformed, encrypted
-or excessively nested XML is rejected.
-
-Media, embedded objects, macros, unknown parts and unresolved package references
-preserve incomplete coverage. XML comments/processing instructions and opaque
-ZIP metadata, nonempty directory payloads, configuration and layout-cache data
-also mark coverage incomplete. A clean text scan cannot approve these hidden
-channels. Ordinary CDATA text is scanned normally. ODS always carries
-`ODS_REVIEW_REQUIRED`, including standalone verification.
-
-These checks use the configured local detectors and do not establish anonymity.
-See [the reader handoff](audit/OPENDOCUMENT_READER.md) for scope and validation.
 
 ## DOCX and XLSX
 
@@ -102,7 +75,7 @@ message:
 - **Bodies**: `text/plain` is rewritten as text and `text/html` as HTML (above).
 - **Attachments** are renamed `adjunto-<n><ext>` and de-identified with the same
   engine and policy when their format is supported (text, Markdown, CSV/TSV,
-  JSON/JSONL, HTML, DOCX, XLSX, PDF); a blocked or unsupported attachment is
+  JSON/JSONL, HTML, DOCX, XLSX, ODT, ODS, PDF); a blocked or unsupported attachment is
   removed (`EMAIL_ATTACHMENT_REMOVED`) and one that needs review makes the
   message need review (`EMAIL_ATTACHMENT_REVIEW_REQUIRED`). Images, audio and
   video are removed with `office_media="remove"` (default). Attached messages
@@ -253,6 +226,85 @@ their presence is one reason human review remains mandatory. The first-row
 header heuristic also needs review for title rows, sparse layouts and merged
 cells. Formatting and ordinary arithmetic are retained where supported; neither
 the output nor the test counts establish anonymous data.
+
+## OpenDocument output
+
+`engine.deidentify("in.odt", output="out.odt")` and the corresponding `.ods`
+operation write a separate OpenDocument package. The source is preserved.
+ZIP/XML processing uses the standard library; LibreOffice and an ODF-specific
+Python dependency are not required at runtime.
+
+The reader and writer share the XML text walk and content-attribute inventory.
+The walk joins text split across styled spans and represents explicit ODF spaces,
+tabs and line breaks. It covers the supported paragraphs, headings, lists,
+tables, notes, annotations, text boxes and alternative text in `content.xml` and
+`styles.xml`, including headers/footers. Names, link targets, content attributes,
+typed values and declared formulas are inspected separately. Sharing that walk
+keeps scanned and rewritten text aligned; it does not establish coverage of every
+OpenDocument extension or replace independent output evaluation.
+
+Before writing, the supported-package writer:
+
+- accepts tracked changes, drops revision content that is not retained, and
+  removes annotation authors and dates while transforming retained comment text;
+- flattens personal/data-bearing fields to their displayed text, then transforms
+  it; this includes sender, author, file-name, date, variable, database, hidden
+  and conditional-text fields;
+- removes known personal metadata, view/printer settings, RDF metadata, the
+  thumbnail, macros, event handlers, form controls, signatures and stored
+  protection keys;
+- unlinks external hyperlinks while retaining their transformed visible text,
+  and removes external linked objects/sections;
+- with `office_media="remove"` (default), removes images and embedded objects,
+  including charts. Retaining uninspected media with `"keep"` leaves coverage
+  incomplete and blocks output;
+- rebuilds the package manifest, storing `mimetype` first and uncompressed.
+
+ODS sheets use the first nonempty row as column context, as XLSX does. Both
+displayed cell text and separate typed values are checked. Changed cells become
+strings; sensitive typed copies are dropped. Formulas carrying string literals
+or external references become their retained values, while supported arithmetic
+is kept. Sensitive sheet/object/bookmark names are replaced consistently with
+their supported references. Known pivot/data-source copies, filter values and
+data-bearing validations, conditional formats and named expressions are removed.
+Nonempty repeated cells/rows have expansion limits; large empty repetitions stay
+compact. Display formats, formulas and vendor extensions are not exhaustively
+modeled: **every ODS output and standalone verification requires review**
+(`ODS_REVIEW_REQUIRED`), and confirmed residuals/incomplete coverage still block.
+
+The output is reread and rescanned, and `audit["office_removed"]` counts removals.
+Unknown ZIP parts, mismatched package media types, encrypted packages and
+unsupported/malformed XML block rather than yielding a successful empty scan.
+The common archive guards also reject duplicate members, excessive expansion and
+XML DTD/entity declarations. Supported content in an ODT follows the engine's
+ordinary policy/model gates; a clean reread alone is not an anonymity guarantee.
+
+Retained structural attribute values, namespace declarations and qualified XML
+names are inspected. Sensitive values with unmodeled structural meaning block
+output; the writer does not blindly rename XML syntax or break references.
+Neutral object/bookmark names avoid existing-name collisions. XML nesting is
+limited to 128 elements, and excessive nesting produces a sanitized failure.
+
+Standalone verification retains uncertainty for XML comments/processing
+instructions, opaque ZIP comments/extras and container bytes, and nonempty
+configuration, layout-cache or directory payloads. These channels cannot receive
+approval from a clean extracted-text scan. Ordinary CDATA marker text is scanned
+as visible text. Rewriting removes hidden XML/package channels and rebuilds ZIP
+metadata; the resulting candidate is then independently reread and rescanned.
+
+ODT and ODS e-mail attachments use the same writer and canonical OpenDocument
+MIME types and are renamed like other attachments. ODT attachment rewriting is
+covered by the focused regression. A current limitation blocks a message when it
+retains a valid ODS attachment: the e-mail reader treats the attachment's
+review-only issue as incomplete coverage during the final reread. Registering a
+MIME type does not establish successful retained ODS attachment output. A blocked
+attachment is removed by the writer; an incomplete emitted message remains
+blocked. The [output preparation handoff](audit/OPENDOCUMENT_OUTPUT_PREPARATION.md)
+records this separately from the frozen format benchmark.
+Optional integration tests open generated ODT/ODS files using an explicitly
+available local `soffice`; they are skipped when LibreOffice is unavailable.
+This is a fictional regression check, not a claim about every renderer, private
+document, hidden channel or OCR path.
 
 ## Native PDF and OCR
 
