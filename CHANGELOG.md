@@ -20,6 +20,10 @@
   XLSX output and standalone verification always require human review. Unknown
   parts and retained media block output; VML is removed by default. Package
   relationships/content types are rebuilt and source uncertainty is retained.
+- XLSX output no longer keeps copies of cell values in AutoFilter criteria,
+  custom sort lists, data-validation lists or text conditional formats (worksheets
+  and tables); the reader scans them. Changing the master cell of a shared
+  formula now also flattens its dependents instead of leaving them orphaned.
 - The DOCX reader scans `fldSimple` instructions and commenter account IDs,
   flags package thumbnails, and no longer forces review for layout-only fields
   such as `PAGE` or `TOC`.

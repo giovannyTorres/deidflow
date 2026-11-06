@@ -216,3 +216,69 @@ def test_xlsx_output_opens_in_libreoffice(tmp_path):
     rows = list(csv.reader((tmp_path / "csv" / "out.csv").open(encoding="utf-8")))
     assert rows[0] == ["Nombre", "DNI", "Teléfono", "Total", "Nota"]
     assert rows[1][0] == "[PERSON]" and rows[1][3] == "120" and rows[3][3] == "200"
+
+
+def _with_sheet(path: Path, sheet: str, table: str | None = None) -> Path:
+    source = make_xlsx(path.with_name("base.xlsx"))
+    with zipfile.ZipFile(source) as original, zipfile.ZipFile(path, "w") as out:
+        for info in original.infolist():
+            data = original.read(info.filename)
+            if info.filename == "xl/worksheets/sheet1.xml":
+                data = sheet.encode()
+            elif table is not None and info.filename == "xl/tables/table1.xml":
+                data = table.encode()
+            out.writestr(info.filename, data)
+    return path
+
+
+def test_filter_validation_and_conditional_criteria_do_not_keep_values(tmp_path):
+    criteria = (
+        '<autoFilter ref="A1:E3"><filterColumn colId="3"><filters>'
+        '<filter val="maria.lopez@example.com"/></filters></filterColumn>'
+        '<sortState ref="A2:E3"><sortCondition ref="A2:A3" customList="Pedro Ruiz Soto,Ana"/>'
+        "</sortState></autoFilter>"
+    )
+    rules = (
+        '<conditionalFormatting sqref="A2:A3"><cfRule type="containsText" priority="1" '
+        'operator="containsText" text="12345678Z"><formula>NOT(ISERROR(SEARCH("12345678Z",A2)))'
+        "</formula></cfRule></conditionalFormatting>"
+        '<dataValidations count="1"><dataValidation type="list" sqref="A2:A3">'
+        '<formula1>"Pedro Ruiz Soto,87654321X"</formula1></dataValidation></dataValidations>'
+    )
+    sheet = SHEET1.replace("</sheetData>\n", "</sheetData>\n" + criteria + rules)
+    table = TABLE.replace(
+        '<autoFilter ref="A1:E3"/>',
+        '<autoFilter ref="A1:E3"><filterColumn colId="1"><filters><filter val="87654321X"/>'
+        "</filters></filterColumn></autoFilter>",
+    )
+    source = _with_sheet(tmp_path / "criteria.xlsx", sheet, table)
+    graph = read_document(source)
+    scanned = {f.text for f in graph.fragments if f.kind == "criteria"}
+    assert "maria.lopez@example.com" in scanned and "87654321X" in scanned
+    result = DeidEngine(country="ES").deidentify(
+        source, output=tmp_path / "out.xlsx", policy=Policy.strict(require_ner=False)
+    )
+    assert result.output_path is not None, result.issues
+    text = "\n".join(_package(result.output_path).values())
+    for secret in ("maria.lopez@example.com", "12345678Z", "87654321X", "Pedro Ruiz"):
+        assert secret not in text, secret
+    sheet1 = _package(result.output_path)["xl/worksheets/sheet1.xml"]
+    assert '<autoFilter ref="A1:E3">' in sheet1 and "dataValidations" not in sheet1
+
+
+def test_changed_shared_formula_master_takes_its_dependents_along(tmp_path):
+    sheet = SHEET1.replace(
+        "</sheetData>",
+        '<row r="6"><c r="G6" t="str"><f t="shared" ref="G6:G7" si="0">IF(D2&gt;100,E2,D2)</f>'
+        "<v>Avisar al correo maria.lopez@example.com</v></c></row>"
+        '<row r="7"><c r="G7"><f t="shared" si="0"/><v>80</v></c></row></sheetData>',
+    )
+    source = _with_sheet(tmp_path / "shared.xlsx", sheet)
+    result = DeidEngine(country="ES").deidentify(
+        source, output=tmp_path / "out.xlsx", policy=Policy.strict(require_ner=False)
+    )
+    assert result.output_path is not None, result.issues
+    sheet1 = _package(result.output_path)["xl/worksheets/sheet1.xml"]
+    assert "maria.lopez@example.com" not in sheet1
+    assert 'si="0"' not in sheet1  # no orphaned shared-formula dependent
+    assert '<c r="G7"><v>80</v></c>' in sheet1

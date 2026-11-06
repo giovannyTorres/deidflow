@@ -568,6 +568,7 @@ def _read_xlsx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
                         _fragment(
                             graph, header_footer_text(element.text), part=name, kind="header_footer"
                         )
+                _criteria_fragments(root, graph, name)
             elif name.startswith("xl/") and "comment" in name.lower() and name.endswith(".xml"):
                 root = _xml(archive.read(name))
                 for author in root.iter(_S + "author"):
@@ -623,8 +624,26 @@ def _read_xlsx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
                             "userId",
                         }:
                             _fragment(graph, attribute_value, part=name, kind="metadata")
+                _criteria_fragments(root, graph, name)
                 if review:
                     _issue(graph, "spreadsheet_auxiliary_content_requires_review")
+
+
+def _criteria_fragments(root: ET.Element, graph: DocumentGraph, part: str) -> None:
+    """Filter values, custom sort lists, validation lists and conditional-format text."""
+    for element in root.iter():
+        local = element.tag.rsplit("}", 1)[-1] if isinstance(element.tag, str) else ""
+        values: list[str] = []
+        if local in {"filter", "customFilter"}:
+            values.append(element.attrib.get("val", ""))
+        elif local == "sortCondition":
+            values.append(element.attrib.get("customList", ""))
+        elif local in {"dataValidation", "cfRule"}:
+            values.append("".join(element.itertext()))
+            values.append(element.attrib.get("text", ""))
+        for value in values:
+            if value.strip():
+                _fragment(graph, value, part=part, kind="criteria")
 
 
 def _ocr_fragment(
