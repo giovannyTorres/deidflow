@@ -24,6 +24,42 @@ _W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 _S = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
 
 
+# Field instructions that only compute layout values from the document itself.
+BENIGN_FIELDS = frozenset(
+    {"PAGE", "NUMPAGES", "SECTIONPAGES", "SECTION", "TOC", "PAGEREF", "REF", "NOTEREF", "SEQ",
+     "STYLEREF", "TC", "INDEX", "XE"}
+)  # fmt: skip
+
+
+def benign_field(instruction: str) -> bool:
+    """True for Word field codes such as PAGE or TOC that carry no document data."""
+    words = instruction.split()
+    # Switches and bookmark names only: quoted arguments could carry content.
+    return bool(words) and words[0].upper() in BENIGN_FIELDS and '"' not in instruction
+
+
+def _field_instructions(root: ET.Element) -> list[str]:
+    """Complete instructions of simple and complex Word fields, in document order."""
+    found: list[str] = []
+    stack: list[list[str]] = []
+    for element in root.iter():
+        if element.tag == _W + "fldSimple":
+            found.append(element.attrib.get(_W + "instr", ""))
+        elif element.tag == _W + "fldChar":
+            kind = element.attrib.get(_W + "fldCharType")
+            if kind == "begin":
+                stack.append([])
+            elif kind == "end" and stack:
+                found.append("".join(stack.pop()))
+        elif element.tag == _W + "instrText":
+            if stack:
+                stack[-1].append(element.text or "")
+            else:
+                found.append(element.text or "")
+    found.extend("".join(pieces) for pieces in stack)  # unterminated fields
+    return found
+
+
 class DocumentError(RuntimeError):
     """Input cannot be safely extracted. Does not include source content."""
 
@@ -108,6 +144,9 @@ def _read_metadata(archive: zipfile.ZipFile, graph: DocumentGraph) -> None:
             for element in root.iter():
                 if element.text and element.text.strip():
                     _fragment(graph, element.text, kind="metadata", part=name)
+                for value in element.attrib.values():  # custom property names
+                    if value.strip():
+                        _fragment(graph, value, kind="metadata", part=name)
         if name.endswith(".rels"):
             root = _xml(archive.read(name))
             for relation in root:
@@ -125,11 +164,16 @@ def _read_metadata(archive: zipfile.ZipFile, graph: DocumentGraph) -> None:
             _issue(graph, "embedded_or_active_content_not_extracted")
         if "/media/" in lower:
             _issue(graph, "office_images_require_separate_ocr")
+        if lower.startswith("docprops/thumbnail"):
+            _issue(graph, "office_thumbnail_requires_review")
         if name.startswith("customXml/") and name.endswith(".xml"):
             root = _xml(archive.read(name))
             for element in root.iter():
                 if element.text and element.text.strip():
                     _fragment(graph, element.text, kind="custom_xml", part=name)
+                for value in element.attrib.values():
+                    if value.strip():
+                        _fragment(graph, value, kind="custom_xml", part=name)
 
 
 def _read_docx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
@@ -169,7 +213,10 @@ def _read_docx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
             for index, paragraph in enumerate(root.iter(_W + "p")):
                 pieces: list[str] = []
                 for child in paragraph.iter():
-                    if child.tag in {_W + "t", _W + "delText", _W + "instrText"}:
+                    # Text runs of every namespace: w:t, DrawingML a:t, Office Math m:t.
+                    if child.tag in {_W + "delText", _W + "instrText"} or (
+                        isinstance(child.tag, str) and child.tag.rsplit("}", 1)[-1] == "t"
+                    ):
                         pieces.append(child.text or "")
                     elif child.tag == _W + "tab":
                         pieces.append("\t")
@@ -199,9 +246,16 @@ def _read_docx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
                 # metadata. Text-bearing attributes are scanned separately.
                 for attribute, value in element.attrib.items():
                     local = attribute.rsplit("}", 1)[-1]
-                    if local in {"author", "initials", "title", "descr", "name"} and value:
+                    if (
+                        local in {"author", "initials", "title", "descr", "name", "userId"}
+                        and value
+                    ):
                         _fragment(graph, value, part=name, kind="metadata")
-            if any(True for _ in root.iter(_W + "instrText")):
+            instructions = _field_instructions(root)
+            for instruction in instructions:
+                if instruction.strip():
+                    _fragment(graph, instruction, part=name, kind="field_instruction")
+            if any(not benign_field(instruction) for instruction in instructions):
                 _issue(graph, "word_fields_require_review")
 
 

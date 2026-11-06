@@ -84,6 +84,12 @@ def main(argv: list[str] | None = None) -> int:
         help="PDF+JSONL creates a new output bundle directory",
     )
     parser.add_argument(
+        "--office-media",
+        choices=["remove", "keep"],
+        default="remove",
+        help="DOCX output: remove images/charts/embedded objects (default) or keep them and block",
+    )
+    parser.add_argument(
         "--require-table-structure",
         action="store_true",
         help="Require review if table relationships cannot be reconstructed",
@@ -196,6 +202,7 @@ def main(argv: list[str] | None = None) -> int:
                 batch_size=args.batch_size,
                 outputs=args.outputs,
                 require_table_structure=args.require_table_structure,
+                office_media=args.office_media,
             )
         else:
             result = engine.verify(args.source, policy=policy)

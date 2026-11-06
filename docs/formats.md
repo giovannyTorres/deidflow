@@ -11,7 +11,7 @@ finding list on an incomplete graph must never approve a release.
 | UTF-8 TXT | Exact text, including original CR/LF | See text engine |
 | JSON/JSONL | All string keys/values and numeric values, ordinal JSON locations | See structured engine |
 | CSV/TSV | All headers and cells; quoted multiline cells preserved | Use streaming table engine for large files |
-| DOCX | OOXML paragraphs, tables, revisions, headers, footers, footnotes, endnotes, comments, property metadata, external relationship targets | Unsupported in-place release |
+| DOCX | OOXML paragraphs, tables, revisions, headers, footers, footnotes, endnotes, comments, property metadata, field instructions, external relationship targets | In-place DOCX rewrite, verified by rereading (see below) |
 | XLSX | Visible/hidden/very-hidden sheets, cells, formulas and cached values, comments, headers/footers, names and metadata | Unsupported in-place release |
 | PDF | Native pypdf text, page coordinates, Info metadata and annotation text; selective page OCR when configured | Lossless image-only reconstruction with physical removal and verified output; supported geometry only |
 | PNG/JPEG/TIFF | Every frame through explicit local OCR adapter | Separate pixel operator; always review required |
@@ -31,15 +31,48 @@ XLSX physical row numbers are one-based and spreadsheet references remain A1
 style; CSV rows and DOCX table rows/columns are zero-based. DOCX page numbers are
 not inferred: OOXML does not contain reliable rendered page boundaries.
 
-Dynamic Word fields, spreadsheet formulas/defined names, drawings, external
-relationships, embedded objects, active content and Office images force review.
+Data-bearing Word fields (any field other than layout fields such as `PAGE`,
+`NUMPAGES`, `TOC`, `REF` or `SEQ` without quoted arguments), spreadsheet
+formulas/defined names, drawings, external relationships, embedded objects,
+active content, Office images and package thumbnails force review. Field
+instructions, including `fldSimple` instructions, are scanned.
 All recognized text is still returned. Both deleted and inserted revision text
 are scanned. Unreferenced XLSX shared strings are scanned as source parts, since
 deleted cell values can remain in the archive. Invalid negative shared-string
 references and inconsistent CSV/TSV row widths are rejected. No claim is made
 that every possible proprietary extension or
-embedded binary is covered. Extraction is designed to support inspection; safe
-Office package rewriting is a separate, currently unsupported capability.
+embedded binary is covered.
+
+## DOCX output
+
+`engine.deidentify("in.docx", output="out.docx")` (CLI `deidflow deidentify`)
+edits the package in place, so styles, tables, numbering and page layout are
+kept. Text is scanned per part (body, each header and footer, footnotes,
+endnotes, comments) with paragraphs and table cells joined, so labels in one
+cell give context to values in the next; a value split across differently
+formatted runs is replaced in its first run. Before writing, the writer:
+
+- accepts tracked changes (deleted and moved-from text is dropped) and removes
+  revision and comment authors, initials, dates and commenter account details;
+- removes personal properties (`creator`, `lastModifiedBy`, created, modified
+  and printed dates, `Company`, `Manager`, `HyperlinkBase`) and transforms the
+  remaining property, custom-property and custom-XML text;
+- removes the package thumbnail (a rendering of the first page), every
+  external relationship (hyperlinks become plain text, attached templates are
+  dropped), mail-merge settings and data-bearing field codes (their displayed
+  result text stays and is scanned); layout fields stay;
+- transforms alternative text (`descr`, `title`) and document variables;
+- with `office_media="remove"` (default, CLI `--office-media remove`) removes
+  images, charts, diagrams, embedded objects and macros, which cannot be
+  checked without OCR. `"keep"` copies them, and the result is `BLOCKED` as
+  incomplete coverage.
+
+The output is then read back with the same reader and rescanned; residual
+findings, extraction gaps or uncertain source findings block or require review
+exactly as for text. `result.audit["office_removed"]` counts what was removed.
+Only `.docx` is rewritten; `.doc`, `.docm`, `.dotx` and XLSX output remain
+unsupported. A tested output opens in LibreOffice; Microsoft Word was not
+available for testing.
 
 ## Native PDF and OCR
 
