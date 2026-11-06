@@ -1002,6 +1002,8 @@ class DeidEngine:
                 ".jsonl",
                 ".docx",
                 ".xlsx",
+                ".odt",
+                ".ods",
                 ".html",
                 ".htm",
                 ".eml",
@@ -1020,7 +1022,7 @@ class DeidEngine:
         try:
             if suffix in {".csv", ".tsv"}:
                 result = self._csv(source, candidate, policy, batch_size, domain)
-            elif suffix in {".docx", ".xlsx"}:
+            elif suffix in {".docx", ".xlsx", ".odt", ".ods"}:
                 result = self._office(source, candidate, policy, domain, office_media == "remove")
             elif suffix in {".html", ".htm"}:
                 result = self._html(source, candidate, policy, domain)
@@ -1070,6 +1072,7 @@ class DeidEngine:
         self, source: Path, output: Path, policy: Policy, domain: str | None, remove_media: bool
     ) -> Result:
         from deidflow.office import CellGrid, rewrite_docx, rewrite_xlsx
+        from deidflow.opendocument import rewrite_odf
         from deidflow.readers import DocumentError
 
         if source.stat().st_size > self.max_bytes:
@@ -1103,7 +1106,16 @@ class DeidEngine:
             ]
 
         try:
-            if source.suffix.lower() == ".xlsx":
+            if source.suffix.lower() in {".odt", ".ods"}:
+                report = rewrite_odf(
+                    source,
+                    output,
+                    rewrite,
+                    transform_cells,
+                    max_bytes=self.max_bytes,
+                    remove_media=remove_media,
+                )
+            elif source.suffix.lower() == ".xlsx":
                 report = rewrite_xlsx(
                     source,
                     output,

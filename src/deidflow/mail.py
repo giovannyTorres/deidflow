@@ -51,7 +51,7 @@ STRUCTURE_HEADERS = frozenset(
 KEPT_HEADERS = ADDRESS_HEADERS | TEXT_HEADERS | ID_HEADERS | STRUCTURE_HEADERS
 ATTACHMENT_SUFFIXES = frozenset(
     {".txt", ".text", ".md", ".log", ".csv", ".tsv", ".json", ".jsonl", ".html", ".htm",
-     ".docx", ".xlsx", ".pdf"}
+     ".docx", ".xlsx", ".odt", ".ods", ".pdf"}
 )  # fmt: skip
 MAX_DEPTH = 8
 _ID = re.compile(r"<[^<>\s]*>")
