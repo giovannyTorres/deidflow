@@ -1,6 +1,6 @@
 {
   "schema_version": "deidflow.benchmark-documentation-validation.v1",
-  "validated_at_utc": "2026-11-06T20:57:49.283647+00:00",
+  "validated_at_utc": "2026-11-06T20:58:30.522526+00:00",
   "base_commit": "44d04b16fb1ec545161c4ef0c14f516c7b0d9d29",
   "historical_source_commit": "f2e4751d280a100e5af450337d70db78a8fefa03",
   "validation_scope": "documentation projection; not implementation, CI or external audit",
@@ -9,7 +9,7 @@
   "ticket_body_hashes_verified": 27,
   "github_issues_recorded": 0,
   "json_files_parsed": 4,
-  "markdown_local_links_verified": 110,
+  "markdown_local_links_verified": 115,
   "markdown_local_fragments_verified": 1,
   "immutable_permalink_targets_verified_in_local_git": 48,
   "historical_audit_banners_verified": 14,

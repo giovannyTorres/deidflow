@@ -43,6 +43,6 @@ No se ejecuta la suite completa para esta entrega documental. La validación
 local no es un resultado de CI. La auditoría externa de Claude y la aprobación
 de Giovanny siguen pendientes; cualquier hallazgo o hilo deberá resolverse.
 
-El cuerpo preparado para la futura PR registrará el commit de alcance y las
-cuatro condiciones de incorporación. Su existencia no acredita publicación,
-auditoría ni merge.
+El [cuerpo preparado para la futura PR](PR_BODY.md) registra el commit de alcance
+y las cuatro condiciones de incorporación. Su existencia no acredita
+publicación, auditoría ni merge.
