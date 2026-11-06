@@ -440,3 +440,60 @@ def test_opaque_zip_metadata_is_uninspected_until_rebuilt(tmp_path, channel):
     source = package(tmp_path, "<text:p>Informe.</text:p>")
     add_zip_metadata(source, channel)
     assert_uninspected_source_but_clean_rewrite(source, tmp_path)
+
+
+def append_deflate_tail(source: Path, member: str, payload: bytes) -> None:
+    import struct
+
+    with zipfile.ZipFile(source) as archive:
+        entries = {info.filename: archive.read(info) for info in archive.infolist()}
+    with zipfile.ZipFile(source, "w") as archive:
+        for name, value in entries.items():
+            if name != member:
+                archive.writestr(name, value, compress_type=zipfile.ZIP_DEFLATED)
+        archive.writestr(member, entries[member], compress_type=zipfile.ZIP_DEFLATED)
+        info = archive.getinfo(member)
+        handle = archive.fp
+        assert handle is not None
+        handle.write(payload)
+        info.compress_size += len(payload)
+        archive.start_dir = handle.tell()
+        handle.seek(info.header_offset + 18)
+        handle.write(struct.pack("<I", info.compress_size))
+        handle.seek(archive.start_dir)
+    with zipfile.ZipFile(source) as archive:
+        assert archive.read(member) == entries[member]  # standard reader discards suffix
+
+
+@pytest.mark.parametrize("member", ("content.xml", "META-INF/manifest.xml"))
+def test_terminal_deflate_suffix_is_uninspected_until_recompressed(tmp_path, member):
+    source = package(tmp_path, "<text:p>Informe.</text:p>")
+    append_deflate_tail(source, member, SECRET.encode())
+    assert_uninspected_source_but_clean_rewrite(source, tmp_path)
+
+
+def test_deflate_validation_does_not_expand_beyond_the_declared_size(tmp_path):
+    import struct
+    import tracemalloc
+
+    source = package(tmp_path, "<text:p>Informe.</text:p>")
+    read_document(source)  # load parser modules before the allocation measurement
+    with zipfile.ZipFile(source, "a") as archive:
+        info = zipfile.ZipInfo("ordinary/")
+        info.compress_type = zipfile.ZIP_DEFLATED
+        archive.writestr(info, b"A" * (8 * 1024 * 1024))
+        handle = archive.fp
+        assert handle is not None
+        end = handle.tell()
+        info.file_size = 0
+        handle.seek(info.header_offset + 22)
+        handle.write(struct.pack("<I", 0))
+        handle.seek(end)
+    tracemalloc.start()
+    try:
+        graph = read_document(source)
+        _, peak = tracemalloc.get_traced_memory()
+    finally:
+        tracemalloc.stop()
+    assert not graph.complete
+    assert peak < 2 * 1024 * 1024
