@@ -1,0 +1,83 @@
+{
+  "base_commit": "44d04b16fb1ec545161c4ef0c14f516c7b0d9d29",
+  "branch": "benchmark/email-review",
+  "coverage": {
+    "covered_branches": 3985,
+    "covered_lines": 10331,
+    "excluded_lines": 29,
+    "missing_branches": 1101,
+    "missing_lines": 1608,
+    "num_branches": 5086,
+    "num_partial_branches": 825,
+    "num_statements": 11939,
+    "percent_branches_covered": 78.35233975619347,
+    "percent_branches_covered_display": "78",
+    "percent_covered": 84.08810572687224,
+    "percent_covered_display": "84",
+    "percent_statements_covered": 86.53153530446436,
+    "percent_statements_covered_display": "87"
+  },
+  "date_utc": "2026-11-06",
+  "distribution": {
+    "artifacts_sha256": {
+      "deidflow-0.6.0b1-py3-none-any.whl": "38dba3e4a2485f4f9fb5f0caea866592b78f349f502d2364a61324e6be294bb5",
+      "deidflow-0.6.0b1.tar.gz": "b40f022ff83839572d310641155f797f1fbb10f89c8edf4e6e6ed9e17f5d0f35"
+    },
+    "build_no_isolation": "PASS",
+    "clean_git_archive_commit": "a888f72ffbb7cbdac165e72ea137ac24315b659a",
+    "network_attempts_during_probe": 0,
+    "scope_specific_wheel_probe": "PASS",
+    "twine_strict": "PASS",
+    "wheel_without_extras_outside_checkout": "PASS"
+  },
+  "evidence_type": "known_synthetic_development_regression",
+  "existing_public_api_changed": false,
+  "github_api": "BLOCKED_BY_ENFORCED_NETWORK_POLICY",
+  "held_out_test_scoring_passes": 0,
+  "internal_matt_review": {
+    "Spec": {
+      "corrected_findings": [
+        "P2 missing historical evidence permalink"
+      ],
+      "open_findings": 0
+    },
+    "Standards": {
+      "open_documented_violations": 0,
+      "open_smells": 0
+    },
+    "external_claude_approval": false
+  },
+  "merge_gates": {
+    "actual_ci_11_of_11": "PENDING",
+    "all_review_threads_resolved": "PENDING",
+    "claude_blockers_closed": "PENDING",
+    "giovanny_approval": "PENDING"
+  },
+  "merge_performed": false,
+  "micro": {
+    "critical_exact_recall": {
+      "API_KEY": 1.0,
+      "CLABE": 1.0,
+      "CURP": 1.0,
+      "EMAIL": 1.0,
+      "RFC": 1.0
+    },
+    "engine_to_same_run_reference_ratio": 1.077027982436281,
+    "median_seconds_per_record": 0.000328373250005825,
+    "passed": true,
+    "records": 1000,
+    "repeats": 5,
+    "scope": "Gross CI regression guard; identical contextual rules, engine wrapper versus direct detector, alternating timing order; no fine-grained cross-machine or statistical speedup claim"
+  },
+  "production_dependencies_models_profiles_changed": false,
+  "release_or_pypi_publication": false,
+  "scope": "BMX-01: extracción independiente del recorrido EMAIL",
+  "source_commit": "a888f72ffbb7cbdac165e72ea137ac24315b659a",
+  "tests": {
+    "passed": 1102,
+    "platform": "Linux x86_64 / Python 3.12.14",
+    "seconds": 425.45,
+    "skipped": 11,
+    "suite_log_sha256": "8a48c5b2c366c60599751f51128eadba343adb0e04402b761f0d93210b76fd15"
+  }
+}
