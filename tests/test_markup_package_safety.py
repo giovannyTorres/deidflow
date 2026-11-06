@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import _markupbase
+from html.parser import HTMLParser
+
 import pytest
 
 from deidflow import DeidEngine, Policy
@@ -62,6 +65,10 @@ def test_hidden_html_channels_removed_before_review_candidate(engine, tmp_path, 
         "<style>/* private@example.com */",
         "<script/>private@example.com",
         '<p "private@example.com">Informe.</p>',
+        "<!-- private@example.com",
+        "<!-->Dosis: 5 mg cada 8 horas.<!-- private@example.com -->",
+        "<!--->Dosis: 5 mg cada 8 horas.<!-- private@example.com -->",
+        "<!-- private@example.com -- >Dosis: 5 mg cada 8 horas.",
     ],
 )
 def test_unsupported_html_syntax_blocks_without_artifact(engine, tmp_path, source):
@@ -101,6 +108,31 @@ def test_comment_boundary_preserves_following_clinical_context(engine, tmp_path,
     result = engine.deidentify(original, output=output, policy=Policy.strict())
     assert result.status == "REVIEW_REQUIRED", result.issues
     assert output.read_text(encoding="utf-8") == "<p>Dosis: 5 mg cada 8 horas.</p>"
+
+
+@pytest.mark.parametrize("legacy_parser", [False, True])
+def test_comment_boundaries_do_not_depend_on_stdlib_patch_release(monkeypatch, legacy_parser):
+    from deidflow.markup import rewrite_html
+
+    if legacy_parser:
+        # This is the inherited parser used by older 3.11/3.12 patch releases
+        # shipped on Windows/macOS CI; it recognizes --> but not --!>.
+        monkeypatch.setattr(HTMLParser, "parse_comment", _markupbase.ParserBase.parse_comment)
+    source = (
+        "<p>Antes<!-- sin identificador detectable --!>Dosis: 5 mg cada 8 horas.\n"
+        "<!-- otra nota privada -->Niega fiebre.</p>"
+    )
+    scanned = []
+
+    def inspect_text(text):
+        scanned.append(text)
+        return text, []
+
+    output, report = rewrite_html(source, inspect_text)
+    assert output == "<p>AntesDosis: 5 mg cada 8 horas.\nNiega fiebre.</p>"
+    assert report.removed == {"comment": 2}
+    assert "Dosis: 5 mg cada 8 horas." in "".join(scanned)
+    assert "detectable" not in "".join(scanned) and "privada" not in "".join(scanned)
 
 
 def test_long_non_css_payload_is_removed_without_suffix_search():

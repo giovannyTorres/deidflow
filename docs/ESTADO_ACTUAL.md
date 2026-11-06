@@ -22,6 +22,9 @@ También se incorporan las direcciones de #27 y el rendimiento HTML de #29,
 con correcciones de límites y pruebas adversariales. La
 [revisión actual de 24 ramas](BRANCH_REVIEW_v060.md) incluye las decisiones de
 compatibilidad de dependencias.
+La integración posterior de #30 actualiza el modelo general a su segunda
+revisión; los paquetes general y jurídico pasan a 1.1.0, con hash verificado
+y comparación sobre los mismos textos de regresión.
 
 Para comprobar la entrega: [contrato de producto](PRODUCT_ACCEPTANCE.md),
 [sesiones](SESSIONS.md), [paquetes](DOMAIN_PACKS.md),

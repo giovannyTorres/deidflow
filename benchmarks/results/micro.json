@@ -12,13 +12,13 @@
     "RFC": 1.0
   },
   "engine_seconds": [
-    0.33546744900013437,
-    0.3281985480007279,
-    0.2929460849991301,
-    0.5173899359997449,
-    0.49575854999966396
+    0.3127963919996546,
+    0.35071567300110473,
+    0.3193593830001191,
+    0.33825068599981023,
+    0.3069967749997886
   ],
-  "engine_to_same_run_reference_ratio": 0.9684145862561228,
+  "engine_to_same_run_reference_ratio": 1.0462504323286932,
   "machine": {
     "execution": "CPU",
     "gpu_memory_bytes": null,
@@ -39,16 +39,16 @@
       "spacy": "3.8.18"
     }
   },
-  "median_seconds_per_record": 0.0003354674490001344,
+  "median_seconds_per_record": 0.0003193593830001191,
   "passed": true,
   "records": 1000,
   "repeats": 5,
   "same_run_reference_seconds": [
-    0.29917840599955525,
-    0.2864079250011855,
-    0.45705850400008785,
-    0.4805129100004706,
-    0.3464089179997245
+    0.30524181699911423,
+    0.3021685730000172,
+    0.3147772880001867,
+    0.31592769799863163,
+    0.2986306359998707
   ],
   "scope": "Gross CI regression guard; identical contextual rules, engine wrapper versus direct detector, alternating timing order; no fine-grained cross-machine or statistical speedup claim"
 }

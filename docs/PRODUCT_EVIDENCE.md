@@ -8,7 +8,7 @@ pendientes de revisión humana; una tasa de fuga entre aprobados sin documentos
 aprobados se registra como `null`, nunca como cero.
 
 Los artefactos de esta evaluación están en
-[`benchmarks/results/product-v060`](../benchmarks/results/product-v060/).
+[`benchmarks/results/product-v060-general2`](../benchmarks/results/product-v060-general2/).
 El índice vincula los reportes con SHA-256; los JSON y el índice registran
 revisión, estado del checkout, digest de fuentes Python, modelos, perfiles,
 corpus, script y guard de red. No contienen textos originales, mapas de
@@ -56,20 +56,24 @@ cuasiidentificadores; no penaliza su eliminación intencional.
 
 | Medida | Motor base | Paquete general |
 | --- | ---: | ---: |
-| Caracteres de identificadores directos eliminados | 96.756% | 97.419% |
-| Menciones directas completamente sustituidas | 94.248% | 95.314% |
-| Documentos con alguna fuga directa anotada | 136/600 | **113/600** |
-| Caracteres de todos los tipos anotados eliminados | 95.938% | 96.832% |
-| Caracteres no sensibles conservados | 97.872% | 99.196% |
-| Revisión requerida / bloqueados | 519 / 81 | 595 / 5 |
+| Caracteres de identificadores directos eliminados | 97.901% | 98.263% |
+| Menciones directas completamente sustituidas | 95.619% | 96.457% |
+| Documentos con alguna fuga directa anotada | 109/600 | **88/600** |
+| Caracteres de todos los tipos anotados eliminados | 97.390% | 97.912% |
+| Caracteres no sensibles conservados | 99.514% | 99.468% |
+| Revisión requerida / bloqueados | 523 / 77 | 598 / 2 |
 | Aprobados automáticamente | 0 | 0 |
 
-Persisten **113 documentos con fuga directa anotada (18.83%)**; por eso estas
-cifras no autorizan liberar automáticamente las salidas. El paquete conserva
-84437 de 85121 caracteres no sensibles: aún modifica 684. La revisión humana
-es una parte explícita del comportamiento, no una corrección supuesta en la
-puntuación. Los 595 documentos pendientes y los 5 bloqueados se incluyen en
-los denominadores; ningún documento descartado recibe crédito de privacidad.
+Persisten **88 documentos con fuga directa anotada (14.67%)**; estas cifras no
+autorizan liberar automáticamente las salidas. El paquete conserva 84668 de
+85121 caracteres no sensibles: aún modifica 453. Frente al motor base con el
+mismo modelo, el paquete cubre 181 caracteres directos y 22 menciones completas
+adicionales, pero transforma 39 caracteres no sensibles más. Este intercambio
+se muestra junto con la cobertura, sin ocultar la pérdida de contexto.
+
+La revisión humana es parte explícita del comportamiento, no una corrección
+supuesta en la puntuación. Los 598 documentos pendientes y los 2 bloqueados
+permanecen en los denominadores; ningún documento descartado recibe crédito.
 
 Los errores observados en estas plantillas motivaron correcciones gramaticales
 de respuestas de diálogo y domicilios que absorbían campos siguientes.
@@ -77,6 +81,20 @@ de respuestas de diálogo y domicilios que absorbían campos siguientes.
 sus familias se separaron al entrenar el modelo existente. No se hizo búsqueda
 de umbrales ni entrenamiento con esta evaluación. La retención mide caracteres,
 no suficiencia semántica ni utilidad para cada tarea posterior.
+
+La versión actual usa `es-general-2`, incorporado por la actualización concurrente
+PR30, y paquetes general/jurídico 1.1.0. Se conserva por separado la
+[comparación controlada del cambio de modelo](GENERAL_MODEL_COMPARISON.md):
+con reglas y corpus congelados, las fugas directas bajaron de 113 a 88 documentos
+y la retención de contexto subió de 99.196% a 99.468%. Los 40 casos del contrato
+se mantuvieron intactos. Las 30 familias nuevas se añadieron solo al entrenamiento;
+los 600 registros anotados de test y los 600 de validación son idénticos a los
+anteriores, comprobado por sus digests. Esto sigue siendo evidencia de regresión.
+
+Los reportes anteriores con `es-general-1` permanecen en
+[`product-v060`](../benchmarks/results/product-v060/). Los actuales se ejecutaron
+sobre `c651b9fe665ec4e2732a51609e791ed0fa4e90ce`, con digest Python
+`e25d4f35caf926c43371e6fc930c538638aa0235f3b7a6d923251c2f475a831b`.
 
 ## Decisión sobre reglas narrativas
 
@@ -87,13 +105,13 @@ apoyó en esta partición, no en elegir la mejor puntuación del test observado.
 
 | Medida | Rol + narrativa | Solo rol |
 | --- | ---: | ---: |
-| Caracteres directos eliminados | 91.838% | 90.885% |
-| Menciones directas completas | 89.494% | 88.035% |
-| Documentos con fuga directa | 171/600 | 195/600 |
-| Caracteres no sensibles conservados | 98.433% | 98.458% |
+| Caracteres directos eliminados | 94.027% | 93.338% |
+| Menciones directas completas | 91.391% | 90.370% |
+| Documentos con fuga directa | 152/600 | 167/600 |
+| Caracteres no sensibles conservados | 98.683% | 98.708% |
 | Revisión requerida / bloqueados | 594 / 6 | 592 / 8 |
 
-Las reglas narrativas recuperan 337 caracteres directos y 30 menciones completas,
+Las reglas narrativas recuperan 244 caracteres directos y 21 menciones completas,
 con 20 caracteres no sensibles adicionales transformados (de 79827).
 
 La diferencia confirma un intercambio medido entre cobertura y contexto, no una

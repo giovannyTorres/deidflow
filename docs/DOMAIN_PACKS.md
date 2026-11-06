@@ -9,8 +9,8 @@ un LLM, una API, credenciales de inferencia ni descargas en tiempo de ejecución
 | --- | --- | --- |
 | `clinical@1.0.0` | `es-clinical` | Notas clínicas; MEDDOCAN, España, con datos personales sintéticos. |
 | `financial@1.0.0` | `es-finance` | Documentos financieros; parte española del conjunto sintético de Gretel. |
-| `legal@1.0.0` | `es-general` | Paquete inicial: modelo general y reglas de roles jurídicos. No hay un modelo jurídico especializado ni validación independiente jurídica. |
-| `general@1.0.0` | `es-general` | MEDDOCAN/Gretel y documentos sintéticos de varios géneros y países. |
+| `legal@1.1.0` | `es-general` (`es-general-2`) | Paquete inicial: modelo general y reglas de roles jurídicos. No hay un modelo jurídico especializado ni validación independiente jurídica. |
+| `general@1.1.0` | `es-general` (`es-general-2`) | MEDDOCAN/Gretel y 5000 documentos sintéticos de 51 familias de entrenamiento. |
 
 La evaluación de esos modelos no prueba la calidad sobre documentos reales de
 una organización o de cada país. Todos los paquetes declaran
@@ -38,6 +38,12 @@ y limitaciones. Una versión inexistente o un cambio del digest del modelo produ
 un error. El código es Apache-2.0; MEDDOCAN exige atribución CC-BY-4.0, Gretel usa
 Apache-2.0 y Faker usa MIT. Véanse [NOTICE](../NOTICE), [la ficha de los modelos](TAGGER.md)
 y [las fuentes públicas](PUBLIC_CORPORA.md).
+
+Los paquetes general y jurídico 1.1.0 fijan los pesos `es-general-2`. La versión
+1.0.0 de esos paquetes correspondía a `es-general-1` y no se redirige de forma
+silenciosa al modelo nuevo. Los resultados anteriores de ese modelo permanecen
+como evidencia histórica. Para reanudar una sesión anterior se necesita su misma
+configuración; los paquetes clínico y financiero conservan su versión 1.0.0.
 
 ## Conservar significado y consistencia
 

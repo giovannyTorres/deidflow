@@ -274,14 +274,14 @@ _PACKS = (
     ),
     DomainPack(
         name="legal",
-        version="1.0.0",
+        version="1.1.0",
         title="Jurídico en español (inicial)",
         model_name="es-general",
-        model_sha256="bf7e257f363e17bcc6bee943f9dfaa0cd67e502cf8ac3fd90140bdd916a51903",
+        model_sha256="f3008720a246e32b7a2adaf4af2ba9a03fb665caadcf698658b029a73042c173",
         training_corpus=(
             "MEDDOCAN train, commit 783a6df385c975b328c99bcffb54196a9ba4078a",
             "Gretel Spanish train minus holdout, revision 7b844d16738527a04264f50214cb426a4cea0897",
-            "deidflow.benchmarks.synthetic_es: 3000 documents, seed 1729, Faker 40.44.0",
+            "deidflow.benchmarks.synthetic_es: 5000 documents, 51 training families, seed 1729, Faker 40.44.0",
         ),
         training_license=(
             "CC-BY-4.0 (MEDDOCAN)",
@@ -298,14 +298,14 @@ _PACKS = (
     ),
     DomainPack(
         name="general",
-        version="1.0.0",
+        version="1.1.0",
         title="General en español",
         model_name="es-general",
-        model_sha256="bf7e257f363e17bcc6bee943f9dfaa0cd67e502cf8ac3fd90140bdd916a51903",
+        model_sha256="f3008720a246e32b7a2adaf4af2ba9a03fb665caadcf698658b029a73042c173",
         training_corpus=(
             "MEDDOCAN train, commit 783a6df385c975b328c99bcffb54196a9ba4078a",
             "Gretel Spanish train minus holdout, revision 7b844d16738527a04264f50214cb426a4cea0897",
-            "deidflow.benchmarks.synthetic_es: 3000 documents, seed 1729, Faker 40.44.0",
+            "deidflow.benchmarks.synthetic_es: 5000 documents, 51 training families, seed 1729, Faker 40.44.0",
         ),
         training_license=(
             "CC-BY-4.0 (MEDDOCAN)",

@@ -158,3 +158,6 @@ La [evidencia de aceptación 0.6](PRODUCT_EVIDENCE.md) reúne los resultados
 registrados, los digests y sus limitaciones. El CSV amplio exporta métricas
 agregadas por motor y alcance; el JSON conserva además el detalle por familia
 de plantillas y la procedencia completa.
+La colección actual es
+[`product-v060-general2`](../benchmarks/results/product-v060-general2/);
+la colección anterior se conserva como evidencia histórica.

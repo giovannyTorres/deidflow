@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "evidence_collection": "DeidFlow 0.6.0b1 with es-general-2, domain pack 1.1, synthetic regression and adaptation demonstration",
+  "runtime_git_revision": "c651b9fe665ec4e2732a51609e791ed0fa4e90ce",
+  "source_state": {
+    "python_sources_sha256": "e25d4f35caf926c43371e6fc930c538638aa0235f3b7a6d923251c2f475a831b",
+    "python_source_files": 64,
+    "git_worktree_dirty": false,
+    "model_resource_sha256": {
+      "models/es-clinical-meddocan-1.json.gz": "dc824100552ddb5bae036d128da9cfe4e31aba68b7cb74c2ab1252ddc0952da9",
+      "models/es-domain-router-1.json.gz": "316d2ee699ddee08879d0835df894715ae14b1ae176f1794b45b283d82ff6324",
+      "models/es-finance-gretel-1.json.gz": "f7a28b8fef3ccc1090d171b693f744098b4032008a48b56530c5aabdf371679c",
+      "models/es-general-2.json.gz": "f3008720a246e32b7a2adaf4af2ba9a03fb665caadcf698658b029a73042c173",
+      "models/profiles.json": "e534d136a23299942b7a3f04b531a0a58bcb1eb3c5494d36b0a362137c094ed6"
+    }
+  },
+  "environment": {
+    "python": "3.11.17",
+    "faker": "40.44.0",
+    "numpy": "2.4.6"
+  },
+  "artifacts": {
+    "context40.csv": {
+      "sha256": "aecd43d5c2a247f14635fea0d2d1265370ccc6bbbee7a7f341efcc5bc3b2bfe5",
+      "bytes": 1796
+    },
+    "context40.json": {
+      "sha256": "7c33868993a76de12e152e211615d964417aae2c72cf0a755eb41440c496ca47",
+      "bytes": 14210
+    },
+    "posttraining-demo.csv": {
+      "sha256": "5257cf57e7612eab92d1e9af66168ab7056fa5a8df811bff198531cf36f35683",
+      "bytes": 5585
+    },
+    "posttraining-demo.json": {
+      "sha256": "2e0c065f047fb1327cf13f1a57365c67ffc9b15d6927bb88e0c8dd76f871fc19",
+      "bytes": 11979
+    },
+    "synthetic-test600.csv": {
+      "sha256": "72a8e17c6c7ffa48bc29c8b1a243e77c5af3d8bb29c35cfc63b79c1af96f0d5e",
+      "bytes": 7587
+    },
+    "synthetic-test600.json": {
+      "sha256": "a412aa130ad2bf2a8a4f85af9f09c8b909d9853575e3c3f5fa9ed689b42464b2",
+      "bytes": 35168
+    },
+    "synthetic-validation600.csv": {
+      "sha256": "42d83bea99101d0f34923d9a5576468c922ade3df8aed22a0bb8b315c33e9185",
+      "bytes": 11681
+    },
+    "synthetic-validation600.json": {
+      "sha256": "cda17aa014cc90f1c25c59744d2a940bc9aaae70155b7bdf8bc77da01a1d415d",
+      "bytes": 45740
+    }
+  },
+  "historical_baseline": {
+    "path": "../context-baseline-v050b1.json",
+    "sha256": "442621950a1d9eec7b1e1506331a4465d42c148b4af893904045d07fa8869ded",
+    "runtime_git_revision": "7d35654044f670d2f7cddab315428d01d803ed4e"
+  },
+  "historical_model1_evidence": {
+    "path": "../product-v060/evidence-index.json",
+    "sha256": "4d3c561d03cf8959eb3204faec3c2462341fc393057a86121a6a7403865d7f8f"
+  },
+  "controlled_model_upgrade": {
+    "path": "../general-model2-comparison/evidence-index.json",
+    "sha256": "88237b17cf8581ae9d65cd9e4b3d45f2cc945ef2f8a72814af0dd552b9ebd419"
+  },
+  "runner_script_sha256": {
+    "scripts/benchmark_context.py": "8a7b6628f638d10e596716db1759aef220307a3b6b35be426161b211c38bca52",
+    "scripts/benchmark_domain_regression.py": "aa961c5b2b938457f902853a7919e216fa51d5a5d1b704965d6cb7178e0132d8",
+    "scripts/adapt_span_tagger.py": "d06120ae8d3ddfe4596c0d309c914fabceec93f36122f067c0234bff5857436a"
+  },
+  "csv_line_endings": "CSV projections stored with canonical LF; null becomes empty.",
+  "csv_projections": {
+    "context40.csv": "Per-domain scalar metrics.",
+    "synthetic-test600.csv": "Pipeline/scope/metric/value; template breakdown remains in JSON.",
+    "synthetic-validation600.csv": "Pipeline/scope/metric/value; template breakdown remains in JSON.",
+    "posttraining-demo.csv": "Numeric/null leaves of measurements; dotted dictionary keys and bracketed list indices."
+  },
+  "interpretation": [
+    "Fictional regression/demonstration, not independent real-world gold or a library ranking.",
+    "Observed fixed40/test errors informed rules; fresh unseen annotated evidence is needed for external quality estimates.",
+    "Old and new 600 test and validation text+annotation digests match; added model training genres do not expand these evaluation corpora.",
+    "The domain pack has no automatically approved documents; an approved-leak rate without approvals is null, not zero.",
+    "Final pack has 88/600 direct-leak documents, 98.263% direct-character removal, 96.457% full direct spans, 99.468% non-sensitive retention.",
+    "At the same general2 model, pack rules gain 181 direct characters and 22 complete mentions but transform 39 additional non-sensitive characters relative to core.",
+    "Validation NarrativeRecognizer ablation gains 244 direct characters / 21 complete mentions for 20 additional non-sensitive characters transformed.",
+    "Declared relation fidelity measures graph storage/evidence, not automatic relation extraction or coreference.",
+    "Posttraining adapts its own fictional baseline, remains blocked/inactive, and does not improve already-zero observed output leakage.",
+    "Reports omit raw text, reidentification maps, keys, and model weights."
+  ]
+}

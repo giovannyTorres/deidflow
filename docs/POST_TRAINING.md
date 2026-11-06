@@ -195,8 +195,8 @@ Resultado medido de la demo incluida (30 spans por tipo, 10 negativos por holdou
 | Sobre-redacción de contexto, test | 0% | 0% |
 | Sobre-redacción de contexto, regresión | 0% | 0% |
 
-La corrida final se repitió sobre `d5e6d260cf7ce379321a71cd24689a2519b6e073`.
-El [reporte agregado](../benchmarks/results/product-v060/posttraining-demo.json)
+La corrida final se repitió sobre `c651b9fe665ec4e2732a51609e791ed0fa4e90ce`.
+El [reporte agregado](../benchmarks/results/product-v060-general2/posttraining-demo.json)
 vincula manifiesto `f47c9301ca580ee9541ea7cb8228f3fdba14f61f3422b98d18d03b2c7d569c5e`
 y evaluación `8b668bf68a6bf8a3b6495eef58e87b22588c104683bcd1329d7df08d264c0006`.
 La demostración inicial tenía 1.523% de sobre-redacción de test; correcciones

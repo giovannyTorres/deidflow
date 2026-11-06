@@ -4,7 +4,8 @@
 
 - Added versioned clinical, financial, legal starter and general domain packs,
   pinned model/configuration identities and Spanish role-aware placeholders.
-  Included the reviewed `es-general` model; kept the clinical and financial models.
+  Included the reviewed `es-general-2` model; general/legal packs are version 1.1.0.
+  Kept the clinical and financial models and their 1.0.0 packs.
 - Added neutral `Policy.context()` and `DeidSession`. Domain/context defaults
   require human review in code; legacy policy behavior and fingerprints remain
   available for compatibility. No LLM, remote inference or runtime downloads.
@@ -29,6 +30,8 @@
 - Added audit entry points and reproducible validation instructions for external
   review. Concurrent HTML and e-mail work is retained with additional coverage
   controls and mandatory review for those formats.
+- Normalized HTML comment boundaries across supported Python patch releases,
+  preserving following prose and removing hidden content consistently on all platforms.
 
 ## 0.5.0b1 - Unreleased beta candidate
 
@@ -80,6 +83,12 @@
   `.text` and `.log` files are de-identified as text.
 - HTML CSS `url()` and `data:` URL patterns are linear: repeated `url(` or `data:`
   without a terminator took minutes on a few hundred kilobytes.
+- `es-general-2` replaces `es-general-1`: 30 more training-only synthetic
+  families (more genres and places in running text), 5,000 synthetic training
+  documents; validation and test families unchanged. Synthetic test F1 of
+  `builtin:auto` 0.785 to 0.844 (rules + auto character recall 0.947 to 0.968,
+  over-redaction of the tagger alone 1.97% to 0.29%), Gretel test 0.740 to
+  0.743; MEDDOCAN unchanged.
 - The DOCX reader scans `fldSimple` instructions and commenter account IDs,
   flags package thumbnails, and no longer forces review for layout-only fields
   such as `PAGE` or `TOC`.

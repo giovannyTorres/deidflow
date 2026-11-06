@@ -30,6 +30,11 @@ reproducir sus métricas de 600 documentos sintéticos. Se incorporaron después
 [correo #28](https://github.com/giovannyTorres/deidflow/pull/28), hasta
 `362a902871ed61538043d28ac1cd7dbe5bfba891`, y después direcciones y rendimiento HTML
 de #27 y #29 hasta `f99cfce64a1a233f818caa6aef8efd1cc937277b`.
+La actualización concurrente del modelo general #30 se conserva hasta
+`f4199078d93b5b349afb1ce8c27baef7c82b5240`, con nuevos pins de paquete y
+mediciones repetidas sobre los mismos textos.
+La [auditoría de procedencia del modelo](GENERAL_MODEL_2_AUDIT.md) y la
+[comparación controlada](GENERAL_MODEL_COMPARISON.md) explican su adopción.
 La [revisión de las 24 ramas](BRANCH_REVIEW_v060.md) registra las decisiones.
 La revisión confirmó canales de fuga
 en sintaxis HTML/CSS y MIME, por lo que esas rutas reciben controles adicionales

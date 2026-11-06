@@ -58,6 +58,8 @@ deidflow deidentify entrada.txt --pack clinical --output candidata.txt
 ```
 
 Cada paquete expone versión, SHA-256 del modelo, fuentes, licencias y límites.
+El modelo general incluye la segunda revisión entrenada con más familias de
+documentos; sus mediciones y límites están en [la ficha del modelo](docs/TAGGER.md).
 Se puede fijar una versión (`get_domain_pack("clinical@1.0.0")`), cambiar la
 política o aportar un modelo local adaptado. [Guía de paquetes](docs/DOMAIN_PACKS.md).
 

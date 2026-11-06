@@ -34,49 +34,49 @@
   },
   "rule": "Most APPROVED documents with the target metric <= target; ties prefer less over-redaction. Validation data only.",
   "selected": {
-    "review_margin": 160.0,
+    "review_margin": null,
     "redact_margin": 320.0
   },
   "selected_metrics": {
-    "review_margin": 160.0,
+    "review_margin": null,
     "redact_margin": 320.0,
     "documents": 1002,
     "status_counts": {
-      "BLOCKED": 809,
-      "REVIEW_REQUIRED": 190,
-      "APPROVED": 3
+      "BLOCKED": 816,
+      "APPROVED": 107,
+      "REVIEW_REQUIRED": 79
     },
     "issue_counts": {
-      "RESIDUAL_FINDINGS": 809,
-      "UNCERTAIN_SOURCE_FINDINGS": 975
+      "RESIDUAL_FINDINGS": 816,
+      "UNCERTAIN_SOURCE_FINDINGS": 501
     },
-    "approved_rate": 0.0029940119760479044,
-    "review_or_blocked_rate": 0.9970059880239521,
-    "approved_documents_with_leaked_gold_characters": 0,
-    "approved_leak_rate": 0.0,
+    "approved_rate": 0.10678642714570859,
+    "review_or_blocked_rate": 0.8932135728542914,
+    "approved_documents_with_leaked_gold_characters": 3,
+    "approved_leak_rate": 0.028037383177570093,
     "approved_leak_rate_wilson95": [
-      0.0,
-      0.5615060804490177
+      0.009580293417619429,
+      0.07920947504476293
     ],
     "approved_documents_with_leaked_direct_identifier": 0,
     "approved_direct_identifier_leak_rate": 0.0,
     "approved_direct_identifier_leak_rate_wilson95": [
       0.0,
-      0.5615060804490177
+      0.03465846757895952
     ],
     "documents_with_leaked_gold_characters_by_status": {
-      "BLOCKED": 105,
-      "REVIEW_REQUIRED": 55,
-      "APPROVED": 0
+      "BLOCKED": 102,
+      "APPROVED": 3,
+      "REVIEW_REQUIRED": 5
     },
     "leaked_gold_characters_by_status": {
-      "BLOCKED": 852,
-      "REVIEW_REQUIRED": 159,
-      "APPROVED": 0
+      "BLOCKED": 796,
+      "APPROVED": 10,
+      "REVIEW_REQUIRED": 12
     },
-    "output_sensitive_character_recall": 0.987966004856449,
-    "over_redaction_rate": 0.25577225633367134,
-    "p50_seconds": 0.005133461500008707,
+    "output_sensitive_character_recall": 0.9902632957196591,
+    "over_redaction_rate": 0.27524425991962664,
+    "p50_seconds": 0.005463926499942318,
     "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
   },
   "grid": [
@@ -85,41 +85,41 @@
       "redact_margin": null,
       "documents": 1002,
       "status_counts": {
-        "APPROVED": 393,
-        "REVIEW_REQUIRED": 579,
-        "BLOCKED": 30
+        "APPROVED": 474,
+        "REVIEW_REQUIRED": 499,
+        "BLOCKED": 29
       },
       "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 604,
-        "RESIDUAL_FINDINGS": 30
+        "UNCERTAIN_SOURCE_FINDINGS": 527,
+        "RESIDUAL_FINDINGS": 29
       },
-      "approved_rate": 0.39221556886227543,
-      "review_or_blocked_rate": 0.6077844311377245,
-      "approved_documents_with_leaked_gold_characters": 241,
-      "approved_leak_rate": 0.6132315521628499,
+      "approved_rate": 0.47305389221556887,
+      "review_or_blocked_rate": 0.5269461077844311,
+      "approved_documents_with_leaked_gold_characters": 197,
+      "approved_leak_rate": 0.41561181434599154,
       "approved_leak_rate_wilson95": [
-        0.5642063686722775,
-        0.6600644739006786
+        0.37209659592605837,
+        0.46048390773875425
       ],
-      "approved_documents_with_leaked_direct_identifier": 114,
-      "approved_direct_identifier_leak_rate": 0.2900763358778626,
+      "approved_documents_with_leaked_direct_identifier": 106,
+      "approved_direct_identifier_leak_rate": 0.22362869198312235,
       "approved_direct_identifier_leak_rate_wilson95": [
-        0.2474135014809973,
-        0.3368034757713874
+        0.1884240711783416,
+        0.2632770783239202
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 241,
-        "REVIEW_REQUIRED": 352,
+        "APPROVED": 197,
+        "REVIEW_REQUIRED": 278,
         "BLOCKED": 24
       },
       "leaked_gold_characters_by_status": {
-        "APPROVED": 5301,
-        "REVIEW_REQUIRED": 6841,
-        "BLOCKED": 767
+        "APPROVED": 4133,
+        "REVIEW_REQUIRED": 4710,
+        "BLOCKED": 1022
       },
-      "output_sensitive_character_recall": 0.8463433795172118,
-      "over_redaction_rate": 0.024657880780300324,
-      "p50_seconds": 0.004581684999948266,
+      "output_sensitive_character_recall": 0.8825762986240061,
+      "over_redaction_rate": 0.02544785608247697,
+      "p50_seconds": 0.0043305454996698245,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
@@ -127,41 +127,41 @@
       "redact_margin": 5.0,
       "documents": 1002,
       "status_counts": {
-        "APPROVED": 395,
-        "REVIEW_REQUIRED": 576,
+        "APPROVED": 474,
+        "REVIEW_REQUIRED": 497,
         "BLOCKED": 31
       },
       "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 603,
+        "UNCERTAIN_SOURCE_FINDINGS": 526,
         "RESIDUAL_FINDINGS": 31
       },
-      "approved_rate": 0.39421157684630737,
-      "review_or_blocked_rate": 0.6057884231536926,
-      "approved_documents_with_leaked_gold_characters": 241,
-      "approved_leak_rate": 0.610126582278481,
+      "approved_rate": 0.47305389221556887,
+      "review_or_blocked_rate": 0.5269461077844311,
+      "approved_documents_with_leaked_gold_characters": 187,
+      "approved_leak_rate": 0.39451476793248946,
       "approved_leak_rate_wilson95": [
-        0.5611880484483913,
-        0.6569436609821195
+        0.35153207423829835,
+        0.43919355534271753
       ],
-      "approved_documents_with_leaked_direct_identifier": 113,
-      "approved_direct_identifier_leak_rate": 0.28607594936708863,
+      "approved_documents_with_leaked_direct_identifier": 101,
+      "approved_direct_identifier_leak_rate": 0.21308016877637131,
       "approved_direct_identifier_leak_rate_wilson95": [
-        0.24373565540134237,
-        0.3325372308773207
+        0.17859884886935087,
+        0.25217486359101254
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 241,
-        "REVIEW_REQUIRED": 348,
+        "APPROVED": 187,
+        "REVIEW_REQUIRED": 274,
         "BLOCKED": 25
       },
       "leaked_gold_characters_by_status": {
-        "APPROVED": 5297,
-        "REVIEW_REQUIRED": 6342,
-        "BLOCKED": 974
+        "APPROVED": 3919,
+        "REVIEW_REQUIRED": 4560,
+        "BLOCKED": 1104
       },
-      "output_sensitive_character_recall": 0.849866685711565,
-      "over_redaction_rate": 0.02504177327265021,
-      "p50_seconds": 0.0045236369999202,
+      "output_sensitive_character_recall": 0.8859329619578156,
+      "over_redaction_rate": 0.02565644506675957,
+      "p50_seconds": 0.004490975999942748,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
@@ -169,41 +169,41 @@
       "redact_margin": 10.0,
       "documents": 1002,
       "status_counts": {
-        "APPROVED": 398,
-        "REVIEW_REQUIRED": 578,
-        "BLOCKED": 26
+        "APPROVED": 475,
+        "REVIEW_REQUIRED": 495,
+        "BLOCKED": 32
       },
       "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 602,
-        "RESIDUAL_FINDINGS": 26
+        "UNCERTAIN_SOURCE_FINDINGS": 524,
+        "RESIDUAL_FINDINGS": 32
       },
-      "approved_rate": 0.3972055888223553,
-      "review_or_blocked_rate": 0.6027944111776447,
-      "approved_documents_with_leaked_gold_characters": 232,
-      "approved_leak_rate": 0.5829145728643216,
+      "approved_rate": 0.4740518962075848,
+      "review_or_blocked_rate": 0.5259481037924152,
+      "approved_documents_with_leaked_gold_characters": 184,
+      "approved_leak_rate": 0.3873684210526316,
       "approved_leak_rate_wilson95": [
-        0.5339046780492811,
-        0.6303391433967811
+        0.3446289855091354,
+        0.4319150741548537
       ],
-      "approved_documents_with_leaked_direct_identifier": 110,
-      "approved_direct_identifier_leak_rate": 0.27638190954773867,
+      "approved_documents_with_leaked_direct_identifier": 97,
+      "approved_direct_identifier_leak_rate": 0.20421052631578948,
       "approved_direct_identifier_leak_rate_wilson95": [
-        0.23474162990711286,
-        0.3222977607383553
+        0.17039808748040555,
+        0.24276902247829482
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 232,
-        "REVIEW_REQUIRED": 347,
-        "BLOCKED": 20
+        "APPROVED": 184,
+        "REVIEW_REQUIRED": 266,
+        "BLOCKED": 25
       },
       "leaked_gold_characters_by_status": {
-        "APPROVED": 5158,
-        "REVIEW_REQUIRED": 6313,
-        "BLOCKED": 771
+        "APPROVED": 3872,
+        "REVIEW_REQUIRED": 4418,
+        "BLOCKED": 1044
       },
-      "output_sensitive_character_recall": 0.8542827215159738,
-      "over_redaction_rate": 0.0254256657650001,
-      "p50_seconds": 0.00401469849998648,
+      "output_sensitive_character_recall": 0.8888968242632005,
+      "over_redaction_rate": 0.025731892146180935,
+      "p50_seconds": 0.004576708500280802,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
@@ -211,41 +211,41 @@
       "redact_margin": 20.0,
       "documents": 1002,
       "status_counts": {
-        "APPROVED": 398,
-        "REVIEW_REQUIRED": 574,
+        "APPROVED": 476,
+        "REVIEW_REQUIRED": 496,
         "BLOCKED": 30
       },
       "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 601,
+        "UNCERTAIN_SOURCE_FINDINGS": 523,
         "RESIDUAL_FINDINGS": 30
       },
-      "approved_rate": 0.3972055888223553,
-      "review_or_blocked_rate": 0.6027944111776447,
-      "approved_documents_with_leaked_gold_characters": 222,
-      "approved_leak_rate": 0.5577889447236181,
+      "approved_rate": 0.4750499001996008,
+      "review_or_blocked_rate": 0.5249500998003992,
+      "approved_documents_with_leaked_gold_characters": 173,
+      "approved_leak_rate": 0.3634453781512605,
       "approved_leak_rate_wilson95": [
-        0.5086733747704733,
-        0.6057995916919339
+        0.3214874953500038,
+        0.40758976681317677
       ],
-      "approved_documents_with_leaked_direct_identifier": 105,
-      "approved_direct_identifier_leak_rate": 0.2638190954773869,
+      "approved_documents_with_leaked_direct_identifier": 92,
+      "approved_direct_identifier_leak_rate": 0.19327731092436976,
       "approved_direct_identifier_leak_rate_wilson95": [
-        0.22292811224424186,
-        0.30922585090939875
+        0.16031638592360603,
+        0.23114946447369178
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 222,
-        "REVIEW_REQUIRED": 334,
+        "APPROVED": 173,
+        "REVIEW_REQUIRED": 258,
         "BLOCKED": 21
       },
       "leaked_gold_characters_by_status": {
-        "APPROVED": 4825,
-        "REVIEW_REQUIRED": 5941,
-        "BLOCKED": 881
+        "APPROVED": 3612,
+        "REVIEW_REQUIRED": 4404,
+        "BLOCKED": 624
       },
-      "output_sensitive_character_recall": 0.8613650430890825,
-      "over_redaction_rate": 0.0259293859717251,
-      "p50_seconds": 0.004353790000095614,
+      "output_sensitive_character_recall": 0.8971575489215826,
+      "over_redaction_rate": 0.026386506511748665,
+      "p50_seconds": 0.004799235499831411,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
@@ -253,41 +253,41 @@
       "redact_margin": 40.0,
       "documents": 1002,
       "status_counts": {
-        "APPROVED": 399,
-        "REVIEW_REQUIRED": 565,
-        "BLOCKED": 38
+        "APPROVED": 478,
+        "REVIEW_REQUIRED": 490,
+        "BLOCKED": 34
       },
       "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 597,
-        "RESIDUAL_FINDINGS": 38
+        "UNCERTAIN_SOURCE_FINDINGS": 522,
+        "RESIDUAL_FINDINGS": 34
       },
-      "approved_rate": 0.39820359281437123,
-      "review_or_blocked_rate": 0.6017964071856288,
-      "approved_documents_with_leaked_gold_characters": 195,
-      "approved_leak_rate": 0.48872180451127817,
+      "approved_rate": 0.47704590818363274,
+      "review_or_blocked_rate": 0.5229540918163673,
+      "approved_documents_with_leaked_gold_characters": 147,
+      "approved_leak_rate": 0.3075313807531381,
       "approved_leak_rate_wilson95": [
-        0.4400147868101665,
-        0.5376439256961884
+        0.2678324370074622,
+        0.35029933077680553
       ],
-      "approved_documents_with_leaked_direct_identifier": 88,
-      "approved_direct_identifier_leak_rate": 0.22055137844611528,
+      "approved_documents_with_leaked_direct_identifier": 77,
+      "approved_direct_identifier_leak_rate": 0.16108786610878661,
       "approved_direct_identifier_leak_rate_wilson95": [
-        0.1826396213332775,
-        0.26379292187973724
+        0.130854741274197,
+        0.19672511069375265
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 195,
-        "REVIEW_REQUIRED": 303,
-        "BLOCKED": 26
+        "APPROVED": 147,
+        "REVIEW_REQUIRED": 234,
+        "BLOCKED": 24
       },
       "leaked_gold_characters_by_status": {
-        "APPROVED": 4331,
-        "REVIEW_REQUIRED": 5345,
-        "BLOCKED": 731
+        "APPROVED": 3277,
+        "REVIEW_REQUIRED": 3710,
+        "BLOCKED": 673
       },
-      "output_sensitive_character_recall": 0.8761248393086702,
-      "over_redaction_rate": 0.02758478365549976,
-      "p50_seconds": 0.003869116500254677,
+      "output_sensitive_character_recall": 0.9088225491596439,
+      "over_redaction_rate": 0.027953142925615838,
+      "p50_seconds": 0.004456800999832922,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
@@ -295,41 +295,41 @@
       "redact_margin": 80.0,
       "documents": 1002,
       "status_counts": {
-        "APPROVED": 402,
-        "BLOCKED": 55,
-        "REVIEW_REQUIRED": 545
+        "APPROVED": 474,
+        "BLOCKED": 45,
+        "REVIEW_REQUIRED": 483
       },
       "issue_counts": {
-        "RESIDUAL_FINDINGS": 55,
-        "UNCERTAIN_SOURCE_FINDINGS": 591
+        "RESIDUAL_FINDINGS": 45,
+        "UNCERTAIN_SOURCE_FINDINGS": 518
       },
-      "approved_rate": 0.40119760479041916,
-      "review_or_blocked_rate": 0.5988023952095809,
-      "approved_documents_with_leaked_gold_characters": 149,
-      "approved_leak_rate": 0.3706467661691542,
+      "approved_rate": 0.47305389221556887,
+      "review_or_blocked_rate": 0.5269461077844311,
+      "approved_documents_with_leaked_gold_characters": 96,
+      "approved_leak_rate": 0.20253164556962025,
       "approved_leak_rate_wilson95": [
-        0.3248652770682045,
-        0.41887710912384685
+        0.1688094691507199,
+        0.24103680626774512
       ],
-      "approved_documents_with_leaked_direct_identifier": 64,
-      "approved_direct_identifier_leak_rate": 0.15920398009950248,
+      "approved_documents_with_leaked_direct_identifier": 48,
+      "approved_direct_identifier_leak_rate": 0.10126582278481013,
       "approved_direct_identifier_leak_rate_wilson95": [
-        0.12668809110655485,
-        0.19817165713019566
+        0.07723253522171211,
+        0.13171034459452824
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 149,
-        "BLOCKED": 35,
-        "REVIEW_REQUIRED": 267
+        "APPROVED": 96,
+        "BLOCKED": 25,
+        "REVIEW_REQUIRED": 201
       },
       "leaked_gold_characters_by_status": {
-        "APPROVED": 3619,
-        "BLOCKED": 832,
-        "REVIEW_REQUIRED": 3893
+        "APPROVED": 2433,
+        "BLOCKED": 503,
+        "REVIEW_REQUIRED": 2748
       },
-      "output_sensitive_character_recall": 0.9006808551159358,
-      "over_redaction_rate": 0.03259757637352518,
-      "p50_seconds": 0.0038509644998612202,
+      "output_sensitive_character_recall": 0.9323429986192449,
+      "over_redaction_rate": 0.03267524248469423,
+      "p50_seconds": 0.004552974000034737,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
@@ -337,41 +337,41 @@
       "redact_margin": 160.0,
       "documents": 1002,
       "status_counts": {
-        "APPROVED": 383,
-        "REVIEW_REQUIRED": 474,
-        "BLOCKED": 145
+        "APPROVED": 445,
+        "REVIEW_REQUIRED": 417,
+        "BLOCKED": 140
       },
       "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 574,
-        "RESIDUAL_FINDINGS": 145
+        "UNCERTAIN_SOURCE_FINDINGS": 511,
+        "RESIDUAL_FINDINGS": 140
       },
-      "approved_rate": 0.38223552894211577,
-      "review_or_blocked_rate": 0.6177644710578842,
-      "approved_documents_with_leaked_gold_characters": 64,
-      "approved_leak_rate": 0.1671018276762402,
+      "approved_rate": 0.4441117764471058,
+      "review_or_blocked_rate": 0.5558882235528941,
+      "approved_documents_with_leaked_gold_characters": 51,
+      "approved_leak_rate": 0.1146067415730337,
       "approved_leak_rate_wilson95": [
-        0.1330838911770937,
-        0.20773157437780007
+        0.0882510913976369,
+        0.1475594930045219
       ],
-      "approved_documents_with_leaked_direct_identifier": 18,
-      "approved_direct_identifier_leak_rate": 0.04699738903394256,
+      "approved_documents_with_leaked_direct_identifier": 14,
+      "approved_direct_identifier_leak_rate": 0.03146067415730337,
       "approved_direct_identifier_leak_rate_wilson95": [
-        0.029931709085842424,
-        0.07306031659081696
+        0.018831163672114865,
+        0.05211056721913944
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 64,
-        "REVIEW_REQUIRED": 155,
-        "BLOCKED": 91
+        "APPROVED": 51,
+        "REVIEW_REQUIRED": 135,
+        "BLOCKED": 55
       },
       "leaked_gold_characters_by_status": {
-        "APPROVED": 1674,
-        "REVIEW_REQUIRED": 1320,
-        "BLOCKED": 1769
+        "APPROVED": 1334,
+        "REVIEW_REQUIRED": 1021,
+        "BLOCKED": 844
       },
-      "output_sensitive_character_recall": 0.943305718230729,
-      "over_redaction_rate": 0.058398258503884415,
-      "p50_seconds": 0.004486399499910476,
+      "output_sensitive_character_recall": 0.9619221063657573,
+      "over_redaction_rate": 0.0615071219823942,
+      "p50_seconds": 0.005071583000244573,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
@@ -379,41 +379,41 @@
       "redact_margin": 320.0,
       "documents": 1002,
       "status_counts": {
-        "BLOCKED": 809,
-        "APPROVED": 70,
-        "REVIEW_REQUIRED": 123
+        "BLOCKED": 816,
+        "APPROVED": 107,
+        "REVIEW_REQUIRED": 79
       },
       "issue_counts": {
-        "RESIDUAL_FINDINGS": 809,
-        "UNCERTAIN_SOURCE_FINDINGS": 567
+        "RESIDUAL_FINDINGS": 816,
+        "UNCERTAIN_SOURCE_FINDINGS": 501
       },
-      "approved_rate": 0.06986027944111776,
-      "review_or_blocked_rate": 0.9301397205588823,
-      "approved_documents_with_leaked_gold_characters": 18,
-      "approved_leak_rate": 0.2571428571428571,
+      "approved_rate": 0.10678642714570859,
+      "review_or_blocked_rate": 0.8932135728542914,
+      "approved_documents_with_leaked_gold_characters": 3,
+      "approved_leak_rate": 0.028037383177570093,
       "approved_leak_rate_wilson95": [
-        0.1692914195140977,
-        0.37026351970715426
+        0.009580293417619429,
+        0.07920947504476293
       ],
-      "approved_documents_with_leaked_direct_identifier": 3,
-      "approved_direct_identifier_leak_rate": 0.04285714285714286,
+      "approved_documents_with_leaked_direct_identifier": 0,
+      "approved_direct_identifier_leak_rate": 0.0,
       "approved_direct_identifier_leak_rate_wilson95": [
-        0.014681274851143573,
-        0.11859861074180134
+        0.0,
+        0.03465846757895952
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "BLOCKED": 105,
-        "APPROVED": 18,
-        "REVIEW_REQUIRED": 37
+        "BLOCKED": 102,
+        "APPROVED": 3,
+        "REVIEW_REQUIRED": 5
       },
       "leaked_gold_characters_by_status": {
-        "BLOCKED": 852,
-        "APPROVED": 78,
-        "REVIEW_REQUIRED": 81
+        "BLOCKED": 796,
+        "APPROVED": 10,
+        "REVIEW_REQUIRED": 12
       },
-      "output_sensitive_character_recall": 0.987966004856449,
-      "over_redaction_rate": 0.25577225633367134,
-      "p50_seconds": 0.005247893999921871,
+      "output_sensitive_character_recall": 0.9902632957196591,
+      "over_redaction_rate": 0.27524425991962664,
+      "p50_seconds": 0.005463926499942318,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
@@ -421,41 +421,41 @@
       "redact_margin": null,
       "documents": 1002,
       "status_counts": {
-        "APPROVED": 376,
-        "REVIEW_REQUIRED": 595,
+        "APPROVED": 454,
+        "REVIEW_REQUIRED": 517,
         "BLOCKED": 31
       },
       "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 623,
+        "UNCERTAIN_SOURCE_FINDINGS": 546,
         "RESIDUAL_FINDINGS": 31
       },
-      "approved_rate": 0.37524950099800397,
-      "review_or_blocked_rate": 0.6247504990019961,
-      "approved_documents_with_leaked_gold_characters": 232,
-      "approved_leak_rate": 0.6170212765957447,
+      "approved_rate": 0.4530938123752495,
+      "review_or_blocked_rate": 0.5469061876247505,
+      "approved_documents_with_leaked_gold_characters": 179,
+      "approved_leak_rate": 0.394273127753304,
       "approved_leak_rate_wilson95": [
-        0.5669365692353563,
-        0.6647389502443426
+        0.3503867811748409,
+        0.43993371394836334
       ],
-      "approved_documents_with_leaked_direct_identifier": 109,
-      "approved_direct_identifier_leak_rate": 0.2898936170212766,
+      "approved_documents_with_leaked_direct_identifier": 97,
+      "approved_direct_identifier_leak_rate": 0.21365638766519823,
       "approved_direct_identifier_leak_rate_wilson95": [
-        0.24634065097433805,
-        0.3376964845052934
+        0.17843630466704935,
+        0.2536817029582953
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 232,
-        "REVIEW_REQUIRED": 357,
+        "APPROVED": 179,
+        "REVIEW_REQUIRED": 282,
         "BLOCKED": 25
       },
       "leaked_gold_characters_by_status": {
-        "APPROVED": 5184,
-        "REVIEW_REQUIRED": 6455,
-        "BLOCKED": 974
+        "APPROVED": 3767,
+        "REVIEW_REQUIRED": 4712,
+        "BLOCKED": 1104
       },
-      "output_sensitive_character_recall": 0.849866685711565,
-      "over_redaction_rate": 0.02504177327265021,
-      "p50_seconds": 0.0044051135000700015,
+      "output_sensitive_character_recall": 0.8859329619578156,
+      "over_redaction_rate": 0.02565644506675957,
+      "p50_seconds": 0.004263152999556041,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
@@ -463,41 +463,41 @@
       "redact_margin": null,
       "documents": 1002,
       "status_counts": {
-        "APPROVED": 344,
-        "REVIEW_REQUIRED": 632,
-        "BLOCKED": 26
+        "APPROVED": 445,
+        "REVIEW_REQUIRED": 525,
+        "BLOCKED": 32
       },
       "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 657,
-        "RESIDUAL_FINDINGS": 26
+        "UNCERTAIN_SOURCE_FINDINGS": 554,
+        "RESIDUAL_FINDINGS": 32
       },
-      "approved_rate": 0.34331337325349304,
-      "review_or_blocked_rate": 0.656686626746507,
-      "approved_documents_with_leaked_gold_characters": 208,
-      "approved_leak_rate": 0.6046511627906976,
+      "approved_rate": 0.4441117764471058,
+      "review_or_blocked_rate": 0.5558882235528941,
+      "approved_documents_with_leaked_gold_characters": 173,
+      "approved_leak_rate": 0.3887640449438202,
       "approved_leak_rate_wilson95": [
-        0.5521007433417349,
-        0.6548900248700029
+        0.34460808439309576,
+        0.43482412509907264
       ],
-      "approved_documents_with_leaked_direct_identifier": 98,
-      "approved_direct_identifier_leak_rate": 0.28488372093023256,
+      "approved_documents_with_leaked_direct_identifier": 92,
+      "approved_direct_identifier_leak_rate": 0.20674157303370785,
       "approved_direct_identifier_leak_rate_wilson95": [
-        0.23976627915783233,
-        0.3347526972958179
+        0.17170213110216065,
+        0.2468009666499194
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 208,
-        "REVIEW_REQUIRED": 371,
-        "BLOCKED": 20
+        "APPROVED": 173,
+        "REVIEW_REQUIRED": 277,
+        "BLOCKED": 25
       },
       "leaked_gold_characters_by_status": {
-        "APPROVED": 4851,
-        "REVIEW_REQUIRED": 6620,
-        "BLOCKED": 771
+        "APPROVED": 3696,
+        "REVIEW_REQUIRED": 4594,
+        "BLOCKED": 1044
       },
-      "output_sensitive_character_recall": 0.8542827215159738,
-      "over_redaction_rate": 0.0254256657650001,
-      "p50_seconds": 0.003912745499974335,
+      "output_sensitive_character_recall": 0.8888968242632005,
+      "over_redaction_rate": 0.025731892146180935,
+      "p50_seconds": 0.0042710894999800075,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
@@ -505,41 +505,41 @@
       "redact_margin": null,
       "documents": 1002,
       "status_counts": {
-        "APPROVED": 301,
-        "REVIEW_REQUIRED": 671,
+        "APPROVED": 412,
+        "REVIEW_REQUIRED": 560,
         "BLOCKED": 30
       },
       "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 699,
+        "UNCERTAIN_SOURCE_FINDINGS": 588,
         "RESIDUAL_FINDINGS": 30
       },
-      "approved_rate": 0.3003992015968064,
-      "review_or_blocked_rate": 0.6996007984031936,
-      "approved_documents_with_leaked_gold_characters": 176,
-      "approved_leak_rate": 0.584717607973422,
+      "approved_rate": 0.4111776447105788,
+      "review_or_blocked_rate": 0.5888223552894212,
+      "approved_documents_with_leaked_gold_characters": 146,
+      "approved_leak_rate": 0.35436893203883496,
       "approved_leak_rate_wilson95": [
-        0.5283220393877811,
-        0.6389779616619445
+        0.30972062704247877,
+        0.40170795537928955
       ],
-      "approved_documents_with_leaked_direct_identifier": 83,
-      "approved_direct_identifier_leak_rate": 0.2757475083056478,
+      "approved_documents_with_leaked_direct_identifier": 76,
+      "approved_direct_identifier_leak_rate": 0.18446601941747573,
       "approved_direct_identifier_leak_rate_wilson95": [
-        0.22832680602392405,
-        0.3288202500209201
+        0.14998756928421003,
+        0.22477435929628792
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 176,
-        "REVIEW_REQUIRED": 380,
+        "APPROVED": 146,
+        "REVIEW_REQUIRED": 285,
         "BLOCKED": 21
       },
       "leaked_gold_characters_by_status": {
-        "APPROVED": 3910,
-        "REVIEW_REQUIRED": 6856,
-        "BLOCKED": 881
+        "APPROVED": 2893,
+        "REVIEW_REQUIRED": 5123,
+        "BLOCKED": 624
       },
-      "output_sensitive_character_recall": 0.8613650430890825,
-      "over_redaction_rate": 0.0259293859717251,
-      "p50_seconds": 0.004539602500017281,
+      "output_sensitive_character_recall": 0.8971575489215826,
+      "over_redaction_rate": 0.026386506511748665,
+      "p50_seconds": 0.004534564499863336,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
@@ -547,41 +547,41 @@
       "redact_margin": null,
       "documents": 1002,
       "status_counts": {
-        "APPROVED": 234,
-        "REVIEW_REQUIRED": 730,
-        "BLOCKED": 38
+        "APPROVED": 366,
+        "REVIEW_REQUIRED": 602,
+        "BLOCKED": 34
       },
       "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 765,
-        "RESIDUAL_FINDINGS": 38
+        "UNCERTAIN_SOURCE_FINDINGS": 635,
+        "RESIDUAL_FINDINGS": 34
       },
-      "approved_rate": 0.23353293413173654,
-      "review_or_blocked_rate": 0.7664670658682635,
-      "approved_documents_with_leaked_gold_characters": 133,
-      "approved_leak_rate": 0.5683760683760684,
+      "approved_rate": 0.3652694610778443,
+      "review_or_blocked_rate": 0.6347305389221557,
+      "approved_documents_with_leaked_gold_characters": 111,
+      "approved_leak_rate": 0.30327868852459017,
       "approved_leak_rate_wilson95": [
-        0.5043138486689397,
-        0.6302294776457168
+        0.2584286979826633,
+        0.352215426420865
       ],
-      "approved_documents_with_leaked_direct_identifier": 64,
-      "approved_direct_identifier_leak_rate": 0.27350427350427353,
+      "approved_documents_with_leaked_direct_identifier": 60,
+      "approved_direct_identifier_leak_rate": 0.16393442622950818,
       "approved_direct_identifier_leak_rate_wilson95": [
-        0.220393203646899,
-        0.33393202793580146
+        0.12953261225997467,
+        0.20531776692938639
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 133,
-        "REVIEW_REQUIRED": 365,
-        "BLOCKED": 26
+        "APPROVED": 111,
+        "REVIEW_REQUIRED": 270,
+        "BLOCKED": 24
       },
       "leaked_gold_characters_by_status": {
-        "APPROVED": 3020,
-        "REVIEW_REQUIRED": 6656,
-        "BLOCKED": 731
+        "APPROVED": 2388,
+        "REVIEW_REQUIRED": 4599,
+        "BLOCKED": 673
       },
-      "output_sensitive_character_recall": 0.8761248393086702,
-      "over_redaction_rate": 0.02758478365549976,
-      "p50_seconds": 0.003997904500010918,
+      "output_sensitive_character_recall": 0.9088225491596439,
+      "over_redaction_rate": 0.027953142925615838,
+      "p50_seconds": 0.004573496999910276,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
@@ -589,41 +589,41 @@
       "redact_margin": null,
       "documents": 1002,
       "status_counts": {
-        "REVIEW_REQUIRED": 794,
-        "BLOCKED": 55,
-        "APPROVED": 153
+        "REVIEW_REQUIRED": 703,
+        "BLOCKED": 45,
+        "APPROVED": 254
       },
       "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 847,
-        "RESIDUAL_FINDINGS": 55
+        "UNCERTAIN_SOURCE_FINDINGS": 742,
+        "RESIDUAL_FINDINGS": 45
       },
-      "approved_rate": 0.15269461077844312,
-      "review_or_blocked_rate": 0.8473053892215568,
-      "approved_documents_with_leaked_gold_characters": 78,
-      "approved_leak_rate": 0.5098039215686274,
+      "approved_rate": 0.25349301397205587,
+      "review_or_blocked_rate": 0.7465069860279441,
+      "approved_documents_with_leaked_gold_characters": 50,
+      "approved_leak_rate": 0.1968503937007874,
       "approved_leak_rate_wilson95": [
-        0.4313264652693249,
-        0.587801113128243
+        0.152623346380195,
+        0.2501107353195772
       ],
-      "approved_documents_with_leaked_direct_identifier": 37,
-      "approved_direct_identifier_leak_rate": 0.24183006535947713,
+      "approved_documents_with_leaked_direct_identifier": 27,
+      "approved_direct_identifier_leak_rate": 0.1062992125984252,
       "approved_direct_identifier_leak_rate_wilson95": [
-        0.1808421255981854,
-        0.3154649765991908
+        0.07408856054955745,
+        0.15024141568391303
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "REVIEW_REQUIRED": 338,
-        "BLOCKED": 35,
-        "APPROVED": 78
+        "REVIEW_REQUIRED": 247,
+        "BLOCKED": 25,
+        "APPROVED": 50
       },
       "leaked_gold_characters_by_status": {
-        "REVIEW_REQUIRED": 5679,
-        "BLOCKED": 832,
-        "APPROVED": 1833
+        "REVIEW_REQUIRED": 4100,
+        "BLOCKED": 503,
+        "APPROVED": 1081
       },
-      "output_sensitive_character_recall": 0.9006808551159358,
-      "over_redaction_rate": 0.03259757637352518,
-      "p50_seconds": 0.0041474490001292,
+      "output_sensitive_character_recall": 0.9323429986192449,
+      "over_redaction_rate": 0.03267524248469423,
+      "p50_seconds": 0.004340402000252652,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
@@ -631,41 +631,41 @@
       "redact_margin": null,
       "documents": 1002,
       "status_counts": {
-        "REVIEW_REQUIRED": 835,
-        "BLOCKED": 145,
-        "APPROVED": 22
+        "REVIEW_REQUIRED": 836,
+        "APPROVED": 26,
+        "BLOCKED": 140
       },
       "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 977,
-        "RESIDUAL_FINDINGS": 145
+        "UNCERTAIN_SOURCE_FINDINGS": 975,
+        "RESIDUAL_FINDINGS": 140
       },
-      "approved_rate": 0.021956087824351298,
-      "review_or_blocked_rate": 0.9780439121756487,
-      "approved_documents_with_leaked_gold_characters": 3,
-      "approved_leak_rate": 0.13636363636363635,
+      "approved_rate": 0.02594810379241517,
+      "review_or_blocked_rate": 0.9740518962075848,
+      "approved_documents_with_leaked_gold_characters": 4,
+      "approved_leak_rate": 0.15384615384615385,
       "approved_leak_rate_wilson95": [
-        0.04748917264236269,
-        0.3333541187947
+        0.06149933998929477,
+        0.33531584418313565
       ],
-      "approved_documents_with_leaked_direct_identifier": 1,
-      "approved_direct_identifier_leak_rate": 0.045454545454545456,
+      "approved_documents_with_leaked_direct_identifier": 2,
+      "approved_direct_identifier_leak_rate": 0.07692307692307693,
       "approved_direct_identifier_leak_rate_wilson95": [
-        0.008069219301147859,
-        0.21798489499518053
+        0.02135463918337556,
+        0.24141947480515052
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "REVIEW_REQUIRED": 216,
-        "BLOCKED": 91,
-        "APPROVED": 3
+        "REVIEW_REQUIRED": 182,
+        "APPROVED": 4,
+        "BLOCKED": 55
       },
       "leaked_gold_characters_by_status": {
-        "REVIEW_REQUIRED": 2866,
-        "BLOCKED": 1769,
-        "APPROVED": 128
+        "REVIEW_REQUIRED": 2238,
+        "APPROVED": 117,
+        "BLOCKED": 844
       },
-      "output_sensitive_character_recall": 0.943305718230729,
-      "over_redaction_rate": 0.058398258503884415,
-      "p50_seconds": 0.004418221000150879,
+      "output_sensitive_character_recall": 0.9619221063657573,
+      "over_redaction_rate": 0.0615071219823942,
+      "p50_seconds": 0.004615383000327711,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
@@ -673,11 +673,11 @@
       "redact_margin": null,
       "documents": 1002,
       "status_counts": {
-        "BLOCKED": 809,
-        "REVIEW_REQUIRED": 193
+        "BLOCKED": 816,
+        "REVIEW_REQUIRED": 186
       },
       "issue_counts": {
-        "RESIDUAL_FINDINGS": 809,
+        "RESIDUAL_FINDINGS": 816,
         "UNCERTAIN_SOURCE_FINDINGS": 1002
       },
       "approved_rate": 0.0,
@@ -689,16 +689,16 @@
       "approved_direct_identifier_leak_rate": null,
       "approved_direct_identifier_leak_rate_wilson95": null,
       "documents_with_leaked_gold_characters_by_status": {
-        "BLOCKED": 105,
-        "REVIEW_REQUIRED": 55
+        "BLOCKED": 102,
+        "REVIEW_REQUIRED": 8
       },
       "leaked_gold_characters_by_status": {
-        "BLOCKED": 852,
-        "REVIEW_REQUIRED": 159
+        "BLOCKED": 796,
+        "REVIEW_REQUIRED": 22
       },
-      "output_sensitive_character_recall": 0.987966004856449,
-      "over_redaction_rate": 0.25577225633367134,
-      "p50_seconds": 0.004987603500012483,
+      "output_sensitive_character_recall": 0.9902632957196591,
+      "over_redaction_rate": 0.27524425991962664,
+      "p50_seconds": 0.00481886650004526,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
@@ -706,41 +706,41 @@
       "redact_margin": 10.0,
       "documents": 1002,
       "status_counts": {
-        "APPROVED": 379,
-        "REVIEW_REQUIRED": 597,
-        "BLOCKED": 26
+        "APPROVED": 455,
+        "REVIEW_REQUIRED": 515,
+        "BLOCKED": 32
       },
       "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 622,
-        "RESIDUAL_FINDINGS": 26
+        "UNCERTAIN_SOURCE_FINDINGS": 544,
+        "RESIDUAL_FINDINGS": 32
       },
-      "approved_rate": 0.3782435129740519,
-      "review_or_blocked_rate": 0.6217564870259481,
-      "approved_documents_with_leaked_gold_characters": 224,
-      "approved_leak_rate": 0.5910290237467019,
+      "approved_rate": 0.4540918163672655,
+      "review_or_blocked_rate": 0.5459081836327345,
+      "approved_documents_with_leaked_gold_characters": 176,
+      "approved_leak_rate": 0.3868131868131868,
       "approved_leak_rate_wilson95": [
-        0.5408581580481312,
-        0.6393730393974965
+        0.34318803318737506,
+        0.43233362831846917
       ],
-      "approved_documents_with_leaked_direct_identifier": 106,
-      "approved_direct_identifier_leak_rate": 0.2796833773087071,
+      "approved_documents_with_leaked_direct_identifier": 93,
+      "approved_direct_identifier_leak_rate": 0.2043956043956044,
       "approved_direct_identifier_leak_rate_wilson95": [
-        0.23687823310001158,
-        0.3269100281547737
+        0.16988908361879687,
+        0.2438519546828741
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 224,
-        "REVIEW_REQUIRED": 355,
-        "BLOCKED": 20
+        "APPROVED": 176,
+        "REVIEW_REQUIRED": 274,
+        "BLOCKED": 25
       },
       "leaked_gold_characters_by_status": {
-        "APPROVED": 5053,
-        "REVIEW_REQUIRED": 6418,
-        "BLOCKED": 771
+        "APPROVED": 3720,
+        "REVIEW_REQUIRED": 4570,
+        "BLOCKED": 1044
       },
-      "output_sensitive_character_recall": 0.8542827215159738,
-      "over_redaction_rate": 0.0254256657650001,
-      "p50_seconds": 0.003941971500125874,
+      "output_sensitive_character_recall": 0.8888968242632005,
+      "over_redaction_rate": 0.025731892146180935,
+      "p50_seconds": 0.004457651999473455,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
@@ -748,41 +748,41 @@
       "redact_margin": 20.0,
       "documents": 1002,
       "status_counts": {
-        "APPROVED": 379,
-        "REVIEW_REQUIRED": 593,
+        "APPROVED": 456,
+        "REVIEW_REQUIRED": 516,
         "BLOCKED": 30
       },
       "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 621,
+        "UNCERTAIN_SOURCE_FINDINGS": 543,
         "RESIDUAL_FINDINGS": 30
       },
-      "approved_rate": 0.3782435129740519,
-      "review_or_blocked_rate": 0.6217564870259481,
-      "approved_documents_with_leaked_gold_characters": 214,
-      "approved_leak_rate": 0.5646437994722955,
+      "approved_rate": 0.4550898203592814,
+      "review_or_blocked_rate": 0.5449101796407185,
+      "approved_documents_with_leaked_gold_characters": 165,
+      "approved_leak_rate": 0.3618421052631579,
       "approved_leak_rate_wilson95": [
-        0.5143252455037711,
-        0.6136650251460224
+        0.31905980008446044,
+        0.40693280258567643
       ],
-      "approved_documents_with_leaked_direct_identifier": 102,
-      "approved_direct_identifier_leak_rate": 0.2691292875989446,
+      "approved_documents_with_leaked_direct_identifier": 88,
+      "approved_direct_identifier_leak_rate": 0.19298245614035087,
       "approved_direct_identifier_leak_rate_wilson95": [
-        0.2269585560326653,
-        0.3159333345037864
+        0.15938574512583287,
+        0.2317089274744712
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 214,
-        "REVIEW_REQUIRED": 342,
+        "APPROVED": 165,
+        "REVIEW_REQUIRED": 266,
         "BLOCKED": 21
       },
       "leaked_gold_characters_by_status": {
-        "APPROVED": 4729,
-        "REVIEW_REQUIRED": 6037,
-        "BLOCKED": 881
+        "APPROVED": 3460,
+        "REVIEW_REQUIRED": 4556,
+        "BLOCKED": 624
       },
-      "output_sensitive_character_recall": 0.8613650430890825,
-      "over_redaction_rate": 0.0259293859717251,
-      "p50_seconds": 0.004306806499926097,
+      "output_sensitive_character_recall": 0.8971575489215826,
+      "over_redaction_rate": 0.026386506511748665,
+      "p50_seconds": 0.004466168999897491,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
@@ -790,41 +790,41 @@
       "redact_margin": 40.0,
       "documents": 1002,
       "status_counts": {
-        "APPROVED": 380,
-        "REVIEW_REQUIRED": 584,
-        "BLOCKED": 38
+        "APPROVED": 459,
+        "REVIEW_REQUIRED": 509,
+        "BLOCKED": 34
       },
       "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 617,
-        "RESIDUAL_FINDINGS": 38
+        "UNCERTAIN_SOURCE_FINDINGS": 542,
+        "RESIDUAL_FINDINGS": 34
       },
-      "approved_rate": 0.37924151696606784,
-      "review_or_blocked_rate": 0.6207584830339321,
-      "approved_documents_with_leaked_gold_characters": 189,
-      "approved_leak_rate": 0.49736842105263157,
+      "approved_rate": 0.45808383233532934,
+      "review_or_blocked_rate": 0.5419161676646707,
+      "approved_documents_with_leaked_gold_characters": 142,
+      "approved_leak_rate": 0.3093681917211329,
       "approved_leak_rate_wilson95": [
-        0.4473747111278748,
-        0.5474148062146957
+        0.26880919983301627,
+        0.3530916837522104
       ],
-      "approved_documents_with_leaked_direct_identifier": 85,
-      "approved_direct_identifier_leak_rate": 0.2236842105263158,
+      "approved_documents_with_leaked_direct_identifier": 74,
+      "approved_direct_identifier_leak_rate": 0.16122004357298475,
       "approved_direct_identifier_leak_rate_wilson95": [
-        0.18466947382905566,
-        0.26822984714084447
+        0.13041192551685266,
+        0.19765193045460716
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 189,
-        "REVIEW_REQUIRED": 309,
-        "BLOCKED": 26
+        "APPROVED": 142,
+        "REVIEW_REQUIRED": 239,
+        "BLOCKED": 24
       },
       "leaked_gold_characters_by_status": {
-        "APPROVED": 4215,
-        "REVIEW_REQUIRED": 5461,
-        "BLOCKED": 731
+        "APPROVED": 3201,
+        "REVIEW_REQUIRED": 3786,
+        "BLOCKED": 673
       },
-      "output_sensitive_character_recall": 0.8761248393086702,
-      "over_redaction_rate": 0.02758478365549976,
-      "p50_seconds": 0.004032576500094365,
+      "output_sensitive_character_recall": 0.9088225491596439,
+      "over_redaction_rate": 0.027953142925615838,
+      "p50_seconds": 0.0040350955000576505,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
@@ -832,41 +832,41 @@
       "redact_margin": 80.0,
       "documents": 1002,
       "status_counts": {
-        "APPROVED": 381,
-        "BLOCKED": 55,
-        "REVIEW_REQUIRED": 566
+        "APPROVED": 454,
+        "BLOCKED": 45,
+        "REVIEW_REQUIRED": 503
       },
       "issue_counts": {
-        "RESIDUAL_FINDINGS": 55,
-        "UNCERTAIN_SOURCE_FINDINGS": 612
+        "RESIDUAL_FINDINGS": 45,
+        "UNCERTAIN_SOURCE_FINDINGS": 538
       },
-      "approved_rate": 0.38023952095808383,
-      "review_or_blocked_rate": 0.6197604790419162,
-      "approved_documents_with_leaked_gold_characters": 145,
-      "approved_leak_rate": 0.3805774278215223,
+      "approved_rate": 0.4530938123752495,
+      "review_or_blocked_rate": 0.5469061876247505,
+      "approved_documents_with_leaked_gold_characters": 92,
+      "approved_leak_rate": 0.2026431718061674,
       "approved_leak_rate_wilson95": [
-        0.33324502486068963,
-        0.43029405199586646
+        0.16823316543798697,
+        0.2420432270960248
       ],
-      "approved_documents_with_leaked_direct_identifier": 63,
-      "approved_direct_identifier_leak_rate": 0.16535433070866143,
+      "approved_documents_with_leaked_direct_identifier": 47,
+      "approved_direct_identifier_leak_rate": 0.10352422907488987,
       "approved_direct_identifier_leak_rate_wilson95": [
-        0.1314277497514308,
-        0.20596197111034714
+        0.07874790397496756,
+        0.1349539527370481
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 145,
-        "BLOCKED": 35,
-        "REVIEW_REQUIRED": 271
+        "APPROVED": 92,
+        "BLOCKED": 25,
+        "REVIEW_REQUIRED": 205
       },
       "leaked_gold_characters_by_status": {
-        "APPROVED": 3529,
-        "BLOCKED": 832,
-        "REVIEW_REQUIRED": 3983
+        "APPROVED": 2353,
+        "BLOCKED": 503,
+        "REVIEW_REQUIRED": 2828
       },
-      "output_sensitive_character_recall": 0.9006808551159358,
-      "over_redaction_rate": 0.03259757637352518,
-      "p50_seconds": 0.004238571500081889,
+      "output_sensitive_character_recall": 0.9323429986192449,
+      "over_redaction_rate": 0.03267524248469423,
+      "p50_seconds": 0.0041840005001176905,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
@@ -874,41 +874,41 @@
       "redact_margin": 160.0,
       "documents": 1002,
       "status_counts": {
-        "APPROVED": 362,
-        "REVIEW_REQUIRED": 495,
-        "BLOCKED": 145
+        "APPROVED": 429,
+        "REVIEW_REQUIRED": 433,
+        "BLOCKED": 140
       },
       "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 596,
-        "RESIDUAL_FINDINGS": 145
+        "UNCERTAIN_SOURCE_FINDINGS": 533,
+        "RESIDUAL_FINDINGS": 140
       },
-      "approved_rate": 0.36127744510978044,
-      "review_or_blocked_rate": 0.6387225548902196,
-      "approved_documents_with_leaked_gold_characters": 61,
-      "approved_leak_rate": 0.1685082872928177,
+      "approved_rate": 0.4281437125748503,
+      "review_or_blocked_rate": 0.5718562874251497,
+      "approved_documents_with_leaked_gold_characters": 48,
+      "approved_leak_rate": 0.11188811188811189,
       "approved_leak_rate_wilson95": [
-        0.13347417164077566,
-        0.21050420588654764
+        0.08543628955173131,
+        0.14522915480481852
       ],
-      "approved_documents_with_leaked_direct_identifier": 17,
-      "approved_direct_identifier_leak_rate": 0.04696132596685083,
+      "approved_documents_with_leaked_direct_identifier": 14,
+      "approved_direct_identifier_leak_rate": 0.03263403263403263,
       "approved_direct_identifier_leak_rate_wilson95": [
-        0.02952394075318258,
-        0.07391317520082592
+        0.019537021372563825,
+        0.054027072282020194
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 61,
-        "REVIEW_REQUIRED": 158,
-        "BLOCKED": 91
+        "APPROVED": 48,
+        "REVIEW_REQUIRED": 138,
+        "BLOCKED": 55
       },
       "leaked_gold_characters_by_status": {
-        "APPROVED": 1633,
-        "REVIEW_REQUIRED": 1361,
-        "BLOCKED": 1769
+        "APPROVED": 1298,
+        "REVIEW_REQUIRED": 1057,
+        "BLOCKED": 844
       },
-      "output_sensitive_character_recall": 0.943305718230729,
-      "over_redaction_rate": 0.058398258503884415,
-      "p50_seconds": 0.004316358000096443,
+      "output_sensitive_character_recall": 0.9619221063657573,
+      "over_redaction_rate": 0.0615071219823942,
+      "p50_seconds": 0.004301794499951939,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
@@ -916,629 +916,629 @@
       "redact_margin": 320.0,
       "documents": 1002,
       "status_counts": {
-        "BLOCKED": 809,
-        "APPROVED": 66,
-        "REVIEW_REQUIRED": 127
+        "BLOCKED": 816,
+        "APPROVED": 105,
+        "REVIEW_REQUIRED": 81
       },
       "issue_counts": {
-        "RESIDUAL_FINDINGS": 809,
-        "UNCERTAIN_SOURCE_FINDINGS": 590
+        "RESIDUAL_FINDINGS": 816,
+        "UNCERTAIN_SOURCE_FINDINGS": 525
       },
-      "approved_rate": 0.0658682634730539,
-      "review_or_blocked_rate": 0.9341317365269461,
-      "approved_documents_with_leaked_gold_characters": 16,
-      "approved_leak_rate": 0.24242424242424243,
+      "approved_rate": 0.10479041916167664,
+      "review_or_blocked_rate": 0.8952095808383234,
+      "approved_documents_with_leaked_gold_characters": 2,
+      "approved_leak_rate": 0.01904761904761905,
       "approved_leak_rate_wilson95": [
-        0.15509054458269061,
-        0.35809357491056265
+        0.005239072265250375,
+        0.06680691015323666
       ],
-      "approved_documents_with_leaked_direct_identifier": 3,
-      "approved_direct_identifier_leak_rate": 0.045454545454545456,
+      "approved_documents_with_leaked_direct_identifier": 0,
+      "approved_direct_identifier_leak_rate": 0.0,
       "approved_direct_identifier_leak_rate_wilson95": [
-        0.015577991894810295,
-        0.1253351601521073
+        0.0,
+        0.035295328256842964
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "BLOCKED": 105,
-        "APPROVED": 16,
-        "REVIEW_REQUIRED": 39
+        "BLOCKED": 102,
+        "APPROVED": 2,
+        "REVIEW_REQUIRED": 6
       },
       "leaked_gold_characters_by_status": {
-        "BLOCKED": 852,
-        "APPROVED": 74,
-        "REVIEW_REQUIRED": 85
+        "BLOCKED": 796,
+        "APPROVED": 6,
+        "REVIEW_REQUIRED": 16
       },
-      "output_sensitive_character_recall": 0.987966004856449,
-      "over_redaction_rate": 0.25577225633367134,
-      "p50_seconds": 0.005232095500105061,
+      "output_sensitive_character_recall": 0.9902632957196591,
+      "over_redaction_rate": 0.27524425991962664,
+      "p50_seconds": 0.005300228499891091,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
       "review_margin": 10.0,
       "redact_margin": 20.0,
+      "documents": 1002,
+      "status_counts": {
+        "APPROVED": 446,
+        "REVIEW_REQUIRED": 526,
+        "BLOCKED": 30
+      },
+      "issue_counts": {
+        "UNCERTAIN_SOURCE_FINDINGS": 553,
+        "RESIDUAL_FINDINGS": 30
+      },
+      "approved_rate": 0.44510978043912175,
+      "review_or_blocked_rate": 0.5548902195608783,
+      "approved_documents_with_leaked_gold_characters": 162,
+      "approved_leak_rate": 0.3632286995515695,
+      "approved_leak_rate_wilson95": [
+        0.3199378840229796,
+        0.4088555401512185
+      ],
+      "approved_documents_with_leaked_direct_identifier": 87,
+      "approved_direct_identifier_leak_rate": 0.19506726457399104,
+      "approved_direct_identifier_leak_rate_wilson95": [
+        0.16096057391559032,
+        0.2343821422760647
+      ],
+      "documents_with_leaked_gold_characters_by_status": {
+        "APPROVED": 162,
+        "REVIEW_REQUIRED": 269,
+        "BLOCKED": 21
+      },
+      "leaked_gold_characters_by_status": {
+        "APPROVED": 3436,
+        "REVIEW_REQUIRED": 4580,
+        "BLOCKED": 624
+      },
+      "output_sensitive_character_recall": 0.8971575489215826,
+      "over_redaction_rate": 0.026386506511748665,
+      "p50_seconds": 0.004018001500298851,
+      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
+    },
+    {
+      "review_margin": 10.0,
+      "redact_margin": 40.0,
+      "documents": 1002,
+      "status_counts": {
+        "APPROVED": 449,
+        "REVIEW_REQUIRED": 519,
+        "BLOCKED": 34
+      },
+      "issue_counts": {
+        "UNCERTAIN_SOURCE_FINDINGS": 552,
+        "RESIDUAL_FINDINGS": 34
+      },
+      "approved_rate": 0.4481037924151697,
+      "review_or_blocked_rate": 0.5518962075848304,
+      "approved_documents_with_leaked_gold_characters": 140,
+      "approved_leak_rate": 0.311804008908686,
+      "approved_leak_rate_wilson95": [
+        0.2707048818147559,
+        0.35609618946491456
+      ],
+      "approved_documents_with_leaked_direct_identifier": 73,
+      "approved_direct_identifier_leak_rate": 0.16258351893095768,
+      "approved_direct_identifier_leak_rate_wilson95": [
+        0.1313402367756275,
+        0.19955162474946203
+      ],
+      "documents_with_leaked_gold_characters_by_status": {
+        "APPROVED": 140,
+        "REVIEW_REQUIRED": 241,
+        "BLOCKED": 24
+      },
+      "leaked_gold_characters_by_status": {
+        "APPROVED": 3184,
+        "REVIEW_REQUIRED": 3803,
+        "BLOCKED": 673
+      },
+      "output_sensitive_character_recall": 0.9088225491596439,
+      "over_redaction_rate": 0.027953142925615838,
+      "p50_seconds": 0.004343172000062623,
+      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
+    },
+    {
+      "review_margin": 10.0,
+      "redact_margin": 80.0,
+      "documents": 1002,
+      "status_counts": {
+        "APPROVED": 444,
+        "BLOCKED": 45,
+        "REVIEW_REQUIRED": 513
+      },
+      "issue_counts": {
+        "RESIDUAL_FINDINGS": 45,
+        "UNCERTAIN_SOURCE_FINDINGS": 548
+      },
+      "approved_rate": 0.4431137724550898,
+      "review_or_blocked_rate": 0.5568862275449102,
+      "approved_documents_with_leaked_gold_characters": 92,
+      "approved_leak_rate": 0.2072072072072072,
+      "approved_leak_rate_wilson95": [
+        0.17209643362243315,
+        0.24734115323863554
+      ],
+      "approved_documents_with_leaked_direct_identifier": 47,
+      "approved_direct_identifier_leak_rate": 0.10585585585585586,
+      "approved_direct_identifier_leak_rate_wilson95": [
+        0.08054284437289892,
+        0.1379308302477705
+      ],
+      "documents_with_leaked_gold_characters_by_status": {
+        "APPROVED": 92,
+        "BLOCKED": 25,
+        "REVIEW_REQUIRED": 205
+      },
+      "leaked_gold_characters_by_status": {
+        "APPROVED": 2353,
+        "BLOCKED": 503,
+        "REVIEW_REQUIRED": 2828
+      },
+      "output_sensitive_character_recall": 0.9323429986192449,
+      "over_redaction_rate": 0.03267524248469423,
+      "p50_seconds": 0.004290684499665076,
+      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
+    },
+    {
+      "review_margin": 10.0,
+      "redact_margin": 160.0,
+      "documents": 1002,
+      "status_counts": {
+        "APPROVED": 419,
+        "REVIEW_REQUIRED": 443,
+        "BLOCKED": 140
+      },
+      "issue_counts": {
+        "UNCERTAIN_SOURCE_FINDINGS": 543,
+        "RESIDUAL_FINDINGS": 140
+      },
+      "approved_rate": 0.4181636726546906,
+      "review_or_blocked_rate": 0.5818363273453093,
+      "approved_documents_with_leaked_gold_characters": 48,
+      "approved_leak_rate": 0.11455847255369929,
+      "approved_leak_rate_wilson95": [
+        0.08750184504823513,
+        0.14861872587004726
+      ],
+      "approved_documents_with_leaked_direct_identifier": 14,
+      "approved_direct_identifier_leak_rate": 0.03341288782816229,
+      "approved_direct_identifier_leak_rate_wilson95": [
+        0.02000569960445228,
+        0.05529814940188957
+      ],
+      "documents_with_leaked_gold_characters_by_status": {
+        "APPROVED": 48,
+        "REVIEW_REQUIRED": 138,
+        "BLOCKED": 55
+      },
+      "leaked_gold_characters_by_status": {
+        "APPROVED": 1298,
+        "REVIEW_REQUIRED": 1057,
+        "BLOCKED": 844
+      },
+      "output_sensitive_character_recall": 0.9619221063657573,
+      "over_redaction_rate": 0.0615071219823942,
+      "p50_seconds": 0.004478008999740268,
+      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
+    },
+    {
+      "review_margin": 10.0,
+      "redact_margin": 320.0,
+      "documents": 1002,
+      "status_counts": {
+        "BLOCKED": 816,
+        "APPROVED": 100,
+        "REVIEW_REQUIRED": 86
+      },
+      "issue_counts": {
+        "RESIDUAL_FINDINGS": 816,
+        "UNCERTAIN_SOURCE_FINDINGS": 533
+      },
+      "approved_rate": 0.0998003992015968,
+      "review_or_blocked_rate": 0.9001996007984032,
+      "approved_documents_with_leaked_gold_characters": 2,
+      "approved_leak_rate": 0.02,
+      "approved_leak_rate_wilson95": [
+        0.005501852234968185,
+        0.07001316294199365
+      ],
+      "approved_documents_with_leaked_direct_identifier": 0,
+      "approved_direct_identifier_leak_rate": 0.0,
+      "approved_direct_identifier_leak_rate_wilson95": [
+        0.0,
+        0.03699480747600191
+      ],
+      "documents_with_leaked_gold_characters_by_status": {
+        "BLOCKED": 102,
+        "APPROVED": 2,
+        "REVIEW_REQUIRED": 6
+      },
+      "leaked_gold_characters_by_status": {
+        "BLOCKED": 796,
+        "APPROVED": 6,
+        "REVIEW_REQUIRED": 16
+      },
+      "output_sensitive_character_recall": 0.9902632957196591,
+      "over_redaction_rate": 0.27524425991962664,
+      "p50_seconds": 0.005470873000376741,
+      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
+    },
+    {
+      "review_margin": 20.0,
+      "redact_margin": 40.0,
+      "documents": 1002,
+      "status_counts": {
+        "APPROVED": 414,
+        "REVIEW_REQUIRED": 554,
+        "BLOCKED": 34
+      },
+      "issue_counts": {
+        "UNCERTAIN_SOURCE_FINDINGS": 587,
+        "RESIDUAL_FINDINGS": 34
+      },
+      "approved_rate": 0.41317365269461076,
+      "review_or_blocked_rate": 0.5868263473053892,
+      "approved_documents_with_leaked_gold_characters": 125,
+      "approved_leak_rate": 0.30193236714975846,
+      "approved_leak_rate_wilson95": [
+        0.2596953512800026,
+        0.347811416834996
+      ],
+      "approved_documents_with_leaked_direct_identifier": 64,
+      "approved_direct_identifier_leak_rate": 0.15458937198067632,
+      "approved_direct_identifier_leak_rate_wilson95": [
+        0.12295626453183187,
+        0.1925738310833486
+      ],
+      "documents_with_leaked_gold_characters_by_status": {
+        "APPROVED": 125,
+        "REVIEW_REQUIRED": 256,
+        "BLOCKED": 24
+      },
+      "leaked_gold_characters_by_status": {
+        "APPROVED": 2674,
+        "REVIEW_REQUIRED": 4313,
+        "BLOCKED": 673
+      },
+      "output_sensitive_character_recall": 0.9088225491596439,
+      "over_redaction_rate": 0.027953142925615838,
+      "p50_seconds": 0.0039947165000739915,
+      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
+    },
+    {
+      "review_margin": 20.0,
+      "redact_margin": 80.0,
+      "documents": 1002,
+      "status_counts": {
+        "APPROVED": 409,
+        "BLOCKED": 45,
+        "REVIEW_REQUIRED": 548
+      },
+      "issue_counts": {
+        "RESIDUAL_FINDINGS": 45,
+        "UNCERTAIN_SOURCE_FINDINGS": 583
+      },
+      "approved_rate": 0.40818363273453095,
+      "review_or_blocked_rate": 0.591816367265469,
+      "approved_documents_with_leaked_gold_characters": 79,
+      "approved_leak_rate": 0.19315403422982885,
+      "approved_leak_rate_wilson95": [
+        0.15782114298612915,
+        0.2341974907949626
+      ],
+      "approved_documents_with_leaked_direct_identifier": 39,
+      "approved_direct_identifier_leak_rate": 0.09535452322738386,
+      "approved_direct_identifier_leak_rate_wilson95": [
+        0.07053894024085547,
+        0.12770077203620187
+      ],
+      "documents_with_leaked_gold_characters_by_status": {
+        "APPROVED": 79,
+        "BLOCKED": 25,
+        "REVIEW_REQUIRED": 218
+      },
+      "leaked_gold_characters_by_status": {
+        "APPROVED": 1948,
+        "BLOCKED": 503,
+        "REVIEW_REQUIRED": 3233
+      },
+      "output_sensitive_character_recall": 0.9323429986192449,
+      "over_redaction_rate": 0.03267524248469423,
+      "p50_seconds": 0.004397884000354679,
+      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
+    },
+    {
+      "review_margin": 20.0,
+      "redact_margin": 160.0,
+      "documents": 1002,
+      "status_counts": {
+        "APPROVED": 392,
+        "REVIEW_REQUIRED": 470,
+        "BLOCKED": 140
+      },
+      "issue_counts": {
+        "UNCERTAIN_SOURCE_FINDINGS": 578,
+        "RESIDUAL_FINDINGS": 140
+      },
+      "approved_rate": 0.3912175648702595,
+      "review_or_blocked_rate": 0.6087824351297405,
+      "approved_documents_with_leaked_gold_characters": 44,
+      "approved_leak_rate": 0.11224489795918367,
+      "approved_leak_rate_wilson95": [
+        0.08468367467055737,
+        0.14733236406817043
+      ],
+      "approved_documents_with_leaked_direct_identifier": 12,
+      "approved_direct_identifier_leak_rate": 0.030612244897959183,
+      "approved_direct_identifier_leak_rate_wilson95": [
+        0.017596453672960876,
+        0.052738751116025426
+      ],
+      "documents_with_leaked_gold_characters_by_status": {
+        "APPROVED": 44,
+        "REVIEW_REQUIRED": 142,
+        "BLOCKED": 55
+      },
+      "leaked_gold_characters_by_status": {
+        "APPROVED": 1225,
+        "REVIEW_REQUIRED": 1130,
+        "BLOCKED": 844
+      },
+      "output_sensitive_character_recall": 0.9619221063657573,
+      "over_redaction_rate": 0.0615071219823942,
+      "p50_seconds": 0.004235204999986308,
+      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
+    },
+    {
+      "review_margin": 20.0,
+      "redact_margin": 320.0,
+      "documents": 1002,
+      "status_counts": {
+        "BLOCKED": 816,
+        "APPROVED": 96,
+        "REVIEW_REQUIRED": 90
+      },
+      "issue_counts": {
+        "RESIDUAL_FINDINGS": 816,
+        "UNCERTAIN_SOURCE_FINDINGS": 569
+      },
+      "approved_rate": 0.09580838323353294,
+      "review_or_blocked_rate": 0.9041916167664671,
+      "approved_documents_with_leaked_gold_characters": 2,
+      "approved_leak_rate": 0.020833333333333332,
+      "approved_leak_rate_wilson95": [
+        0.005731849710137293,
+        0.07280855829614466
+      ],
+      "approved_documents_with_leaked_direct_identifier": 0,
+      "approved_direct_identifier_leak_rate": 0.0,
+      "approved_direct_identifier_leak_rate_wilson95": [
+        0.0,
+        0.03847694748481595
+      ],
+      "documents_with_leaked_gold_characters_by_status": {
+        "BLOCKED": 102,
+        "APPROVED": 2,
+        "REVIEW_REQUIRED": 6
+      },
+      "leaked_gold_characters_by_status": {
+        "BLOCKED": 796,
+        "APPROVED": 6,
+        "REVIEW_REQUIRED": 16
+      },
+      "output_sensitive_character_recall": 0.9902632957196591,
+      "over_redaction_rate": 0.27524425991962664,
+      "p50_seconds": 0.004933422999783943,
+      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
+    },
+    {
+      "review_margin": 40.0,
+      "redact_margin": 80.0,
+      "documents": 1002,
+      "status_counts": {
+        "APPROVED": 360,
+        "BLOCKED": 45,
+        "REVIEW_REQUIRED": 597
+      },
+      "issue_counts": {
+        "RESIDUAL_FINDINGS": 45,
+        "UNCERTAIN_SOURCE_FINDINGS": 633
+      },
+      "approved_rate": 0.3592814371257485,
+      "review_or_blocked_rate": 0.6407185628742516,
+      "approved_documents_with_leaked_gold_characters": 71,
+      "approved_leak_rate": 0.19722222222222222,
+      "approved_leak_rate_wilson95": [
+        0.1594082119644949,
+        0.24142995497408498
+      ],
+      "approved_documents_with_leaked_direct_identifier": 37,
+      "approved_direct_identifier_leak_rate": 0.10277777777777777,
+      "approved_direct_identifier_leak_rate_wilson95": [
+        0.07548799689186164,
+        0.1384556533119633
+      ],
+      "documents_with_leaked_gold_characters_by_status": {
+        "APPROVED": 71,
+        "BLOCKED": 25,
+        "REVIEW_REQUIRED": 226
+      },
+      "leaked_gold_characters_by_status": {
+        "APPROVED": 1761,
+        "BLOCKED": 503,
+        "REVIEW_REQUIRED": 3420
+      },
+      "output_sensitive_character_recall": 0.9323429986192449,
+      "over_redaction_rate": 0.03267524248469423,
+      "p50_seconds": 0.004241707500113989,
+      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
+    },
+    {
+      "review_margin": 40.0,
+      "redact_margin": 160.0,
       "documents": 1002,
       "status_counts": {
         "APPROVED": 344,
-        "REVIEW_REQUIRED": 628,
-        "BLOCKED": 30
+        "REVIEW_REQUIRED": 518,
+        "BLOCKED": 140
       },
       "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 656,
-        "RESIDUAL_FINDINGS": 30
+        "UNCERTAIN_SOURCE_FINDINGS": 629,
+        "RESIDUAL_FINDINGS": 140
       },
       "approved_rate": 0.34331337325349304,
       "review_or_blocked_rate": 0.656686626746507,
-      "approved_documents_with_leaked_gold_characters": 198,
-      "approved_leak_rate": 0.5755813953488372,
+      "approved_documents_with_leaked_gold_characters": 37,
+      "approved_leak_rate": 0.10755813953488372,
       "approved_leak_rate_wilson95": [
-        0.5227982914979211,
-        0.6266950410994451
+        0.07904566406222316,
+        0.14473895514376026
       ],
-      "approved_documents_with_leaked_direct_identifier": 94,
-      "approved_direct_identifier_leak_rate": 0.27325581395348836,
+      "approved_documents_with_leaked_direct_identifier": 11,
+      "approved_direct_identifier_leak_rate": 0.03197674418604651,
       "approved_direct_identifier_leak_rate_wilson95": [
-        0.22886130246159037,
-        0.3226586997463112
+        0.017947221963115344,
+        0.05634406464550192
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 198,
-        "REVIEW_REQUIRED": 358,
-        "BLOCKED": 21
+        "APPROVED": 37,
+        "REVIEW_REQUIRED": 149,
+        "BLOCKED": 55
       },
       "leaked_gold_characters_by_status": {
-        "APPROVED": 4531,
-        "REVIEW_REQUIRED": 6235,
-        "BLOCKED": 881
+        "APPROVED": 1066,
+        "REVIEW_REQUIRED": 1289,
+        "BLOCKED": 844
       },
-      "output_sensitive_character_recall": 0.8613650430890825,
-      "over_redaction_rate": 0.0259293859717251,
-      "p50_seconds": 0.004117284499898233,
+      "output_sensitive_character_recall": 0.9619221063657573,
+      "over_redaction_rate": 0.0615071219823942,
+      "p50_seconds": 0.004079931499745726,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
-      "review_margin": 10.0,
-      "redact_margin": 40.0,
-      "documents": 1002,
-      "status_counts": {
-        "APPROVED": 345,
-        "REVIEW_REQUIRED": 619,
-        "BLOCKED": 38
-      },
-      "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 652,
-        "RESIDUAL_FINDINGS": 38
-      },
-      "approved_rate": 0.344311377245509,
-      "review_or_blocked_rate": 0.655688622754491,
-      "approved_documents_with_leaked_gold_characters": 177,
-      "approved_leak_rate": 0.5130434782608696,
-      "approved_leak_rate_wilson95": [
-        0.4604473918054673,
-        0.5653522834626201
-      ],
-      "approved_documents_with_leaked_direct_identifier": 79,
-      "approved_direct_identifier_leak_rate": 0.2289855072463768,
-      "approved_direct_identifier_leak_rate_wilson95": [
-        0.1877753828114548,
-        0.2761646977293981
-      ],
-      "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 177,
-        "REVIEW_REQUIRED": 321,
-        "BLOCKED": 26
-      },
-      "leaked_gold_characters_by_status": {
-        "APPROVED": 4062,
-        "REVIEW_REQUIRED": 5614,
-        "BLOCKED": 731
-      },
-      "output_sensitive_character_recall": 0.8761248393086702,
-      "over_redaction_rate": 0.02758478365549976,
-      "p50_seconds": 0.003815575999851717,
-      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
-    },
-    {
-      "review_margin": 10.0,
-      "redact_margin": 80.0,
-      "documents": 1002,
-      "status_counts": {
-        "APPROVED": 345,
-        "BLOCKED": 55,
-        "REVIEW_REQUIRED": 602
-      },
-      "issue_counts": {
-        "RESIDUAL_FINDINGS": 55,
-        "UNCERTAIN_SOURCE_FINDINGS": 648
-      },
-      "approved_rate": 0.344311377245509,
-      "review_or_blocked_rate": 0.655688622754491,
-      "approved_documents_with_leaked_gold_characters": 136,
-      "approved_leak_rate": 0.39420289855072466,
-      "approved_leak_rate_wilson95": [
-        0.34407269328039536,
-        0.4466632739895632
-      ],
-      "approved_documents_with_leaked_direct_identifier": 59,
-      "approved_direct_identifier_leak_rate": 0.17101449275362318,
-      "approved_direct_identifier_leak_rate_wilson95": [
-        0.13495942076464304,
-        0.21431543636248854
-      ],
-      "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 136,
-        "BLOCKED": 35,
-        "REVIEW_REQUIRED": 280
-      },
-      "leaked_gold_characters_by_status": {
-        "APPROVED": 3402,
-        "BLOCKED": 832,
-        "REVIEW_REQUIRED": 4110
-      },
-      "output_sensitive_character_recall": 0.9006808551159358,
-      "over_redaction_rate": 0.03259757637352518,
-      "p50_seconds": 0.004132695999487623,
-      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
-    },
-    {
-      "review_margin": 10.0,
-      "redact_margin": 160.0,
-      "documents": 1002,
-      "status_counts": {
-        "APPROVED": 329,
-        "REVIEW_REQUIRED": 528,
-        "BLOCKED": 145
-      },
-      "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 634,
-        "RESIDUAL_FINDINGS": 145
-      },
-      "approved_rate": 0.3283433133732535,
-      "review_or_blocked_rate": 0.6716566866267465,
-      "approved_documents_with_leaked_gold_characters": 58,
-      "approved_leak_rate": 0.1762917933130699,
-      "approved_leak_rate_wilson95": [
-        0.13891858312707558,
-        0.22113737141706788
-      ],
-      "approved_documents_with_leaked_direct_identifier": 16,
-      "approved_direct_identifier_leak_rate": 0.0486322188449848,
-      "approved_direct_identifier_leak_rate_wilson95": [
-        0.03015328245617661,
-        0.07753037247157278
-      ],
-      "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 58,
-        "REVIEW_REQUIRED": 161,
-        "BLOCKED": 91
-      },
-      "leaked_gold_characters_by_status": {
-        "APPROVED": 1618,
-        "REVIEW_REQUIRED": 1376,
-        "BLOCKED": 1769
-      },
-      "output_sensitive_character_recall": 0.943305718230729,
-      "over_redaction_rate": 0.058398258503884415,
-      "p50_seconds": 0.003894125500210066,
-      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
-    },
-    {
-      "review_margin": 10.0,
+      "review_margin": 40.0,
       "redact_margin": 320.0,
       "documents": 1002,
       "status_counts": {
-        "BLOCKED": 809,
-        "APPROVED": 60,
-        "REVIEW_REQUIRED": 133
+        "BLOCKED": 816,
+        "APPROVED": 90,
+        "REVIEW_REQUIRED": 96
       },
       "issue_counts": {
-        "RESIDUAL_FINDINGS": 809,
-        "UNCERTAIN_SOURCE_FINDINGS": 629
+        "RESIDUAL_FINDINGS": 816,
+        "UNCERTAIN_SOURCE_FINDINGS": 622
+      },
+      "approved_rate": 0.08982035928143713,
+      "review_or_blocked_rate": 0.9101796407185628,
+      "approved_documents_with_leaked_gold_characters": 2,
+      "approved_leak_rate": 0.022222222222222223,
+      "approved_leak_rate_wilson95": [
+        0.006115313794863603,
+        0.07744677380807581
+      ],
+      "approved_documents_with_leaked_direct_identifier": 0,
+      "approved_direct_identifier_leak_rate": 0.0,
+      "approved_direct_identifier_leak_rate_wilson95": [
+        0.0,
+        0.04093706842168078
+      ],
+      "documents_with_leaked_gold_characters_by_status": {
+        "BLOCKED": 102,
+        "APPROVED": 2,
+        "REVIEW_REQUIRED": 6
+      },
+      "leaked_gold_characters_by_status": {
+        "BLOCKED": 796,
+        "APPROVED": 6,
+        "REVIEW_REQUIRED": 16
+      },
+      "output_sensitive_character_recall": 0.9902632957196591,
+      "over_redaction_rate": 0.27524425991962664,
+      "p50_seconds": 0.0049071214998548385,
+      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
+    },
+    {
+      "review_margin": 80.0,
+      "redact_margin": 160.0,
+      "documents": 1002,
+      "status_counts": {
+        "REVIEW_REQUIRED": 618,
+        "APPROVED": 244,
+        "BLOCKED": 140
+      },
+      "issue_counts": {
+        "UNCERTAIN_SOURCE_FINDINGS": 740,
+        "RESIDUAL_FINDINGS": 140
+      },
+      "approved_rate": 0.2435129740518962,
+      "review_or_blocked_rate": 0.7564870259481038,
+      "approved_documents_with_leaked_gold_characters": 24,
+      "approved_leak_rate": 0.09836065573770492,
+      "approved_leak_rate_wilson95": [
+        0.06699084854626253,
+        0.14218146150983785
+      ],
+      "approved_documents_with_leaked_direct_identifier": 8,
+      "approved_direct_identifier_leak_rate": 0.03278688524590164,
+      "approved_direct_identifier_leak_rate_wilson95": [
+        0.01670526758026407,
+        0.06335231758703636
+      ],
+      "documents_with_leaked_gold_characters_by_status": {
+        "REVIEW_REQUIRED": 162,
+        "APPROVED": 24,
+        "BLOCKED": 55
+      },
+      "leaked_gold_characters_by_status": {
+        "REVIEW_REQUIRED": 1754,
+        "APPROVED": 601,
+        "BLOCKED": 844
+      },
+      "output_sensitive_character_recall": 0.9619221063657573,
+      "over_redaction_rate": 0.0615071219823942,
+      "p50_seconds": 0.004478677999941283,
+      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
+    },
+    {
+      "review_margin": 80.0,
+      "redact_margin": 320.0,
+      "documents": 1002,
+      "status_counts": {
+        "BLOCKED": 816,
+        "APPROVED": 60,
+        "REVIEW_REQUIRED": 126
+      },
+      "issue_counts": {
+        "RESIDUAL_FINDINGS": 816,
+        "UNCERTAIN_SOURCE_FINDINGS": 736
       },
       "approved_rate": 0.059880239520958084,
       "review_or_blocked_rate": 0.9401197604790419,
-      "approved_documents_with_leaked_gold_characters": 15,
-      "approved_leak_rate": 0.25,
+      "approved_documents_with_leaked_gold_characters": 0,
+      "approved_leak_rate": 0.0,
       "approved_leak_rate_wilson95": [
-        0.1577638557841185,
-        0.372323109454848
+        0.0,
+        0.06017393047793289
       ],
-      "approved_documents_with_leaked_direct_identifier": 3,
-      "approved_direct_identifier_leak_rate": 0.05,
+      "approved_documents_with_leaked_direct_identifier": 0,
+      "approved_direct_identifier_leak_rate": 0.0,
       "approved_direct_identifier_leak_rate_wilson95": [
-        0.01714919117914121,
-        0.13700734625099836
+        0.0,
+        0.06017393047793289
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "BLOCKED": 105,
-        "APPROVED": 15,
-        "REVIEW_REQUIRED": 40
+        "BLOCKED": 102,
+        "APPROVED": 0,
+        "REVIEW_REQUIRED": 8
       },
       "leaked_gold_characters_by_status": {
-        "BLOCKED": 852,
-        "APPROVED": 73,
-        "REVIEW_REQUIRED": 86
+        "BLOCKED": 796,
+        "APPROVED": 0,
+        "REVIEW_REQUIRED": 22
       },
-      "output_sensitive_character_recall": 0.987966004856449,
-      "over_redaction_rate": 0.25577225633367134,
-      "p50_seconds": 0.004795620999630046,
-      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
-    },
-    {
-      "review_margin": 20.0,
-      "redact_margin": 40.0,
-      "documents": 1002,
-      "status_counts": {
-        "APPROVED": 301,
-        "REVIEW_REQUIRED": 663,
-        "BLOCKED": 38
-      },
-      "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 696,
-        "RESIDUAL_FINDINGS": 38
-      },
-      "approved_rate": 0.3003992015968064,
-      "review_or_blocked_rate": 0.6996007984031936,
-      "approved_documents_with_leaked_gold_characters": 157,
-      "approved_leak_rate": 0.521594684385382,
-      "approved_leak_rate_wilson95": [
-        0.4652450489384406,
-        0.5774000493683522
-      ],
-      "approved_documents_with_leaked_direct_identifier": 72,
-      "approved_direct_identifier_leak_rate": 0.23920265780730898,
-      "approved_direct_identifier_leak_rate_wilson95": [
-        0.19448749575880095,
-        0.2904909323822403
-      ],
-      "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 157,
-        "REVIEW_REQUIRED": 341,
-        "BLOCKED": 26
-      },
-      "leaked_gold_characters_by_status": {
-        "APPROVED": 3513,
-        "REVIEW_REQUIRED": 6163,
-        "BLOCKED": 731
-      },
-      "output_sensitive_character_recall": 0.8761248393086702,
-      "over_redaction_rate": 0.02758478365549976,
-      "p50_seconds": 0.004025546000320901,
-      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
-    },
-    {
-      "review_margin": 20.0,
-      "redact_margin": 80.0,
-      "documents": 1002,
-      "status_counts": {
-        "APPROVED": 302,
-        "BLOCKED": 55,
-        "REVIEW_REQUIRED": 645
-      },
-      "issue_counts": {
-        "RESIDUAL_FINDINGS": 55,
-        "UNCERTAIN_SOURCE_FINDINGS": 693
-      },
-      "approved_rate": 0.3013972055888224,
-      "review_or_blocked_rate": 0.6986027944111777,
-      "approved_documents_with_leaked_gold_characters": 124,
-      "approved_leak_rate": 0.4105960264900662,
-      "approved_leak_rate_wilson95": [
-        0.35657329393146964,
-        0.46686472104098675
-      ],
-      "approved_documents_with_leaked_direct_identifier": 53,
-      "approved_direct_identifier_leak_rate": 0.17549668874172186,
-      "approved_direct_identifier_leak_rate_wilson95": [
-        0.13674601678837278,
-        0.22239937088943168
-      ],
-      "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 124,
-        "BLOCKED": 35,
-        "REVIEW_REQUIRED": 292
-      },
-      "leaked_gold_characters_by_status": {
-        "APPROVED": 3047,
-        "BLOCKED": 832,
-        "REVIEW_REQUIRED": 4465
-      },
-      "output_sensitive_character_recall": 0.9006808551159358,
-      "over_redaction_rate": 0.03259757637352518,
-      "p50_seconds": 0.0037926990003143146,
-      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
-    },
-    {
-      "review_margin": 20.0,
-      "redact_margin": 160.0,
-      "documents": 1002,
-      "status_counts": {
-        "APPROVED": 284,
-        "REVIEW_REQUIRED": 573,
-        "BLOCKED": 145
-      },
-      "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 683,
-        "RESIDUAL_FINDINGS": 145
-      },
-      "approved_rate": 0.2834331337325349,
-      "review_or_blocked_rate": 0.7165668662674651,
-      "approved_documents_with_leaked_gold_characters": 51,
-      "approved_leak_rate": 0.1795774647887324,
-      "approved_leak_rate_wilson95": [
-        0.13930527433368314,
-        0.22840252050903595
-      ],
-      "approved_documents_with_leaked_direct_identifier": 14,
-      "approved_direct_identifier_leak_rate": 0.04929577464788732,
-      "approved_direct_identifier_leak_rate_wilson95": [
-        0.029588164726077643,
-        0.08103378845928542
-      ],
-      "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 51,
-        "REVIEW_REQUIRED": 168,
-        "BLOCKED": 91
-      },
-      "leaked_gold_characters_by_status": {
-        "APPROVED": 1460,
-        "REVIEW_REQUIRED": 1534,
-        "BLOCKED": 1769
-      },
-      "output_sensitive_character_recall": 0.943305718230729,
-      "over_redaction_rate": 0.058398258503884415,
-      "p50_seconds": 0.003927651000140031,
-      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
-    },
-    {
-      "review_margin": 20.0,
-      "redact_margin": 320.0,
-      "documents": 1002,
-      "status_counts": {
-        "BLOCKED": 809,
-        "APPROVED": 49,
-        "REVIEW_REQUIRED": 144
-      },
-      "issue_counts": {
-        "RESIDUAL_FINDINGS": 809,
-        "UNCERTAIN_SOURCE_FINDINGS": 674
-      },
-      "approved_rate": 0.04890219560878244,
-      "review_or_blocked_rate": 0.9510978043912176,
-      "approved_documents_with_leaked_gold_characters": 12,
-      "approved_leak_rate": 0.24489795918367346,
-      "approved_leak_rate_wilson95": [
-        0.14602203389475285,
-        0.38086587260315785
-      ],
-      "approved_documents_with_leaked_direct_identifier": 2,
-      "approved_direct_identifier_leak_rate": 0.04081632653061224,
-      "approved_direct_identifier_leak_rate_wilson95": [
-        0.011265396927928273,
-        0.13713283476831106
-      ],
-      "documents_with_leaked_gold_characters_by_status": {
-        "BLOCKED": 105,
-        "APPROVED": 12,
-        "REVIEW_REQUIRED": 43
-      },
-      "leaked_gold_characters_by_status": {
-        "BLOCKED": 852,
-        "APPROVED": 50,
-        "REVIEW_REQUIRED": 109
-      },
-      "output_sensitive_character_recall": 0.987966004856449,
-      "over_redaction_rate": 0.25577225633367134,
-      "p50_seconds": 0.004890063500170072,
-      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
-    },
-    {
-      "review_margin": 40.0,
-      "redact_margin": 80.0,
-      "documents": 1002,
-      "status_counts": {
-        "APPROVED": 233,
-        "BLOCKED": 55,
-        "REVIEW_REQUIRED": 714
-      },
-      "issue_counts": {
-        "RESIDUAL_FINDINGS": 55,
-        "UNCERTAIN_SOURCE_FINDINGS": 763
-      },
-      "approved_rate": 0.23253493013972057,
-      "review_or_blocked_rate": 0.7674650698602794,
-      "approved_documents_with_leaked_gold_characters": 109,
-      "approved_leak_rate": 0.4678111587982833,
-      "approved_leak_rate_wilson95": [
-        0.4047840922975323,
-        0.531882439257735
-      ],
-      "approved_documents_with_leaked_direct_identifier": 49,
-      "approved_direct_identifier_leak_rate": 0.21030042918454936,
-      "approved_direct_identifier_leak_rate_wilson95": [
-        0.1628858274118749,
-        0.26711295658553097
-      ],
-      "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 109,
-        "BLOCKED": 35,
-        "REVIEW_REQUIRED": 307
-      },
-      "leaked_gold_characters_by_status": {
-        "APPROVED": 2699,
-        "BLOCKED": 832,
-        "REVIEW_REQUIRED": 4813
-      },
-      "output_sensitive_character_recall": 0.9006808551159358,
-      "over_redaction_rate": 0.03259757637352518,
-      "p50_seconds": 0.003937916500035499,
-      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
-    },
-    {
-      "review_margin": 40.0,
-      "redact_margin": 160.0,
-      "documents": 1002,
-      "status_counts": {
-        "APPROVED": 220,
-        "REVIEW_REQUIRED": 637,
-        "BLOCKED": 145
-      },
-      "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 754,
-        "RESIDUAL_FINDINGS": 145
-      },
-      "approved_rate": 0.21956087824351297,
-      "review_or_blocked_rate": 0.780439121756487,
-      "approved_documents_with_leaked_gold_characters": 45,
-      "approved_leak_rate": 0.20454545454545456,
-      "approved_leak_rate_wilson95": [
-        0.1565302654342072,
-        0.26270190588694137
-      ],
-      "approved_documents_with_leaked_direct_identifier": 12,
-      "approved_direct_identifier_leak_rate": 0.05454545454545454,
-      "approved_direct_identifier_leak_rate_wilson95": [
-        0.03147394637000675,
-        0.09290686577572485
-      ],
-      "documents_with_leaked_gold_characters_by_status": {
-        "APPROVED": 45,
-        "REVIEW_REQUIRED": 174,
-        "BLOCKED": 91
-      },
-      "leaked_gold_characters_by_status": {
-        "APPROVED": 1331,
-        "REVIEW_REQUIRED": 1663,
-        "BLOCKED": 1769
-      },
-      "output_sensitive_character_recall": 0.943305718230729,
-      "over_redaction_rate": 0.058398258503884415,
-      "p50_seconds": 0.0044896714994138165,
-      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
-    },
-    {
-      "review_margin": 40.0,
-      "redact_margin": 320.0,
-      "documents": 1002,
-      "status_counts": {
-        "BLOCKED": 809,
-        "APPROVED": 41,
-        "REVIEW_REQUIRED": 152
-      },
-      "issue_counts": {
-        "RESIDUAL_FINDINGS": 809,
-        "UNCERTAIN_SOURCE_FINDINGS": 743
-      },
-      "approved_rate": 0.04091816367265469,
-      "review_or_blocked_rate": 0.9590818363273453,
-      "approved_documents_with_leaked_gold_characters": 10,
-      "approved_leak_rate": 0.24390243902439024,
-      "approved_leak_rate_wilson95": [
-        0.13824855751022433,
-        0.39343630654458195
-      ],
-      "approved_documents_with_leaked_direct_identifier": 2,
-      "approved_direct_identifier_leak_rate": 0.04878048780487805,
-      "approved_direct_identifier_leak_rate_wilson95": [
-        0.013480662282573552,
-        0.16139266962351367
-      ],
-      "documents_with_leaked_gold_characters_by_status": {
-        "BLOCKED": 105,
-        "APPROVED": 10,
-        "REVIEW_REQUIRED": 45
-      },
-      "leaked_gold_characters_by_status": {
-        "BLOCKED": 852,
-        "APPROVED": 46,
-        "REVIEW_REQUIRED": 113
-      },
-      "output_sensitive_character_recall": 0.987966004856449,
-      "over_redaction_rate": 0.25577225633367134,
-      "p50_seconds": 0.004727625999748852,
-      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
-    },
-    {
-      "review_margin": 80.0,
-      "redact_margin": 160.0,
-      "documents": 1002,
-      "status_counts": {
-        "REVIEW_REQUIRED": 713,
-        "APPROVED": 144,
-        "BLOCKED": 145
-      },
-      "issue_counts": {
-        "UNCERTAIN_SOURCE_FINDINGS": 842,
-        "RESIDUAL_FINDINGS": 145
-      },
-      "approved_rate": 0.1437125748502994,
-      "review_or_blocked_rate": 0.8562874251497006,
-      "approved_documents_with_leaked_gold_characters": 30,
-      "approved_leak_rate": 0.20833333333333334,
-      "approved_leak_rate_wilson95": [
-        0.15001005766064063,
-        0.2818142732448691
-      ],
-      "approved_documents_with_leaked_direct_identifier": 10,
-      "approved_direct_identifier_leak_rate": 0.06944444444444445,
-      "approved_direct_identifier_leak_rate_wilson95": [
-        0.03815472872177901,
-        0.12310975975778289
-      ],
-      "documents_with_leaked_gold_characters_by_status": {
-        "REVIEW_REQUIRED": 189,
-        "APPROVED": 30,
-        "BLOCKED": 91
-      },
-      "leaked_gold_characters_by_status": {
-        "REVIEW_REQUIRED": 2061,
-        "APPROVED": 933,
-        "BLOCKED": 1769
-      },
-      "output_sensitive_character_recall": 0.943305718230729,
-      "over_redaction_rate": 0.058398258503884415,
-      "p50_seconds": 0.0037083100000927516,
-      "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
-    },
-    {
-      "review_margin": 80.0,
-      "redact_margin": 320.0,
-      "documents": 1002,
-      "status_counts": {
-        "BLOCKED": 809,
-        "APPROVED": 25,
-        "REVIEW_REQUIRED": 168
-      },
-      "issue_counts": {
-        "RESIDUAL_FINDINGS": 809,
-        "UNCERTAIN_SOURCE_FINDINGS": 835
-      },
-      "approved_rate": 0.0249500998003992,
-      "review_or_blocked_rate": 0.9750499001996008,
-      "approved_documents_with_leaked_gold_characters": 5,
-      "approved_leak_rate": 0.2,
-      "approved_leak_rate_wilson95": [
-        0.08860454100652487,
-        0.3913133553653824
-      ],
-      "approved_documents_with_leaked_direct_identifier": 1,
-      "approved_direct_identifier_leak_rate": 0.04,
-      "approved_direct_identifier_leak_rate_wilson95": [
-        0.007096050386699165,
-        0.19544472405022525
-      ],
-      "documents_with_leaked_gold_characters_by_status": {
-        "BLOCKED": 105,
-        "APPROVED": 5,
-        "REVIEW_REQUIRED": 50
-      },
-      "leaked_gold_characters_by_status": {
-        "BLOCKED": 852,
-        "APPROVED": 31,
-        "REVIEW_REQUIRED": 128
-      },
-      "output_sensitive_character_recall": 0.987966004856449,
-      "over_redaction_rate": 0.25577225633367134,
-      "p50_seconds": 0.004601766000178031,
+      "output_sensitive_character_recall": 0.9902632957196591,
+      "over_redaction_rate": 0.27524425991962664,
+      "p50_seconds": 0.005028601000049093,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     },
     {
@@ -1546,41 +1546,41 @@
       "redact_margin": 320.0,
       "documents": 1002,
       "status_counts": {
-        "BLOCKED": 809,
-        "REVIEW_REQUIRED": 190,
-        "APPROVED": 3
+        "BLOCKED": 816,
+        "REVIEW_REQUIRED": 181,
+        "APPROVED": 5
       },
       "issue_counts": {
-        "RESIDUAL_FINDINGS": 809,
-        "UNCERTAIN_SOURCE_FINDINGS": 975
+        "RESIDUAL_FINDINGS": 816,
+        "UNCERTAIN_SOURCE_FINDINGS": 973
       },
-      "approved_rate": 0.0029940119760479044,
-      "review_or_blocked_rate": 0.9970059880239521,
+      "approved_rate": 0.00499001996007984,
+      "review_or_blocked_rate": 0.9950099800399201,
       "approved_documents_with_leaked_gold_characters": 0,
       "approved_leak_rate": 0.0,
       "approved_leak_rate_wilson95": [
         0.0,
-        0.5615060804490177
+        0.43449149475208104
       ],
       "approved_documents_with_leaked_direct_identifier": 0,
       "approved_direct_identifier_leak_rate": 0.0,
       "approved_direct_identifier_leak_rate_wilson95": [
         0.0,
-        0.5615060804490177
+        0.43449149475208104
       ],
       "documents_with_leaked_gold_characters_by_status": {
-        "BLOCKED": 105,
-        "REVIEW_REQUIRED": 55,
+        "BLOCKED": 102,
+        "REVIEW_REQUIRED": 8,
         "APPROVED": 0
       },
       "leaked_gold_characters_by_status": {
-        "BLOCKED": 852,
-        "REVIEW_REQUIRED": 159,
+        "BLOCKED": 796,
+        "REVIEW_REQUIRED": 22,
         "APPROVED": 0
       },
-      "output_sensitive_character_recall": 0.987966004856449,
-      "over_redaction_rate": 0.25577225633367134,
-      "p50_seconds": 0.005133461500008707,
+      "output_sensitive_character_recall": 0.9902632957196591,
+      "over_redaction_rate": 0.27524425991962664,
+      "p50_seconds": 0.005313160999776301,
       "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
     }
   ],
@@ -1588,45 +1588,45 @@
     "attempts": 0
   },
   "lowest_leak_configuration": {
-    "review_margin": 160.0,
+    "review_margin": null,
     "redact_margin": 320.0,
     "documents": 1002,
     "status_counts": {
-      "BLOCKED": 809,
-      "REVIEW_REQUIRED": 190,
-      "APPROVED": 3
+      "BLOCKED": 816,
+      "APPROVED": 107,
+      "REVIEW_REQUIRED": 79
     },
     "issue_counts": {
-      "RESIDUAL_FINDINGS": 809,
-      "UNCERTAIN_SOURCE_FINDINGS": 975
+      "RESIDUAL_FINDINGS": 816,
+      "UNCERTAIN_SOURCE_FINDINGS": 501
     },
-    "approved_rate": 0.0029940119760479044,
-    "review_or_blocked_rate": 0.9970059880239521,
-    "approved_documents_with_leaked_gold_characters": 0,
-    "approved_leak_rate": 0.0,
+    "approved_rate": 0.10678642714570859,
+    "review_or_blocked_rate": 0.8932135728542914,
+    "approved_documents_with_leaked_gold_characters": 3,
+    "approved_leak_rate": 0.028037383177570093,
     "approved_leak_rate_wilson95": [
-      0.0,
-      0.5615060804490177
+      0.009580293417619429,
+      0.07920947504476293
     ],
     "approved_documents_with_leaked_direct_identifier": 0,
     "approved_direct_identifier_leak_rate": 0.0,
     "approved_direct_identifier_leak_rate_wilson95": [
       0.0,
-      0.5615060804490177
+      0.03465846757895952
     ],
     "documents_with_leaked_gold_characters_by_status": {
-      "BLOCKED": 105,
-      "REVIEW_REQUIRED": 55,
-      "APPROVED": 0
+      "BLOCKED": 102,
+      "APPROVED": 3,
+      "REVIEW_REQUIRED": 5
     },
     "leaked_gold_characters_by_status": {
-      "BLOCKED": 852,
-      "REVIEW_REQUIRED": 159,
-      "APPROVED": 0
+      "BLOCKED": 796,
+      "APPROVED": 10,
+      "REVIEW_REQUIRED": 12
     },
-    "output_sensitive_character_recall": 0.987966004856449,
-    "over_redaction_rate": 0.25577225633367134,
-    "p50_seconds": 0.005133461500008707,
+    "output_sensitive_character_recall": 0.9902632957196591,
+    "over_redaction_rate": 0.27524425991962664,
+    "p50_seconds": 0.005463926499942318,
     "definition": "A gold character leaks when no applied transformation covers its source offset. Over-redaction is the share of non-whitespace, non-gold characters that a transformation covered. Direct identifiers: ADDRESS, API_KEY, AUTH_TOKEN, BANK_ACCOUNT, CLABE, CREDENTIAL, CURP, CUSTOMER_ID, DATE_OF_BIRTH, EMAIL, EMPLOYEE_ID, INSURANCE_ID, IP_ADDRESS, NATIONAL_ID, PASSPORT, PATIENT_ID, PAYMENT_CARD, PERSON, PHONE, REGIONAL_ID, RFC, TAX_ID; every other category counts as a quasi-identifier."
   }
 }

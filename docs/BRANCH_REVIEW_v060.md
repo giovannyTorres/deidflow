@@ -1,9 +1,18 @@
 # Revisión de ramas para 0.6
 
-Inventario: 24 ramas remotas, con `master` en
+Inventario inicial: 24 ramas remotas, con `master` en
 `f99cfce64a1a233f818caa6aef8efd1cc937277b`. La consolidación anterior está
 registrada en [estado del proyecto](ESTADO_ACTUAL.md). Esta revisión conserva
 los cambios concurrentes incorporados durante el desarrollo del producto.
+
+Durante la validación apareció y se integró `claude/es-general-2` mediante #30,
+con `master` avanzando a `f4199078d93b5b349afb1ce8c27baef7c82b5240`.
+La comparación controlada mantuvo los textos, reglas y política anteriores:
+el modelo nuevo mejoró privacidad y conservación de contexto en las regresiones,
+sin perder identidad ni relaciones en los 40 casos fijos. Se adoptó con nuevos
+pins y versiones `general@1.1.0` y `legal@1.1.0`; los pins antiguos no se
+redirigen silenciosamente. Las mediciones finales constan en
+[evidencia del producto](PRODUCT_EVIDENCE.md).
 
 | Ramas | Resultado |
 | --- | --- |

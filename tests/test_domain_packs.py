@@ -22,8 +22,8 @@ def test_pack_inventory_is_versioned_immutable_and_json_safe():
     packs = list_domain_packs()
     assert tuple(p.name for p in packs) == ("clinical", "financial", "legal", "general")
     for pack in packs:
-        assert get_domain_pack(f"{pack.name}@1.0.0") is pack
-        assert get_domain_pack(pack.name, version="1.0.0") is pack
+        assert get_domain_pack(f"{pack.name}@{pack.version}") is pack
+        assert get_domain_pack(pack.name, version=pack.version) is pack
         assert pack.language == "es" and pack.supervised_review
         assert re.fullmatch(r"[a-f0-9]{64}", pack.model_sha256)
         assert re.fullmatch(r"[a-f0-9]{64}", pack.fingerprint())
@@ -32,6 +32,14 @@ def test_pack_inventory_is_versioned_immutable_and_json_safe():
         metadata["limitations"].clear()
         assert pack.limitations
     assert "not a trained or validated specialist legal model" in " ".join(packs[2].limitations)
+
+
+@pytest.mark.parametrize("name", ["general", "legal"])
+def test_new_general_weights_have_a_new_pack_version_and_reject_old_pin(name):
+    pack = get_domain_pack(name, version="1.1.0")
+    assert pack.model_sha256 == "f3008720a246e32b7a2adaf4af2ba9a03fb665caadcf698658b029a73042c173"
+    with pytest.raises(ValueError, match="version"):
+        get_domain_pack(name, version="1.0.0")
 
 
 @pytest.mark.parametrize(

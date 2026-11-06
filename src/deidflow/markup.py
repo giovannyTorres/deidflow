@@ -73,6 +73,7 @@ _ACTIVE_ATTRIBUTES = frozenset(
 )  # fmt: skip
 # A data: URL with a payload (images, SVG, documents) cannot be verified by text scanning.
 _DATA_SCHEME = re.compile(r"(?<![\w-])data:", re.IGNORECASE)
+_COMMENT_CLOSE = re.compile(r"--!?>")
 
 
 def has_data_payload(value: str) -> bool:
@@ -272,6 +273,22 @@ class _Parser(HTMLParser):
     def _offset(self) -> int:
         line, column = self.getpos()
         return self.lines[line - 1] + column
+
+    def parse_comment(self, i: int, report: bool = True) -> int:
+        # Older supported CPython patch releases do not recognize HTML's --!>
+        # terminator. Own this boundary so they neither expose comment bodies as
+        # visible text nor consume following prose until a later --> comment.
+        raw = self.rawdata
+        if not raw.startswith("<!--", i) or raw.startswith(("<!-->", "<!--->"), i):
+            raise ValueError("Unsupported HTML comment boundary")
+        closing = _COMMENT_CLOSE.search(raw, i + 4)
+        if closing is None:
+            # parse() supplies the entire source in one feed; incomplete input
+            # must not fall back to HTMLParser's final handle_data callback.
+            raise ValueError("Unclosed HTML comment")
+        if report:
+            self.handle_comment(raw[i + 4 : closing.start()])
+        return closing.end()
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         start = self._offset()

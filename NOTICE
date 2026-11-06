@@ -43,14 +43,14 @@ The model file contains numeric weights keyed by hashed features, not the
 corpus text. The corpus is synthetic and contains no real customer data.
 
 -------------------------------------------------------------------------------
-Bundled model: src/deidflow/models/es-general-1.json.gz
+Bundled model: src/deidflow/models/es-general-2.json.gz
 -------------------------------------------------------------------------------
 
 The built-in general Spanish span tagger was trained by DeidFlow on three
 sources together: the MEDDOCAN training split (attribution and license above;
 development split used for epoch selection), the Spanish training file of the
 Gretel synthetic_pii_finance_multilingual corpus (attribution and license
-above; same 10% text-hash holdout), and 3,000 documents from DeidFlow's own
+above; same 10% text-hash holdout), and 5,000 documents from DeidFlow's own
 synthetic multi-country generator (deidflow.benchmarks.synthetic_es, seed 1729),
 whose names, companies and streets come from the Faker library's Spanish
 locales (Faker 40.44.0, Copyright Daniele Faraglia and contributors, MIT

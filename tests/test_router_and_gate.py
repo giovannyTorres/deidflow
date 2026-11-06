@@ -70,7 +70,7 @@ def test_builtin_router_and_cli(tmp_path, capsys):
     router = DomainRouter.builtin()
     assert set(router.taggers) == {"clinical", "financial"}
     assert router.taggers["clinical"].model_version == "es-clinical-meddocan-1"
-    assert router.taggers["financial"].model_version == "es-general-1"
+    assert router.taggers["financial"].model_version == "es-general-2"
     assert router.mixed == (router.taggers["financial"],)
     clinical = "Paciente de 70 años con hematuria macroscópica. Se realiza ecografía renal."
     financial = "Estimado cliente, adjuntamos el estado de cuenta de su préstamo hipotecario."
