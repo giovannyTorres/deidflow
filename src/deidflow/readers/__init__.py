@@ -6,6 +6,8 @@ import csv
 import io
 import json
 import math
+import posixpath
+import re
 import uuid
 import warnings
 import zipfile
@@ -22,6 +24,148 @@ MAX_PIXELS = 40_000_000
 MAX_PAGES = 10_000
 _W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 _S = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
+
+# Only package parts whose contents are explicitly handled may participate in a
+# complete DOCX read or rewrite. Unknown/orphan ZIP members are recoverable data,
+# even when Word does not render them.
+_DOCX_WORD_ROOTS = {
+    "document": "document",
+    "styles": "styles",
+    "stylesWithEffects": "styles",
+    "settings": "settings",
+    "webSettings": "webSettings",
+    "fontTable": "fonts",
+    "numbering": "numbering",
+    "footnotes": "footnotes",
+    "endnotes": "endnotes",
+    "comments": "comments",
+}
+_DOCX_MEDIA_DIRS = (
+    "word/media/",
+    "word/embeddings/",
+    "word/charts/",
+    "word/diagrams/",
+    "word/activex/",
+)
+
+
+def docx_word_root(name: str) -> str | None:
+    """Expected XML root for the supported Word part names."""
+    if name.startswith("word/") and name.endswith(".xml"):
+        stem = name[5:-4]
+        if stem in _DOCX_WORD_ROOTS:
+            return _W + _DOCX_WORD_ROOTS[stem]
+        if re.fullmatch(r"header[0-9]+", stem):
+            return _W + "hdr"
+        if re.fullmatch(r"footer[0-9]+", stem):
+            return _W + "ftr"
+        if re.fullmatch(r"theme/theme[0-9]+", stem):
+            return "{http://schemas.openxmlformats.org/drawingml/2006/main}theme"
+    return None
+
+
+def docx_part_kind(name: str) -> str | None:
+    """Classify a canonical, explicitly supported DOCX package member."""
+    if "\\" in name or name.startswith("/") or posixpath.normpath(name) != name.rstrip("/"):
+        return None
+    if name.endswith("/"):
+        return "directory"
+    if name == "[Content_Types].xml":
+        return "content_types"
+    if name == "_rels/.rels":
+        return "relationships"
+    directory, base = posixpath.split(name)
+    if posixpath.basename(directory) == "_rels" and base.endswith(".rels"):
+        owner = posixpath.join(posixpath.dirname(directory), base[:-5])
+        if docx_part_kind(owner) in {"word", "properties", "custom", "media"}:
+            return "relationships"
+        return None
+    if name in {"docProps/core.xml", "docProps/app.xml", "docProps/custom.xml"}:
+        return "properties"
+    if re.fullmatch(r"customXml/item(?:Props)?[0-9]+\.xml", name):
+        return "custom"
+    if docx_word_root(name) is not None:
+        return "word"
+    if any(name.lower().startswith(prefix) for prefix in _DOCX_MEDIA_DIRS):
+        return "media"
+    if name.lower().startswith("docprops/thumbnail") or name == "word/vbaProject.bin":
+        return "media"
+    return None
+
+
+_XLSX_REMOVED_PREFIXES = (
+    "xl/pivotcache/",
+    "xl/pivottables/",
+    "xl/externallinks/",
+    "xl/threadedcomments/",
+    "xl/persons/",
+    "xl/querytables/",
+    "xl/printersettings/",
+)
+_XLSX_MEDIA_PREFIXES = (
+    "xl/media/",
+    "xl/embeddings/",
+    "xl/charts/",
+    "xl/activex/",
+    "xl/ctrlprops/",
+    "xl/drawings/",
+)
+
+
+def xlsx_part_root(name: str) -> str | None:
+    roots = {
+        "xl/workbook.xml": "workbook",
+        "xl/sharedStrings.xml": "sst",
+        "xl/styles.xml": "styleSheet",
+    }
+    if name in roots:
+        return _S + roots[name]
+    for pattern, root in (
+        (r"xl/worksheets/sheet[0-9]+\.xml", "worksheet"),
+        (r"xl/tables/table[0-9]+\.xml", "table"),
+        (r"xl/comments[0-9]+\.xml", "comments"),
+    ):
+        if re.fullmatch(pattern, name):
+            return _S + root
+    if re.fullmatch(r"xl/theme/theme[0-9]+\.xml", name):
+        return "{http://schemas.openxmlformats.org/drawingml/2006/main}theme"
+    return None
+
+
+def xlsx_part_kind(name: str) -> str | None:
+    """Closed supported package boundary for supervised XLSX transformation."""
+    if "\\" in name or name.startswith("/") or posixpath.normpath(name) != name.rstrip("/"):
+        return None
+    if name.endswith("/"):
+        return "directory"
+    if name == "[Content_Types].xml":
+        return "content_types"
+    if name == "_rels/.rels":
+        return "relationships"
+    directory, base = posixpath.split(name)
+    if posixpath.basename(directory) == "_rels" and base.endswith(".rels"):
+        owner = posixpath.join(posixpath.dirname(directory), base[:-5])
+        if xlsx_part_kind(owner) in {"spreadsheet", "properties", "custom", "media", "removed"}:
+            return "relationships"
+        return None
+    common = docx_part_kind(name)
+    if common in {"properties", "custom"}:
+        return common
+    if xlsx_part_root(name) is not None:
+        return "spreadsheet"
+    lower = name.lower()
+    if lower.startswith(_XLSX_REMOVED_PREFIXES) or lower in {
+        "xl/connections.xml",
+        "xl/calcchain.xml",
+    }:
+        return "removed"
+    if (
+        lower.startswith(_XLSX_MEDIA_PREFIXES)
+        or lower.startswith("docprops/thumbnail")
+        or lower == "xl/vbaproject.bin"
+    ):
+        return "media"
+    return None
 
 
 # Field instructions that only compute layout values from the document itself.
@@ -58,6 +202,29 @@ def _field_instructions(root: ET.Element) -> list[str]:
                 found.append(element.text or "")
     found.extend("".join(pieces) for pieces in stack)  # unterminated fields
     return found
+
+
+_EXTERNAL_WORKBOOK = re.compile(r"\[\d+\]|\[[^\]]*\.(?:xl\w*|csv|ods)\]|://", re.IGNORECASE)
+
+
+def formula_carries_data(formula: str) -> bool:
+    """True when a spreadsheet formula holds a string literal or an external reference.
+
+    Cell arithmetic such as ``SUM(B2:B9)`` or ``Tabla1[Importe]`` only reads cells
+    that are scanned themselves; ``"Juan"&A1`` or ``[1]Hoja1!A1`` carries content
+    or points outside the workbook.
+    """
+    return '"' in formula or bool(_EXTERNAL_WORKBOOK.search(formula))
+
+
+# Spreadsheet header/footer codes: sections (&L &C &R), fonts (&"Arial,Bold"), sizes
+# (&12) and fields (&P page, &A sheet, &D date...). Font names are not content.
+_HEADER_CODE = re.compile(r'&"[^"]*"|&\d+|&[A-Za-z&]')
+
+
+def header_footer_text(text: str) -> str:
+    """Spreadsheet header/footer text with formatting codes blanked, same length."""
+    return _HEADER_CODE.sub(lambda match: " " * len(match.group()), text)
 
 
 class DocumentError(RuntimeError):
@@ -180,6 +347,10 @@ def _read_docx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
     with _archive(path, max_bytes) as archive:
         if "word/document.xml" not in archive.namelist():
             raise DocumentError("Missing DOCX document part")
+        if any(docx_part_kind(name) is None for name in archive.namelist()):
+            _issue(graph, "unsupported_docx_package_part")
+        if any(docx_part_kind(name) == "media" for name in archive.namelist()):
+            _issue(graph, "office_media_requires_review")
         _read_metadata(archive, graph)
         for name in archive.namelist():
             if not name.startswith("word/") or not name.endswith(".xml"):
@@ -187,6 +358,9 @@ def _read_docx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
             if "/charts/" in name or "/diagrams/" in name:
                 _issue(graph, "office_drawing_content_requires_review")
             root = _xml(archive.read(name))
+            expected_root = docx_word_root(name)
+            if expected_root is not None and root.tag != expected_root:
+                raise DocumentError("Unexpected DOCX document part root")
             table_locations: dict[ET.Element, tuple[int, int, int]] = {}
             table_specs: list[dict[str, Any]] = []
             for table_index, table in enumerate(root.iter(_W + "tbl")):
@@ -210,7 +384,9 @@ def _read_docx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
                 graph.metadata.setdefault("tables", []).extend(table_specs)
             # Paragraphs include document tables, headers, footers, footnotes,
             # endnotes, comments, textboxes and both sides of tracked revisions.
+            paragraph_nodes: set[ET.Element] = set()
             for index, paragraph in enumerate(root.iter(_W + "p")):
+                paragraph_nodes.update(paragraph.iter())
                 pieces: list[str] = []
                 for child in paragraph.iter():
                     # Text runs of every namespace: w:t, DrawingML a:t, Office Math m:t.
@@ -242,15 +418,19 @@ def _read_docx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
             if any(True for _ in root.iter(_W + "altChunk")):
                 _issue(graph, "alternate_content_not_extracted")
             for element in root.iter():
-                # Revision authors, comment authors and filenames are personal
-                # metadata. Text-bearing attributes are scanned separately.
+                # Text-bearing metadata needs scanning, but formatting values
+                # (font names, style and relationship IDs) are not prose.
                 for attribute, value in element.attrib.items():
                     local = attribute.rsplit("}", 1)[-1]
-                    if (
+                    if value and (
                         local in {"author", "initials", "title", "descr", "name", "userId"}
-                        and value
+                        or (element.tag == _W + "docVar" and local == "val")
                     ):
                         _fragment(graph, value, part=name, kind="metadata")
+                if element not in paragraph_nodes and element.text and element.text.strip():
+                    _fragment(graph, element.text, part=name, kind="metadata")
+                if element.tail and element.tail.strip():
+                    _fragment(graph, element.tail, part=name, kind="metadata")
             instructions = _field_instructions(root)
             for instruction in instructions:
                 if instruction.strip():
@@ -264,6 +444,18 @@ def _read_xlsx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
         names = archive.namelist()
         if "xl/workbook.xml" not in names:
             raise DocumentError("Missing XLSX workbook part")
+        # The reader covers selected workbook data, not every Excel extension or
+        # display-format semantic. XLSX output and standalone verification both
+        # require human review even after a successful reread.
+        graph.issues.append("XLSX_REVIEW_REQUIRED")
+        for name in names:
+            kind = xlsx_part_kind(name)
+            if kind is None:
+                _issue(graph, "unsupported_xlsx_package_part")
+            elif kind in {"media", "removed"}:
+                _issue(graph, "spreadsheet_auxiliary_content_requires_review")
+            elif kind == "spreadsheet" and _xml(archive.read(name)).tag != xlsx_part_root(name):
+                raise DocumentError("Unexpected XLSX document part root")
         _read_metadata(archive, graph)
         strings: list[str] = []
         if "xl/sharedStrings.xml" in names:
@@ -283,7 +475,15 @@ def _read_xlsx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
         for definition in workbook.iter(_S + "definedName"):
             if definition.text:
                 _fragment(graph, definition.text, part="xl/workbook.xml", kind="defined_name")
-                _issue(graph, "spreadsheet_defined_names_require_review")
+                if formula_carries_data(definition.text):
+                    _issue(graph, "spreadsheet_defined_names_require_review")
+        for element in workbook.iter():
+            # Saved folder paths and shared-workbook user names.
+            for attribute in ("url", "userName"):
+                if element.attrib.get(attribute):
+                    _fragment(
+                        graph, element.attrib[attribute], part="xl/workbook.xml", kind="metadata"
+                    )
         relations: dict[str, str] = {}
         relpath = "xl/_rels/workbook.xml.rels"
         if relpath in names:
@@ -350,7 +550,8 @@ def _read_xlsx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
                             column=column_letters,
                             kind="formula",
                         )
-                        _issue(graph, "spreadsheet_formulas_require_review")
+                        if formula_carries_data(formula.text or ""):
+                            _issue(graph, "spreadsheet_formulas_require_review")
                 for element in root.iter():
                     if (
                         element.tag.rsplit("}", 1)[-1]
@@ -364,7 +565,9 @@ def _read_xlsx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
                         }
                         and element.text
                     ):
-                        _fragment(graph, element.text, part=name, kind="header_footer")
+                        _fragment(
+                            graph, header_footer_text(element.text), part=name, kind="header_footer"
+                        )
             elif name.startswith("xl/") and "comment" in name.lower() and name.endswith(".xml"):
                 root = _xml(archive.read(name))
                 for author in root.iter(_S + "author"):
@@ -406,6 +609,7 @@ def _read_xlsx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
                 )
                 and name.endswith(".xml")
             ):
+                review = "tables/" not in name  # table definitions are fully scanned below
                 root = _xml(archive.read(name))
                 for element in root.iter():
                     if element.text and element.text.strip():
@@ -419,7 +623,8 @@ def _read_xlsx(path: Path, graph: DocumentGraph, max_bytes: int) -> None:
                             "userId",
                         }:
                             _fragment(graph, attribute_value, part=name, kind="metadata")
-                _issue(graph, "spreadsheet_auxiliary_content_requires_review")
+                if review:
+                    _issue(graph, "spreadsheet_auxiliary_content_requires_review")
 
 
 def _ocr_fragment(

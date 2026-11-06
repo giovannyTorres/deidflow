@@ -14,9 +14,54 @@ import unicodedata
 from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
 from datetime import date, timedelta
+from typing import TYPE_CHECKING
 
 from deidflow.core import EntityType, Finding
 from deidflow.policies import Policy, Rule
+
+if TYPE_CHECKING:
+    from deidflow.placeholders import PlaceholderAllocator
+
+
+_MONTHS = (
+    "enero febrero marzo abril mayo junio julio agosto septiembre octubre noviembre diciembre"
+).split()
+_MONTH_NUMBER = {name: i + 1 for i, name in enumerate(_MONTHS)} | {"setiembre": 9}
+_WRITTEN = re.compile(
+    r"(?P<day>[0-3]?[0-9])(?P<s1>[ \t]+de[ \t]+)(?P<month>[A-Za-zÁÉÍÓÚáéíóú]+)"
+    r"(?P<s2>[ \t]+de(?:l)?[ \t]+)(?P<year>[0-9]{4})\Z"
+)
+_NUMERIC = re.compile(
+    r"(?P<day>[0-3]?[0-9])(?P<sep>[/.-])(?P<month>[01]?[0-9])(?P=sep)(?P<year>[0-9]{4})\Z"
+)
+
+
+def _shift_date(value: str, days: int) -> str:
+    """Shift ISO, dd/mm/yyyy (/ . -) and Spanish written dates, keeping their format."""
+    stripped = value.strip()
+    try:
+        return (date.fromisoformat(stripped) + timedelta(days=days)).isoformat()
+    except ValueError:
+        pass
+    if match := _NUMERIC.match(stripped):
+        year = int(match.group("year"))
+        shifted = date(year, int(match.group("month")), int(match.group("day"))) + timedelta(
+            days=days
+        )
+        sep = match.group("sep")
+        year_text = f"{shifted.year:04d}"
+        return f"{shifted.day:02d}{sep}{shifted.month:02d}{sep}{year_text}"
+    if match := _WRITTEN.match(stripped):
+        month_name = match.group("month")
+        month = _MONTH_NUMBER[month_name.casefold()]
+        shifted = date(int(match.group("year")), month, int(match.group("day"))) + timedelta(
+            days=days
+        )
+        name = _MONTHS[shifted.month - 1]
+        if month_name[:1].isupper():
+            name = name.capitalize()
+        return f"{shifted.day}{match.group('s1')}{name}{match.group('s2')}{shifted.year}"
+    raise ValueError
 
 
 class IncompleteTransformationError(ValueError):
@@ -83,9 +128,11 @@ def _apply(
             raise ValueError("Numeric bucketing requires a finite number") from None
     if rule.action == "date_shift":
         try:
-            return (date.fromisoformat(value) + timedelta(days=rule.shift_days)).isoformat()
-        except (ValueError, OverflowError):
-            raise ValueError("Date shifting requires a valid ISO date") from None
+            return _shift_date(value, rule.shift_days)
+        except (ValueError, OverflowError, KeyError):
+            raise ValueError(
+                "Date shifting requires a valid ISO or Spanish four-digit-year date"
+            ) from None
     if rule.action == "custom":
         if rule.custom not in custom:
             raise ValueError("Custom transformation is not registered")
@@ -108,7 +155,21 @@ def transform_text(
     scope: str = "",
     domain: str | None = None,
     custom: dict[str, Callable[[str], str]] | None = None,
+    placeholders: PlaceholderAllocator | None = None,
 ) -> tuple[str, list[SourceMap]]:
+    if placeholders is None and any(
+        rule.action == "indexed"
+        for rule in (
+            policy.default,
+            *policy.entities.values(),
+            *policy.domains.get(domain or "", {}).values(),
+        )
+    ):
+        from deidflow.placeholders import PlaceholderAllocator
+
+        placeholders = PlaceholderAllocator()
+    if placeholders is not None:
+        placeholders.reserve_source(text)
     selected = []
     for finding in findings:
         if not 0 <= finding.start < finding.end <= len(text):
@@ -129,6 +190,7 @@ def transform_text(
         "redact": 0,
         "suppress": 1,
         "placeholder": 2,
+        "indexed": 2,
         "pseudonym": 3,
         "custom": 4,
         "generalize": 5,
@@ -150,9 +212,15 @@ def transform_text(
         untouched = text[cursor:start]
         parts.append(untouched)
         out_cursor += len(untouched)
-        replacement = _apply(
-            text[start:end], chosen.entity_type, rule, key=key, scope=scope, custom=custom or {}
-        )
+        if rule.action == "indexed":
+            assert placeholders is not None
+            replacement = placeholders.placeholder(
+                text[start:end], chosen.entity_type, [f for f, _ in group]
+            )
+        else:
+            replacement = _apply(
+                text[start:end], chosen.entity_type, rule, key=key, scope=scope, custom=custom or {}
+            )
         if replacement == text[start:end]:
             raise IncompleteTransformationError("Transformation left a sensitive span unchanged")
         parts.append(replacement)
@@ -186,7 +254,7 @@ _REPLACEMENT_TOKEN = re.compile(
     r"|\[GENERALIZED\]|\u2588+|\*+"
 )
 SAFE_REPLACEMENT_ACTIONS = frozenset(
-    {"redact", "suppress", "placeholder", "pseudonym", "generalize"}
+    {"redact", "suppress", "placeholder", "indexed", "pseudonym", "generalize"}
 )
 
 

@@ -29,7 +29,19 @@ not. Tests deny sockets for the base pipeline and an actual local Spanish model.
 - Non-keep operators that return the exact sensitive source span unchanged fail.
   Short partial masks fully replace their content. Partial masks, date shifts,
   generalization and stable pseudonyms retain information and can permit linkage.
-- Office rewriting and automatic standalone image release cannot return APPROVED.
+- Source uncertainty survives structured transformations, including JSON keys
+  and inferred table fields. Low scores and unresolved model-window boundaries
+  require review even when the transformed output has no detected residuals.
+- DOCX rewriting checks supported package parts before transformation and
+  rereads the candidate before release. Unknown parts, including orphan XML or
+  binary payloads, block output rather than being silently copied. Supported
+  DOCX output can be APPROVED; this is not proof of complete PII detection.
+  XLSX rewriting validates a separate supported package set and always requires
+  review, including standalone verification. Unknown parts block output; VML,
+  drawings and cached/linked auxiliary parts are removed by default. Retained
+  media blocks output. Custom formats and Excel extension semantics are not a
+  certified anonymization surface; inspect candidates privately before use.
+  Automatic standalone image release cannot return APPROVED.
   Supported PDFs use new raster-only reconstruction, closed object grammar and
   actual decoded-pixel/mask verification plus rerender/OCR. Source content is not
   copied; verified constant black regions alone can be whitened in temporary OCR
@@ -49,7 +61,9 @@ Pseudonyms use HMAC-SHA256 with explicit >=256-bit secret keys and 160-bit
 Base32 tokens. Scope components are unambiguously framed and include tenant
 context. Per-document, dataset, tenant and session scopes have distinct domains.
 Canonicalization uses Unicode NFC and intentionally retains case. Changing the
-key or scope changes the linkage namespace. No reversible mapping store exists.
+key or scope changes the linkage namespace. The HMAC operator does not retain
+a reversible mapping store. The separate opt-in `DeidSession` workflow can keep
+an explicit vault, as described below.
 
 Keys are supplied by the caller; use a secret manager or protected OS storage.
 Do not put keys in a command line, repository or audit. Key rotation, encrypted
@@ -71,6 +85,28 @@ directory's access controls and are deleted on failure. Callers must secure that
 directory and exclude it from automatic synchronization. Deletion is not secure
 physical erasure. Python cannot reliably erase all plaintext copies from memory.
 DocumentGraph, pandas/Polars and OCR objects intentionally hold private data.
+
+## Local LLM sessions
+
+The opt-in LLM workflow performs local pseudonymization only. `DeidSession`
+never sends text or calls a provider. Exact NFC values may reuse issued tokens;
+partial names and inferred aliases do not establish identity. Source token
+collisions and unknown restoration tokens are rejected. An LLM can still misuse
+a valid token, so inspect restored content privately; token membership is not
+proof of attribution or model truthfulness.
+
+Reversible sessions default to a plaintext in-memory vault. Supply an
+`EncryptedVault` explicitly when required; an empty supplied vault is preserved.
+The optional `vault` extra supplies cryptography. Persisted v2 vaults authenticate
+their version, session ID, expiry and entries. Legacy v1 is rejected, and a
+populated vault requires its matching allocator for resumption. Key storage and
+OS clock integrity remain host responsibilities. Session close clears mappings;
+this is not guaranteed physical memory erasure.
+
+The proper-noun verifier is an optional text heuristic, not an independent
+anonymity guarantee. Formats where it has not run explicitly require review.
+Policy fingerprints now include this option; existing approval receipts must be
+revalidated when changing application versions or policies.
 
 ## Hostile inputs and limits
 
@@ -94,7 +130,9 @@ No automated detector proves the absence of unknown PII. Rules miss unlabelled
 names, free-form addresses, unknown secrets, multilingual variants, novel
 identifiers and domain-specific medical relationships. OCR can miss content or
 misread identifiers; damaged-ID candidates are not silently corrected into
-validity. Office revision text is scanned but automatic rewriting is unsupported.
+validity. DOCX rewriting accepts tracked changes and removes deleted revision
+text and personal revision metadata. XLSX output is a supervised candidate only;
+other Office output remains unsupported.
 Native graph PDF extraction cannot prove visual/text equivalence or locate every glyph.
 The PDF removal backend uses its separate explicit character/glyph mapping and
 refuses unsupported geometry. It trades away searchability/vector structure,

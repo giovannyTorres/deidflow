@@ -29,6 +29,7 @@ class SpacyNER:
         overlap_chars: int = 512,
         device: str = "cpu",
         labels: dict[str, str] | None = None,
+        roles: dict[str, str] | None = None,
     ) -> None:
         if batch_size < 1 or window_chars < 64 or not 0 <= overlap_chars < window_chars // 2:
             raise ValueError("Invalid NLP batch/window settings")
@@ -46,6 +47,12 @@ class SpacyNER:
             if labels is not None
             else {"PER": "PERSON", "PERSON": "PERSON", "LOC": "LOCATION", "GPE": "LOCATION"}
         )
+        self.roles = dict(roles or {})
+        if any(
+            label not in self.labels or not isinstance(role, str) or not role
+            for label, role in self.roles.items()
+        ):
+            raise ValueError("NLP roles must map configured labels to nonempty roles")
         self._nlp: Any = None
         self._lock = Lock()
         self.model_version = "unloaded"
@@ -120,7 +127,12 @@ class SpacyNER:
                                 0.75,
                                 "spacy.local",
                                 validation="statistical",
-                                context=("window_boundary",) if partial else (),
+                                context=(("window_boundary",) if partial else ())
+                                + (
+                                    (f"role:{self.roles[entity.label_]}",)
+                                    if entity.label_ in self.roles
+                                    else ()
+                                ),
                                 model_version=self.model_version,
                                 risk="medium" if kind == "LOCATION" else "high",
                             )

@@ -4,7 +4,7 @@ from deidflow.core import DocumentGraph, EntityType, Finding, Fragment, SourceLo
 from deidflow.engine import DeidEngine, ReleaseStatus, Result
 from deidflow.policies import Policy, Rule
 
-__version__ = "0.4.0"
+__version__ = "0.5.0b1"
 __all__ = [
     "DeidEngine",
     "Policy",

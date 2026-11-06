@@ -12,6 +12,7 @@ ACTIONS = frozenset(
     {
         "redact",
         "placeholder",
+        "indexed",
         "pseudonym",
         "generalize",
         "suppress",
@@ -63,6 +64,7 @@ class Policy:
     review_below: float = 0.75
     allow_residual_types: tuple[str, ...] = ()
     token_scope: str = "document"
+    independent_check: str = "none"
 
     def __post_init__(self) -> None:
         if not isinstance(self.name, str) or not self.name or len(self.name) > 128:
@@ -80,6 +82,11 @@ class Policy:
             or not 0 <= self.review_below <= 1
         ):
             raise ValueError("Invalid release gate")
+        if not isinstance(self.independent_check, str) or self.independent_check not in {
+            "none",
+            "proper_nouns",
+        }:
+            raise ValueError("Invalid independent output check")
         if not isinstance(self.default, Rule):
             raise ValueError("default must be a Rule")
         if not isinstance(self.entities, dict) or not all(
@@ -107,6 +114,50 @@ class Policy:
     def strict_pdf(cls, *, require_ner: bool = True) -> Policy:
         """Physical pixel removal for reconstructed PDFs, with explicit semantics."""
         return cls(name="strict_pdf", default=Rule("redact"), require_ner=require_ner)
+
+    @classmethod
+    def llm(
+        cls,
+        *,
+        require_ner: bool = True,
+        keep_clinical: bool = True,
+        verify_proper_nouns: bool = True,
+    ) -> Policy:
+        """Context-preserving preset for sending text to an LLM.
+
+        Identifiers become indexed, role-aware placeholders (``[PERSONA_1]``,
+        ``[MEDICO_1]``, ``[LUGAR_1]``); ages are bucketed; sex/gender mentions are
+        kept. With ``keep_clinical`` the clinical content itself (diagnoses,
+        conditions, treatments, medications) is kept so the model can reason about
+        it once the subject is de-identified; set it to ``False`` to replace it too.
+        ``verify_proper_nouns`` adds a text-only review heuristic. Other formats
+        require review instead of silently bypassing this check.
+        """
+        keep = Rule("keep")
+        entities = {"DEMOGRAPHIC": keep, "AGE": Rule("bucket", width=10)}
+        if keep_clinical:
+            entities.update(
+                {
+                    kind: keep
+                    for kind in (
+                        "DIAGNOSIS",
+                        "MEDICAL_CONDITION",
+                        "TREATMENT",
+                        "MEDICATION",
+                        "CLINICAL_OBSERVATION",
+                        "MEDICAL_HISTORY",
+                        "MEDICAL_ATTRIBUTE",
+                    )
+                }
+            )
+        return cls(
+            name="llm",
+            default=Rule("indexed"),
+            entities=entities,
+            require_ner=require_ner,
+            token_scope="session",
+            independent_check="proper_nouns" if verify_proper_nouns else "none",
+        )
 
     def rule(self, entity_type: str, domain: str | None = None) -> Rule:
         if domain and entity_type in self.domains.get(domain, {}):

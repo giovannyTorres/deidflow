@@ -2,9 +2,9 @@ name: checks
 on:
   push:
     branches: [master, main]
-    tags: ["v*"]
   pull_request:
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
@@ -23,16 +23,24 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python: ['3.11', '3.12', '3.13']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
           cache: pip
-          cache-dependency-path: pyproject.toml
+          cache-dependency-path: |
+            pyproject.toml
+            requirements-constraints-windows-py311.txt
       - run: python -m pip install --upgrade pip
-      - run: python -m pip install -e ".[dev,pdf,ocr,tables,yaml,training,benchmarks,nlp,private-gmail]"
+      - name: Install reviewed Windows constraints
+        if: ${{ matrix.os == 'windows-latest' && matrix.python == '3.11' }}
+        run: python -m pip install -c requirements-constraints-windows-py311.txt -e ".[dev,pdf,ocr,tables,yaml,training,benchmarks,nlp,private-gmail,vault]"
+      - name: Install supported dependencies
+        if: ${{ !(matrix.os == 'windows-latest' && matrix.python == '3.11') }}
+        run: python -m pip install -e ".[dev,pdf,ocr,tables,yaml,training,benchmarks,nlp,private-gmail,vault]"
+      - run: python -m pip check
       - run: python -m ruff check .
       - run: python -m ruff format --check .
       - run: python -m mypy --python-version ${{ matrix.python }} src/deidflow
@@ -48,10 +56,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
       - run: python -m pip install --upgrade pip build twine
@@ -77,7 +85,7 @@ jobs:
               assert "368503" not in result.output_text
           print("wheel smoke test passed", sorted(BUILTIN_MODELS))
           EOF
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist/
@@ -87,13 +95,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
       - run: python -m pip install --upgrade pip
-      - run: python -m pip install -e ".[dev,pdf,ocr,tables,yaml,training,benchmarks,nlp,private-gmail]"
+      - run: python -m pip install -e ".[dev,pdf,ocr,tables,yaml,training,benchmarks,nlp,private-gmail,vault]"
       - run: python -m pip_audit --skip-editable
       - run: python scripts/audit_licenses.py

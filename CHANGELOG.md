@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.5.0b1 - Unreleased beta candidate
+
+- Consolidated reviewed branches while retaining Apache-2.0, current Spanish
+  models, identifier support and operating profiles.
+- Added opt-in exact-value LLM sessions/indexed placeholders, authenticated
+  expiring vault v2, optional narrative recognition, person-role and full-coverage
+  leakage metrics. Legacy vault v1 is rejected; policy fingerprints include the
+  independent-check option. No LLM calls or uploads are performed.
+- Upgraded compatible actions/dependencies and made release builds depend on
+  the full CI matrix. Kept historical dependency evidence separate from current
+  Windows constraints; retained the thinc version required by spaCy.
+
+- Preserve low-confidence and unresolved model-window evidence through
+  CSV/TSV, JSON/JSONL and DataFrame transformations, including inferred-column
+  fast paths and JSON keys. A clean output rescan no longer discards source
+  review requirements; transformed JSON keys also count in the audit.
+- Block DOCX packages with unsupported internal parts instead of copying
+  uninspected XML or binary payloads into an approved output. Add regressions
+  for hidden package content and structured-format release decisions.
+- These corrections strengthen release decisions; they do not change measured
+  detector recall or establish unattended production readiness.
+
 ## 0.4.0 - 2026-11-05
 
 - Relicensed under Apache-2.0 (`LICENSE`, `NOTICE`); the earlier snapshots
@@ -46,6 +68,15 @@
   external links, mail-merge settings and data-bearing field codes, and by
   default images and embedded objects (`office_media`, CLI `--office-media`);
   the output is reread and rescanned before release.
+- XLSX output: cells are transformed with their column header as context
+  (recognized columns whole, as for CSV), changed cells become inline strings,
+  the shared-string table is rebuilt so replaced and orphaned values are gone,
+  formulas with literals or external references are replaced by their values,
+  sheets named after a person are renamed, and pivot caches, external links,
+  connections, threaded comments, printer settings and saved paths are removed.
+  XLSX output and standalone verification always require human review. Unknown
+  parts and retained media block output; VML is removed by default. Package
+  relationships/content types are rebuilt and source uncertainty is retained.
 - The DOCX reader scans `fldSimple` instructions and commenter account IDs,
   flags package thumbnails, and no longer forces review for layout-only fields
   such as `PAGE` or `TOC`.
