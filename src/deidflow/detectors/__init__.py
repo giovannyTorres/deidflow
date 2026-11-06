@@ -22,6 +22,7 @@ from deidflow.validators import (
     validate_rfc,
 )
 
+from .addresses import AddressCandidate, address_candidates
 from .clinical import contextual_spanish
 from .international import (
     SUPPORTED_COUNTRIES,
@@ -386,12 +387,33 @@ class RuleDetector:
             for pattern in (_NAME, _NAME_FIELD, _HONORIFIC):
                 for match in pattern.finditer(text):
                     add("PERSON", *match.span("value"), 0.88, context=("person_label",))
+            labelled_addresses: list[tuple[int, int]] = []
+            candidates = list(address_candidates(text))
             for pattern in (_ADDRESS, _STREET):
                 for match in pattern.finditer(text):
                     start, end = match.span("value")
                     while end > start and text[end - 1].isspace():
                         end -= 1
-                    add("ADDRESS", start, end, 0.85, context=("address_structure",))
+                    if pattern is _ADDRESS:
+                        add("ADDRESS", start, end, 0.85, context=("address_structure",))
+                        labelled_addresses.append((start, end))
+                    else:
+                        candidates.append(
+                            AddressCandidate(start, end, 0.85, ("address_structure",))
+                        )
+            # Unlabelled addresses: the longest of overlapping candidates, and none
+            # inside an address a field label already delimited.
+            chosen: list[tuple[int, int]] = []
+            for address in sorted(
+                candidates, key=lambda a: (-(a.end - a.start), -a.score, a.start)
+            ):
+                span = (address.start, address.end)
+                if address.end <= address.start or any(
+                    s < address.end and address.start < e for s, e in chosen + labelled_addresses
+                ):
+                    continue
+                chosen.append(span)
+                add("ADDRESS", *span, address.score, context=address.context)
             dates = {match.span() for match in _DATE.finditer(text)}
             dates.update(date_candidates(text))
             for date_start, date_end in sorted(dates):

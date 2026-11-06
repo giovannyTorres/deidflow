@@ -80,6 +80,29 @@ Also in the international pack, for every country:
   numeric dates with the same separator twice (`15/3/2021`); with a birth-date
   label they become `DATE_OF_BIRTH`.
 
+## Street addresses
+
+Without a field label (`Domicilio:` and `Dirección:` were already recognized),
+`deidflow.detectors.addresses` reports addresses written in these forms:
+
+| Form | Example | Score |
+| --- | --- | ---: |
+| Colombian grid nomenclature | `Calle 45 # 12-30`, `Cra. 7 No. 71-21, Apto 502`, `Cl. 84 Bis T # 8T-94 Sur` | 0.90 |
+| Introduced by a residence word (`domicilio en`, `vivo en`, `reside en`, `ubicada en`...) | `Los Alerces 33`, `416 Paseo de Martí` | 0.85 |
+| Street type, capitalized name and number | `C/ Pintor Baeza, 11`, `Av. Kansas City 92, 8ºB`, `Jr. Huallaga 123` | 0.80 (0.85 with unit or colonia) |
+| Mexican colonia and postal code | `Av. Insurgentes Sur 1602, Col. Crédito Constructor, C.P. 03940` | 0.80–0.85 |
+
+Floors, doors and units (`Piso 2`, `8ºB`, `Bajo A`, `Dpto. 302`, `Int. 4`) are
+included. A street without a number, or followed by an ordinary lowercase word
+(`la Plaza Mayor 3 veces`), is not reported. Overlapping candidates become one
+finding, the longest. On validation only (MEDDOCAN dev, the Gretel holdout and
+the synthetic validation families) rules-only exact F1 rose from 0.515 to 0.531,
+0.311 to 0.323 and 0.462 to 0.524, and address character coverage from 0.61 to
+0.86 (clinical) and 0.00 to 0.86 (synthetic); with `builtin:auto` exact F1 stayed
+within 0.005 and character coverage rose on the financial and synthetic sets
+(0.824 to 0.826, 0.855 to 0.868). Most new predictions on the financial set
+that matched no gold span were company addresses the corpus left unannotated.
+
 ## Verification
 
 `tests/test_international.py` compares 15 of these validators with
