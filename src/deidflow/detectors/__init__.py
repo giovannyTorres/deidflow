@@ -7,6 +7,7 @@ addresses and dates for every Spanish-speaking country.
 
 from __future__ import annotations
 
+import bisect
 import re
 from collections.abc import Callable, Collection, Iterable
 from dataclasses import dataclass, replace
@@ -402,18 +403,16 @@ class RuleDetector:
                             AddressCandidate(start, end, 0.85, ("address_structure",))
                         )
             # Unlabelled addresses: the longest of overlapping candidates, and none
-            # inside an address a field label already delimited.
-            chosen: list[tuple[int, int]] = []
-            for address in sorted(
-                candidates, key=lambda a: (-(a.end - a.start), -a.score, a.start)
-            ):
-                span = (address.start, address.end)
-                if address.end <= address.start or any(
-                    s < address.end and address.start < e for s, e in chosen + labelled_addresses
-                ):
-                    continue
-                chosen.append(span)
-                add("ADDRESS", *span, address.score, context=address.context)
+            # wholly inside an address a field label already delimited (one that
+            # extends it, such as a house number on the next line, is kept).
+            for address in _select_addresses(candidates, labelled_addresses):
+                add(
+                    "ADDRESS",
+                    address.start,
+                    address.end,
+                    address.score,
+                    context=address.context,
+                )
             dates = {match.span() for match in _DATE.finditer(text)}
             dates.update(date_candidates(text))
             for date_start, date_end in sorted(dates):
@@ -459,6 +458,35 @@ class RuleDetector:
 
     def detect_batch(self, texts: list[str]) -> list[list[Finding]]:
         return [self.detect(text) for text in texts]
+
+
+def _select_addresses(
+    candidates: list[AddressCandidate], labelled: list[tuple[int, int]]
+) -> list[AddressCandidate]:
+    """Longest-first non-overlapping candidates, in O(n log n) plus list inserts."""
+    covering = sorted(labelled)
+    furthest: list[int] = []  # furthest end of a labelled span starting at or before i
+    for _, end in covering:
+        furthest.append(max(end, furthest[-1]) if furthest else end)
+    starts = [start for start, _ in covering]
+    chosen_starts: list[int] = []
+    chosen_ends: list[int] = []
+    selected: list[AddressCandidate] = []
+    for address in sorted(candidates, key=lambda a: (-(a.end - a.start), -a.score, a.start)):
+        if address.end <= address.start:
+            continue
+        index = bisect.bisect_right(starts, address.start) - 1
+        if index >= 0 and furthest[index] >= address.end:
+            continue  # wholly inside a labelled address
+        position = bisect.bisect_left(chosen_starts, address.start)
+        if position < len(chosen_starts) and chosen_starts[position] < address.end:
+            continue
+        if position > 0 and chosen_ends[position - 1] > address.start:
+            continue
+        chosen_starts.insert(position, address.start)
+        chosen_ends.insert(position, address.end)
+        selected.append(address)
+    return selected
 
 
 def fuse(findings: Iterable[Finding]) -> list[Finding]:

@@ -67,3 +67,27 @@ def test_address_patterns_are_linear_on_adversarial_input():
         start = time.perf_counter()
         detector.detect(text)
         assert time.perf_counter() - start < 5, chunk
+    for text in (
+        "Calle " + "San " * 2000 + "!",
+        "domicilio en " + "de la " * 2000 + "X",
+        "Calle " + "Santa de la " * 1000 + "!",
+    ):
+        start = time.perf_counter()
+        detector.detect(text)
+        assert time.perf_counter() - start < 2, text[:30]
+
+
+def test_many_separate_addresses_scale_linearly():
+    detector = RuleDetector()
+    timings = []
+    for count in (2000, 8000):
+        start = time.perf_counter()
+        found = detector.detect("Calle Mayor 12.\n" * count)
+        timings.append(time.perf_counter() - start)
+        assert sum(f.entity_type == "ADDRESS" for f in found) == count
+    assert timings[1] < timings[0] * 8  # 4x the input, far from 16x
+
+
+def test_candidate_extending_a_labelled_address_is_kept():
+    found = _addresses("Dirección: Calle Mayor\n12, Madrid")
+    assert "Calle Mayor\n12" in found

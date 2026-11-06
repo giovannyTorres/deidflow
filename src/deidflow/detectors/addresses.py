@@ -23,8 +23,11 @@ from dataclasses import dataclass
 
 _CAP = r"[A-ZÁÉÍÓÚÜÑ]"
 _WORD = r"[\wÁÉÍÓÚÜÑáéíóúüñ'’.-]*"
-_LINK = r"(?:(?:de(?:l)?|la|las|los|el|y|e|San|Santa|Santo)\s+)"
-_NAME = rf"(?:{_LINK}*{_CAP}{_WORD}(?:\s+{_LINK}*{_CAP}{_WORD}){{0,5}})"
+# Lowercase connectors only: a capitalized word ("San", "Santa") is a name word, so
+# every token has exactly one reading and the bounded repetitions cannot backtrack
+# combinatorially.
+_LINK = r"(?:(?:de(?:l)?|la|las|los|el|y|e)\s+)"
+_NAME = rf"(?:{_LINK}{{0,3}}{_CAP}{_WORD}(?:\s+{_LINK}{{0,3}}{_CAP}{_WORD}){{0,5}})"
 _TYPE = (
     r"(?i:calle|c/|cl\.|cll\.|avenida|avda\.|av\.|paseo|pº|plaza|pza\.|ronda|rambla|camino"
     r"|carretera|ctra\.|traves[íi]a|glorieta|jir[óo]n|jr\.|pasaje|psje\.|calzada|calz\."
@@ -46,7 +49,7 @@ _UNIT = (
     r"|,?\s*(?i:bajo|[áa]tico|entresuelo|principal)(?:\s+[A-Z])?(?![\w]))"
 )
 _TAIL = (
-    rf"(?:,?\s*(?i:col\.|colonia)\s+{_CAP}{_WORD}(?:\s+{_LINK}*{_CAP}{_WORD}){{0,4}})?"
+    rf"(?:,?\s*(?i:col\.|colonia)\s+{_CAP}{_WORD}(?:\s+{_LINK}{{0,3}}{_CAP}{_WORD}){{0,4}})?"
     r"(?:,?\s*(?i:c\.\s?p\.|cp|c[óo]digo\s+postal)\s*:?\s*\d{5})?"
 )
 _COLOMBIAN = re.compile(
@@ -71,7 +74,7 @@ _INTRODUCED = re.compile(rf"(?<![\w]){_CONTEXT}(?P<value>{_TYPED}|{_UNTYPED}|{_N
 # veces") means the number was not a house number.
 _STREET = re.compile(rf"(?<![\w])(?P<value>{_TYPED})(?!\s+(?!(?:de|del|y|e)\b)[a-záéíóúüñ]{{3,}})")
 _COLONIA = re.compile(
-    rf"(?<![\w])(?P<value>(?i:col\.|colonia)\s+{_CAP}{_WORD}(?:\s+{_LINK}*{_CAP}{_WORD}){{0,4}}"
+    rf"(?<![\w])(?P<value>(?i:col\.|colonia)\s+{_CAP}{_WORD}(?:\s+{_LINK}{{0,3}}{_CAP}{_WORD}){{0,4}}"
     r",?\s*(?i:c\.\s?p\.|cp)\s*:?\s*\d{5})(?!\d)"
 )
 
