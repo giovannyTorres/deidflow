@@ -118,6 +118,12 @@ activa automáticamente. [Protocolo, CLI, criterios y ejemplo](docs/POST_TRAININ
 - Texto, CSV/TSV, JSON/JSONL y DataFrames; lectura de Parquet.
 - DOCX y XLSX conservan estructura soportada y eliminan copias ocultas conocidas.
   XLSX siempre requiere revisión; medios retenidos y partes desconocidas bloquean.
+- ODT y ODS usan un recorrido XML compartido para lectura y transformación;
+  conservan la estructura admitida y están registrados como formatos de adjunto.
+  ODS siempre requiere revisión; medios sin inspeccionar y partes desconocidas
+  bloquean. El correo con un ODS retenido se bloquea por ahora al reverificarlo;
+  el adjunto ODT sí tiene una regresión de salida verificada.
+  [Alcance de OpenDocument](docs/formats.md#opendocument-output).
 - PDF se reconstruye con píxeles nuevos; OCR y reverificación locales. Con
   `--pack` se aplica censurado físico y conservación de categorías permitidas,
   no marcadores editables dentro del PDF.

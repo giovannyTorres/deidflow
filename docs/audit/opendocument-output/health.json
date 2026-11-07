@@ -1,0 +1,124 @@
+{
+  "assertion_preservation": {
+    "current_assertions": 215,
+    "original_assertions_retained": 128,
+    "parameter_and_skip_decorators_retained": 12,
+    "shared_reader_functions_unchanged": 42
+  },
+  "base_commit": "ec3dd3f6ee1e1409bcee1956be911b9d20022f64",
+  "base_reader_branch": "feat/opendocument-reader-review",
+  "base_reader_source_commit": "93242156e9cb259a01b6dba66bde7c3000f9c49c",
+  "branch": "feat/opendocument-output-preparation",
+  "coverage": {
+    "covered_branches": 4540,
+    "covered_lines": 11238,
+    "excluded_lines": 29,
+    "missing_branches": 1164,
+    "missing_lines": 1673,
+    "num_branches": 5704,
+    "num_partial_branches": 882,
+    "num_statements": 12911,
+    "percent_branches_covered": 79.59326788218794,
+    "percent_branches_covered_display": "80",
+    "percent_covered": 84.75960247112543,
+    "percent_covered_display": "85",
+    "percent_statements_covered": 87.04205716056076,
+    "percent_statements_covered_display": "87"
+  },
+  "date_utc": "2026-11-06",
+  "distribution": {
+    "artifacts_sha256": {
+      "deidflow-0.6.0b1-py3-none-any.whl": "bcf0a2658933e4c828961deae86d2951c711957ba8466cb63504ab2384b24fb1",
+      "deidflow-0.6.0b1.tar.gz": "9545fca44fbd5f714755d407e50ee3e5f88666a71bfddacf80338cc8d1d66a43"
+    },
+    "build_no_isolation": "PASS",
+    "clean_git_archive_commit": "96f3b252814a9b2edcd39ef4f1fbab45aaada155",
+    "documented_stdin_probe": "PASS",
+    "network_attempts_during_probe": 0,
+    "scope_specific_wheel_probe": "PASS",
+    "scope_wheel_reproducer": "REPRODUCE_WHEEL.md",
+    "scope_wheel_reproducer_python_sha256": "6720247953b5ff84e00f1bd4d7a586685a12067d7ab70b397e441a8b697c7fc3",
+    "twine_strict": "PASS",
+    "wheel_without_extras_outside_checkout": "PASS"
+  },
+  "evidence_type": "known_synthetic_development_regression",
+  "existing_public_api_changed": false,
+  "focused_checks": {
+    "libreoffice_cases_deselected": 2,
+    "note": "Both real LibreOffice cases subsequently ran in the final full suite.",
+    "passed": 188,
+    "seconds": 2.79
+  },
+  "github_api": "BLOCKED_BY_ENFORCED_NETWORK_POLICY",
+  "github_pull_request_created": false,
+  "held_out_test_scoring_passes": 0,
+  "integration_status": "PREPARATION_ONLY_READER_NOT_IN_MASTER",
+  "internal_matt_review": {
+    "Spec": {
+      "corrected_findings": [
+        "P2 displayed ODS replacement dropped inline annotation/textbox context"
+      ],
+      "open_findings": 0
+    },
+    "Standards": {
+      "corrected_findings": [
+        "P2 unsupported binary parent deleted surrounding context"
+      ],
+      "open_documented_violations": 0,
+      "open_smells": 0
+    },
+    "external_claude_approval": false
+  },
+  "master_target_ready": false,
+  "merge_gates": {
+    "actual_ci_11_of_11": "PENDING",
+    "all_review_threads_resolved": "PENDING",
+    "claude_blockers_closed": "PENDING",
+    "giovanny_approval": "PENDING"
+  },
+  "merge_performed": false,
+  "micro": {
+    "critical_exact_recall": {
+      "API_KEY": 1.0,
+      "CLABE": 1.0,
+      "CURP": 1.0,
+      "EMAIL": 1.0,
+      "RFC": 1.0
+    },
+    "engine_to_same_run_reference_ratio": 1.6495551532309245,
+    "median_seconds_per_record": 0.0005893513760020141,
+    "passed": true,
+    "records": 1000,
+    "repeats": 5,
+    "scope": "Gross CI regression guard; identical contextual rules, engine wrapper versus direct detector, alternating timing order; no fine-grained cross-machine or statistical speedup claim"
+  },
+  "production_dependencies_models_profiles_changed": false,
+  "release_or_pypi_publication": false,
+  "remaining_limits": [
+    "ODS always requires review.",
+    "Retained ODS EML attachment still blocks through legacy review/incomplete propagation; documented separate follow-up.",
+    "P1 closure, actual CI11/11, external Claude audit, thread resolution and Giovanny approval remain required."
+  ],
+  "review_size": {
+    "changed_python_lines_vs_reader": 1617,
+    "fixture_exclusions": 0,
+    "guide_is_approximate": true,
+    "note": "Includes blank/comment/helper/test lines; original safety assertions retained."
+  },
+  "scope": "OpenDocument: escritor y MIME, preparación dependiente",
+  "source_commit": "96f3b252814a9b2edcd39ef4f1fbab45aaada155",
+  "tests": {
+    "passed": 1267,
+    "platform": "Linux x86_64 / Python 3.12.14",
+    "real_libreoffice_opening_cases": 2,
+    "seconds": 293.94,
+    "skipped": 11,
+    "suite_log_sha256": "f0b287b926df2bbce15156c5c16b3e96a9fb07015751d06bff64c56aff9eb4bc",
+    "threads": {
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    }
+  }
+}
