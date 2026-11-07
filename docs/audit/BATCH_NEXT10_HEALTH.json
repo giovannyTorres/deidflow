@@ -1,0 +1,510 @@
+{
+  "base_commit": "69942cc8fe6e9fae9130ab2bdb8fb703991eb03c",
+  "cloud_environment_persistent_changes_applied": false,
+  "completed_tickets": [
+    "BMX-03",
+    "BMX-04",
+    "BMX-05",
+    "BMX-06",
+    "BMX-07",
+    "BMX-08"
+  ],
+  "coverage": {
+    "covered_branches": 4512,
+    "covered_lines": 11727,
+    "excluded_lines": 29,
+    "missing_branches": 1184,
+    "missing_lines": 1708,
+    "num_branches": 5696,
+    "num_partial_branches": 904,
+    "num_statements": 13435,
+    "percent_branches_covered": 79.21348314606742,
+    "percent_branches_covered_display": "79",
+    "percent_covered": 84.8831739062255,
+    "percent_covered_display": "85",
+    "percent_statements_covered": 87.28693710457759,
+    "percent_statements_covered_display": "87"
+  },
+  "date_utc": "2026-11-06",
+  "dependent_not_started": [
+    "BMX-10",
+    "BMX-11",
+    "BMX-12"
+  ],
+  "descriptive_fixture_metrics": {
+    "detection": {
+      "EMAIL": {
+        "f1": 0.6666666666666666,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "support": 2,
+        "true_positives": 1,
+        "undefined_reason": {
+          "f1": null,
+          "precision": null,
+          "recall": null
+        }
+      }
+    },
+    "independence": {
+      "components": 2,
+      "diagnostics": [
+        {
+          "code": "NO_BLIND_TEST",
+          "count": 1
+        }
+      ],
+      "independence_accredited": false,
+      "partition_counts": {
+        "blind_test": 0,
+        "calibration": 0,
+        "external_transfer": 0,
+        "known_regression": 2,
+        "train": 0,
+        "validation": 0
+      }
+    },
+    "isolation": {
+      "audit_integrity_events": 0,
+      "network_attempts": 0,
+      "required_support": {
+        "documents": 1,
+        "mentions": 3
+      },
+      "status": "COMPLETED",
+      "strict_custody_accredited": true
+    },
+    "legacy": {
+      "EMAIL": {
+        "f1": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "support": 1,
+        "true_positives": 1
+      }
+    },
+    "pipeline": {
+      "metrics": {
+        "excluded_requirements": 0,
+        "failed_requirements": 0,
+        "joint_success_documents": 2,
+        "leaked_mentions": 0,
+        "overridden_chars": 0,
+        "overtransformed_chars": 0,
+        "preserved_context_spans": 0,
+        "release_state_failures": 0,
+        "removed_mentions": 2,
+        "required_context_spans": 0,
+        "required_documents": 2,
+        "required_removals": 2,
+        "retained_chars": 34,
+        "retention": 1.0,
+        "retention_required_chars": 34,
+        "review_required_spans": 0,
+        "unverifiable_mentions": 0,
+        "unverifiable_spans": 0,
+        "unverified_additional_channels": 0,
+        "unverified_preservation_chars": 0
+      },
+      "release": {
+        "approved": {
+          "completely_inspected": 2,
+          "emitted": 2,
+          "leaked": 0,
+          "risk_lower": 0.0,
+          "risk_upper": 0.0,
+          "undefined_reason": null,
+          "unverified_without_confirmed_leak": 0
+        },
+        "emitted": {
+          "completely_inspected": 2,
+          "emitted": 2,
+          "leaked": 0,
+          "risk_lower": 0.0,
+          "risk_upper": 0.0,
+          "undefined_reason": null,
+          "unverified_without_confirmed_leak": 0
+        },
+        "no_output_documents": 0,
+        "state_aggregation": "worst_fragment_state.v1",
+        "states": {
+          "APPROVED": 2,
+          "BLOCKED": 0,
+          "ERROR": 0,
+          "REVIEW_REQUIRED": 0,
+          "UNSUPPORTED": 0
+        }
+      },
+      "verdicts": {
+        "execution": "COMPLETED",
+        "quality": "DESCRIPTIVE_ONLY",
+        "technical_conformity": "PASS"
+      }
+    },
+    "python_network_attempts": 0,
+    "source_sha256": "1cfd725a6f9239a2c8b84ec87aa67b92204d87f1a72cce766a33ef4cdca8f08f",
+    "transformation": {
+      "excluded_requirements": 0,
+      "failed_requirements": 0,
+      "joint_success_documents": 2,
+      "leaked_mentions": 0,
+      "overridden_chars": 0,
+      "overtransformed_chars": 0,
+      "preserved_context_spans": 0,
+      "release_state_failures": 0,
+      "removed_mentions": 2,
+      "required_context_spans": 0,
+      "required_documents": 2,
+      "required_removals": 2,
+      "retained_chars": 34,
+      "retention": 1.0,
+      "retention_required_chars": 34,
+      "review_required_spans": 0,
+      "unverifiable_mentions": 0,
+      "unverifiable_spans": 0,
+      "unverified_preservation_chars": 0
+    },
+    "validation": {
+      "execution": {
+        "completed_vectors": 16,
+        "failed_vectors": 0,
+        "required_vectors": 16
+      },
+      "metrics": {
+        "CLABE": {
+          "checksum": {
+            "accuracy": 1.0,
+            "evaluated": 2,
+            "matched": 2,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          },
+          "pattern": {
+            "accuracy": 1.0,
+            "evaluated": 2,
+            "matched": 2,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          },
+          "structure": {
+            "accuracy": 1.0,
+            "evaluated": 2,
+            "matched": 2,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          }
+        },
+        "CURP": {
+          "checksum": {
+            "accuracy": 1.0,
+            "evaluated": 3,
+            "matched": 3,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 1
+          },
+          "pattern": {
+            "accuracy": 1.0,
+            "evaluated": 4,
+            "matched": 4,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          },
+          "structure": {
+            "accuracy": 1.0,
+            "evaluated": 4,
+            "matched": 4,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          }
+        },
+        "PAYMENT_CARD": {
+          "checksum": {
+            "accuracy": 1.0,
+            "evaluated": 2,
+            "matched": 2,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          },
+          "pattern": {
+            "accuracy": 1.0,
+            "evaluated": 2,
+            "matched": 2,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          },
+          "structure": {
+            "accuracy": 1.0,
+            "evaluated": 2,
+            "matched": 2,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          }
+        },
+        "PHONE": {
+          "checksum": {
+            "accuracy": null,
+            "evaluated": 0,
+            "matched": 0,
+            "mismatched": 0,
+            "not_applicable": 1,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": "NO_KNOWN_APPLICABLE_REFERENCE",
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          },
+          "pattern": {
+            "accuracy": null,
+            "evaluated": 0,
+            "matched": 0,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": "NO_KNOWN_APPLICABLE_REFERENCE",
+            "unknown_prediction": 0,
+            "unknown_reference": 1
+          },
+          "structure": {
+            "accuracy": null,
+            "evaluated": 0,
+            "matched": 0,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": "NO_KNOWN_APPLICABLE_REFERENCE",
+            "unknown_prediction": 0,
+            "unknown_reference": 1
+          }
+        },
+        "RFC": {
+          "checksum": {
+            "accuracy": 0.7142857142857143,
+            "evaluated": 7,
+            "matched": 5,
+            "mismatched": 2,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          },
+          "pattern": {
+            "accuracy": 1.0,
+            "evaluated": 7,
+            "matched": 7,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          },
+          "structure": {
+            "accuracy": 1.0,
+            "evaluated": 7,
+            "matched": 7,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          }
+        }
+      }
+    }
+  },
+  "distribution": {
+    "artifacts": {
+      "deidflow-0.6.0b1-py3-none-any.whl": "1572ea3ee569a0baf70461155b3eb89d46b91ba0595dde237c76842ff2f6e22c",
+      "deidflow-0.6.0b1.tar.gz": "30945bd3f54ec14d1af922c2060faec654f481c356f266bea8ca2b588dc3c7a3"
+    },
+    "build_no_isolation": "PASS",
+    "clean_archive_commit": "d17b7ae0f4e8010b15257e1d4da21e332bfe6bbe",
+    "legacy_base_api_smoke": "PASS",
+    "numpy_spacy_cryptography_absent": true,
+    "source_installed_wheel_receipts_equal": true,
+    "twine_strict": "PASS"
+  },
+  "github_issues_created": 0,
+  "human_pending": "BMX-09",
+  "last_reviewed_code_commit": "4fa622e04f15aa990735eeb7523c98e1394ce6a4",
+  "microbenchmark": {
+    "budgets": {
+      "max_engine_to_same_run_rules_ratio": 5.0,
+      "max_seconds_per_record": 0.005,
+      "minimum_critical_exact_recall": 1.0
+    },
+    "critical_exact_recall": {
+      "API_KEY": 1.0,
+      "CLABE": 1.0,
+      "CURP": 1.0,
+      "EMAIL": 1.0,
+      "RFC": 1.0
+    },
+    "engine_seconds": [
+      0.30083700099930866,
+      0.2939393749984447,
+      0.3002808129967889,
+      0.31087467900215415,
+      0.3260722249979153
+    ],
+    "engine_to_same_run_reference_ratio": 0.9715760970957215,
+    "median_seconds_per_record": 0.00030083700099930863,
+    "passed": true,
+    "records": 1000,
+    "repeats": 5,
+    "same_run_reference_seconds": [
+      0.30963812499976484,
+      0.3044186890037963,
+      0.29786977900221245,
+      0.34137755899428157,
+      0.33469972899911227
+    ],
+    "scope": "Gross CI regression guard; identical contextual rules, engine wrapper versus direct detector, alternating timing order; no fine-grained cross-machine or statistical speedup claim"
+  },
+  "modified_files": [
+    "docs/BENCHMARK_MX_INDEPENDENCE.md",
+    "docs/BENCHMARK_MX_ISOLATION.md",
+    "docs/BENCHMARK_MX_PACKAGE.md",
+    "docs/BENCHMARK_MX_PIPELINE.md",
+    "docs/BENCHMARK_MX_TRANSFORMATION.md",
+    "docs/BENCHMARK_MX_VALIDATION.md",
+    "docs/audit/BATCH_NEXT10.md",
+    "docs/audit/BATCH_NEXT10_HEALTH.json",
+    "docs/audit/BMX-03.md",
+    "docs/audit/BMX-04-vectors.json",
+    "docs/audit/BMX-04.md",
+    "docs/audit/BMX-05.md",
+    "docs/audit/BMX-06.md",
+    "docs/audit/BMX-07.md",
+    "docs/audit/BMX-08.md",
+    "docs/audit/BMX-09-decisions-for-review.md",
+    "docs/tickets/benchmark-mx/03-deteccion-por-entidad.md",
+    "docs/tickets/benchmark-mx/04-validez-independiente.md",
+    "docs/tickets/benchmark-mx/05-transformacion-aislada.md",
+    "docs/tickets/benchmark-mx/06-pipeline-textual.md",
+    "docs/tickets/benchmark-mx/07-ejecucion-segura.md",
+    "docs/tickets/benchmark-mx/08-independencia-particiones.md",
+    "docs/tickets/benchmark-mx/09-ratificar-perfiles.md",
+    "docs/tickets/benchmark-mx/10-corpus-identificadores.md",
+    "docs/tickets/benchmark-mx/11-corpus-contextual.md",
+    "docs/tickets/benchmark-mx/12-perturbaciones.md",
+    "docs/tickets/benchmark-mx/README.md",
+    "docs/tickets/benchmark-mx/tickets.json",
+    "examples/benchmark-mx-validation/documents.jsonl",
+    "examples/benchmark-mx-validation/evidence.bin",
+    "examples/benchmark-mx-validation/expectations.jsonl",
+    "examples/benchmark-mx-validation/manifest.json",
+    "examples/benchmark-mx-validation/mentions.jsonl",
+    "examples/benchmark-mx-validation/profile-1.json",
+    "examples/benchmark-mx-validation/sources.jsonl",
+    "examples/benchmark-mx-validation/units.jsonl",
+    "examples/benchmark-mx-validation/validation_vectors.jsonl",
+    "src/deidflow/benchmarks/detection_metrics.py",
+    "src/deidflow/benchmarks/evaluation_package.py",
+    "src/deidflow/benchmarks/independence.py",
+    "src/deidflow/benchmarks/isolation.py",
+    "src/deidflow/benchmarks/package_runner.py",
+    "src/deidflow/benchmarks/pipeline_runner.py",
+    "src/deidflow/benchmarks/span_coverage.py",
+    "src/deidflow/benchmarks/transformation_metrics.py",
+    "src/deidflow/benchmarks/transformation_runner.py",
+    "src/deidflow/benchmarks/validation_runner.py",
+    "tests/benchmark_case_fixtures.py",
+    "tests/test_benchmark_detection.py",
+    "tests/test_benchmark_independence.py",
+    "tests/test_benchmark_isolation.py",
+    "tests/test_benchmark_pipeline.py",
+    "tests/test_benchmark_transformation.py",
+    "tests/test_benchmark_validation.py"
+  ],
+  "preserved_preexisting_files": 6,
+  "production_api_dependencies_version_changed": false,
+  "pypi_published": false,
+  "python_version": "3.12.14",
+  "requested_tickets": [
+    "BMX-03",
+    "BMX-04",
+    "BMX-05",
+    "BMX-06",
+    "BMX-07",
+    "BMX-08",
+    "BMX-09",
+    "BMX-10",
+    "BMX-11",
+    "BMX-12"
+  ],
+  "reviews": {
+    "Spec": {
+      "open_findings": 0
+    },
+    "Standards": {
+      "accepted_nonblocking_judgments": [
+        {
+          "reason": "Keep conservative constant replacement checks separate from context_quality with different taxonomy/operator rules",
+          "severity": "P3",
+          "ticket": "BMX-05"
+        }
+      ],
+      "open_written_violations": 0
+    },
+    "method": "Official Matt Pocock code-review: fresh Standards and Spec agents per technical ticket, fixed diff and red/green fixes"
+  },
+  "schema_version": "deidflow.batch-health.v1",
+  "source_sha256": "1cfd725a6f9239a2c8b84ec87aa67b92204d87f1a72cce766a33ef4cdca8f08f",
+  "specification_sha256": "898610c7c700f1a1f67154662e2b6526ddbce8fcd7e7f90f43e9631f120ee987",
+  "static_checks": {
+    "format_files": 256,
+    "mypy": "PASS",
+    "mypy_modules": 76,
+    "pip_check": "PASS",
+    "ruff": "PASS"
+  },
+  "tested_commit": "d17b7ae0f4e8010b15257e1d4da21e332bfe6bbe",
+  "tests": {
+    "elapsed_seconds": 204.79,
+    "passed": 1314,
+    "skipped": 11,
+    "skips": "Explicit optional local OCR/spaCy assets unavailable; no native isolation test skipped"
+  }
+}

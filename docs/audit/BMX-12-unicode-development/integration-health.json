@@ -1,0 +1,129 @@
+{
+  "benchmark_base_commit": "f2e4751d280a100e5af450337d70db78a8fefa03",
+  "coverage": {
+    "covered_branches": 4834,
+    "covered_lines": 12559,
+    "excluded_lines": 29,
+    "missing_branches": 1220,
+    "missing_lines": 1752,
+    "num_branches": 6054,
+    "num_partial_branches": 938,
+    "num_statements": 14311,
+    "percent_branches_covered": 79.84803435744962,
+    "percent_branches_covered_display": "80",
+    "percent_covered": 85.40633439725019,
+    "percent_covered_display": "85",
+    "percent_statements_covered": 87.75766892600097,
+    "percent_statements_covered_display": "88"
+  },
+  "date_utc": "2026-11-06",
+  "distribution": {
+    "artifacts_sha256": {
+      "deidflow-0.6.0b1-py3-none-any.whl": "70ef4645c3d978c6fa06ad370b66ad8de6ddf0a0843d2b1fe5be4dfa7e3f25b2",
+      "deidflow-0.6.0b1.tar.gz": "39ab948d4ec4b7e902ec6abeddfcaffa668214396cac5e3e77a29e5f1d9a15c8"
+    },
+    "build_no_isolation": "PASS",
+    "clean_archive_commit": "12e9d061debc1a13452ee384e8c4e7b0a664471b",
+    "network_attempts_during_wheel_probe": 0,
+    "twine_strict": "PASS",
+    "wheel_base_api_and_builtin_models": "PASS",
+    "wheel_two_recipes_independent_admission_and_reports": "PASS"
+  },
+  "evidence_type": "known_synthetic_development_regression",
+  "focused_diagnosis": {
+    "native_probe_repetitions": {
+      "count": 25,
+      "local_policy_violations": 25,
+      "seconds_range": [
+        0.181,
+        0.552
+      ],
+      "strict_custody_accredited_count": 0
+    },
+    "native_probe_under_coverage": {
+      "passed": 1,
+      "seconds": 1.66
+    },
+    "unchanged_address_tests_under_coverage": {
+      "log_sha256": "7cb478ce22086b64b4218ee4a70356e13e8f707a6e9b8c9f42b5c001fa834948",
+      "passed": 2,
+      "seconds": 8.66
+    }
+  },
+  "held_out_test_scoring_passes": 0,
+  "historical_development_attempts": [
+    {
+      "failed": 2,
+      "failures": [
+        "unchanged address wall-time budget",
+        "unchanged address scaling ratio"
+      ],
+      "log_sha256": "123237db73a015c27dbb2ccff19da710c7778794f050b592b4b17d8c59b8c47a",
+      "passed": 1411,
+      "production_code_or_test_limits_changed": false,
+      "skipped": 11
+    },
+    {
+      "capabilities_all_false": true,
+      "failed": 1,
+      "failure": "native CLONE_UNTRACED probe returned fail-closed TIMEOUT",
+      "log_sha256": "634becdaf5bd81f8b382b05f41edd8e177b7c3c118c497fdb05f411ba87e1a58",
+      "passed": 1412,
+      "production_code_or_test_limits_changed": false,
+      "skipped": 11,
+      "strict_custody_accredited": false
+    }
+  ],
+  "integration_status": "PREPARATION_ONLY_DEPENDENCIES_NOT_IN_MASTER",
+  "internal_reviews": {
+    "Spec_open_blockers": 0,
+    "Standards_open_judgments": 0,
+    "Standards_open_written_breaches": 0,
+    "external_claude_approval": false
+  },
+  "merge_performed": false,
+  "micro": {
+    "critical_exact_recall": {
+      "API_KEY": 1.0,
+      "CLABE": 1.0,
+      "CURP": 1.0,
+      "EMAIL": 1.0,
+      "RFC": 1.0
+    },
+    "engine_to_same_run_reference_ratio": 0.7837563634368924,
+    "median_seconds_per_record": 0.00036324626699934013,
+    "passed": true,
+    "records": 1000,
+    "repeats": 5,
+    "scope": "Gross CI regression guard; identical contextual rules, engine wrapper versus direct detector, alternating timing order; no fine-grained cross-machine or statistical speedup claim"
+  },
+  "pypi_or_release_publication": false,
+  "remaining_risks": [
+    "Shared-runtime timing and process-start intermittency; preserve closed outcomes and monitor actual CI.",
+    "Prerequisite benchmark increments must merge before these two small extensions can target master.",
+    "Actual CI 11/11, external Claude review, resolved threads and Giovanny approval pending."
+  ],
+  "source_commit": "12e9d061debc1a13452ee384e8c4e7b0a664471b",
+  "source_models_profiles_production_dependencies_changed": false,
+  "static_checks": {
+    "format_files": 278,
+    "mypy_modules": 83,
+    "mypy_python_target": "3.12",
+    "pip_check": "PASS",
+    "ruff": "PASS"
+  },
+  "suite_head_commit": "a5ae62104e3ea7850987905c58eab8439c77d459",
+  "tests": {
+    "log_sha256": "b4e8c772ede2cb048dee69ca4acc0c5778ec7c9efd727bc784f08d0309eebf63",
+    "passed": 1413,
+    "platform": "Linux/Python 3.12.14",
+    "seconds": 346.04,
+    "skipped": 11,
+    "threads": {
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    }
+  }
+}

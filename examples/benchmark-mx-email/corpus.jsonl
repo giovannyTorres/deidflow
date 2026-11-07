@@ -1,0 +1,2 @@
+{"id":"email-001","text":"Correo: canary-7f82@example.test.","spans":[{"entity_type":"EMAIL","start":8,"end":32}]}
+{"id":"negative-001","text":"No hay datos de contacto.","spans":[]}

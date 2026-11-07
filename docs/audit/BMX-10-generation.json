@@ -1,0 +1,97 @@
+{
+  "manifest_sha256": "ed2a387e84ab9a0b5764a803e59ea8f173e5c2eceaea00debd2b26064a1c1dba",
+  "generator_version": "mx-identifiers-1.0.0",
+  "seed": 104729,
+  "documents": 36,
+  "groups": 8,
+  "mentions": 27,
+  "vectors": 36,
+  "support_by_entity": {
+    "CLABE": 5,
+    "CURP": 5,
+    "EMAIL": 5,
+    "PAYMENT_CARD": 5,
+    "PHONE": 4,
+    "RFC": 12
+  },
+  "support_by_entity_stratum": {
+    "CLABE": {
+      "clabe": 5,
+      "formatted": 1,
+      "invalid_checksum": 1,
+      "invalid_pattern": 1,
+      "nonpersonal_distractor": 1,
+      "valid": 1
+    },
+    "CURP": {
+      "curp": 5,
+      "invalid_checksum": 1,
+      "invalid_pattern": 1,
+      "invalid_structure": 1,
+      "nonpersonal_distractor": 1,
+      "valid": 1
+    },
+    "EMAIL": {
+      "email": 5,
+      "formatted": 1,
+      "invalid_pattern": 2,
+      "nonpersonal_distractor": 1,
+      "valid": 1
+    },
+    "PAYMENT_CARD": {
+      "formatted": 1,
+      "invalid_checksum": 1,
+      "nonpersonal_distractor": 1,
+      "pan": 5,
+      "valid": 2
+    },
+    "PHONE": {
+      "formatted": 1,
+      "invalid_pattern": 1,
+      "nonpersonal_distractor": 1,
+      "phone_mx": 4,
+      "valid": 1
+    },
+    "RFC": {
+      "ambiguous": 1,
+      "formatted": 2,
+      "invalid_checksum": 2,
+      "invalid_structure": 1,
+      "nonpersonal_distractor": 4,
+      "rfc_generic": 2,
+      "rfc_legal_shape": 4,
+      "rfc_physical": 6,
+      "valid": 2
+    }
+  },
+  "support_by_family": {
+    "clabe": 5,
+    "curp": 5,
+    "email": 5,
+    "pan": 5,
+    "phone_mx": 4,
+    "rfc_generic": 2,
+    "rfc_legal_shape": 4,
+    "rfc_physical": 6
+  },
+  "support_by_action": {
+    "preserve": 9,
+    "remove": 26,
+    "review_required": 1
+  },
+  "decision": {
+    "id": "BMX-09-operational-v1",
+    "sha256": "ce1ae6e4ca8e0567bac0fa24a37d3f109eb2e11ef4755bd797d7fd5865ac5ffa",
+    "status": "ratified"
+  },
+  "executable_profile_ratified": false,
+  "quality_ratified": false,
+  "quality": "DESCRIPTIVE_ONLY",
+  "panel": "known_regression",
+  "limitations": [
+    "KNOWN_SYNTHETIC_REGRESSION",
+    "NO_BLIND_TEST",
+    "NO_ISSUANCE_OR_OWNERSHIP_CHECK",
+    "PHONE_EMAIL_BUILTIN_VALIDATION_UNKNOWN"
+  ]
+}

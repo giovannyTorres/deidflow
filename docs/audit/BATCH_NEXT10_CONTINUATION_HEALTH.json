@@ -1,0 +1,880 @@
+{
+  "all_27_ticket_body_hashes_verified": true,
+  "base_commit": "69942cc8fe6e9fae9130ab2bdb8fb703991eb03c",
+  "cloud_environment_persistent_changes_applied": false,
+  "completed_tickets": [
+    "BMX-03",
+    "BMX-04",
+    "BMX-05",
+    "BMX-06",
+    "BMX-07",
+    "BMX-08",
+    "BMX-09",
+    "BMX-10",
+    "BMX-11",
+    "BMX-12"
+  ],
+  "corrected_historical_oracle": "BMX-04-erratum.md; XEXX ordinary checksum valid; current RFC mismatch count1",
+  "coverage": {
+    "covered_branches": 4752,
+    "covered_lines": 12382,
+    "excluded_lines": 29,
+    "missing_branches": 1220,
+    "missing_lines": 1755,
+    "num_branches": 5972,
+    "num_partial_branches": 938,
+    "num_statements": 14137,
+    "percent_branches_covered": 79.5713328868051,
+    "percent_branches_covered_display": "80",
+    "percent_covered": 85.20562932020488,
+    "percent_covered_display": "85",
+    "percent_statements_covered": 87.58576784324822,
+    "percent_statements_covered_display": "88"
+  },
+  "date_utc": "2026-11-06",
+  "descriptive_fixture_metrics": {
+    "contexts": {
+      "ambiguous": {
+        "ambiguous_mentions": 3,
+        "decision": {
+          "id": "BMX-09-operational-v1",
+          "sha256": "ce1ae6e4ca8e0567bac0fa24a37d3f109eb2e11ef4755bd797d7fd5865ac5ffa",
+          "status": "ratified"
+        },
+        "documents": 2,
+        "executable_profile_ratified": false,
+        "generator_version": "mx-contextual-1.0.0",
+        "groups": 2,
+        "guide_sha256": "b06b5441e60cd7f1ce8bdda6e1bd1dd264aba4a44cb9a46011e7bbbe44f9bc6e",
+        "limitations": [
+          "KNOWN_SYNTHETIC_REGRESSION",
+          "NO_BLIND_TEST",
+          "AGENT_REFERENCE_NOT_HUMAN_REVIEW",
+          "IDENTITY_METRICS_NOT_IMPLEMENTED",
+          "UNRESOLVED_CHALLENGE_EXCLUDED_FROM_PRIMARY"
+        ],
+        "manifest_sha256": "d6c6d8b71f5d92a430a4e28fe3c3b6147e7dbfb438697eacd020336b58ed4d84",
+        "mentions": 3,
+        "mode": "ambiguous",
+        "panel": "known_regression",
+        "quality": "DESCRIPTIVE_ONLY",
+        "quality_ratified": false,
+        "reference_sha256": "4cba8c476195d18c8eb9c1cd666757ead7f061d2483da343143a122ebc5e4a99",
+        "reference_status": "agent_reviewed",
+        "review_count": 2,
+        "support_by_entity": {
+          "PERSON": 3
+        },
+        "support_by_stratum": {
+          "uncertain_boundaries": 1,
+          "uncertain_referent": 1
+        }
+      },
+      "contextual": {
+        "ambiguous_mentions": 0,
+        "decision": {
+          "id": "BMX-09-operational-v1",
+          "sha256": "ce1ae6e4ca8e0567bac0fa24a37d3f109eb2e11ef4755bd797d7fd5865ac5ffa",
+          "status": "ratified"
+        },
+        "documents": 10,
+        "executable_profile_ratified": false,
+        "generator_version": "mx-contextual-1.0.0",
+        "groups": 8,
+        "guide_sha256": "b06b5441e60cd7f1ce8bdda6e1bd1dd264aba4a44cb9a46011e7bbbe44f9bc6e",
+        "limitations": [
+          "KNOWN_SYNTHETIC_REGRESSION",
+          "NO_BLIND_TEST",
+          "AGENT_REFERENCE_NOT_HUMAN_REVIEW",
+          "IDENTITY_METRICS_NOT_IMPLEMENTED"
+        ],
+        "manifest_sha256": "89dcd192cda75e6d9465742d4e4890181823eb596ec49117f65d985dd1e2296c",
+        "mentions": 47,
+        "mode": "contextual",
+        "panel": "known_regression",
+        "quality": "DESCRIPTIVE_ONLY",
+        "quality_ratified": false,
+        "reference_sha256": "4cba8c476195d18c8eb9c1cd666757ead7f061d2483da343143a122ebc5e4a99",
+        "reference_status": "agent_reviewed",
+        "review_count": 2,
+        "support_by_entity": {
+          "ADDRESS": 2,
+          "CLINICAL_OBSERVATION": 9,
+          "DIAGNOSIS": 3,
+          "MEDICAL_CONDITION": 7,
+          "MEDICATION": 4,
+          "PERSON": 16,
+          "TREATMENT": 6
+        },
+        "support_by_stratum": {
+          "alias_unresolved": 1,
+          "common_words": 1,
+          "continuity_followup": 1,
+          "continuity_origin": 1,
+          "crossed_mentions": 1,
+          "distinct_homonyms": 1,
+          "form": 1,
+          "narrative_dotted": 1,
+          "narrative_undotted": 1,
+          "nested_clinical": 1
+        }
+      },
+      "strict": {
+        "ambiguous_mentions": 0,
+        "decision": {
+          "id": "BMX-09-operational-v1",
+          "sha256": "ce1ae6e4ca8e0567bac0fa24a37d3f109eb2e11ef4755bd797d7fd5865ac5ffa",
+          "status": "ratified"
+        },
+        "documents": 10,
+        "executable_profile_ratified": false,
+        "generator_version": "mx-contextual-1.0.0",
+        "groups": 8,
+        "guide_sha256": "b06b5441e60cd7f1ce8bdda6e1bd1dd264aba4a44cb9a46011e7bbbe44f9bc6e",
+        "limitations": [
+          "KNOWN_SYNTHETIC_REGRESSION",
+          "NO_BLIND_TEST",
+          "AGENT_REFERENCE_NOT_HUMAN_REVIEW",
+          "IDENTITY_METRICS_NOT_IMPLEMENTED"
+        ],
+        "manifest_sha256": "5a37c5643594483c368609ab28d88c1939a4908b4e474c68a8e24b49ea816fad",
+        "mentions": 47,
+        "mode": "strict",
+        "panel": "known_regression",
+        "quality": "DESCRIPTIVE_ONLY",
+        "quality_ratified": false,
+        "reference_sha256": "4cba8c476195d18c8eb9c1cd666757ead7f061d2483da343143a122ebc5e4a99",
+        "reference_status": "agent_reviewed",
+        "review_count": 2,
+        "support_by_entity": {
+          "ADDRESS": 2,
+          "CLINICAL_OBSERVATION": 9,
+          "DIAGNOSIS": 3,
+          "MEDICAL_CONDITION": 7,
+          "MEDICATION": 4,
+          "PERSON": 16,
+          "TREATMENT": 6
+        },
+        "support_by_stratum": {
+          "alias_unresolved": 1,
+          "common_words": 1,
+          "continuity_followup": 1,
+          "continuity_origin": 1,
+          "crossed_mentions": 1,
+          "distinct_homonyms": 1,
+          "form": 1,
+          "narrative_dotted": 1,
+          "narrative_undotted": 1,
+          "nested_clinical": 1
+        }
+      }
+    },
+    "detection": {
+      "EMAIL": {
+        "f1": 0.6666666666666666,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "support": 2,
+        "true_positives": 1,
+        "undefined_reason": {
+          "f1": null,
+          "precision": null,
+          "recall": null
+        }
+      }
+    },
+    "identifiers": {
+      "decision": {
+        "id": "BMX-09-operational-v1",
+        "sha256": "ce1ae6e4ca8e0567bac0fa24a37d3f109eb2e11ef4755bd797d7fd5865ac5ffa",
+        "status": "ratified"
+      },
+      "documents": 36,
+      "executable_profile_ratified": false,
+      "generator_version": "mx-identifiers-1.0.0",
+      "groups": 8,
+      "limitations": [
+        "KNOWN_SYNTHETIC_REGRESSION",
+        "NO_BLIND_TEST",
+        "NO_ISSUANCE_OR_OWNERSHIP_CHECK",
+        "PHONE_EMAIL_BUILTIN_VALIDATION_UNKNOWN"
+      ],
+      "manifest_sha256": "ed2a387e84ab9a0b5764a803e59ea8f173e5c2eceaea00debd2b26064a1c1dba",
+      "mentions": 27,
+      "panel": "known_regression",
+      "quality": "DESCRIPTIVE_ONLY",
+      "quality_ratified": false,
+      "seed": 104729,
+      "support_by_action": {
+        "preserve": 9,
+        "remove": 26,
+        "review_required": 1
+      },
+      "support_by_entity": {
+        "CLABE": 5,
+        "CURP": 5,
+        "EMAIL": 5,
+        "PAYMENT_CARD": 5,
+        "PHONE": 4,
+        "RFC": 12
+      },
+      "support_by_entity_stratum": {
+        "CLABE": {
+          "clabe": 5,
+          "formatted": 1,
+          "invalid_checksum": 1,
+          "invalid_pattern": 1,
+          "nonpersonal_distractor": 1,
+          "valid": 1
+        },
+        "CURP": {
+          "curp": 5,
+          "invalid_checksum": 1,
+          "invalid_pattern": 1,
+          "invalid_structure": 1,
+          "nonpersonal_distractor": 1,
+          "valid": 1
+        },
+        "EMAIL": {
+          "email": 5,
+          "formatted": 1,
+          "invalid_pattern": 2,
+          "nonpersonal_distractor": 1,
+          "valid": 1
+        },
+        "PAYMENT_CARD": {
+          "formatted": 1,
+          "invalid_checksum": 1,
+          "nonpersonal_distractor": 1,
+          "pan": 5,
+          "valid": 2
+        },
+        "PHONE": {
+          "formatted": 1,
+          "invalid_pattern": 1,
+          "nonpersonal_distractor": 1,
+          "phone_mx": 4,
+          "valid": 1
+        },
+        "RFC": {
+          "ambiguous": 1,
+          "formatted": 2,
+          "invalid_checksum": 2,
+          "invalid_structure": 1,
+          "nonpersonal_distractor": 4,
+          "rfc_generic": 2,
+          "rfc_legal_shape": 4,
+          "rfc_physical": 6,
+          "valid": 2
+        }
+      },
+      "support_by_family": {
+        "clabe": 5,
+        "curp": 5,
+        "email": 5,
+        "pan": 5,
+        "phone_mx": 4,
+        "rfc_generic": 2,
+        "rfc_legal_shape": 4,
+        "rfc_physical": 6
+      },
+      "vectors": 36
+    },
+    "independence": {
+      "components": 2,
+      "diagnostics": [
+        {
+          "code": "NO_BLIND_TEST",
+          "count": 1
+        }
+      ],
+      "independence_accredited": false,
+      "partition_counts": {
+        "blind_test": 0,
+        "calibration": 0,
+        "external_transfer": 0,
+        "known_regression": 2,
+        "train": 0,
+        "validation": 0
+      }
+    },
+    "isolation": {
+      "audit_integrity_events": 0,
+      "network_attempts": 0,
+      "required_support": {
+        "documents": 1,
+        "mentions": 3
+      },
+      "status": "COMPLETED",
+      "strict_custody_accredited": true
+    },
+    "legacy": {
+      "EMAIL": {
+        "f1": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "support": 1,
+        "true_positives": 1
+      }
+    },
+    "legacy_builtin_model_pins": {
+      "es-clinical": [
+        "es-clinical-meddocan-1.json.gz",
+        "dc824100552ddb5bae036d128da9cfe4e31aba68b7cb74c2ab1252ddc0952da9"
+      ],
+      "es-finance": [
+        "es-finance-gretel-1.json.gz",
+        "f7a28b8fef3ccc1090d171b693f744098b4032008a48b56530c5aabdf371679c"
+      ],
+      "es-general": [
+        "es-general-2.json.gz",
+        "f3008720a246e32b7a2adaf4af2ba9a03fb665caadcf698658b029a73042c173"
+      ]
+    },
+    "pipeline": {
+      "metrics": {
+        "excluded_requirements": 0,
+        "failed_requirements": 0,
+        "joint_success_documents": 2,
+        "leaked_mentions": 0,
+        "overridden_chars": 0,
+        "overtransformed_chars": 0,
+        "preserved_context_spans": 0,
+        "release_state_failures": 0,
+        "removed_mentions": 2,
+        "required_context_spans": 0,
+        "required_documents": 2,
+        "required_removals": 2,
+        "retained_chars": 34,
+        "retention": 1.0,
+        "retention_required_chars": 34,
+        "review_required_spans": 0,
+        "unverifiable_mentions": 0,
+        "unverifiable_spans": 0,
+        "unverified_additional_channels": 0,
+        "unverified_preservation_chars": 0
+      },
+      "release": {
+        "approved": {
+          "completely_inspected": 2,
+          "emitted": 2,
+          "leaked": 0,
+          "risk_lower": 0.0,
+          "risk_upper": 0.0,
+          "undefined_reason": null,
+          "unverified_without_confirmed_leak": 0
+        },
+        "emitted": {
+          "completely_inspected": 2,
+          "emitted": 2,
+          "leaked": 0,
+          "risk_lower": 0.0,
+          "risk_upper": 0.0,
+          "undefined_reason": null,
+          "unverified_without_confirmed_leak": 0
+        },
+        "no_output_documents": 0,
+        "state_aggregation": "worst_fragment_state.v1",
+        "states": {
+          "APPROVED": 2,
+          "BLOCKED": 0,
+          "ERROR": 0,
+          "REVIEW_REQUIRED": 0,
+          "UNSUPPORTED": 0
+        }
+      },
+      "verdicts": {
+        "execution": "COMPLETED",
+        "quality": "DESCRIPTIVE_ONLY",
+        "technical_conformity": "PASS"
+      }
+    },
+    "python_network_attempts": 0,
+    "source_sha256": "71caabc52cb5538c5aed43ad6bf58690f870b184a8c017002a09345f389bad88",
+    "transformation": {
+      "excluded_requirements": 0,
+      "failed_requirements": 0,
+      "joint_success_documents": 2,
+      "leaked_mentions": 0,
+      "overridden_chars": 0,
+      "overtransformed_chars": 0,
+      "preserved_context_spans": 0,
+      "release_state_failures": 0,
+      "removed_mentions": 2,
+      "required_context_spans": 0,
+      "required_documents": 2,
+      "required_removals": 2,
+      "retained_chars": 34,
+      "retention": 1.0,
+      "retention_required_chars": 34,
+      "review_required_spans": 0,
+      "unverifiable_mentions": 0,
+      "unverifiable_spans": 0,
+      "unverified_preservation_chars": 0
+    },
+    "validation": {
+      "execution": {
+        "completed_vectors": 16,
+        "failed_vectors": 0,
+        "required_vectors": 16
+      },
+      "metrics": {
+        "CLABE": {
+          "checksum": {
+            "accuracy": 1.0,
+            "evaluated": 2,
+            "matched": 2,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          },
+          "pattern": {
+            "accuracy": 1.0,
+            "evaluated": 2,
+            "matched": 2,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          },
+          "structure": {
+            "accuracy": 1.0,
+            "evaluated": 2,
+            "matched": 2,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          }
+        },
+        "CURP": {
+          "checksum": {
+            "accuracy": 1.0,
+            "evaluated": 3,
+            "matched": 3,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 1
+          },
+          "pattern": {
+            "accuracy": 1.0,
+            "evaluated": 4,
+            "matched": 4,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          },
+          "structure": {
+            "accuracy": 1.0,
+            "evaluated": 4,
+            "matched": 4,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          }
+        },
+        "PAYMENT_CARD": {
+          "checksum": {
+            "accuracy": 1.0,
+            "evaluated": 2,
+            "matched": 2,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          },
+          "pattern": {
+            "accuracy": 1.0,
+            "evaluated": 2,
+            "matched": 2,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          },
+          "structure": {
+            "accuracy": 1.0,
+            "evaluated": 2,
+            "matched": 2,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          }
+        },
+        "PHONE": {
+          "checksum": {
+            "accuracy": null,
+            "evaluated": 0,
+            "matched": 0,
+            "mismatched": 0,
+            "not_applicable": 1,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": "NO_KNOWN_APPLICABLE_REFERENCE",
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          },
+          "pattern": {
+            "accuracy": null,
+            "evaluated": 0,
+            "matched": 0,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": "NO_KNOWN_APPLICABLE_REFERENCE",
+            "unknown_prediction": 0,
+            "unknown_reference": 1
+          },
+          "structure": {
+            "accuracy": null,
+            "evaluated": 0,
+            "matched": 0,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": "NO_KNOWN_APPLICABLE_REFERENCE",
+            "unknown_prediction": 0,
+            "unknown_reference": 1
+          }
+        },
+        "RFC": {
+          "checksum": {
+            "accuracy": 0.8571428571428571,
+            "evaluated": 7,
+            "matched": 6,
+            "mismatched": 1,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          },
+          "pattern": {
+            "accuracy": 1.0,
+            "evaluated": 7,
+            "matched": 7,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          },
+          "structure": {
+            "accuracy": 1.0,
+            "evaluated": 7,
+            "matched": 7,
+            "mismatched": 0,
+            "not_applicable": 0,
+            "not_applicable_disagreements": 0,
+            "undefined_reason": null,
+            "unknown_prediction": 0,
+            "unknown_reference": 0
+          }
+        }
+      }
+    }
+  },
+  "distribution": {
+    "artifacts": {
+      "deidflow-0.6.0b1-py3-none-any.whl": "2b00f3928c57100cfcb97efd99057e0a75dd9cc77b7e93e664122af3be1ac080",
+      "deidflow-0.6.0b1.tar.gz": "4f4bd7964578253fb50b74beed6f43de0e135eba613d52d295d71ef0fec07ebb"
+    },
+    "build_no_isolation": "PASS",
+    "clean_archive_commit": "390147079908a7221098ca84af4befd3f48c88ff",
+    "identifier_contextual_perturbation_generation_and_execution": "PASS",
+    "legacy_base_api_smoke": "PASS",
+    "numpy_spacy_cryptography_absent": true,
+    "six_benchmark_tracks": "PASS",
+    "source_installed_wheel_receipts_equal": true,
+    "source_receipt_sha256": "85d8c025cd7e0ce631a42fe96d084e18666d2445ed94bade46875bf633296eff",
+    "twine_strict": "PASS",
+    "wheel_receipt_sha256": "85d8c025cd7e0ce631a42fe96d084e18666d2445ed94bade46875bf633296eff"
+  },
+  "final_perturbation_smoke": {
+    "actual_reports": 64,
+    "complete_report_in_source_wheel_receipts": true,
+    "index_sha256": "823aecef6476406c3ddbe0d7d17ec9682cfa4c2074e5a2239317f52d10f0f082",
+    "pairs": 32,
+    "quality": "DESCRIPTIVE_ONLY",
+    "recipes": [
+      "uppercase.v1",
+      "ocr_simulated.v1"
+    ]
+  },
+  "github_issues_created": 0,
+  "historical_health_receipt": "BATCH_NEXT10_HEALTH.json",
+  "last_reviewed_code_commit": "390147079908a7221098ca84af4befd3f48c88ff",
+  "limitations": [
+    "KNOWN_SYNTHETIC_REGRESSION_ES_MX",
+    "NO_BLIND_TEST",
+    "NO_QUALITY_RATIFICATION_BMX25",
+    "SIMULATED_TEXT_NOT_REAL_OCR",
+    "GLOBAL_AND_EASY_LOCAL_FINETUNING_REMAIN_PRODUCT_GOALS",
+    "FORMATS_BMX13_TO20_REMAIN_FUTURE"
+  ],
+  "local_logs": "/tmp/deidflow-batch/final12/",
+  "microbenchmark": {
+    "budgets": {
+      "max_engine_to_same_run_rules_ratio": 5.0,
+      "max_seconds_per_record": 0.005,
+      "minimum_critical_exact_recall": 1.0
+    },
+    "critical_exact_recall": {
+      "API_KEY": 1.0,
+      "CLABE": 1.0,
+      "CURP": 1.0,
+      "EMAIL": 1.0,
+      "RFC": 1.0
+    },
+    "engine_seconds": [
+      0.30868818599992665,
+      0.29918859700410394,
+      0.3399517830039258,
+      0.30643491500086384,
+      0.3711389230011264
+    ],
+    "engine_to_same_run_reference_ratio": 1.0180059361677203,
+    "median_seconds_per_record": 0.00030868818599992667,
+    "passed": true,
+    "records": 1000,
+    "repeats": 5,
+    "same_run_reference_seconds": [
+      0.3025348059964017,
+      0.36824439100018935,
+      0.331523714994546,
+      0.29604530300275655,
+      0.30322827700001653
+    ],
+    "scope": "Gross CI regression guard; identical contextual rules, engine wrapper versus direct detector, alternating timing order; no fine-grained cross-machine or statistical speedup claim"
+  },
+  "modified_files": [
+    "docs/BENCHMARK_MX_CONTEXTUAL.md",
+    "docs/BENCHMARK_MX_IDENTIFIERS.md",
+    "docs/BENCHMARK_MX_INDEPENDENCE.md",
+    "docs/BENCHMARK_MX_ISOLATION.md",
+    "docs/BENCHMARK_MX_PACKAGE.md",
+    "docs/BENCHMARK_MX_PERTURBATIONS.md",
+    "docs/BENCHMARK_MX_PIPELINE.md",
+    "docs/BENCHMARK_MX_TRANSFORMATION.md",
+    "docs/BENCHMARK_MX_VALIDATION.md",
+    "docs/adr/0001-bmx-09-operational-profiles-v1.md",
+    "docs/audit/BATCH_NEXT10.md",
+    "docs/audit/BATCH_NEXT10_CONTINUATION_HEALTH.json",
+    "docs/audit/BATCH_NEXT10_HEALTH.json",
+    "docs/audit/BMX-03.md",
+    "docs/audit/BMX-04-erratum.md",
+    "docs/audit/BMX-04-vectors.json",
+    "docs/audit/BMX-04.md",
+    "docs/audit/BMX-05.md",
+    "docs/audit/BMX-06.md",
+    "docs/audit/BMX-07.md",
+    "docs/audit/BMX-08.md",
+    "docs/audit/BMX-09-decisions-for-review.md",
+    "docs/audit/BMX-09.md",
+    "docs/audit/BMX-10-generation.json",
+    "docs/audit/BMX-10-vectors.json",
+    "docs/audit/BMX-10.md",
+    "docs/audit/BMX-11-generation.json",
+    "docs/audit/BMX-11.md",
+    "docs/audit/BMX-12-vectors.json",
+    "docs/audit/BMX-12.md",
+    "docs/benchmark-mx/contextual-annotation-guide-v1.md",
+    "docs/benchmark-mx/contextual-reference-reviews-v1.json",
+    "docs/benchmark-mx/contextual-reference-v1.json",
+    "docs/benchmark-mx/operational-decision-v1.json",
+    "docs/tickets/benchmark-mx/03-deteccion-por-entidad.md",
+    "docs/tickets/benchmark-mx/04-validez-independiente.md",
+    "docs/tickets/benchmark-mx/05-transformacion-aislada.md",
+    "docs/tickets/benchmark-mx/06-pipeline-textual.md",
+    "docs/tickets/benchmark-mx/07-ejecucion-segura.md",
+    "docs/tickets/benchmark-mx/08-independencia-particiones.md",
+    "docs/tickets/benchmark-mx/09-ratificar-perfiles.md",
+    "docs/tickets/benchmark-mx/10-corpus-identificadores.md",
+    "docs/tickets/benchmark-mx/11-corpus-contextual.md",
+    "docs/tickets/benchmark-mx/12-perturbaciones.md",
+    "docs/tickets/benchmark-mx/README.md",
+    "docs/tickets/benchmark-mx/tickets.json",
+    "examples/benchmark-mx-contextual/ambiguous/documents.jsonl",
+    "examples/benchmark-mx-contextual/ambiguous/evidence-1.bin",
+    "examples/benchmark-mx-contextual/ambiguous/evidence-2.bin",
+    "examples/benchmark-mx-contextual/ambiguous/evidence-3.bin",
+    "examples/benchmark-mx-contextual/ambiguous/evidence-9.bin",
+    "examples/benchmark-mx-contextual/ambiguous/expectations.jsonl",
+    "examples/benchmark-mx-contextual/ambiguous/generator-b.bin",
+    "examples/benchmark-mx-contextual/ambiguous/manifest.json",
+    "examples/benchmark-mx-contextual/ambiguous/mentions.jsonl",
+    "examples/benchmark-mx-contextual/ambiguous/profile-1.json",
+    "examples/benchmark-mx-contextual/ambiguous/profile-2.json",
+    "examples/benchmark-mx-contextual/ambiguous/profile-3.json",
+    "examples/benchmark-mx-contextual/ambiguous/profile-4.json",
+    "examples/benchmark-mx-contextual/ambiguous/sources.jsonl",
+    "examples/benchmark-mx-contextual/ambiguous/units.jsonl",
+    "examples/benchmark-mx-contextual/contextual/documents.jsonl",
+    "examples/benchmark-mx-contextual/contextual/evidence-1.bin",
+    "examples/benchmark-mx-contextual/contextual/evidence-2.bin",
+    "examples/benchmark-mx-contextual/contextual/evidence-3.bin",
+    "examples/benchmark-mx-contextual/contextual/evidence-9.bin",
+    "examples/benchmark-mx-contextual/contextual/expectations.jsonl",
+    "examples/benchmark-mx-contextual/contextual/generator-b.bin",
+    "examples/benchmark-mx-contextual/contextual/manifest.json",
+    "examples/benchmark-mx-contextual/contextual/mentions.jsonl",
+    "examples/benchmark-mx-contextual/contextual/profile-1.json",
+    "examples/benchmark-mx-contextual/contextual/profile-2.json",
+    "examples/benchmark-mx-contextual/contextual/profile-3.json",
+    "examples/benchmark-mx-contextual/contextual/profile-4.json",
+    "examples/benchmark-mx-contextual/contextual/sources.jsonl",
+    "examples/benchmark-mx-contextual/contextual/units.jsonl",
+    "examples/benchmark-mx-contextual/strict/documents.jsonl",
+    "examples/benchmark-mx-contextual/strict/evidence-1.bin",
+    "examples/benchmark-mx-contextual/strict/evidence-2.bin",
+    "examples/benchmark-mx-contextual/strict/evidence-3.bin",
+    "examples/benchmark-mx-contextual/strict/evidence-9.bin",
+    "examples/benchmark-mx-contextual/strict/expectations.jsonl",
+    "examples/benchmark-mx-contextual/strict/generator-b.bin",
+    "examples/benchmark-mx-contextual/strict/manifest.json",
+    "examples/benchmark-mx-contextual/strict/mentions.jsonl",
+    "examples/benchmark-mx-contextual/strict/profile-1.json",
+    "examples/benchmark-mx-contextual/strict/profile-2.json",
+    "examples/benchmark-mx-contextual/strict/profile-3.json",
+    "examples/benchmark-mx-contextual/strict/profile-4.json",
+    "examples/benchmark-mx-contextual/strict/sources.jsonl",
+    "examples/benchmark-mx-contextual/strict/units.jsonl",
+    "examples/benchmark-mx-identifiers/documents.jsonl",
+    "examples/benchmark-mx-identifiers/evidence-1.bin",
+    "examples/benchmark-mx-identifiers/evidence-9.bin",
+    "examples/benchmark-mx-identifiers/expectations.jsonl",
+    "examples/benchmark-mx-identifiers/generator-a.bin",
+    "examples/benchmark-mx-identifiers/manifest.json",
+    "examples/benchmark-mx-identifiers/mentions.jsonl",
+    "examples/benchmark-mx-identifiers/profile-1.json",
+    "examples/benchmark-mx-identifiers/profile-2.json",
+    "examples/benchmark-mx-identifiers/profile-3.json",
+    "examples/benchmark-mx-identifiers/profile-4.json",
+    "examples/benchmark-mx-identifiers/sources.jsonl",
+    "examples/benchmark-mx-identifiers/units.jsonl",
+    "examples/benchmark-mx-identifiers/validation_vectors.jsonl",
+    "examples/benchmark-mx-perturbations/nfd-v1/documents.jsonl",
+    "examples/benchmark-mx-perturbations/nfd-v1/evidence-1.bin",
+    "examples/benchmark-mx-perturbations/nfd-v1/evidence-2.bin",
+    "examples/benchmark-mx-perturbations/nfd-v1/evidence-3.bin",
+    "examples/benchmark-mx-perturbations/nfd-v1/evidence-9.bin",
+    "examples/benchmark-mx-perturbations/nfd-v1/evidence-c675c3ea3ff9369e105ecc0bd9549507.bin",
+    "examples/benchmark-mx-perturbations/nfd-v1/expectations.jsonl",
+    "examples/benchmark-mx-perturbations/nfd-v1/generator-b.bin",
+    "examples/benchmark-mx-perturbations/nfd-v1/manifest.json",
+    "examples/benchmark-mx-perturbations/nfd-v1/mentions.jsonl",
+    "examples/benchmark-mx-perturbations/nfd-v1/profile-1.json",
+    "examples/benchmark-mx-perturbations/nfd-v1/profile-2.json",
+    "examples/benchmark-mx-perturbations/nfd-v1/profile-3.json",
+    "examples/benchmark-mx-perturbations/nfd-v1/profile-4.json",
+    "examples/benchmark-mx-perturbations/nfd-v1/sources.jsonl",
+    "examples/benchmark-mx-perturbations/nfd-v1/units.jsonl",
+    "examples/benchmark-mx-perturbations/suite.json",
+    "examples/benchmark-mx-validation/documents.jsonl",
+    "examples/benchmark-mx-validation/evidence.bin",
+    "examples/benchmark-mx-validation/expectations.jsonl",
+    "examples/benchmark-mx-validation/manifest.json",
+    "examples/benchmark-mx-validation/mentions.jsonl",
+    "examples/benchmark-mx-validation/profile-1.json",
+    "examples/benchmark-mx-validation/sources.jsonl",
+    "examples/benchmark-mx-validation/units.jsonl",
+    "examples/benchmark-mx-validation/validation_vectors.jsonl",
+    "src/deidflow/benchmarks/_contextual_guide.md",
+    "src/deidflow/benchmarks/_contextual_reviews.json",
+    "src/deidflow/benchmarks/contextual_package.py",
+    "src/deidflow/benchmarks/detection_metrics.py",
+    "src/deidflow/benchmarks/evaluation_package.py",
+    "src/deidflow/benchmarks/independence.py",
+    "src/deidflow/benchmarks/isolation.py",
+    "src/deidflow/benchmarks/package_runner.py",
+    "src/deidflow/benchmarks/perturbation_package.py",
+    "src/deidflow/benchmarks/pipeline_runner.py",
+    "src/deidflow/benchmarks/span_coverage.py",
+    "src/deidflow/benchmarks/synthetic_package.py",
+    "src/deidflow/benchmarks/transformation_metrics.py",
+    "src/deidflow/benchmarks/transformation_runner.py",
+    "src/deidflow/benchmarks/validation_runner.py",
+    "tests/benchmark_case_fixtures.py",
+    "tests/test_benchmark_contextual_corpus.py",
+    "tests/test_benchmark_derivation_admission.py",
+    "tests/test_benchmark_detection.py",
+    "tests/test_benchmark_identifier_corpus.py",
+    "tests/test_benchmark_independence.py",
+    "tests/test_benchmark_isolation.py",
+    "tests/test_benchmark_package.py",
+    "tests/test_benchmark_perturbations.py",
+    "tests/test_benchmark_pipeline.py",
+    "tests/test_benchmark_transformation.py",
+    "tests/test_benchmark_validation.py"
+  ],
+  "operational_decision_sha256": "ce1ae6e4ca8e0567bac0fa24a37d3f109eb2e11ef4755bd797d7fd5865ac5ffa",
+  "preserved_preexisting_files": 6,
+  "production_api_dependencies_version_changed": false,
+  "pypi_published": false,
+  "python_version": "Python 3.12.14",
+  "quality": "DESCRIPTIVE_ONLY",
+  "reviews": {
+    "Spec": {
+      "open_findings": 0
+    },
+    "Standards": {
+      "accepted_nonblocking_judgments": [
+        {
+          "reason": "Separate conservative replacement checks and context-quality taxonomy/operator rules",
+          "severity": "P3",
+          "ticket": "BMX-05"
+        }
+      ],
+      "open_judgments": 0,
+      "open_written_violations": 0
+    },
+    "method": "Official Matt Pocock code-review: independent Standards/Spec agents per ticket, fixed diff and red/green corrections"
+  },
+  "schema_version": "deidflow.batch-health.v1",
+  "scope": "Final integrated verification of BMX-03 through BMX-12; historical03..08 receipt retained separately",
+  "source_sha256": "71caabc52cb5538c5aed43ad6bf58690f870b184a8c017002a09345f389bad88",
+  "specification_sha256": "898610c7c700f1a1f67154662e2b6526ddbce8fcd7e7f90f43e9631f120ee987",
+  "static_checks": {
+    "format": "PASS",
+    "format_files": 275,
+    "mypy": "PASS",
+    "mypy_modules": 79,
+    "pip_check": "PASS",
+    "python_target": "3.12",
+    "ruff": "PASS"
+  },
+  "tested_commit": "390147079908a7221098ca84af4befd3f48c88ff",
+  "tests": {
+    "elapsed_seconds": 281.82,
+    "passed": 1392,
+    "skipped": 11,
+    "skips": "Optional local OCR/spaCy assets unavailable; no native isolation test skipped"
+  }
+}

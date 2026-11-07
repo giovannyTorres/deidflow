@@ -1,0 +1,6 @@
+{
+  "schema_version": "df-eval-mx.email.v1",
+  "dataset_version": "1.0.0",
+  "synthetic": true,
+  "corpus_sha256": "b88bf25437a58f017ef7afcfc3c7759a567e9e061a5b84d87d7c5a1064e78a1d"
+}

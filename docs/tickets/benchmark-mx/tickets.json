@@ -1,0 +1,1095 @@
+{
+  "schema_version": "1.0",
+  "spec_id": "DF-EVAL-MX",
+  "spec_version": "0.1.0",
+  "spec_sha256": "898610c7c700f1a1f67154662e2b6526ddbce8fcd7e7f90f43e9631f120ee987",
+  "target_repository": "giovannyTorres/deidflow",
+  "tracker": "github_issues",
+  "publication_status": "github_documentation_branch_issues_blocked_by_network_policy",
+  "publication_blocker": "api.github.com CONNECT/GraphQL HTTP403; draft allowlist includes host but runtime has not applied it",
+  "github_created_count": 0,
+  "existing_github_issues_checked": false,
+  "native_dependencies_created": false,
+  "implementation_started": true,
+  "initial_frontier": [
+    "BMX-01",
+    "BMX-09",
+    "BMX-19",
+    "BMX-21"
+  ],
+  "tickets": [
+    {
+      "id": "BMX-01",
+      "number": 1,
+      "slug": "primer-recorrido-local",
+      "title": "Evaluar un correo de un paquete local a un informe reproducible",
+      "blocked_by": [],
+      "deliver": "Ejecutar una pista de detección mínima con el reconocedor existente: un caso EMAIL positivo y un documento negativo conocidos producen un informe descriptivo con identificadores opacos, conteos y configuración explícita. Este corte fija la seam paquete/candidato/perfil → informe y no afirma aislamiento estricto ni cobertura de otras capacidades.",
+      "acceptance": [
+        "El recorrido carga un paquete sintético mínimo versionado y usa el detector real sin modificarlo.",
+        "El informe identifica candidato, dataset, pista, perfil y alcance EMAIL; la calidad permanece DESCRIPTIVE_ONLY sin ratificación.",
+        "Dos ejecuciones conservan conteos/decisiones y no sobrescriben resultados; timestamps y medidas operativas se separan.",
+        "Los documentos, valores y nombres originales no aparecen en el resumen; ninguna adquisición o descarga se ejecuta."
+      ],
+      "tests": [
+        "Fixture positivo/negativo con conteos exactos conocidos.",
+        "Repetición en dos destinos nuevos y comparación de campos deterministas.",
+        "Destino ya existente rechazado y canario ausente del resumen."
+      ],
+      "spec_ac": [
+        "AC-12",
+        "AC-13"
+      ],
+      "actor": "agent",
+      "proposed_label": "ready-for-agent",
+      "effort": "Una sesión de trabajo con contexto fresco; dividir si excede el alcance acotado",
+      "extra": null,
+      "draft_file": "01-primer-recorrido-local.md",
+      "github_title": "[DF-EVAL-MX][BMX-01] Evaluar un correo de un paquete local a un informe reproducible",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-01 -->",
+      "body_sha256": "2b5a00ccedc2d0ed65d47a44e362fda4ae2498598cd8ccbbdb1c7988fe6eef7f",
+      "github_issue_number": null,
+      "github_issue_url": null,
+      "implementation_status": "completed_and_verified",
+      "implementation_evidence": "../../audit/BMX-01.md",
+      "reviewed_code_commit": "72015f7f4abd776ce2c900f7764a3d242575ec7f"
+    },
+    {
+      "id": "BMX-02",
+      "number": 2,
+      "slug": "admision-paquete",
+      "title": "Rechazar paquetes inválidos y preservar anotaciones superpuestas",
+      "blocked_by": [
+        "BMX-01"
+      ],
+      "deliver": "Extender el recorrido para validar recursos, integridad, referencias y anotaciones antes de evaluar. Un paquete admisible llega al informe; uno inconsistente produce un diagnóstico seguro, sin resultados favorables.",
+      "acceptance": [
+        "Validar los contratos de manifiesto, fuentes, documentos, unidades, menciones, expectativas y recursos usados por el paquete.",
+        "Rechazar claves duplicadas, no finitos, bool como offset, UTF-8 inválido, referencias rotas, versiones desconocidas y hashes/tamaños/conteos alterados.",
+        "Permitir spans anidados/cruzados legítimos y rechazar duplicados idénticos, contradicciones y coordenadas fuera de rango.",
+        "Las referencias de recursos no escapan del paquete por traversal o enlaces; distinguir error de dataset de respuesta malformada del candidato."
+      ],
+      "tests": [
+        "Un paquete válido con dos menciones solapadas completa la admisión.",
+        "Casos parametrizados para cada clase inválida y alteración de un byte.",
+        "Traversal, enlace escapado y miembro ZIP duplicado se rechazan sin exponer valores en el error."
+      ],
+      "spec_ac": [
+        "AC-01",
+        "AC-05"
+      ],
+      "actor": "agent",
+      "proposed_label": "ready-for-agent",
+      "effort": "Una sesión de trabajo con contexto fresco; dividir si excede el alcance acotado",
+      "extra": null,
+      "draft_file": "02-admision-paquete.md",
+      "github_title": "[DF-EVAL-MX][BMX-02] Rechazar paquetes inválidos y preservar anotaciones superpuestas",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-02 -->",
+      "body_sha256": "d3471c7794bf2da3e13340d3c682a804aaf449ca0e8e1555d52c0b5bc3a5b277",
+      "github_issue_number": null,
+      "github_issue_url": null,
+      "implementation_status": "completed_and_verified",
+      "implementation_evidence": "../../audit/BMX-02.md",
+      "reviewed_code_commit": "3b28c35f2b066b72f7a1c4aa20b7462023a99080"
+    },
+    {
+      "id": "BMX-03",
+      "number": 3,
+      "slug": "deteccion-por-entidad",
+      "title": "Puntuar detección mexicana con matching exacto y errores por entidad",
+      "blocked_by": [
+        "BMX-02"
+      ],
+      "deliver": "Evaluar un paquete textual multientidad y publicar filas independientes RFC, CURP, CLABE, tarjetas, teléfonos, correos, personas, direcciones y categorías clínicas declaradas; mantener cobertura parcial como diagnóstico separado.",
+      "acceptance": [
+        "Matching de máxima cardinalidad uno a uno con clave caso/unidad/tipo/inicio/fin y desempate canónico.",
+        "Deduplicar predicciones idénticas sin borrar spans solapados distintos; error de tipo/límite produce los FP/FN correspondientes.",
+        "Informar TP/FP/FN, precision/recall/F1, soporte, micro/macro y exclusiones explícitas; sin denominador usar null y razón.",
+        "Conservar offsets Unicode originales y no rescatar errores mediante equivalencias guiadas por el gold.",
+        "Predicción malformada se registra como error del candidato; no se convierte en resultado perfecto ni desaparece del alcance."
+      ],
+      "tests": [
+        "TP=1, FP=1, FN=1 da precision=recall=F1=0.5.",
+        "Ejemplos exactos, parciales, cruzados, repetidos y de etiqueta errónea; una predicción no acierta dos menciones.",
+        "Diacríticos, caracteres fuera de BMP y saltos CRLF mantienen índices; categorías sin soporte siguen visibles."
+      ],
+      "spec_ac": [
+        "AC-02",
+        "AC-03",
+        "AC-05"
+      ],
+      "actor": "agent",
+      "proposed_label": "ready-for-agent",
+      "effort": "Una sesión de trabajo con contexto fresco; dividir si excede el alcance acotado",
+      "extra": null,
+      "draft_file": "03-deteccion-por-entidad.md",
+      "github_title": "[DF-EVAL-MX][BMX-03] Puntuar detección mexicana con matching exacto y errores por entidad",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-03 -->",
+      "body_sha256": "dd6939ea228816c11642265324a88a6bf135b4bcda9a8b511360196f1563ce48",
+      "github_issue_number": null,
+      "github_issue_url": null,
+      "implementation_status": "completed_and_verified",
+      "integrated_validation_pending": false,
+      "implementation_evidence": "../../audit/BMX-03.md",
+      "reviewed_code_commit": "ee4c19c0fc9cf309179321e177429ba06fadd764",
+      "integrated_verification_evidence": "../../audit/BATCH_NEXT10_HEALTH.json",
+      "tested_code_commit": "d17b7ae0f4e8010b15257e1d4da21e332bfe6bbe",
+      "tested_source_sha256": "1cfd725a6f9239a2c8b84ec87aa67b92204d87f1a72cce766a33ef4cdca8f08f"
+    },
+    {
+      "id": "BMX-04",
+      "number": 4,
+      "slug": "validez-independiente",
+      "title": "Medir validez de identificadores con vectores independientes",
+      "blocked_by": [
+        "BMX-03"
+      ],
+      "deliver": "Añadir la pista local de patrón, estructura y checksum de RFC, CURP, CLABE y tarjetas, con vectores ficticios cuya referencia no depende únicamente de los validadores evaluados.",
+      "acceptance": [
+        "Separar los tres atributos y distinguir invalid, valid, not_applicable y unknown.",
+        "Mantener sensibilidad de referencia independiente de la validez; un checksum malo no transforma automáticamente el caso en negativo de detección.",
+        "Registrar origen/versión de los vectores y su comprobación independiente; no consultar titularidad ni registros reales.",
+        "El informe mantiene métricas de validación separadas de detección y transformación."
+      ],
+      "tests": [
+        "Vectores válidos y alteraciones de un dígito con respuestas esperadas calculadas por referencia independiente.",
+        "Fechas imposibles, truncados, longitudes y separadores; not_applicable no cuenta como checksum fallido.",
+        "El mismo valor inválido se evalúa como sensible o distractor según la referencia explícita, sin usar el score del candidato."
+      ],
+      "spec_ac": [
+        "AC-04"
+      ],
+      "actor": "agent",
+      "proposed_label": "ready-for-agent",
+      "effort": "Una sesión de trabajo con contexto fresco; dividir si excede el alcance acotado",
+      "extra": null,
+      "draft_file": "04-validez-independiente.md",
+      "github_title": "[DF-EVAL-MX][BMX-04] Medir validez de identificadores con vectores independientes",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-04 -->",
+      "body_sha256": "5f0ff4b6a0c387b028f6a17655338ced8e9624d2210e5ddbb16134a2b87fa7d0",
+      "github_issue_number": null,
+      "github_issue_url": null,
+      "implementation_status": "completed_and_verified",
+      "integrated_validation_pending": false,
+      "implementation_evidence": "../../audit/BMX-04.md",
+      "reviewed_code_commit": "5393abe64bde30c3cbf7218c9056d16ff46c856f",
+      "integrated_verification_evidence": "../../audit/BATCH_NEXT10_HEALTH.json",
+      "tested_code_commit": "d17b7ae0f4e8010b15257e1d4da21e332bfe6bbe",
+      "tested_source_sha256": "1cfd725a6f9239a2c8b84ec87aa67b92204d87f1a72cce766a33ef4cdca8f08f"
+    },
+    {
+      "id": "BMX-05",
+      "number": 5,
+      "slug": "transformacion-aislada",
+      "title": "Verificar protección y conservación con menciones de referencia",
+      "blocked_by": [
+        "BMX-02"
+      ],
+      "deliver": "Ejecutar transformación textual aislada usando el gold y un perfil explícito; comprobar sustitución real, conservación y mapas de salida sin atribuir fallos del detector a esta pista.",
+      "acceptance": [
+        "Evaluar remove, preserve, generalize y review_required bajo expectativas explícitas, incluso si son propuestas aún no ratificadas.",
+        "Los mapas se contrastan con el contenido realmente emitido; copiar el original o conservar un sufijo no acredita retirada completa.",
+        "Medir contexto requerido, retención no sensible, sobretransformación y resultado conjunto; operador sin verificador produce UNVERIFIABLE.",
+        "Rechazar expectativas contradictorias sin precedencia declarada y conservar spans superpuestos admitidos."
+      ],
+      "tests": [
+        "Transformador correcto frente a candidatos controlados que copian original, falsean mapas o dejan máscara parcial.",
+        "Perfiles explícitos opuestos sobre el mismo contenido clínico; pérdida de «niega diabetes» reduce conservación y éxito conjunto.",
+        "Marcador literal presente en la entrada y solapamientos con contexto que debe preservarse."
+      ],
+      "spec_ac": [
+        "AC-06",
+        "AC-08"
+      ],
+      "actor": "agent",
+      "proposed_label": "ready-for-agent",
+      "effort": "Una sesión de trabajo con contexto fresco; dividir si excede el alcance acotado",
+      "extra": null,
+      "draft_file": "05-transformacion-aislada.md",
+      "github_title": "[DF-EVAL-MX][BMX-05] Verificar protección y conservación con menciones de referencia",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-05 -->",
+      "body_sha256": "237ec558d2c2c36321efbaf9dc79308eac04f36e0088c819c1a48523d178458d",
+      "github_issue_number": null,
+      "github_issue_url": null,
+      "implementation_status": "completed_and_verified",
+      "integrated_validation_pending": false,
+      "implementation_evidence": "../../audit/BMX-05.md",
+      "reviewed_code_commit": "16279a048448044669af4ea7558c959e534ba61e",
+      "integrated_verification_evidence": "../../audit/BATCH_NEXT10_HEALTH.json",
+      "tested_code_commit": "d17b7ae0f4e8010b15257e1d4da21e332bfe6bbe",
+      "tested_source_sha256": "1cfd725a6f9239a2c8b84ec87aa67b92204d87f1a72cce766a33ef4cdca8f08f"
+    },
+    {
+      "id": "BMX-06",
+      "number": 6,
+      "slug": "pipeline-textual",
+      "title": "Evaluar la salida real del pipeline textual y sus estados",
+      "blocked_by": [
+        "BMX-03",
+        "BMX-05"
+      ],
+      "deliver": "Medir el pipeline real de detección/transformación con el motor existente, comparando la salida contra referencia y manteniendo aprobación, revisión, bloqueo y ausencia de salida separados.",
+      "acceptance": [
+        "Informar fugas por mención/documento, conservación, resultado conjunto y conteos por estado.",
+        "Sin aprobados, la fuga entre aprobados es indefinida; sin salida no hay éxito conjunto ni fuga cero certificada.",
+        "Inspeccionar todas las salidas observables y no acreditar eliminación únicamente por mapas o por repetir el detector.",
+        "Los tres ejes de veredicto del evaluador no se confunden con ReleaseStatus; sin perfil ratificado no se emite aprobación de calidad."
+      ],
+      "tests": [
+        "Candidato que bloquea todo: cero éxito conjunto y denominador de aprobados cero.",
+        "Candidato que emite dato residual con APPROVED, REVIEW_REQUIRED o BLOCKED conserva evidencia y estado propios.",
+        "Candidatos que cambian solo un sufijo, copian el valor en otra zona o lanzan error no mejoran métricas por exclusión del caso."
+      ],
+      "spec_ac": [
+        "AC-06",
+        "AC-08",
+        "AC-09",
+        "AC-13"
+      ],
+      "actor": "agent",
+      "proposed_label": "ready-for-agent",
+      "effort": "Una sesión de trabajo con contexto fresco; dividir si excede el alcance acotado",
+      "extra": null,
+      "draft_file": "06-pipeline-textual.md",
+      "github_title": "[DF-EVAL-MX][BMX-06] Evaluar la salida real del pipeline textual y sus estados",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-06 -->",
+      "body_sha256": "916b11f9a0869c628deeb524fe2ebd13e4da5a04e4a87477d0a77122fc4a14eb",
+      "github_issue_number": null,
+      "github_issue_url": null,
+      "implementation_status": "completed_and_verified",
+      "integrated_validation_pending": false,
+      "implementation_evidence": "../../audit/BMX-06.md",
+      "reviewed_code_commit": "4d95eb85f9638776ed513e64371e5a8cd93eacf5",
+      "integrated_verification_evidence": "../../audit/BATCH_NEXT10_HEALTH.json",
+      "tested_code_commit": "d17b7ae0f4e8010b15257e1d4da21e332bfe6bbe",
+      "tested_source_sha256": "1cfd725a6f9239a2c8b84ec87aa67b92204d87f1a72cce766a33ef4cdca8f08f"
+    },
+    {
+      "id": "BMX-07",
+      "number": 7,
+      "slug": "ejecucion-segura",
+      "title": "Ejecutar con aislamiento local, límites y diagnósticos sin datos",
+      "blocked_by": [
+        "BMX-01"
+      ],
+      "deliver": "Hacer ejecutable y verificable la restricción local del arnés, con límites por proceso/caso y capacidades de aislamiento declaradas; mantener los fallos en el informe.",
+      "acceptance": [
+        "Prohibir y registrar intentos de red durante carga e inferencia, incluidos subprocesos; no confundir bloqueo de sockets Python con aislamiento nativo.",
+        "Configurar límites de bytes/expansión, miembros, profundidad, píxeles, tiempo y memoria; distinguir admisión de límite duro.",
+        "En custodia estricta el candidato solo accede a entradas/activos autorizados, no al gold; capacidad ausente se informa y bloquea acreditación estricta.",
+        "Timeout, activos ausentes o respuestas malformadas mantienen el caso y su soporte en el informe; no instalar activos ni alterar el sandbox.",
+        "Resumen y mensajes de error usan códigos permitidos y no contienen valores, nombres originales, secretos o variables de entorno."
+      ],
+      "tests": [
+        "Adapter y subproceso controlados intentan red, incluso capturando la excepción: la condición local no pasa.",
+        "Proceso intenta leer una referencia fuera de sus entradas; verificar la restricción real o declarar capacidad no acreditada.",
+        "Timeout, expansión excesiva y memoria admitida versus límite duro producen estados correctos.",
+        "Canarios en texto, nombre de archivo y excepción no llegan a logs/resumen."
+      ],
+      "spec_ac": [
+        "AC-10",
+        "AC-11"
+      ],
+      "actor": "agent",
+      "proposed_label": "ready-for-agent",
+      "effort": "Una sesión de trabajo con contexto fresco; dividir si excede el alcance acotado",
+      "extra": null,
+      "draft_file": "07-ejecucion-segura.md",
+      "github_title": "[DF-EVAL-MX][BMX-07] Ejecutar con aislamiento local, límites y diagnósticos sin datos",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-07 -->",
+      "body_sha256": "8c70555d194201ca49d4c5d6fbd50441d36520afdaf38b72ccb9bfcf843cc663",
+      "github_issue_number": null,
+      "github_issue_url": null,
+      "implementation_status": "completed_and_verified",
+      "integrated_validation_pending": false,
+      "implementation_evidence": "../../audit/BMX-07.md",
+      "reviewed_code_commit": "e8032793468f87fd399dddf65eb8db3332ba9afd",
+      "integrated_verification_evidence": "../../audit/BATCH_NEXT10_HEALTH.json",
+      "tested_code_commit": "d17b7ae0f4e8010b15257e1d4da21e332bfe6bbe",
+      "tested_source_sha256": "1cfd725a6f9239a2c8b84ec87aa67b92204d87f1a72cce766a33ef4cdca8f08f"
+    },
+    {
+      "id": "BMX-08",
+      "number": 8,
+      "slug": "independencia-particiones",
+      "title": "Auditar particiones por grupos, linajes y exposición",
+      "blocked_by": [
+        "BMX-02"
+      ],
+      "deliver": "Admitir como independiente solo un paquete con auditoría verificable de grupos y exposición, distinguiendo entrenamiento, ajuste, calibración, regresión, transferencia y test ciego.",
+      "acceptance": [
+        "Construir/comprobar la clausura de documento fuente, linaje, familia de plantilla e identidad sintética vinculada sin unir documentos solo por idioma/proveedor.",
+        "Comprobar igualdad original/normalizada y similitud según perfil versionado explícito; conflictos no resueltos impiden acreditar independencia.",
+        "Variantes OCR/de formato no cruzan particiones; no usar semillas o hashes diferentes como prueba suficiente.",
+        "Exposición desconocida o histórica se declara; casos ya inspeccionados permanecen en known_regression o external_transfer.",
+        "La auditoría produce conteos y motivos seguros, no contenido de gold ciego."
+      ],
+      "tests": [
+        "Duplicado exacto, NFKC/casefold/espacios equivalente, derivado OCR y plantilla compartida entre particiones se detectan.",
+        "Perfil de similitud ausente/conflicto pendiente no obtiene independencia acreditada.",
+        "Nombres comunes sin identidad vinculada no fusionan todo el corpus; fuente previamente usada no se presenta como ciega."
+      ],
+      "spec_ac": [
+        "AC-01",
+        "AC-14"
+      ],
+      "actor": "agent",
+      "proposed_label": "ready-for-agent",
+      "effort": "Una sesión de trabajo con contexto fresco; dividir si excede el alcance acotado",
+      "extra": null,
+      "draft_file": "08-independencia-particiones.md",
+      "github_title": "[DF-EVAL-MX][BMX-08] Auditar particiones por grupos, linajes y exposición",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-08 -->",
+      "body_sha256": "ee27a5f9ed7db394000d64b15935dcee59f658c265d18478a89dc2441464bdca",
+      "github_issue_number": null,
+      "github_issue_url": null,
+      "implementation_status": "completed_and_verified",
+      "integrated_validation_pending": false,
+      "implementation_evidence": "../../audit/BMX-08.md",
+      "reviewed_code_commit": "4fa622e04f15aa990735eeb7523c98e1394ce6a4",
+      "integrated_verification_evidence": "../../audit/BATCH_NEXT10_HEALTH.json",
+      "tested_code_commit": "d17b7ae0f4e8010b15257e1d4da21e332bfe6bbe",
+      "tested_source_sha256": "1cfd725a6f9239a2c8b84ec87aa67b92204d87f1a72cce766a33ef4cdca8f08f"
+    },
+    {
+      "id": "BMX-09",
+      "number": 9,
+      "slug": "ratificar-perfiles",
+      "title": "Ratificar perfiles operativos, sensibilidad y conservación",
+      "blocked_by": [],
+      "deliver": "Resolver con el responsable las decisiones D1–D3 y el alcance obligatorio por formato, dejando perfiles documentados y versionados antes de producir referencia de calificación.",
+      "acceptance": [
+        "Registrar si v1 respalda uso supervisado, automático o solo descriptivo, sin interpretar silencio como aprobación.",
+        "Resolver explícitamente tratamiento de identificadores plausibles inválidos frente a distractores no personales.",
+        "Acordar expectativas clínicas/otros cuasiidentificadores y operadores permitidos por formato; no convertir retención clínica en afirmación de no sensibilidad.",
+        "Definir celdas obligatorias/opcionales; conservar recomendación, decisión, responsable y fecha sin fabricar conformidad."
+      ],
+      "tests": [
+        "Revisión de escenarios: CURP etiquetada con checksum malo, número inocuo similar, negación/dosis y PDF sin soporte del operador.",
+        "Comprobar que cada escenario tiene una expectativa no contradictoria por perfil.",
+        "Revisión documental de completitud y de los puntos aún pendientes; no pruebas ejecutadas del benchmark."
+      ],
+      "spec_ac": [
+        "AC-04",
+        "AC-08",
+        "AC-13"
+      ],
+      "actor": "human",
+      "proposed_label": "ready-for-human",
+      "effort": "Revisión humana; depende de insumos",
+      "extra": null,
+      "draft_file": "09-ratificar-perfiles.md",
+      "github_title": "[DF-EVAL-MX][BMX-09] Ratificar perfiles operativos, sensibilidad y conservación",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-09 -->",
+      "body_sha256": "b382c10f38e262b70aa3d135cac8695dfe6ba0e37a9f3011dd81d4f49914b691",
+      "github_issue_number": null,
+      "github_issue_url": null,
+      "implementation_status": "completed_and_verified",
+      "implementation_evidence": "../../audit/BMX-09.md",
+      "human_decisions": {
+        "D1": "automatic_global_easy_local_retraining",
+        "D2": "accepted_recommendation",
+        "D3": "accepted_contextual_and_strict",
+        "mandatory_formats": "all_planned_including_ocr",
+        "ratified": true,
+        "quality_profile_ratified": false
+      },
+      "reviewed_code_commit": "9f9ea18fc4b1995da1fe4b94112ea224cc0f360e"
+    },
+    {
+      "id": "BMX-10",
+      "number": 10,
+      "slug": "corpus-identificadores",
+      "title": "Preparar corpus sintético mexicano de identificadores y negativos",
+      "blocked_by": [
+        "BMX-04",
+        "BMX-08",
+        "BMX-09"
+      ],
+      "deliver": "Producir un paquete de identificadores mexicanos completamente ficticios con validez comprobada independientemente, negativos difíciles, familias diferenciadas y soporte reportado.",
+      "acceptance": [
+        "Cubrir RFC física/moral/genéricos, CURP, CLABE, tarjetas, teléfonos mexicanos y correos con variantes válidas/inválidas y distractores.",
+        "Etiquetas y sensibilidad siguen perfiles ratificados; no derivar gold de las predicciones del candidato.",
+        "Asignar grupos/particiones antes de derivados y registrar semillas, algoritmos, procedencia y vectores de validez.",
+        "Emitir soporte por entidad/estrato y errores reales de admisión; un fixture no se presenta como muestra de despliegue ni cuenta existente."
+      ],
+      "tests": [
+        "Repetir generación y comparar hashes/conteos.",
+        "Auditoría independiente de vectores y casos negativos; pasar el paquete por validación, pista de validez y detección.",
+        "Comprobar separación de grupos, metadatos de licencia/procedencia y ausencia de consultas de titularidad."
+      ],
+      "spec_ac": [
+        "AC-03",
+        "AC-04",
+        "AC-12"
+      ],
+      "actor": "agent",
+      "proposed_label": "ready-for-agent",
+      "effort": "Una sesión de trabajo con contexto fresco; dividir si excede el alcance acotado",
+      "extra": null,
+      "draft_file": "10-corpus-identificadores.md",
+      "github_title": "[DF-EVAL-MX][BMX-10] Preparar corpus sintético mexicano de identificadores y negativos",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-10 -->",
+      "body_sha256": "6fc6c2ed1ce7eabd06aa3e5e25e405e85c41e94889a4fb3ddd2d3e7ed24a7942",
+      "github_issue_number": null,
+      "github_issue_url": null,
+      "implementation_status": "completed_and_verified",
+      "integrated_validation_pending": false,
+      "implementation_evidence": "../../audit/BMX-10.md",
+      "reviewed_code_commit": "6528df7297e91b38b17819bc104cff1c2925a43f",
+      "integrated_validation_evidence": "../../audit/BATCH_NEXT10_CONTINUATION_HEALTH.json"
+    },
+    {
+      "id": "BMX-11",
+      "number": 11,
+      "slug": "corpus-contextual",
+      "title": "Evaluar nombres, direcciones, clínica y homónimos con referencia adjudicada",
+      "blocked_by": [
+        "BMX-05",
+        "BMX-08",
+        "BMX-09"
+      ],
+      "deliver": "Preparar casos ficticios contextuales que permitan medir tanto detección como conservación, con identidad y ambigüedad explícitas en lugar de adivinadas.",
+      "acceptance": [
+        "Cubrir nombres/direcciones mexicanos, formularios/narrativa, negaciones, dosis/cantidades y relaciones requeridas.",
+        "Conservar spans anidados/cruzados y evidencia de límites; separar panel ambiguo no resuelto de métricas primarias.",
+        "Homónimos se evalúan por mención; vinculación entre documentos solo donde la entrada aporta evidencia suficiente.",
+        "Registrar adjudicación y guías reales; no inventar revisores ni usar al candidato como anotador de referencia."
+      ],
+      "tests": [
+        "Casos con/sin punto en narrativa clínica, nombres que son lugares/palabras comunes y roles incompatibles.",
+        "Mismo nombre para personas distintas, continuidad explícita y alias indeterminado.",
+        "Transformación aislada comprueba contexto; auditoría impide cruce de familias/identidades vinculadas entre particiones."
+      ],
+      "spec_ac": [
+        "AC-05",
+        "AC-08"
+      ],
+      "actor": "agent",
+      "proposed_label": "ready-for-agent",
+      "effort": "Una sesión de trabajo con contexto fresco; dividir si excede el alcance acotado",
+      "extra": null,
+      "draft_file": "11-corpus-contextual.md",
+      "github_title": "[DF-EVAL-MX][BMX-11] Evaluar nombres, direcciones, clínica y homónimos con referencia adjudicada",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-11 -->",
+      "body_sha256": "b6cff9ea4755ac6a3e38298be91acaf673173c576215f0cf7e904e4f91782597",
+      "github_issue_number": null,
+      "github_issue_url": null,
+      "implementation_status": "completed_and_verified",
+      "integrated_validation_pending": false,
+      "implementation_evidence": "../../audit/BMX-11.md",
+      "reviewed_code_commit": "9b76cea6098f9d114ce94010f1a7e99a1663855e",
+      "integrated_validation_evidence": "../../audit/BATCH_NEXT10_CONTINUATION_HEALTH.json"
+    },
+    {
+      "id": "BMX-12",
+      "number": 12,
+      "slug": "perturbaciones",
+      "title": "Evaluar perturbaciones textuales sin romper linaje ni referencia",
+      "blocked_by": [
+        "BMX-10",
+        "BMX-11"
+      ],
+      "deliver": "Generar derivados deterministas de formato/ruido textual, vinculados a su origen y evaluables como pistas separadas del texto limpio y del OCR real.",
+      "acceptance": [
+        "Cubrir mayúsculas, Unicode, separadores, saltos, columnas/texto desordenado, confusiones OCR simuladas y posiciones de corte/longitud/densidad.",
+        "Actualizar referencia y coordenadas de manera controlada; no normalizar el texto puntuado.",
+        "Todos los derivados permanecen con su grupo/partición y registran receta, versión y semilla.",
+        "No describir ruido textual como resultado de Tesseract ni aumentar el peso de un origen por tener más variantes."
+      ],
+      "tests": [
+        "Repetición de recetas conserva hashes y anotaciones dentro de rango.",
+        "Derivado mal asignado entre particiones es rechazado por auditoría.",
+        "La misma mención cerca de cortes, con CRLF/diacríticos y texto desordenado tiene referencia trazable y métricas por estrato."
+      ],
+      "spec_ac": [
+        "AC-05",
+        "AC-12",
+        "AC-14"
+      ],
+      "actor": "agent",
+      "proposed_label": "ready-for-agent",
+      "effort": "Una sesión de trabajo con contexto fresco; dividir si excede el alcance acotado",
+      "extra": null,
+      "draft_file": "12-perturbaciones.md",
+      "github_title": "[DF-EVAL-MX][BMX-12] Evaluar perturbaciones textuales sin romper linaje ni referencia",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-12 -->",
+      "body_sha256": "00c694ebe926a1ab8c015450135d80548d53b157f32675401490df7aff083044",
+      "github_issue_number": null,
+      "github_issue_url": null,
+      "implementation_status": "completed_and_verified",
+      "integrated_validation_pending": false,
+      "implementation_evidence": "../../audit/BMX-12.md",
+      "reviewed_code_commit": "390147079908a7221098ca84af4befd3f48c88ff",
+      "integrated_validation_evidence": "../../audit/BATCH_NEXT10_CONTINUATION_HEALTH.json"
+    },
+    {
+      "id": "BMX-13",
+      "number": 13,
+      "slug": "estructurados",
+      "title": "Verificar salidas CSV/TSV y JSON/JSONL reales",
+      "blocked_by": [
+        "BMX-06"
+      ],
+      "deliver": "Extender el pipeline a datos estructurados con localizadores estables y comprobación de valores, esquema, índices y metadatos que puedan conservar información.",
+      "acceptance": [
+        "La pista inspecciona el archivo serializado real, no solo el DataFrame u objeto anterior a escribir.",
+        "Comprobar fila/celda/ruta, datos sensibles en cabeceras/claves y conservación de valores/estructura exigidos.",
+        "Mantener scope por formato, cobertura y capacidades; contenido no inspeccionado no recibe éxito.",
+        "Límites, formatos malformados y salida ausente se informan con denominadores y estados correctos."
+      ],
+      "tests": [
+        "Canario en celda, cabecera y clave/valor JSON; comprobar también una cantidad no sensible preservada.",
+        "JSON con claves duplicadas/no finitos, fila desigual y archivo truncado.",
+        "Duplicación de un valor sensible fuera de la celda original no pasa por confiar en el mapa de la primera transformación."
+      ],
+      "spec_ac": [
+        "AC-06",
+        "AC-10"
+      ],
+      "actor": "agent",
+      "proposed_label": "ready-for-agent",
+      "effort": "Una sesión de trabajo con contexto fresco; dividir si excede el alcance acotado",
+      "extra": null,
+      "draft_file": "13-estructurados.md",
+      "github_title": "[DF-EVAL-MX][BMX-13] Verificar salidas CSV/TSV y JSON/JSONL reales",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-13 -->",
+      "body_sha256": "14f3108ff247dc38968d1c6cde48a974106395063513b5cb17fed14f501dd865",
+      "github_issue_number": null,
+      "github_issue_url": null
+    },
+    {
+      "id": "BMX-14",
+      "number": 14,
+      "slug": "docx",
+      "title": "Detectar fugas en contenido recuperable de DOCX",
+      "blocked_by": [
+        "BMX-06"
+      ],
+      "deliver": "Añadir un inspector de referencia DOCX que compruebe texto y slots recuperables del artefacto, con la regresión conocida del correo oculto en un atributo.",
+      "acceptance": [
+        "Inventariar partes/slots admitidos, atributos y metadatos de forma que la omisión del lector del candidato no se replique silenciosamente.",
+        "El canario en w:tag/@w:val retenido se registra como fuga incluso cuando DeidFlow dice APPROVED.",
+        "Partes/slots desconocidos o no inspeccionables mantienen cobertura incompleta y el caso visible.",
+        "Comprobar utilidad/estructura soportada y no modificar el escritor de producción como parte de esta tarea."
+      ],
+      "tests": [
+        "Fixture controlado con canario en texto visible, atributo de content control y otra parte conocida.",
+        "Candidato controlado que declara mapas correctos pero conserva XML sensible produce chequeo de privacidad fallido.",
+        "Parte desconocida, recurso malformado y documento limpio verifican incompletitud y ausencia de falsos certificados."
+      ],
+      "spec_ac": [
+        "AC-06",
+        "AC-07",
+        "AC-10"
+      ],
+      "actor": "agent",
+      "proposed_label": "ready-for-agent",
+      "effort": "Una sesión de trabajo con contexto fresco; dividir si excede el alcance acotado",
+      "extra": null,
+      "draft_file": "14-docx.md",
+      "github_title": "[DF-EVAL-MX][BMX-14] Detectar fugas en contenido recuperable de DOCX",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-14 -->",
+      "body_sha256": "2815c86e16dfe9b1115976ff9a2be346dc373cc81ba20099b06eb7ecb4c30987",
+      "github_issue_number": null,
+      "github_issue_url": null
+    },
+    {
+      "id": "BMX-15",
+      "number": 15,
+      "slug": "xlsx",
+      "title": "Verificar celdas y copias recuperables en XLSX",
+      "blocked_by": [
+        "BMX-13"
+      ],
+      "deliver": "Extender el evaluador estructurado a XLSX sin limitarse a la cuadrícula visible, verificando canales recuperables y contexto tabular conservado.",
+      "acceptance": [
+        "Inventariar hojas/celdas y copias/atributos/partes soportadas; inspeccionar salida serializada.",
+        "Distinguir regiones obligatorias verificadas de contenido desconocido; no declarar limpieza por no extraerlo.",
+        "Medir retirada, estructura y cantidades requeridas manteniendo la política de revisión propia de XLSX.",
+        "No cambiar comportamiento de producción ni degradar validaciones para hacer pasar el caso."
+      ],
+      "tests": [
+        "Canarios en celda, cadena compartida/comentario o metadato admitido y copia oculta controlada.",
+        "Cantidad y estructura preservadas; parte opaca provoca incompletitud.",
+        "Relectura del artefacto detecta una copia residual aunque la primera localización se haya saneado."
+      ],
+      "spec_ac": [
+        "AC-06",
+        "AC-10"
+      ],
+      "actor": "agent",
+      "proposed_label": "ready-for-agent",
+      "effort": "Una sesión de trabajo con contexto fresco; dividir si excede el alcance acotado",
+      "extra": null,
+      "draft_file": "15-xlsx.md",
+      "github_title": "[DF-EVAL-MX][BMX-15] Verificar celdas y copias recuperables en XLSX",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-15 -->",
+      "body_sha256": "2b449256303199784fa71923f79dde19dca865fd195d1fcd973fedab496583cc",
+      "github_issue_number": null,
+      "github_issue_url": null
+    },
+    {
+      "id": "BMX-16",
+      "number": 16,
+      "slug": "html",
+      "title": "Verificar contenido HTML y atributos recuperables",
+      "blocked_by": [
+        "BMX-06"
+      ],
+      "deliver": "Medir las salidas HTML usando un inventario de texto/atributos y canales admitidos, con conservación y revisión propia del formato.",
+      "acceptance": [
+        "Inspeccionar contenido final, no únicamente texto visible del navegador.",
+        "Cubrir atributos, comentarios y valores CSS/URL admitidos o declarar lo no verificable.",
+        "Conservar los review floors del producto; no convertir no detección en aprobación.",
+        "No cargar URLs ni recursos externos para inspeccionar el documento."
+      ],
+      "tests": [
+        "Canarios en texto, atributos y un canal CSS/URL controlado.",
+        "Variantes codificadas/malformadas y contenido no soportado no reciben cobertura completa.",
+        "Inspección offline con recursos externos presentes pero no solicitados."
+      ],
+      "spec_ac": [
+        "AC-06",
+        "AC-10",
+        "AC-11"
+      ],
+      "actor": "agent",
+      "proposed_label": "ready-for-agent",
+      "effort": "Una sesión de trabajo con contexto fresco; dividir si excede el alcance acotado",
+      "extra": null,
+      "draft_file": "16-html.md",
+      "github_title": "[DF-EVAL-MX][BMX-16] Verificar contenido HTML y atributos recuperables",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-16 -->",
+      "body_sha256": "0d79095f5e3f383ac72613e70de5833b5b73e6dbe47d729327372d5f71a21d62",
+      "github_issue_number": null,
+      "github_issue_url": null
+    },
+    {
+      "id": "BMX-17",
+      "number": 17,
+      "slug": "eml",
+      "title": "Verificar MIME, cabeceras y adjuntos admitidos",
+      "blocked_by": [
+        "BMX-13",
+        "BMX-16"
+      ],
+      "deliver": "Añadir evaluación de mensajes ficticios y sus adjuntos mediante inspectores disponibles; informar explícitamente los tipos que aún no pueden verificarse.",
+      "acceptance": [
+        "Inspeccionar cabeceras, cuerpos alternativos y adjuntos soportados sin contactar cuentas reales.",
+        "Resolver adjuntos mediante capacidades disponibles, comenzando por texto/HTML/datos estructurados; otros quedan no verificados hasta disponer de inspector.",
+        "Mantener procedencia de cada parte y estados de revisión; no eximir residuales solo porque parezcan marcadores.",
+        "Límites y contenido MIME defectuoso/adjunto opaco degradan cobertura sin ocultar el caso."
+      ],
+      "tests": [
+        "Canarios en cabecera, texto, alternativa HTML y adjunto CSV.",
+        "Adjunto sin inspector produce INCOMPLETE en una celda obligatoria, no ausencia de fugas.",
+        "Cabecera regenerada legítima frente a metadato de fuente que imita marcador; ningún envío de correo se realiza."
+      ],
+      "spec_ac": [
+        "AC-06",
+        "AC-10",
+        "AC-11"
+      ],
+      "actor": "agent",
+      "proposed_label": "ready-for-agent",
+      "effort": "Una sesión de trabajo con contexto fresco; dividir si excede el alcance acotado",
+      "extra": null,
+      "draft_file": "17-eml.md",
+      "github_title": "[DF-EVAL-MX][BMX-17] Verificar MIME, cabeceras y adjuntos admitidos",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-17 -->",
+      "body_sha256": "15bf03b692ebc56308e2ed131f6f7091b12ce3b4afa971ffbe4f5851ac9e14aa",
+      "github_issue_number": null,
+      "github_issue_url": null
+    },
+    {
+      "id": "BMX-18",
+      "number": 18,
+      "slug": "pdf-nativo",
+      "title": "Verificar PDF nativo y reconstrucción visual con gold controlado",
+      "blocked_by": [
+        "BMX-06"
+      ],
+      "deliver": "Evaluar PDFs sintéticos con referencia textual y geométrica, inspeccionando la reconstrucción y el contenido recuperable en vez de confiar en la extracción del candidato.",
+      "acceptance": [
+        "Registrar página, escala, rotación y regiones originales; distinguir operadores válidos de PDF de marcadores textuales.",
+        "Verificar regiones y gramática/contenido retenido del artefacto final con evidencia de referencia.",
+        "Una zona no comprobable, geometría no soportada o capacidad faltante queda UNVERIFIABLE/INCOMPLETE.",
+        "No acreditar ausencia visual únicamente porque un OCR o extractor no devuelve el identificador."
+      ],
+      "tests": [
+        "PDF generado localmente con canario en región conocida y cantidad que debe preservarse.",
+        "Candidato oculta el canario de la extracción pero mantiene glifos visibles: detectar fuga o verificación incompleta.",
+        "Salida reconstruida correcta, región incompleta y geometría no soportada conservan estados y denominadores."
+      ],
+      "spec_ac": [
+        "AC-06",
+        "AC-10"
+      ],
+      "actor": "agent",
+      "proposed_label": "ready-for-agent",
+      "effort": "Una sesión de trabajo con contexto fresco; dividir si excede el alcance acotado",
+      "extra": null,
+      "draft_file": "18-pdf-nativo.md",
+      "github_title": "[DF-EVAL-MX][BMX-18] Verificar PDF nativo y reconstrucción visual con gold controlado",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-18 -->",
+      "body_sha256": "171867c9d5c57041488a99a55ee4ec67eba4b76d7134b03aad4b9ecb862a9a05",
+      "github_issue_number": null,
+      "github_issue_url": null
+    },
+    {
+      "id": "BMX-19",
+      "number": 19,
+      "slug": "activos-ocr",
+      "title": "Revisar y registrar activos locales de OCR sin descargas automáticas",
+      "blocked_by": [],
+      "deliver": "Dejar disponibles los binarios, idiomas y licencias necesarios para la integración OCR real, o documentar exactamente qué requisito externo falta.",
+      "acceptance": [
+        "Identificar versión/hash de Tesseract y datos de español/inglés requeridos, así como términos y procedencia.",
+        "Usar activos locales revisados; cualquier adquisición es una acción separada autorizada, nunca inferencia con descarga automática.",
+        "Registrar configuración, rutas locales privadas sin secretos y evidencia de ejecución básica del activo.",
+        "Si falta un activo o permiso, mantener el requisito pendiente sin inventar una prueba ejecutada."
+      ],
+      "tests": [
+        "Revisión de hashes/licencias y consulta local de versiones/idiomas.",
+        "Prueba con imagen enteramente ficticia cuando los activos estén disponibles.",
+        "Checklist que diferencia activo configurado de integración evaluada por el benchmark."
+      ],
+      "spec_ac": [
+        "AC-10",
+        "AC-11"
+      ],
+      "actor": "human",
+      "proposed_label": "ready-for-human",
+      "effort": "Revisión humana; depende de insumos",
+      "extra": null,
+      "draft_file": "19-activos-ocr.md",
+      "github_title": "[DF-EVAL-MX][BMX-19] Revisar y registrar activos locales de OCR sin descargas automáticas",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-19 -->",
+      "body_sha256": "dec8ec24787a0663a3d5a352bd0038c9c5f55c3b592a0c32d90d26c2ea1e2197",
+      "github_issue_number": null,
+      "github_issue_url": null
+    },
+    {
+      "id": "BMX-20",
+      "number": 20,
+      "slug": "ocr-real",
+      "title": "Medir OCR real y privacidad del pipeline de imágenes sintéticas",
+      "blocked_by": [
+        "BMX-12",
+        "BMX-18",
+        "BMX-19"
+      ],
+      "deliver": "Comparar referencia visual, texto OCR observado, detección y salida transformada usando únicamente imágenes ficticias y activos OCR locales fijados.",
+      "acceptance": [
+        "Separar extracción, detección sobre texto observado y resultado extremo a extremo.",
+        "Un dato omitido por el OCR pero visible en salida permanece fuga del pipeline o verificación insuficiente.",
+        "Registrar motor/idiomas/hashes, degradaciones y coordenadas; distinguir ruido simulado de OCR real.",
+        "Activos ausentes, timeout o salida vacía injustificada no se registran como integración aprobada."
+      ],
+      "tests": [
+        "Imagen limpia, ruido/resolución/rotación controlados y omisión OCR de una mención con gold visual.",
+        "Motor e idioma ausentes, timeout y OCR vacío con página no blanca.",
+        "Informe de una ejecución real local con activos fijados y la misma receta repetida; si no puede ejecutarse, la tarea no se da por integración completada."
+      ],
+      "spec_ac": [
+        "AC-10",
+        "AC-11",
+        "AC-12"
+      ],
+      "actor": "agent",
+      "proposed_label": "ready-for-agent",
+      "effort": "Una sesión de trabajo con contexto fresco; dividir si excede el alcance acotado",
+      "extra": null,
+      "draft_file": "20-ocr-real.md",
+      "github_title": "[DF-EVAL-MX][BMX-20] Medir OCR real y privacidad del pipeline de imágenes sintéticas",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-20 -->",
+      "body_sha256": "82e6451556ea6b17a0b8a30eb14bc5cf3678c0faa85d53f29da3df611eea8ab3",
+      "github_issue_number": null,
+      "github_issue_url": null
+    },
+    {
+      "id": "BMX-21",
+      "number": 21,
+      "slug": "fuentes-permisos",
+      "title": "Revisar permisos y contenido no personal de fuentes públicas",
+      "blocked_by": [],
+      "deliver": "Seleccionar fuentes candidatas para español mexicano y documentar legalidad/alcance antes de cualquier incorporación; el registro actual no constituye permiso automático.",
+      "acceptance": [
+        "Separar permisos de evaluar, anotar, derivar, entrenar y redistribuir, con evidencia/versiones y atribución.",
+        "Excluir documentos personales reales y términos inciertos; fuente pública no implica datos no personales.",
+        "Clasificar procedencia mexicana frente a transferencia y exposición previa; no prometer representatividad de México por corpus extranjero.",
+        "La selección no ejecuta adquisiciones no autorizadas ni publica documentos."
+      ],
+      "tests": [
+        "Revisión documental de cada SourceRecord y su evidencia; fechas/revisores reales.",
+        "Un caso del registro con licencia incierta permanece excluido y uno explícitamente admisible documenta usos separados.",
+        "Checklist de contenido personal y exposición; no asignar permisos por ausencia de prohibición conocida."
+      ],
+      "spec_ac": [
+        "AC-14"
+      ],
+      "actor": "human",
+      "proposed_label": "ready-for-human",
+      "effort": "Revisión humana; depende de insumos",
+      "extra": null,
+      "draft_file": "21-fuentes-permisos.md",
+      "github_title": "[DF-EVAL-MX][BMX-21] Revisar permisos y contenido no personal de fuentes públicas",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-21 -->",
+      "body_sha256": "da46a407cd6fed37f701c8c6213a59d2e3fb4eec1839caebb688ca692b5aab12",
+      "github_issue_number": null,
+      "github_issue_url": null
+    },
+    {
+      "id": "BMX-22",
+      "number": 22,
+      "slug": "adjudicacion",
+      "title": "Acordar y aplicar la referencia de anotación pública admitida",
+      "blocked_by": [
+        "BMX-09",
+        "BMX-21"
+      ],
+      "deliver": "Definir y realizar la anotación/adjudicación de una muestra admitida sin usar predicciones como verdad, dejando reglas y desacuerdos auditables.",
+      "acceptance": [
+        "Manual por categoría con límites, solapamientos, validez, sensibilidad y expectativas de perfiles ratificados.",
+        "Dos revisiones independientes reales en entradas naturales y adjudicación de desacuerdos antes de congelar.",
+        "Documentar exhaustividad por categoría/unidad, ambigüedad irresoluble y localizadores/identidad observables.",
+        "Si no hay fuente admisible o revisores, registrar el bloqueo; no inventar gold ni concordancia."
+      ],
+      "tests": [
+        "Ejercicio de revisión con caso fronterizo, solapamiento, homónimo y contexto clínico.",
+        "Rastreo de desacuerdo hasta decisión o panel ambiguo explícito.",
+        "Checklist de exhaustividad y revisión independiente; los borradores no se califican como gold adjudicado."
+      ],
+      "spec_ac": [
+        "AC-05",
+        "AC-08",
+        "AC-14"
+      ],
+      "actor": "human",
+      "proposed_label": "ready-for-human",
+      "effort": "Revisión humana; depende de insumos",
+      "extra": null,
+      "draft_file": "22-adjudicacion.md",
+      "github_title": "[DF-EVAL-MX][BMX-22] Acordar y aplicar la referencia de anotación pública admitida",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-22 -->",
+      "body_sha256": "658f550c02899511a18c05dbf80d51666723bc7df6bbaf1cb0d39d5763359a83",
+      "github_issue_number": null,
+      "github_issue_url": null
+    },
+    {
+      "id": "BMX-23",
+      "number": 23,
+      "slug": "importacion-publica",
+      "title": "Evaluar anotaciones públicas admitidas sin mezclarlas con el test ciego",
+      "blocked_by": [
+        "BMX-03",
+        "BMX-08",
+        "BMX-22"
+      ],
+      "deliver": "Importar únicamente datos locales autorizados y anotados, validarlos y publicar sus métricas con geografía, alcance y exposición correctos.",
+      "acceptance": [
+        "Consumir anotaciones ya adjudicadas y SourceRecords con permisos; no descargar durante la evaluación.",
+        "Preservar categorías mexicanas y documentar vistas comparables secundarias sin alias guiados por gold.",
+        "Fuentes expuestas/al entrenamiento o sin independencia comprobada aparecen como external_transfer/known_regression, no blind_test.",
+        "Mantener licencia, atribución y restricciones de redistribución en el paquete/informe; falta de soporte no fabrica precision/recall."
+      ],
+      "tests": [
+        "Importación local autorizada produce métricas y procedencia esperadas.",
+        "Fuente sin permiso, offsets erróneos o gold incompleto se rechazan o quedan fuera de calificación.",
+        "Fuente extranjera o expuesta nunca se suma automáticamente al resultado mexicano independiente."
+      ],
+      "spec_ac": [
+        "AC-03",
+        "AC-14"
+      ],
+      "actor": "agent",
+      "proposed_label": "ready-for-agent",
+      "effort": "Una sesión de trabajo con contexto fresco; dividir si excede el alcance acotado",
+      "extra": null,
+      "draft_file": "23-importacion-publica.md",
+      "github_title": "[DF-EVAL-MX][BMX-23] Evaluar anotaciones públicas admitidas sin mezclarlas con el test ciego",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-23 -->",
+      "body_sha256": "dae2b21d7a6dc1857aeeb783f7bed3de72a38404cb878b9d56abe9de23677725",
+      "github_issue_number": null,
+      "github_issue_url": null
+    },
+    {
+      "id": "BMX-24",
+      "number": 24,
+      "slug": "estadistica",
+      "title": "Informar soporte, intervalos por grupo y límites de riesgo residual",
+      "blocked_by": [
+        "BMX-06",
+        "BMX-08"
+      ],
+      "deliver": "Añadir agregación estadística reproducible que respete grupos y denominadores, incluida la incertidumbre cuando no se observan fugas o falta verificación.",
+      "acceptance": [
+        "Remuestreo por grupos con método, nivel, réplicas y semilla explícitos; no tratar variantes como independientes.",
+        "Publicar soporte y conteos; pesos predefinidos separados de conteos no ponderados.",
+        "Con cero fugas no usar bootstrap degenerado como prueba de riesgo cero; límite conservador solo bajo hipótesis documentadas.",
+        "Para N emitidos, L con fuga y U no verificados sin fuga confirmada, informar L/N y (L+U)/N como límites empíricos separados del intervalo estadístico."
+      ],
+      "tests": [
+        "Repetir semilla/perfil y comparar resultados; duplicar variantes no multiplica el número de grupos.",
+        "N=0, cero fugas con n independiente y supuesto no defendible dan resultados/razones esperados.",
+        "Ejemplo N=10,L=1,U=2 produce límites empíricos 0.1 y 0.3; verificar también subconjunto aprobado."
+      ],
+      "spec_ac": [
+        "AC-09",
+        "AC-10",
+        "AC-12"
+      ],
+      "actor": "agent",
+      "proposed_label": "ready-for-agent",
+      "effort": "Una sesión de trabajo con contexto fresco; dividir si excede el alcance acotado",
+      "extra": null,
+      "draft_file": "24-estadistica.md",
+      "github_title": "[DF-EVAL-MX][BMX-24] Informar soporte, intervalos por grupo y límites de riesgo residual",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-24 -->",
+      "body_sha256": "e8b345a16a8a7ba9498fd53b6fea88548570da5576ab874f3d720f29433da75d",
+      "github_issue_number": null,
+      "github_issue_url": null
+    },
+    {
+      "id": "BMX-25",
+      "number": 25,
+      "slug": "calidad-custodia",
+      "title": "Ratificar calidad, soporte y custodia antes de abrir el test",
+      "blocked_by": [
+        "BMX-09",
+        "BMX-24"
+      ],
+      "deliver": "Fijar el perfil de calidad y la gobernanza del banco independiente antes de conocer sus resultados, sin fabricar porcentajes de aprobación profesional.",
+      "acceptance": [
+        "Acordar mínimos de soporte, métricas/estratos obligatorios, umbrales/dirección, incertidumbre, conservación y carga de revisión.",
+        "Resolver protocolo de similitud y sus parámetros antes del test, además del perfil estadístico propuesto.",
+        "Acordar responsable de custodia, restricciones de acceso, congelamiento, exposición y política de publicación/renovación.",
+        "Registrar decisiones y hashes; sin ratificación conservar DESCRIPTIVE_ONLY y no declarar resueltas las preguntas previas."
+      ],
+      "tests": [
+        "Revisión documental usando resultados de desarrollo/regresión, nunca del banco ciego aún sin abrir.",
+        "Escenario de recall alto con fuga inaceptable no puede compensarse con F1 agregado.",
+        "Escenarios de soporte insuficiente, ausencia de aprobados y publicación de gold tienen una decisión previa explícita."
+      ],
+      "spec_ac": [
+        "AC-13",
+        "AC-14"
+      ],
+      "actor": "human",
+      "proposed_label": "ready-for-human",
+      "effort": "Revisión humana; depende de insumos",
+      "extra": null,
+      "draft_file": "25-calidad-custodia.md",
+      "github_title": "[DF-EVAL-MX][BMX-25] Ratificar calidad, soporte y custodia antes de abrir el test",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-25 -->",
+      "body_sha256": "72f6c6bc7bba96f915e0bd7b45545bcb19fd2e1080f62cb330d2c1a56fd0df0f",
+      "github_issue_number": null,
+      "github_issue_url": null
+    },
+    {
+      "id": "BMX-26",
+      "number": 26,
+      "slug": "banco-independiente",
+      "title": "Congelar un banco independiente con trazabilidad de exposición",
+      "blocked_by": [
+        "BMX-07",
+        "BMX-12",
+        "BMX-23",
+        "BMX-25"
+      ],
+      "deliver": "Preparar bajo custodia el banco de evaluación final con grupos disjuntos, referencia adjudicada, soporte y configuración congelados antes de medir al candidato.",
+      "acceptance": [
+        "Todas las celdas obligatorias ratificadas tienen datos/soporte o una conclusión formal de insuficiencia; no se reciclan fixtures expuestos como ciegos.",
+        "Guardar hashes, versiones, linajes, referencias y evidencias de auditoría/permiso; comprobar conflicto exacto y cercano.",
+        "El candidato no accede al gold ciego; capacidad ausente de custodia/aislamiento se declara y no se suplanta con hashes.",
+        "Registrar congelamiento y accesos; al usar un caso para ajustar reglas, migrarlo a regresión y renovar el banco para la próxima calificación."
+      ],
+      "tests": [
+        "Auditoría de grupos, derivados, valores vinculados y exposición contra todos los recursos declarados.",
+        "Introducir deliberadamente un derivado cruzado, caso expuesto o hash alterado impide el congelamiento acreditado.",
+        "Revisión de soporte/custodia y lectura autorizada; el test no se ejecuta para elegir su propio perfil."
+      ],
+      "spec_ac": [
+        "AC-01",
+        "AC-11",
+        "AC-12",
+        "AC-14"
+      ],
+      "actor": "agent",
+      "proposed_label": "ready-for-agent",
+      "effort": "Una sesión de trabajo con contexto fresco; dividir si excede el alcance acotado",
+      "extra": null,
+      "draft_file": "26-banco-independiente.md",
+      "github_title": "[DF-EVAL-MX][BMX-26] Congelar un banco independiente con trazabilidad de exposición",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-26 -->",
+      "body_sha256": "159b0f14b1f0f7cee89e15a1e795b72de85d541cee327062b256760f3f998e77",
+      "github_issue_number": null,
+      "github_issue_url": null
+    },
+    {
+      "id": "BMX-27",
+      "number": 27,
+      "slug": "calificacion-integrada",
+      "title": "Emitir una calificación local reproducible y comprobar empaquetado",
+      "blocked_by": [
+        "BMX-14",
+        "BMX-15",
+        "BMX-17",
+        "BMX-20",
+        "BMX-26"
+      ],
+      "deliver": "Cerrar el recorrido completo con la matriz de capacidades obligatorias, informe verificable y compatibilidad de distribución. La aceptación del arnés no exige fingir que el candidato actual pasa calidad.",
+      "acceptance": [
+        "Ejecutar la matriz ratificada con cuatro pistas separadas y todas las referencias/versiones; conservar fallos, omisiones y ámbitos.",
+        "Verificar que los inspectores disponibles se aplican también a adjuntos admitidos; ninguna capacidad pendiente se presenta como PASS.",
+        "Emitir ejecución/conformidad/calidad y códigos de salida conforme al contrato; una ejecución válida puede informar FAIL del candidato.",
+        "Repetir conteos/decisiones deterministas y reconstruir cocientes desde resultados seguros.",
+        "Mantener wheel base sin dependencias obligatorias nuevas ni cambios en interfaces de producción; registrar perfiles/activos y alcance del inventario de dependencias.",
+        "No publicar corpus, resultados, paquetes ni promover modelos automáticamente; preparar la evidencia para revisión."
+      ],
+      "tests": [
+        "Recorrido de aceptación completo con fixtures y candidato real; los cuatro defectos conocidos se reportan sin arreglar el producto dentro del benchmark.",
+        "Casos de éxito, incumplimiento, entrada inválida y ejecución incompleta comprueban códigos 0/2/3 y calidad descriptiva cuando corresponda.",
+        "Dos ejecuciones con mismos insumos/versiones, canarios de logs y revisión de cada capacidad obligatoria.",
+        "Smoke del wheel sin extras, importación offline y pip check de perfiles declarados; no instalar dependencias silenciosamente."
+      ],
+      "spec_ac": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04",
+        "AC-05",
+        "AC-06",
+        "AC-07",
+        "AC-08",
+        "AC-09",
+        "AC-10",
+        "AC-11",
+        "AC-12",
+        "AC-13",
+        "AC-14",
+        "AC-15"
+      ],
+      "actor": "agent",
+      "proposed_label": "ready-for-agent",
+      "effort": "Una sesión de trabajo con contexto fresco; dividir si excede el alcance acotado",
+      "extra": null,
+      "draft_file": "27-calificacion-integrada.md",
+      "github_title": "[DF-EVAL-MX][BMX-27] Emitir una calificación local reproducible y comprobar empaquetado",
+      "marker": "<!-- deidflow-benchmark:DF-EVAL-MX:0.1.0:BMX-27 -->",
+      "body_sha256": "d442b1d3b5f923de5e1164e4f0c33d9ea0aea553ecb58dbe542b54a32c2f3521",
+      "github_issue_number": null,
+      "github_issue_url": null
+    }
+  ],
+  "dependency_graph": "transitively_reduced_dag",
+  "spec_prepublication_sha256": "b4a7b20fdf475fcb57e7d5c82e1bef78755e961d4f71e637dbf799a7651a8b3b",
+  "spec_publication_metadata_change": "Administrative publication status only; benchmark requirements unchanged",
+  "documentation_publication": {
+    "branch": "benchmark/evaluacion-mx-spec-tickets",
+    "url": "https://github.com/giovannyTorres/deidflow/tree/benchmark/evaluacion-mx-spec-tickets/docs/tickets/benchmark-mx",
+    "mode": "git_branch_review_only",
+    "issues_created": 0
+  }
+}

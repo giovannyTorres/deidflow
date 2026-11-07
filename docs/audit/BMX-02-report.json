@@ -1,0 +1,82 @@
+{
+  "operational": {
+    "elapsed_seconds": 0.009453011000005063,
+    "python_version": "3.12.14",
+    "started_at": "2026-11-06T15:53:37.721836+00:00"
+  },
+  "result": {
+    "admission": {
+      "documents": 2,
+      "expectations": 2,
+      "mentions": 2,
+      "sources": 2,
+      "status": "valid",
+      "units": 2
+    },
+    "attempt_status": "completed",
+    "candidate": {
+      "deidflow_version": "0.6.0b1",
+      "id": "rules.mx",
+      "identity_provenance": "builtin",
+      "nlp": null,
+      "offline": true,
+      "performance": "balanced",
+      "rules_version": "rules-0.6",
+      "source_sha256": "bc9fe0e0c596aee627f69bbb3f21298af8050e0c26d50062c58a38bf4cb3414d"
+    },
+    "dataset": {
+      "id": "sha256:7fd7f5a4808a85b3c73c9561c82b40eb06e91f9dd2e4c8165bc3b7b4bc8ddeb8",
+      "panel": "known_regression",
+      "version": "1.0.0"
+    },
+    "diagnostics": [],
+    "evaluator": {
+      "source_sha256": "bc9fe0e0c596aee627f69bbb3f21298af8050e0c26d50062c58a38bf4cb3414d",
+      "version": "df-eval-mx.package-report.v1"
+    },
+    "execution": {
+      "completed_documents": 2,
+      "completed_units": 2,
+      "failed_documents": 0,
+      "failed_units": 0,
+      "required_documents": 2,
+      "required_mentions": 2,
+      "required_units": 2
+    },
+    "limitations": [
+      "EMAIL_ONLY_KNOWN_REGRESSION",
+      "ANNOTATION_REVIEW_NOT_AUTHENTICATED",
+      "SOURCE_DECLARATIONS_NOT_AUTHENTICATED",
+      "TRANSFORMATION_NOT_EVALUATED",
+      "DATASET_INDEPENDENCE_NOT_EVALUATED",
+      "PROCESS_NETWORK_ISOLATION_NOT_EVALUATED"
+    ],
+    "metrics": {
+      "EMAIL": {
+        "f1": 0.6666666666666666,
+        "false_negatives": 1,
+        "false_positives": 0,
+        "precision": 1.0,
+        "recall": 0.5,
+        "support": 2,
+        "true_positives": 1
+      }
+    },
+    "profile": {
+      "id": "email-descriptive-v1",
+      "ratified": false
+    },
+    "quality": "DESCRIPTIVE_ONLY",
+    "scope": {
+      "country": "MX",
+      "entity_types": [
+        "EMAIL"
+      ],
+      "language": "es",
+      "matching": "exact",
+      "source_format": "text",
+      "track": "detection"
+    }
+  },
+  "schema_version": "df-eval-mx.package-report.v1"
+}

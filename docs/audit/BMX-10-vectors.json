@@ -1,0 +1,1912 @@
+{
+  "schema_version": "df-eval-mx.identifier-reference-audit.v1",
+  "scope": "Known synthetic fixtures; actual offline observations, not blind or ownership validation",
+  "numeric_reference_checks": {
+    "schema_version": "df-eval-mx.identifier-oracle-observation.v1",
+    "manifest_sha256": "ed2a387e84ab9a0b5764a803e59ea8f173e5c2eceaea00debd2b26064a1c1dba",
+    "python_version": "3.12.14",
+    "python_stdnum_version": "2.2",
+    "runtime_dependency_added": false,
+    "checks": [
+      {
+        "vector_id": "v-1",
+        "entity_type": "RFC",
+        "fictional_value": "ZZZX010101AA1",
+        "tool": "stdnum.mx.rfc date/full-check-disabled + isolated calc_check_digit",
+        "expected_digit": "1",
+        "reference": {
+          "checksum": "valid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "valid"
+        },
+        "full_tool_acceptance_separate": true
+      },
+      {
+        "vector_id": "v-2",
+        "entity_type": "RFC",
+        "fictional_value": "ZZZX-010101-AA1",
+        "tool": "stdnum.mx.rfc date/full-check-disabled + isolated calc_check_digit",
+        "expected_digit": "1",
+        "reference": {
+          "checksum": "valid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "valid"
+        },
+        "full_tool_acceptance_separate": true
+      },
+      {
+        "vector_id": "v-3",
+        "entity_type": "RFC",
+        "fictional_value": "ZZZX010101AA2",
+        "tool": "stdnum.mx.rfc date/full-check-disabled + isolated calc_check_digit",
+        "expected_digit": "1",
+        "reference": {
+          "checksum": "invalid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "invalid"
+        },
+        "full_tool_acceptance_separate": false
+      },
+      {
+        "vector_id": "v-4",
+        "entity_type": "RFC",
+        "fictional_value": "ZZZX011301AA4",
+        "tool": "stdnum.mx.rfc date/full-check-disabled + isolated calc_check_digit",
+        "expected_digit": "4",
+        "reference": {
+          "checksum": "valid",
+          "pattern": "valid",
+          "structure": "invalid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "invalid",
+          "checksum": "valid"
+        },
+        "full_tool_acceptance_separate": false
+      },
+      {
+        "vector_id": "v-5",
+        "entity_type": "RFC",
+        "fictional_value": "ZZZX010101AA2",
+        "tool": "stdnum.mx.rfc date/full-check-disabled + isolated calc_check_digit",
+        "expected_digit": "1",
+        "reference": {
+          "checksum": "invalid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "invalid"
+        },
+        "full_tool_acceptance_separate": false
+      },
+      {
+        "vector_id": "v-6",
+        "entity_type": "RFC",
+        "fictional_value": "ZZZX010101AA2",
+        "tool": "stdnum.mx.rfc date/full-check-disabled + isolated calc_check_digit",
+        "expected_digit": "1",
+        "reference": {
+          "checksum": "invalid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "invalid"
+        },
+        "full_tool_acceptance_separate": false
+      },
+      {
+        "vector_id": "v-7",
+        "entity_type": "RFC",
+        "fictional_value": "ZZZ010101AA1",
+        "tool": "stdnum.mx.rfc date/full-check-disabled + isolated calc_check_digit",
+        "expected_digit": "1",
+        "reference": {
+          "checksum": "valid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "valid"
+        },
+        "full_tool_acceptance_separate": true
+      },
+      {
+        "vector_id": "v-8",
+        "entity_type": "RFC",
+        "fictional_value": "ZZZ-010101-AA1",
+        "tool": "stdnum.mx.rfc date/full-check-disabled + isolated calc_check_digit",
+        "expected_digit": "1",
+        "reference": {
+          "checksum": "valid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "valid"
+        },
+        "full_tool_acceptance_separate": true
+      },
+      {
+        "vector_id": "v-9",
+        "entity_type": "RFC",
+        "fictional_value": "ZZZ010101AA2",
+        "tool": "stdnum.mx.rfc date/full-check-disabled + isolated calc_check_digit",
+        "expected_digit": "1",
+        "reference": {
+          "checksum": "invalid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "invalid"
+        },
+        "full_tool_acceptance_separate": false
+      },
+      {
+        "vector_id": "v-a",
+        "entity_type": "RFC",
+        "fictional_value": "ZZZ010101AA2",
+        "tool": "stdnum.mx.rfc date/full-check-disabled + isolated calc_check_digit",
+        "expected_digit": "1",
+        "reference": {
+          "checksum": "invalid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "invalid"
+        },
+        "full_tool_acceptance_separate": false
+      },
+      {
+        "vector_id": "v-b",
+        "entity_type": "RFC",
+        "fictional_value": "XAXX010101000",
+        "tool": "stdnum.mx.rfc date/full-check-disabled + isolated calc_check_digit",
+        "expected_digit": "4",
+        "reference": {
+          "checksum": "invalid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "invalid"
+        },
+        "full_tool_acceptance_separate": false
+      },
+      {
+        "vector_id": "v-c",
+        "entity_type": "RFC",
+        "fictional_value": "XEXX010101000",
+        "tool": "stdnum.mx.rfc date/full-check-disabled + isolated calc_check_digit",
+        "expected_digit": "0",
+        "reference": {
+          "checksum": "valid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "valid"
+        },
+        "full_tool_acceptance_separate": false
+      },
+      {
+        "vector_id": "v-d",
+        "entity_type": "CURP",
+        "fictional_value": "ZAXX010101HDFZZZ06",
+        "tool": "stdnum.mx.curp date/component check + isolated calc_check_digit",
+        "expected_digit": "6",
+        "reference": {
+          "checksum": "valid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "valid"
+        },
+        "full_tool_acceptance_separate": true
+      },
+      {
+        "vector_id": "v-e",
+        "entity_type": "CURP",
+        "fictional_value": "ZAXX010101HDFZZZ07",
+        "tool": "stdnum.mx.curp date/component check + isolated calc_check_digit",
+        "expected_digit": "6",
+        "reference": {
+          "checksum": "invalid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "invalid"
+        },
+        "full_tool_acceptance_separate": false
+      },
+      {
+        "vector_id": "v-f",
+        "entity_type": "CURP",
+        "fictional_value": "ZAXX010231HDFZZZ05",
+        "tool": "stdnum.mx.curp date/component check + isolated calc_check_digit",
+        "expected_digit": "5",
+        "reference": {
+          "checksum": "valid",
+          "pattern": "valid",
+          "structure": "invalid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "invalid",
+          "checksum": "valid"
+        },
+        "full_tool_acceptance_separate": false
+      },
+      {
+        "vector_id": "v-10",
+        "entity_type": "CURP",
+        "fictional_value": "ZAXX010101HDFZZZ0",
+        "tool": "stdnum.mx.curp date/component check + isolated calc_check_digit",
+        "expected_digit": null,
+        "reference": {
+          "checksum": "unknown",
+          "pattern": "invalid",
+          "structure": "invalid"
+        },
+        "independent_observed": {
+          "pattern": "invalid",
+          "structure": "invalid",
+          "checksum": "unknown"
+        },
+        "full_tool_acceptance_separate": false
+      },
+      {
+        "vector_id": "v-11",
+        "entity_type": "CURP",
+        "fictional_value": "ZAXX010101HDFZZZ07",
+        "tool": "stdnum.mx.curp date/component check + isolated calc_check_digit",
+        "expected_digit": "6",
+        "reference": {
+          "checksum": "invalid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "invalid"
+        },
+        "full_tool_acceptance_separate": false
+      },
+      {
+        "vector_id": "v-12",
+        "entity_type": "CLABE",
+        "fictional_value": "002999000000000012",
+        "tool": "Independent reduced-product CLABE worksheet, no bank/plaza/issuance lookup",
+        "expected_digit": "2",
+        "reference": {
+          "checksum": "valid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "valid"
+        },
+        "full_tool_acceptance_separate": null
+      },
+      {
+        "vector_id": "v-13",
+        "entity_type": "CLABE",
+        "fictional_value": "002 999 00000000001 2",
+        "tool": "Independent reduced-product CLABE worksheet, no bank/plaza/issuance lookup",
+        "expected_digit": "2",
+        "reference": {
+          "checksum": "valid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "valid"
+        },
+        "full_tool_acceptance_separate": null
+      },
+      {
+        "vector_id": "v-14",
+        "entity_type": "CLABE",
+        "fictional_value": "002999000000000013",
+        "tool": "Independent reduced-product CLABE worksheet, no bank/plaza/issuance lookup",
+        "expected_digit": "2",
+        "reference": {
+          "checksum": "invalid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "invalid"
+        },
+        "full_tool_acceptance_separate": null
+      },
+      {
+        "vector_id": "v-15",
+        "entity_type": "CLABE",
+        "fictional_value": "00299900000000001",
+        "tool": "Independent reduced-product CLABE worksheet, no bank/plaza/issuance lookup",
+        "expected_digit": null,
+        "reference": {
+          "checksum": "unknown",
+          "pattern": "invalid",
+          "structure": "invalid"
+        },
+        "independent_observed": {
+          "pattern": "invalid",
+          "structure": "invalid",
+          "checksum": "unknown"
+        },
+        "full_tool_acceptance_separate": null
+      },
+      {
+        "vector_id": "v-16",
+        "entity_type": "CLABE",
+        "fictional_value": "002999000000000013",
+        "tool": "Independent reduced-product CLABE worksheet, no bank/plaza/issuance lookup",
+        "expected_digit": "2",
+        "reference": {
+          "checksum": "invalid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "invalid"
+        },
+        "full_tool_acceptance_separate": null
+      },
+      {
+        "vector_id": "v-17",
+        "entity_type": "PAYMENT_CARD",
+        "fictional_value": "9999000011112228",
+        "tool": "stdnum.luhn; declared length/nondegeneracy worksheet, no BIN/network lookup",
+        "expected_digit": "8",
+        "reference": {
+          "checksum": "valid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "valid"
+        },
+        "full_tool_acceptance_separate": true
+      },
+      {
+        "vector_id": "v-18",
+        "entity_type": "PAYMENT_CARD",
+        "fictional_value": "9999 0000 1111 2228",
+        "tool": "stdnum.luhn; declared length/nondegeneracy worksheet, no BIN/network lookup",
+        "expected_digit": "8",
+        "reference": {
+          "checksum": "valid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "valid"
+        },
+        "full_tool_acceptance_separate": true
+      },
+      {
+        "vector_id": "v-19",
+        "entity_type": "PAYMENT_CARD",
+        "fictional_value": "9999000011112229",
+        "tool": "stdnum.luhn; declared length/nondegeneracy worksheet, no BIN/network lookup",
+        "expected_digit": "8",
+        "reference": {
+          "checksum": "invalid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "invalid"
+        },
+        "full_tool_acceptance_separate": false
+      },
+      {
+        "vector_id": "v-1a",
+        "entity_type": "PAYMENT_CARD",
+        "fictional_value": "9999000011118",
+        "tool": "stdnum.luhn; declared length/nondegeneracy worksheet, no BIN/network lookup",
+        "expected_digit": "8",
+        "reference": {
+          "checksum": "valid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "valid"
+        },
+        "full_tool_acceptance_separate": true
+      },
+      {
+        "vector_id": "v-1b",
+        "entity_type": "PAYMENT_CARD",
+        "fictional_value": "9999000011112229",
+        "tool": "stdnum.luhn; declared length/nondegeneracy worksheet, no BIN/network lookup",
+        "expected_digit": "8",
+        "reference": {
+          "checksum": "invalid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "independent_observed": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "invalid"
+        },
+        "full_tool_acceptance_separate": false
+      }
+    ],
+    "checked_vectors": 27,
+    "disagreements": 0,
+    "limitations": [
+      "Development-only local reference checks of known fictional fixtures",
+      "No production validator used as the oracle",
+      "CLABE structure only length/nondegeneracy, no bank/plaza registry",
+      "PAN structure only length/nondegeneracy, no BIN/network/registry",
+      "Tools differ in accepted syntax and component rules; full acceptance is not checksum",
+      "No issuance, ownership, absence-of-collision or blind-test claim"
+    ]
+  },
+  "phone_email_reference_checks": {
+    "schema_version": "bmx10.phone-email-oracle.v1",
+    "audit_scope": "Nine declared PHONE/EMAIL synthetic vectors; independent syntax worksheet and stdlib parser cross-check; no production detector or validator invoked",
+    "auditor": "/root/research_vectors/phone_email_refs",
+    "created_at": "2026-11-06T18:14:50.463705+00:00",
+    "python_version": "3.12.14",
+    "package": "examples/benchmark-mx-identifiers",
+    "manifest_sha256": "ed2a387e84ab9a0b5764a803e59ea8f173e5c2eceaea00debd2b26064a1c1dba",
+    "resources_sha256": {
+      "units": "e6f2c99cf55e658b7de93d30e70d2781198fd8a78e138cdac10a28101c0bf17f",
+      "validation_vectors": "6cb8814b31075c40e22393ba8939c892bba137de9b533985d7ce61ef49eb42be",
+      "mentions": "0d4a22616f8cdb7c1c17d434d28a1c8cd5eb3476add8b2fbd049a352bcf68729",
+      "expectations": "2da79f17fba5f08e0012587ac6e57a1515f7b871988f8bc288bd3b458f9c17f5",
+      "evidence-1": "e1c74575abb756129a0c827dc770806a72b3b0b220aac8d5680f5329f2b40f4f",
+      "evidence-9": "ce1ae6e4ca8e0567bac0fa24a37d3f109eb2e11ef4755bd797d7fd5865ac5ffa"
+    },
+    "ratification": {
+      "status": "ratified",
+      "decision_id": "BMX-09-operational-v1",
+      "D2": {
+        "ambiguous": "review_required",
+        "attributed_personal_plausible_even_invalid": "remove",
+        "documented_nonpersonal_distractor": "preserve",
+        "validity_is_sensitivity": false
+      }
+    },
+    "method": {
+      "phone": "Strip only ASCII spaces/hyphens; remove a leading +52 if present; require exactly ten remaining ASCII digits. This audits declared format only; structure unknown and checksum not_applicable.",
+      "email": "Independently apply one @, ASCII nonempty dot-atom local components, length <=64, at least two nonempty ASCII DNS labels without boundary hyphens, domain length <=253; cross-check with email.headerregistry.Address(addr_spec=value). Syntax structure only; delivery unknown.",
+      "sensitivity": "Independent agent inspection of literal contexts against D2 receipt; exact attribution prefixes remove, explicitly documented nonpersonal software/exercise constants preserve, independently of syntax."
+    },
+    "summary": {
+      "vectors_checked": 9,
+      "phone_vectors": 4,
+      "email_vectors": 5,
+      "checks_performed": 126,
+      "failed_checks": 0,
+      "actions": {
+        "remove": 7,
+        "preserve": 2
+      },
+      "all_email_syntax_methods_agree": true
+    },
+    "rows": [
+      {
+        "unit_id": "u-1c",
+        "entity_type": "PHONE",
+        "fictional_value": "+52 55 0000 0001",
+        "start": 31,
+        "end": 47,
+        "context_prefix": "Expediente ficticio; teléfono: ",
+        "action": "remove",
+        "declared_sensitivity": "sensitive",
+        "declared_validity": {
+          "checksum": "not_applicable",
+          "pattern": "valid",
+          "structure": "unknown"
+        },
+        "observed_oracle_validity": {
+          "pattern": "valid",
+          "structure": "unknown",
+          "checksum": "not_applicable"
+        },
+        "oracle_details": {
+          "compact": "+525500000001",
+          "national_digits": 10,
+          "ascii_digits": true
+        },
+        "checked_profiles": [
+          "detection-descriptive-v1",
+          "pipeline-descriptive-v1",
+          "transformation-descriptive-v1",
+          "validation-descriptive-v1"
+        ],
+        "checks": {
+          "entity_matches_manual_case": true,
+          "offsets_match_manual_case": true,
+          "exact_slice_matches_literal": true,
+          "left_boundary_after_label": true,
+          "right_boundary_before_suffix": true,
+          "reference_matches_independent_oracle": true,
+          "manual_context_supports_d2_action": true,
+          "sensitivity_matches_d2": true,
+          "mention_present_iff_sensitive": true,
+          "mention_span_type_validity_agree": true,
+          "expectations_cover_all_profiles": true,
+          "expectations_match_d2_action": true,
+          "evidence_value_action_reference_agree": true,
+          "remove_allowed_operators": true
+        }
+      },
+      {
+        "unit_id": "u-1d",
+        "entity_type": "PHONE",
+        "fictional_value": "55 0000 0001",
+        "start": 31,
+        "end": 43,
+        "context_prefix": "Expediente ficticio; teléfono: ",
+        "action": "remove",
+        "declared_sensitivity": "sensitive",
+        "declared_validity": {
+          "checksum": "not_applicable",
+          "pattern": "valid",
+          "structure": "unknown"
+        },
+        "observed_oracle_validity": {
+          "pattern": "valid",
+          "structure": "unknown",
+          "checksum": "not_applicable"
+        },
+        "oracle_details": {
+          "compact": "5500000001",
+          "national_digits": 10,
+          "ascii_digits": true
+        },
+        "checked_profiles": [
+          "detection-descriptive-v1",
+          "pipeline-descriptive-v1",
+          "transformation-descriptive-v1",
+          "validation-descriptive-v1"
+        ],
+        "checks": {
+          "entity_matches_manual_case": true,
+          "offsets_match_manual_case": true,
+          "exact_slice_matches_literal": true,
+          "left_boundary_after_label": true,
+          "right_boundary_before_suffix": true,
+          "reference_matches_independent_oracle": true,
+          "manual_context_supports_d2_action": true,
+          "sensitivity_matches_d2": true,
+          "mention_present_iff_sensitive": true,
+          "mention_span_type_validity_agree": true,
+          "expectations_cover_all_profiles": true,
+          "expectations_match_d2_action": true,
+          "evidence_value_action_reference_agree": true,
+          "remove_allowed_operators": true
+        }
+      },
+      {
+        "unit_id": "u-1e",
+        "entity_type": "PHONE",
+        "fictional_value": "+52 55 0000 001",
+        "start": 31,
+        "end": 46,
+        "context_prefix": "Expediente ficticio; teléfono: ",
+        "action": "remove",
+        "declared_sensitivity": "sensitive",
+        "declared_validity": {
+          "checksum": "not_applicable",
+          "pattern": "invalid",
+          "structure": "unknown"
+        },
+        "observed_oracle_validity": {
+          "pattern": "invalid",
+          "structure": "unknown",
+          "checksum": "not_applicable"
+        },
+        "oracle_details": {
+          "compact": "+52550000001",
+          "national_digits": 9,
+          "ascii_digits": true
+        },
+        "checked_profiles": [
+          "detection-descriptive-v1",
+          "pipeline-descriptive-v1",
+          "transformation-descriptive-v1",
+          "validation-descriptive-v1"
+        ],
+        "checks": {
+          "entity_matches_manual_case": true,
+          "offsets_match_manual_case": true,
+          "exact_slice_matches_literal": true,
+          "left_boundary_after_label": true,
+          "right_boundary_before_suffix": true,
+          "reference_matches_independent_oracle": true,
+          "manual_context_supports_d2_action": true,
+          "sensitivity_matches_d2": true,
+          "mention_present_iff_sensitive": true,
+          "mention_span_type_validity_agree": true,
+          "expectations_cover_all_profiles": true,
+          "expectations_match_d2_action": true,
+          "evidence_value_action_reference_agree": true,
+          "remove_allowed_operators": true
+        }
+      },
+      {
+        "unit_id": "u-1f",
+        "entity_type": "PHONE",
+        "fictional_value": "55 0000 0001",
+        "start": 52,
+        "end": 64,
+        "context_prefix": "Prueba de software sin titular, constante teléfono: ",
+        "action": "preserve",
+        "declared_sensitivity": "nonpersonal_distractor",
+        "declared_validity": {
+          "checksum": "not_applicable",
+          "pattern": "valid",
+          "structure": "unknown"
+        },
+        "observed_oracle_validity": {
+          "pattern": "valid",
+          "structure": "unknown",
+          "checksum": "not_applicable"
+        },
+        "oracle_details": {
+          "compact": "5500000001",
+          "national_digits": 10,
+          "ascii_digits": true
+        },
+        "checked_profiles": [
+          "detection-descriptive-v1",
+          "pipeline-descriptive-v1",
+          "transformation-descriptive-v1",
+          "validation-descriptive-v1"
+        ],
+        "checks": {
+          "entity_matches_manual_case": true,
+          "offsets_match_manual_case": true,
+          "exact_slice_matches_literal": true,
+          "left_boundary_after_label": true,
+          "right_boundary_before_suffix": true,
+          "reference_matches_independent_oracle": true,
+          "manual_context_supports_d2_action": true,
+          "sensitivity_matches_d2": true,
+          "mention_present_iff_sensitive": true,
+          "mention_span_type_validity_agree": true,
+          "expectations_cover_all_profiles": true,
+          "expectations_match_d2_action": true,
+          "evidence_value_action_reference_agree": true,
+          "preserve_exact_slots_and_operator": true
+        }
+      },
+      {
+        "unit_id": "u-20",
+        "entity_type": "EMAIL",
+        "fictional_value": "persona.a@example.invalid",
+        "start": 29,
+        "end": 54,
+        "context_prefix": "Expediente ficticio; correo: ",
+        "action": "remove",
+        "declared_sensitivity": "sensitive",
+        "declared_validity": {
+          "checksum": "not_applicable",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "observed_oracle_validity": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "not_applicable"
+        },
+        "oracle_details": {
+          "address_parser": {
+            "accepted": true,
+            "exception_type": null
+          },
+          "ascii_dot_atom_dns_worksheet_accepts": true,
+          "syntax_reference_methods_agree": true,
+          "delivery": "unknown"
+        },
+        "checked_profiles": [
+          "detection-descriptive-v1",
+          "pipeline-descriptive-v1",
+          "transformation-descriptive-v1",
+          "validation-descriptive-v1"
+        ],
+        "checks": {
+          "entity_matches_manual_case": true,
+          "offsets_match_manual_case": true,
+          "exact_slice_matches_literal": true,
+          "left_boundary_after_label": true,
+          "right_boundary_before_suffix": true,
+          "reference_matches_independent_oracle": true,
+          "manual_context_supports_d2_action": true,
+          "sensitivity_matches_d2": true,
+          "mention_present_iff_sensitive": true,
+          "mention_span_type_validity_agree": true,
+          "expectations_cover_all_profiles": true,
+          "expectations_match_d2_action": true,
+          "evidence_value_action_reference_agree": true,
+          "remove_allowed_operators": true
+        }
+      },
+      {
+        "unit_id": "u-21",
+        "entity_type": "EMAIL",
+        "fictional_value": "persona+mx@example.invalid",
+        "start": 29,
+        "end": 55,
+        "context_prefix": "Expediente ficticio; correo: ",
+        "action": "remove",
+        "declared_sensitivity": "sensitive",
+        "declared_validity": {
+          "checksum": "not_applicable",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "observed_oracle_validity": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "not_applicable"
+        },
+        "oracle_details": {
+          "address_parser": {
+            "accepted": true,
+            "exception_type": null
+          },
+          "ascii_dot_atom_dns_worksheet_accepts": true,
+          "syntax_reference_methods_agree": true,
+          "delivery": "unknown"
+        },
+        "checked_profiles": [
+          "detection-descriptive-v1",
+          "pipeline-descriptive-v1",
+          "transformation-descriptive-v1",
+          "validation-descriptive-v1"
+        ],
+        "checks": {
+          "entity_matches_manual_case": true,
+          "offsets_match_manual_case": true,
+          "exact_slice_matches_literal": true,
+          "left_boundary_after_label": true,
+          "right_boundary_before_suffix": true,
+          "reference_matches_independent_oracle": true,
+          "manual_context_supports_d2_action": true,
+          "sensitivity_matches_d2": true,
+          "mention_present_iff_sensitive": true,
+          "mention_span_type_validity_agree": true,
+          "expectations_cover_all_profiles": true,
+          "expectations_match_d2_action": true,
+          "evidence_value_action_reference_agree": true,
+          "remove_allowed_operators": true
+        }
+      },
+      {
+        "unit_id": "u-22",
+        "entity_type": "EMAIL",
+        "fictional_value": "persona..a@example.invalid",
+        "start": 29,
+        "end": 55,
+        "context_prefix": "Expediente ficticio; correo: ",
+        "action": "remove",
+        "declared_sensitivity": "sensitive",
+        "declared_validity": {
+          "checksum": "not_applicable",
+          "pattern": "invalid",
+          "structure": "invalid"
+        },
+        "observed_oracle_validity": {
+          "pattern": "invalid",
+          "structure": "invalid",
+          "checksum": "not_applicable"
+        },
+        "oracle_details": {
+          "address_parser": {
+            "accepted": false,
+            "exception_type": "InvalidHeaderDefect"
+          },
+          "ascii_dot_atom_dns_worksheet_accepts": false,
+          "syntax_reference_methods_agree": true,
+          "delivery": "unknown"
+        },
+        "checked_profiles": [
+          "detection-descriptive-v1",
+          "pipeline-descriptive-v1",
+          "transformation-descriptive-v1",
+          "validation-descriptive-v1"
+        ],
+        "checks": {
+          "entity_matches_manual_case": true,
+          "offsets_match_manual_case": true,
+          "exact_slice_matches_literal": true,
+          "left_boundary_after_label": true,
+          "right_boundary_before_suffix": true,
+          "reference_matches_independent_oracle": true,
+          "manual_context_supports_d2_action": true,
+          "sensitivity_matches_d2": true,
+          "mention_present_iff_sensitive": true,
+          "mention_span_type_validity_agree": true,
+          "expectations_cover_all_profiles": true,
+          "expectations_match_d2_action": true,
+          "evidence_value_action_reference_agree": true,
+          "remove_allowed_operators": true
+        }
+      },
+      {
+        "unit_id": "u-23",
+        "entity_type": "EMAIL",
+        "fictional_value": "persona.a@@example.invalid",
+        "start": 40,
+        "end": 66,
+        "context_prefix": "Registro sintético del titular; correo: ",
+        "action": "remove",
+        "declared_sensitivity": "sensitive",
+        "declared_validity": {
+          "checksum": "not_applicable",
+          "pattern": "invalid",
+          "structure": "invalid"
+        },
+        "observed_oracle_validity": {
+          "pattern": "invalid",
+          "structure": "invalid",
+          "checksum": "not_applicable"
+        },
+        "oracle_details": {
+          "address_parser": {
+            "accepted": false,
+            "exception_type": "HeaderParseError"
+          },
+          "ascii_dot_atom_dns_worksheet_accepts": false,
+          "syntax_reference_methods_agree": true,
+          "delivery": "unknown"
+        },
+        "checked_profiles": [
+          "detection-descriptive-v1",
+          "pipeline-descriptive-v1",
+          "transformation-descriptive-v1",
+          "validation-descriptive-v1"
+        ],
+        "checks": {
+          "entity_matches_manual_case": true,
+          "offsets_match_manual_case": true,
+          "exact_slice_matches_literal": true,
+          "left_boundary_after_label": true,
+          "right_boundary_before_suffix": true,
+          "reference_matches_independent_oracle": true,
+          "manual_context_supports_d2_action": true,
+          "sensitivity_matches_d2": true,
+          "mention_present_iff_sensitive": true,
+          "mention_span_type_validity_agree": true,
+          "expectations_cover_all_profiles": true,
+          "expectations_match_d2_action": true,
+          "evidence_value_action_reference_agree": true,
+          "remove_allowed_operators": true
+        }
+      },
+      {
+        "unit_id": "u-24",
+        "entity_type": "EMAIL",
+        "fictional_value": "persona.a@example.invalid",
+        "start": 49,
+        "end": 74,
+        "context_prefix": "Ejercicio no personal: constante literal correo: ",
+        "action": "preserve",
+        "declared_sensitivity": "nonpersonal_distractor",
+        "declared_validity": {
+          "checksum": "not_applicable",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "observed_oracle_validity": {
+          "pattern": "valid",
+          "structure": "valid",
+          "checksum": "not_applicable"
+        },
+        "oracle_details": {
+          "address_parser": {
+            "accepted": true,
+            "exception_type": null
+          },
+          "ascii_dot_atom_dns_worksheet_accepts": true,
+          "syntax_reference_methods_agree": true,
+          "delivery": "unknown"
+        },
+        "checked_profiles": [
+          "detection-descriptive-v1",
+          "pipeline-descriptive-v1",
+          "transformation-descriptive-v1",
+          "validation-descriptive-v1"
+        ],
+        "checks": {
+          "entity_matches_manual_case": true,
+          "offsets_match_manual_case": true,
+          "exact_slice_matches_literal": true,
+          "left_boundary_after_label": true,
+          "right_boundary_before_suffix": true,
+          "reference_matches_independent_oracle": true,
+          "manual_context_supports_d2_action": true,
+          "sensitivity_matches_d2": true,
+          "mention_present_iff_sensitive": true,
+          "mention_span_type_validity_agree": true,
+          "expectations_cover_all_profiles": true,
+          "expectations_match_d2_action": true,
+          "evidence_value_action_reference_agree": true,
+          "preserve_exact_slots_and_operator": true
+        }
+      }
+    ],
+    "findings": [],
+    "limitations": [
+      "Known exposed synthetic regression; neither blinded nor representative of deployment.",
+      "Reference tool declarations and manual context labels are inspected, not externally authenticated.",
+      "Phone format acceptance does not prove numbering-plan validity, assignment, nonexistence, reachability, issuance or ownership.",
+      "Address and the narrow worksheet do not fully cover international email/RFC syntax; .invalid is used for reserved examples; no DNS or delivery checks performed.",
+      "The built-in validation benchmark deliberately returns unknown pattern/structure for PHONE/EMAIL; this audit does not change that candidate behavior.",
+      "No production detector/validator, no external service, no suite execution, no source/documentation changes."
+    ],
+    "wording_correction": {
+      "reason": "Accurately identify the reviewer as an agent, without claiming human review",
+      "corrected_at": "2026-11-06T18:17:15.487206+00:00"
+    }
+  },
+  "independent_negative_context_inspection": {
+    "schema_version": "bmx10.negative-context-oracle.v1",
+    "auditor": "/root/research_vectors/phone_email_refs",
+    "inspection_kind": "Independent agent inspection; no human reviewer or blinded evaluation claimed",
+    "created_at": "2026-11-06T18:17:15.510413+00:00",
+    "python_version": "3.12.14",
+    "package": "examples/benchmark-mx-identifiers",
+    "manifest_sha256": "ed2a387e84ab9a0b5764a803e59ea8f173e5c2eceaea00debd2b26064a1c1dba",
+    "resource_sha256": {
+      "units": "e6f2c99cf55e658b7de93d30e70d2781198fd8a78e138cdac10a28101c0bf17f",
+      "mentions": "0d4a22616f8cdb7c1c17d434d28a1c8cd5eb3476add8b2fbd049a352bcf68729",
+      "validation_vectors": "6cb8814b31075c40e22393ba8939c892bba137de9b533985d7ce61ef49eb42be",
+      "expectations": "2da79f17fba5f08e0012587ac6e57a1515f7b871988f8bc288bd3b458f9c17f5",
+      "evidence-1": "e1c74575abb756129a0c827dc770806a72b3b0b220aac8d5680f5329f2b40f4f",
+      "evidence-9": "ce1ae6e4ca8e0567bac0fa24a37d3f109eb2e11ef4755bd797d7fd5865ac5ffa"
+    },
+    "decision": {
+      "decision_id": "BMX-09-operational-v1",
+      "status": "ratified",
+      "D2": {
+        "ambiguous": "review_required",
+        "attributed_personal_plausible_even_invalid": "remove",
+        "documented_nonpersonal_distractor": "preserve",
+        "validity_is_sensitivity": false
+      }
+    },
+    "method": "Agent inspected exact literal contexts before comparing labels: explicit nonpersonal software/exercise constants preserve; explicitly unattributed field requires review; fictional person record identifiers remove even when invalid. Manual literal matrix and profile/mention consistency checked offline. stdnum used only for the same-invalid-RFC check digit.",
+    "detailed_rows": [
+      {
+        "unit_id": "u-3",
+        "entity_type": "RFC",
+        "fictional_value": "ZZZX010101AA2",
+        "inspected_context_prefix": "Expediente ficticio; RFC: ",
+        "expected_action_from_agent_inspection": "remove",
+        "certainty": "confirmed",
+        "declared_validity": {
+          "checksum": "invalid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "profiles": [
+          "detection-descriptive-v1",
+          "pipeline-descriptive-v1",
+          "transformation-descriptive-v1",
+          "validation-descriptive-v1"
+        ],
+        "checks": {
+          "text_exactly_matches_inspected_context": true,
+          "entity_matches_manual_case": true,
+          "offsets_match_literal_prefix_and_value": true,
+          "slice_matches_manual_value": true,
+          "context_supports_d2_action": true,
+          "sensitivity_matches_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_matches_context": true,
+          "mentions_agree_on_span_and_reference": true,
+          "four_profile_expectations_present": true,
+          "four_profile_actions_match": true,
+          "four_profile_release_states_match": true,
+          "four_profile_operators_match_d2": true,
+          "embedded_reference_action_validity_match": true
+        }
+      },
+      {
+        "unit_id": "u-5",
+        "entity_type": "RFC",
+        "fictional_value": "ZZZX010101AA2",
+        "inspected_context_prefix": "Campo sin atribución confirmada, RFC: ",
+        "expected_action_from_agent_inspection": "review_required",
+        "certainty": "ambiguous",
+        "declared_validity": {
+          "checksum": "invalid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "profiles": [
+          "detection-descriptive-v1",
+          "pipeline-descriptive-v1",
+          "transformation-descriptive-v1",
+          "validation-descriptive-v1"
+        ],
+        "checks": {
+          "text_exactly_matches_inspected_context": true,
+          "entity_matches_manual_case": true,
+          "offsets_match_literal_prefix_and_value": true,
+          "slice_matches_manual_value": true,
+          "context_supports_d2_action": true,
+          "sensitivity_matches_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_matches_context": true,
+          "mentions_agree_on_span_and_reference": true,
+          "four_profile_expectations_present": true,
+          "four_profile_actions_match": true,
+          "four_profile_release_states_match": true,
+          "four_profile_operators_match_d2": true,
+          "embedded_reference_action_validity_match": true
+        }
+      },
+      {
+        "unit_id": "u-6",
+        "entity_type": "RFC",
+        "fictional_value": "ZZZX010101AA2",
+        "inspected_context_prefix": "Prueba de software sin titular, constante RFC: ",
+        "expected_action_from_agent_inspection": "preserve",
+        "certainty": null,
+        "declared_validity": {
+          "checksum": "invalid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "profiles": [
+          "detection-descriptive-v1",
+          "pipeline-descriptive-v1",
+          "transformation-descriptive-v1",
+          "validation-descriptive-v1"
+        ],
+        "checks": {
+          "text_exactly_matches_inspected_context": true,
+          "entity_matches_manual_case": true,
+          "offsets_match_literal_prefix_and_value": true,
+          "slice_matches_manual_value": true,
+          "context_supports_d2_action": true,
+          "sensitivity_matches_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_matches_context": true,
+          "mentions_agree_on_span_and_reference": true,
+          "four_profile_expectations_present": true,
+          "four_profile_actions_match": true,
+          "four_profile_release_states_match": true,
+          "four_profile_operators_match_d2": true,
+          "preserve_slots_and_verification_match": true,
+          "embedded_reference_action_validity_match": true
+        }
+      },
+      {
+        "unit_id": "u-a",
+        "entity_type": "RFC",
+        "fictional_value": "ZZZ010101AA2",
+        "inspected_context_prefix": "Ejercicio no personal: constante literal RFC: ",
+        "expected_action_from_agent_inspection": "preserve",
+        "certainty": null,
+        "declared_validity": {
+          "checksum": "invalid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "profiles": [
+          "detection-descriptive-v1",
+          "pipeline-descriptive-v1",
+          "transformation-descriptive-v1",
+          "validation-descriptive-v1"
+        ],
+        "checks": {
+          "text_exactly_matches_inspected_context": true,
+          "entity_matches_manual_case": true,
+          "offsets_match_literal_prefix_and_value": true,
+          "slice_matches_manual_value": true,
+          "context_supports_d2_action": true,
+          "sensitivity_matches_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_matches_context": true,
+          "mentions_agree_on_span_and_reference": true,
+          "four_profile_expectations_present": true,
+          "four_profile_actions_match": true,
+          "four_profile_release_states_match": true,
+          "four_profile_operators_match_d2": true,
+          "preserve_slots_and_verification_match": true,
+          "embedded_reference_action_validity_match": true
+        }
+      },
+      {
+        "unit_id": "u-b",
+        "entity_type": "RFC",
+        "fictional_value": "XAXX010101000",
+        "inspected_context_prefix": "Prueba de software sin titular, constante RFC: ",
+        "expected_action_from_agent_inspection": "preserve",
+        "certainty": null,
+        "declared_validity": {
+          "checksum": "invalid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "profiles": [
+          "detection-descriptive-v1",
+          "pipeline-descriptive-v1",
+          "transformation-descriptive-v1",
+          "validation-descriptive-v1"
+        ],
+        "checks": {
+          "text_exactly_matches_inspected_context": true,
+          "entity_matches_manual_case": true,
+          "offsets_match_literal_prefix_and_value": true,
+          "slice_matches_manual_value": true,
+          "context_supports_d2_action": true,
+          "sensitivity_matches_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_matches_context": true,
+          "mentions_agree_on_span_and_reference": true,
+          "four_profile_expectations_present": true,
+          "four_profile_actions_match": true,
+          "four_profile_release_states_match": true,
+          "four_profile_operators_match_d2": true,
+          "preserve_slots_and_verification_match": true,
+          "embedded_reference_action_validity_match": true
+        }
+      },
+      {
+        "unit_id": "u-c",
+        "entity_type": "RFC",
+        "fictional_value": "XEXX010101000",
+        "inspected_context_prefix": "Prueba de software sin titular, constante RFC: ",
+        "expected_action_from_agent_inspection": "preserve",
+        "certainty": null,
+        "declared_validity": {
+          "checksum": "valid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "profiles": [
+          "detection-descriptive-v1",
+          "pipeline-descriptive-v1",
+          "transformation-descriptive-v1",
+          "validation-descriptive-v1"
+        ],
+        "checks": {
+          "text_exactly_matches_inspected_context": true,
+          "entity_matches_manual_case": true,
+          "offsets_match_literal_prefix_and_value": true,
+          "slice_matches_manual_value": true,
+          "context_supports_d2_action": true,
+          "sensitivity_matches_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_matches_context": true,
+          "mentions_agree_on_span_and_reference": true,
+          "four_profile_expectations_present": true,
+          "four_profile_actions_match": true,
+          "four_profile_release_states_match": true,
+          "four_profile_operators_match_d2": true,
+          "preserve_slots_and_verification_match": true,
+          "embedded_reference_action_validity_match": true
+        }
+      },
+      {
+        "unit_id": "u-11",
+        "entity_type": "CURP",
+        "fictional_value": "ZAXX010101HDFZZZ07",
+        "inspected_context_prefix": "Ejercicio no personal: constante literal CURP: ",
+        "expected_action_from_agent_inspection": "preserve",
+        "certainty": null,
+        "declared_validity": {
+          "checksum": "invalid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "profiles": [
+          "detection-descriptive-v1",
+          "pipeline-descriptive-v1",
+          "transformation-descriptive-v1",
+          "validation-descriptive-v1"
+        ],
+        "checks": {
+          "text_exactly_matches_inspected_context": true,
+          "entity_matches_manual_case": true,
+          "offsets_match_literal_prefix_and_value": true,
+          "slice_matches_manual_value": true,
+          "context_supports_d2_action": true,
+          "sensitivity_matches_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_matches_context": true,
+          "mentions_agree_on_span_and_reference": true,
+          "four_profile_expectations_present": true,
+          "four_profile_actions_match": true,
+          "four_profile_release_states_match": true,
+          "four_profile_operators_match_d2": true,
+          "preserve_slots_and_verification_match": true,
+          "embedded_reference_action_validity_match": true
+        }
+      },
+      {
+        "unit_id": "u-16",
+        "entity_type": "CLABE",
+        "fictional_value": "002999000000000013",
+        "inspected_context_prefix": "Ejercicio no personal: constante literal CLABE: ",
+        "expected_action_from_agent_inspection": "preserve",
+        "certainty": null,
+        "declared_validity": {
+          "checksum": "invalid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "profiles": [
+          "detection-descriptive-v1",
+          "pipeline-descriptive-v1",
+          "transformation-descriptive-v1",
+          "validation-descriptive-v1"
+        ],
+        "checks": {
+          "text_exactly_matches_inspected_context": true,
+          "entity_matches_manual_case": true,
+          "offsets_match_literal_prefix_and_value": true,
+          "slice_matches_manual_value": true,
+          "context_supports_d2_action": true,
+          "sensitivity_matches_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_matches_context": true,
+          "mentions_agree_on_span_and_reference": true,
+          "four_profile_expectations_present": true,
+          "four_profile_actions_match": true,
+          "four_profile_release_states_match": true,
+          "four_profile_operators_match_d2": true,
+          "preserve_slots_and_verification_match": true,
+          "embedded_reference_action_validity_match": true
+        }
+      },
+      {
+        "unit_id": "u-1b",
+        "entity_type": "PAYMENT_CARD",
+        "fictional_value": "9999000011112229",
+        "inspected_context_prefix": "Ejercicio no personal: constante literal tarjeta: ",
+        "expected_action_from_agent_inspection": "preserve",
+        "certainty": null,
+        "declared_validity": {
+          "checksum": "invalid",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "profiles": [
+          "detection-descriptive-v1",
+          "pipeline-descriptive-v1",
+          "transformation-descriptive-v1",
+          "validation-descriptive-v1"
+        ],
+        "checks": {
+          "text_exactly_matches_inspected_context": true,
+          "entity_matches_manual_case": true,
+          "offsets_match_literal_prefix_and_value": true,
+          "slice_matches_manual_value": true,
+          "context_supports_d2_action": true,
+          "sensitivity_matches_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_matches_context": true,
+          "mentions_agree_on_span_and_reference": true,
+          "four_profile_expectations_present": true,
+          "four_profile_actions_match": true,
+          "four_profile_release_states_match": true,
+          "four_profile_operators_match_d2": true,
+          "preserve_slots_and_verification_match": true,
+          "embedded_reference_action_validity_match": true
+        }
+      },
+      {
+        "unit_id": "u-1f",
+        "entity_type": "PHONE",
+        "fictional_value": "55 0000 0001",
+        "inspected_context_prefix": "Prueba de software sin titular, constante teléfono: ",
+        "expected_action_from_agent_inspection": "preserve",
+        "certainty": null,
+        "declared_validity": {
+          "checksum": "not_applicable",
+          "pattern": "valid",
+          "structure": "unknown"
+        },
+        "profiles": [
+          "detection-descriptive-v1",
+          "pipeline-descriptive-v1",
+          "transformation-descriptive-v1",
+          "validation-descriptive-v1"
+        ],
+        "checks": {
+          "text_exactly_matches_inspected_context": true,
+          "entity_matches_manual_case": true,
+          "offsets_match_literal_prefix_and_value": true,
+          "slice_matches_manual_value": true,
+          "context_supports_d2_action": true,
+          "sensitivity_matches_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_matches_context": true,
+          "mentions_agree_on_span_and_reference": true,
+          "four_profile_expectations_present": true,
+          "four_profile_actions_match": true,
+          "four_profile_release_states_match": true,
+          "four_profile_operators_match_d2": true,
+          "preserve_slots_and_verification_match": true,
+          "embedded_reference_action_validity_match": true
+        }
+      },
+      {
+        "unit_id": "u-24",
+        "entity_type": "EMAIL",
+        "fictional_value": "persona.a@example.invalid",
+        "inspected_context_prefix": "Ejercicio no personal: constante literal correo: ",
+        "expected_action_from_agent_inspection": "preserve",
+        "certainty": null,
+        "declared_validity": {
+          "checksum": "not_applicable",
+          "pattern": "valid",
+          "structure": "valid"
+        },
+        "profiles": [
+          "detection-descriptive-v1",
+          "pipeline-descriptive-v1",
+          "transformation-descriptive-v1",
+          "validation-descriptive-v1"
+        ],
+        "checks": {
+          "text_exactly_matches_inspected_context": true,
+          "entity_matches_manual_case": true,
+          "offsets_match_literal_prefix_and_value": true,
+          "slice_matches_manual_value": true,
+          "context_supports_d2_action": true,
+          "sensitivity_matches_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_matches_context": true,
+          "mentions_agree_on_span_and_reference": true,
+          "four_profile_expectations_present": true,
+          "four_profile_actions_match": true,
+          "four_profile_release_states_match": true,
+          "four_profile_operators_match_d2": true,
+          "preserve_slots_and_verification_match": true,
+          "embedded_reference_action_validity_match": true
+        }
+      }
+    ],
+    "global36_context_action_checks": [
+      {
+        "unit_id": "u-1",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-10",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-11",
+        "action_from_agent_inspection": "preserve",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-12",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-13",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-14",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-15",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-16",
+        "action_from_agent_inspection": "preserve",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-17",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-18",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-19",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-1a",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-1b",
+        "action_from_agent_inspection": "preserve",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-1c",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-1d",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-1e",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-1f",
+        "action_from_agent_inspection": "preserve",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-2",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-20",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-21",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-22",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-23",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-24",
+        "action_from_agent_inspection": "preserve",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-3",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-4",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-5",
+        "action_from_agent_inspection": "review_required",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-6",
+        "action_from_agent_inspection": "preserve",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-7",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-8",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-9",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-a",
+        "action_from_agent_inspection": "preserve",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-b",
+        "action_from_agent_inspection": "preserve",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-c",
+        "action_from_agent_inspection": "preserve",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-d",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-e",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      },
+      {
+        "unit_id": "u-f",
+        "action_from_agent_inspection": "remove",
+        "checks": {
+          "inspected_context_resolves": true,
+          "all_four_profiles_present": true,
+          "all_four_actions_follow_context": true,
+          "sensitivity_follows_context": true,
+          "mention_present_iff_sensitive_or_ambiguous": true,
+          "certainty_follows_context": true
+        }
+      }
+    ],
+    "same_invalid_rfc_three_contexts": {
+      "fictional_value": "ZZZX010101AA2",
+      "stdnum_ordinary_check_digit": "1",
+      "actions": {
+        "u-3": "remove",
+        "u-5": "review_required",
+        "u-6": "preserve"
+      },
+      "checks": {
+        "same_literal_in_all_three_contexts": true,
+        "same_validity_in_all_three_contexts": true,
+        "ordinary_stdnum_digit_is_one_not_observed_two": true,
+        "different_actions_follow_context": true,
+        "embedded_and_current_d2_match": true,
+        "decision_is_ratified": true,
+        "all_nine_declared_distractors_audited": true,
+        "all_declared_ambiguous_mentions_audited": true
+      }
+    },
+    "summary": {
+      "detailed_contexts_inspected": 11,
+      "nonpersonal_distractors": 9,
+      "non_phone_email_distractors": 7,
+      "ambiguous_contexts": 1,
+      "same_invalid_value_attributed_pair": 1,
+      "global_cases_checked": 36,
+      "profiles_checked": 4,
+      "global_case_actions": {
+        "remove": 26,
+        "preserve": 9,
+        "review_required": 1
+      },
+      "checks_performed": 387,
+      "failed_checks": 0
+    },
+    "findings": [],
+    "limitations": [
+      "Known exposed constructed regression; syntax and contexts do not establish deployment performance or blind independence.",
+      "Independent agent inspection of this small authored corpus does not authenticate a claim of nonpersonal status in arbitrary real documents.",
+      "These context statements are legitimate fixture-generation evidence here; user-supplied assertions alone should not universally determine nonpersonal status.",
+      "No production detector/validator, prediction-derived gold, remote calls or ownership/issuance/nonexistence checks were used.",
+      "The inherited review verification token is a future contract requirement; this agent inspection does not complete human adjudication for an operational record."
+    ]
+  }
+}
