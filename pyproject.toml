@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "deidflow"
-version = "0.6.0b1"
+version = "0.6.0"
 description = "Local-first Spanish and Mexican sensitive-data detection and verified transformations"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -24,7 +24,7 @@ keywords = [
     "ner",
 ]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Intended Audience :: Healthcare Industry",
     "Intended Audience :: Financial and Insurance Industry",

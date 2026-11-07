@@ -5,9 +5,35 @@ contexto conservado, identidad persistente y relaciones explícitas. **Local,
 abierta, gratuita y sin LLMs.** Código [Apache-2.0](LICENSE), con modelos y
 fuentes atribuidos en [NOTICE](NOTICE).
 
-Versión de desarrollo **0.6.0b1**. Python 3.11–3.13; inferencia sin dependencias
-obligatorias, cuentas, telemetría ni descargas automáticas. Los paquetes por
-dominio y los tres modelos españoles se incluyen en el wheel.
+Versión **0.6.0**. Python 3.11–3.13 en Linux, Windows y macOS; inferencia sin
+dependencias obligatorias, cuentas, telemetría ni descargas automáticas. Los
+paquetes por dominio y los tres modelos españoles se incluyen en el wheel.
+
+> **In English.** DeidFlow de-identifies Spanish documents from every
+> Spanish-speaking country, entirely on your machine and without any LLM:
+> check-digit validated identifiers for 21 countries (DNI/NIE, CURP, RFC, CUIT,
+> RUT, cédulas…), trained span taggers for clinical, financial and general text,
+> and same-format output for text, CSV/JSON, Word, Excel, OpenDocument, HTML,
+> e-mail with attachments and PDF. Every output is re-read and re-scanned before
+> release; anything uncertain is held for human review instead of being approved.
+
+## Resultados
+
+Conjuntos de test evaluados una sola vez con el código de esta versión, con la
+misma puntuación para todos los sistemas
+([detalle, intervalos y latencia](docs/COMPARISON.md)):
+
+| Test (documentos) | DeidFlow F1 | Caracteres sensibles cubiertos | Sobre-censura | Presidio F1 | spaCy F1 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| MEDDOCAN clínico (250) | **0.958** | 96.9 % | 0.09–0.25 % | 0.363 | 0.259 |
+| Gretel financiero en español (461) | **0.743** | 85.1 % | 0.80–2.35 % | 0.177 | 0.115 |
+| Sintético de 14 países (600) | **0.845** | 96.8 % | 0.29–0.50 % | 0.455 | 0.408 |
+
+F1 exacto del mejor modo de DeidFlow. Caracteres cubiertos: reglas + modelo.
+Sobre-censura: del modelo solo (más preciso) a reglas + modelo (más cobertura).
+Ninguna métrica demuestra anonimato: incluso con reglas + modelo, 90 de 250
+documentos clínicos conservan algún carácter sensible, por eso la salida
+incierta queda en revisión humana.
 
 ## Empezar
 
@@ -118,6 +144,12 @@ activa automáticamente. [Protocolo, CLI, criterios y ejemplo](docs/POST_TRAININ
 - Texto, CSV/TSV, JSON/JSONL y DataFrames; lectura de Parquet.
 - DOCX y XLSX conservan estructura soportada y eliminan copias ocultas conocidas.
   XLSX siempre requiere revisión; medios retenidos y partes desconocidas bloquean.
+- ODT y ODS (LibreOffice/OpenDocument) con el mismo modelo: cambios registrados,
+  comentarios, metadatos, macros, firmas y copias de valores eliminados; ODS con
+  contexto de encabezados y revisión obligatoria.
+- Identificadores ocultos con caracteres invisibles (espacio de ancho cero,
+  guion suave, selectores de variación), formas de ancho completo o letras
+  griegas/cirílicas parecidas a las latinas se detectan y se sustituyen completos.
 - ODT y ODS usan un recorrido XML compartido para lectura y transformación;
   conservan la estructura admitida y están registrados como formatos de adjunto.
   ODS siempre requiere revisión; medios sin inspeccionar y partes desconocidas

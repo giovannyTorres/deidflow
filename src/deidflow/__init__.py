@@ -6,7 +6,7 @@ from deidflow.engine import DeidEngine, ReleaseStatus, Result
 from deidflow.policies import Policy, Rule
 from deidflow.session import DeidSession
 
-__version__ = "0.6.0b1"
+__version__ = "0.6.0"
 __all__ = [
     "DeidEngine",
     "Policy",

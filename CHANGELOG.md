@@ -1,6 +1,21 @@
 # Changelog
 
-## Unreleased
+## 0.6.0 - 2026-11-07
+
+First production release: the 0.6.0b1 candidate plus the hardening below,
+integrated from the reviewed branches (#32–#36). Test sets were scored once on
+this release's detection code: MEDDOCAN exact F1 0.958 (rules + model 0.900),
+Gretel Spanish financial 0.743, synthetic 14-country set 0.845, against 0.363,
+0.177 and 0.455 for Presidio ([comparison](docs/COMPARISON.md)).
+
+- Identifiers hidden by invisible characters, full-width forms or Greek/Cyrillic
+  look-alike letters are detected and replaced whole (#33).
+- ODT and ODS reading and same-format output; e-mail with a spreadsheet
+  attachment now needs review instead of being blocked (#36).
+- HTML keeps URL encodings and attribute syntax unless a value changes, and
+  accepts query strings in unquoted attributes (#34).
+- Supervised CSV review with signed approval receipts and file-wide pseudonyms
+  (#32).
 
 - Added local ODT/ODS extraction and same-format output using a shared XML text
   and content-attribute walk, with header-aware spreadsheet cells, typed-value

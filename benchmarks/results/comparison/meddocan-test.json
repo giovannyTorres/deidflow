@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "machine": {
-    "platform": "Linux-6.18.44-fc-v242-x86_64-with-glibc2.39",
+    "platform": "Linux-6.18.44-fc-v300-x86_64-with-glibc2.39",
     "python": "3.13.18",
     "machine": "x86_64",
     "processor": "x86_64",
@@ -17,7 +17,7 @@
     },
     "execution": "CPU",
     "gpu_memory_bytes": null,
-    "physical_memory_bytes": 16867418112,
+    "physical_memory_bytes": 16867737600,
     "physical_cpu_count": 4
   },
   "source": {
@@ -142,31 +142,31 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 1.6630335320005543,
+          "elapsed_seconds": 1.1156103460000395,
           "units": 250,
-          "records_per_second": 150.32769645916957,
-          "mb_per_second": 0.43712227445318746,
-          "peak_rss_bytes": 35803136,
-          "peak_process_tree_rss_bytes": 35803136,
-          "cpu_percent_one_core_scale": 101.02021202056196,
+          "records_per_second": 224.09257936371912,
+          "mb_per_second": 0.6516155059035049,
+          "peak_rss_bytes": 37171200,
+          "peak_process_tree_rss_bytes": 37171200,
+          "cpu_percent_one_core_scale": 99.4971052374913,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.005869443500159832,
-      "p95_seconds": 0.012393376099680609,
+      "p50_seconds": 0.004097849000004317,
+      "p95_seconds": 0.00766340804993888,
       "metrics": {
         "exact": {
-          "precision": 0.7073312083454071,
-          "recall": 0.4311959017841371,
-          "f1": 0.5357769973661105,
-          "true_positives": 2441,
-          "false_positives": 1010,
-          "false_negatives": 3220,
+          "precision": 0.776361529548088,
+          "recall": 0.4734145910616499,
+          "f1": 0.5881707450894327,
+          "true_positives": 2680,
+          "false_positives": 772,
+          "false_negatives": 2981,
           "document_leakage_rate": 1.0,
-          "false_redaction_rate": 0.0022507150790154556,
-          "entity_level_recall": 0.570217276099629,
+          "false_redaction_rate": 0.0018148426205706982,
+          "entity_level_recall": 0.5703939233350998,
           "recall_by_type": {
-            "ADDRESS": 0.2033898305084746,
+            "ADDRESS": 0.7820823244552058,
             "AGE": 0.04054054054054054,
             "DATE": 0.9312602291325696,
             "DEMOGRAPHIC": 0.8828633405639913,
@@ -183,7 +183,7 @@
             "REGIONAL_ID": 0.9914529914529915
           },
           "recall_by_format": {
-            "text": 0.4311959017841371
+            "text": 0.4734145910616499
           },
           "expected_calibration_error": null,
           "calibration_count": 0,
@@ -191,17 +191,17 @@
           "documents": 250
         },
         "overlap": {
-          "precision": 0.9353810489713127,
-          "recall": 0.570217276099629,
-          "f1": 0.7085162423178227,
-          "true_positives": 3228,
+          "precision": 0.9353997682502897,
+          "recall": 0.5703939233350998,
+          "f1": 0.7086579611543948,
+          "true_positives": 3229,
           "false_positives": 223,
-          "false_negatives": 2433,
+          "false_negatives": 2432,
           "document_leakage_rate": 1.0,
-          "false_redaction_rate": 0.0022507150790154556,
-          "entity_level_recall": 0.570217276099629,
+          "false_redaction_rate": 0.0018148426205706982,
+          "entity_level_recall": 0.5703939233350998,
           "recall_by_type": {
-            "ADDRESS": 0.8692493946731235,
+            "ADDRESS": 0.8716707021791767,
             "AGE": 0.9092664092664092,
             "DATE": 0.9312602291325696,
             "DEMOGRAPHIC": 0.8828633405639913,
@@ -218,7 +218,7 @@
             "REGIONAL_ID": 0.9914529914529915
           },
           "recall_by_format": {
-            "text": 0.570217276099629
+            "text": 0.5703939233350998
           },
           "expected_calibration_error": null,
           "calibration_count": 0,
@@ -233,16 +233,16 @@
           "confidence": 0.95,
           "intervals": {
             "precision": [
-              0.7001865705587724,
-              0.7157323170231948
+              0.7690805142953351,
+              0.7848446282091558
             ],
             "recall": [
-              0.42119722486860683,
-              0.4407028462996671
+              0.4626645795923923,
+              0.48340212840026686
             ],
             "f1": [
-              0.5268176757727834,
-              0.544433161404311
+              0.5789673239376071,
+              0.5969246852939913
             ],
             "document_leakage_rate": [
               1.0,
@@ -306,7 +306,7 @@
         "frequency_strata": {
           "once": {
             "gold_mentions": 2692,
-            "exact_recall": 0.5683506686478454
+            "exact_recall": 0.6571322436849926
           },
           "two_to_five": {
             "gold_mentions": 1363,
@@ -318,16 +318,16 @@
           }
         },
         "coverage_leakage": {
-          "sensitive_character_recall": 0.5954957279225411,
+          "sensitive_character_recall": 0.5959661876071813,
           "documents_with_uncovered_gold_characters": 250,
           "character_coverage_document_leakage_rate": 1.0,
           "entity_value_groups": 3359,
-          "entity_value_complete_coverage_rate": 0.6010717475439119,
+          "entity_value_complete_coverage_rate": 0.5998809169395654,
           "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities."
         },
         "leakage_breakdown": {
-          "fully_covered_mention_rate": 0.4909026673732556,
-          "direct_fully_covered_mention_rate": 0.6940386893012238,
+          "fully_covered_mention_rate": 0.49019607843137253,
+          "direct_fully_covered_mention_rate": 0.6924595341492301,
           "documents_with_direct_identifier_leak": 250,
           "documents": 250,
           "by_type": {
@@ -368,10 +368,10 @@
             },
             "ADDRESS": {
               "gold_mentions": 413,
-              "fully_covered_rate": 0.8111380145278451,
-              "character_coverage": 0.8569872239278994,
-              "predictions": 364,
-              "typed_overlap_precision": 0.989010989010989
+              "fully_covered_rate": 0.801452784503632,
+              "character_coverage": 0.8600574428047935,
+              "predictions": 365,
+              "typed_overlap_precision": 0.989041095890411
             },
             "PATIENT_ID": {
               "gold_mentions": 322,
@@ -485,7 +485,7 @@
         "table_reconstruction_quality": null,
         "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated"
       },
-      "prediction_sha256": "da8a7b353e519a76e9eac1b217e93cf321ca0531afbeeb0bbb352164b5462dbd"
+      "prediction_sha256": "f4f6fc086660bb8e97a7fc56c4f33f516910d448f45530f62f5e51cc236278cf"
     },
     {
       "name": "deidflow_auto",
@@ -494,18 +494,18 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 7.286934554999789,
+          "elapsed_seconds": 3.840289124000037,
           "units": 250,
-          "records_per_second": 34.30797931737528,
-          "mb_per_second": 0.09976060502714656,
-          "peak_rss_bytes": 272486400,
-          "peak_process_tree_rss_bytes": 272486400,
-          "cpu_percent_one_core_scale": 108.68767847744489,
+          "records_per_second": 65.09926516668112,
+          "mb_per_second": 0.1892953828546147,
+          "peak_rss_bytes": 273649664,
+          "peak_process_tree_rss_bytes": 273649664,
+          "cpu_percent_one_core_scale": 105.4608095700234,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.026509400500344782,
-      "p95_seconds": 0.04823001924983143,
+      "p50_seconds": 0.014919217499937076,
+      "p95_seconds": 0.024080003550022856,
       "metrics": {
         "exact": {
           "precision": 0.967573410196361,
@@ -839,28 +839,28 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 8.465039509000235,
+          "elapsed_seconds": 4.944538789000035,
           "units": 250,
-          "records_per_second": 29.53323486962984,
-          "mb_per_second": 0.08587662222097017,
-          "peak_rss_bytes": 275185664,
-          "peak_process_tree_rss_bytes": 275185664,
-          "cpu_percent_one_core_scale": 106.79217728858153,
+          "records_per_second": 50.560833005530746,
+          "mb_per_second": 0.14702058797015027,
+          "peak_rss_bytes": 276365312,
+          "peak_process_tree_rss_bytes": 276365312,
+          "cpu_percent_one_core_scale": 104.55980265543761,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.030521043000589998,
-      "p95_seconds": 0.05958517349990869,
+      "p50_seconds": 0.01803723099999388,
+      "p95_seconds": 0.0319819915000721,
       "metrics": {
         "exact": {
-          "precision": 0.8203374373005016,
+          "precision": 0.852068203347016,
           "recall": 0.9533651298357181,
-          "f1": 0.8818627450980392,
+          "f1": 0.8998749478949561,
           "true_positives": 5397,
-          "false_positives": 1182,
+          "false_positives": 937,
           "false_negatives": 264,
           "document_leakage_rate": 0.484,
-          "false_redaction_rate": 0.0029332199961531543,
+          "false_redaction_rate": 0.0024973475377083965,
           "entity_level_recall": 0.9659070835541423,
           "recall_by_type": {
             "ADDRESS": 0.9539951573849879,
@@ -882,20 +882,20 @@
           "recall_by_format": {
             "text": 0.9533651298357181
           },
-          "expected_calibration_error": 0.01118246160255966,
-          "calibration_count": 3869,
+          "expected_calibration_error": 0.0109424657946019,
+          "calibration_count": 3623,
           "matching": "exact",
           "documents": 250
         },
         "overlap": {
-          "precision": 0.8311293509651922,
+          "precision": 0.8632775497316072,
           "recall": 0.9659070835541423,
-          "f1": 0.8934640522875816,
+          "f1": 0.9117132138390995,
           "true_positives": 5468,
-          "false_positives": 1111,
+          "false_positives": 866,
           "false_negatives": 193,
           "document_leakage_rate": 0.396,
-          "false_redaction_rate": 0.0029332199961531543,
+          "false_redaction_rate": 0.0024973475377083965,
           "entity_level_recall": 0.9659070835541423,
           "recall_by_type": {
             "ADDRESS": 0.9903147699757869,
@@ -917,8 +917,8 @@
           "recall_by_format": {
             "text": 0.9659070835541423
           },
-          "expected_calibration_error": 0.12037041387561381,
-          "calibration_count": 3869,
+          "expected_calibration_error": 0.12877207302172175,
+          "calibration_count": 3623,
           "matching": "overlap",
           "documents": 250
         },
@@ -930,16 +930,16 @@
           "confidence": 0.95,
           "intervals": {
             "precision": [
-              0.8147476525772439,
-              0.8252973885479966
+              0.8462568247126436,
+              0.8571994375029256
             ],
             "recall": [
               0.9427165859803297,
               0.9618464551470473
             ],
             "f1": [
-              0.8750499074681962,
-              0.8877906650769523
+              0.8929156009384904,
+              0.9059137518524499
             ],
             "document_leakage_rate": [
               0.424,
@@ -963,7 +963,7 @@
           "recall_by_format": {
             "text": 0.9547970479704797
           },
-          "expected_calibration_error": 0.015189785908159496,
+          "expected_calibration_error": 0.01520303199514705,
           "calibration_count": 698,
           "matching": "exact",
           "documents": 250
@@ -988,7 +988,7 @@
           "recall_by_format": {
             "text": 0.9660194174757282
           },
-          "expected_calibration_error": 0.009715132224269963,
+          "expected_calibration_error": 0.009711258839804003,
           "calibration_count": 2387,
           "matching": "exact",
           "documents": 250
@@ -1015,17 +1015,17 @@
           }
         },
         "coverage_leakage": {
-          "sensitive_character_recall": 0.9688586041005873,
-          "documents_with_uncovered_gold_characters": 88,
-          "character_coverage_document_leakage_rate": 0.352,
+          "sensitive_character_recall": 0.9688130757440092,
+          "documents_with_uncovered_gold_characters": 90,
+          "character_coverage_document_leakage_rate": 0.36,
           "entity_value_groups": 3359,
-          "entity_value_complete_coverage_rate": 0.9547484370348318,
+          "entity_value_complete_coverage_rate": 0.9538553140815719,
           "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities."
         },
         "leakage_breakdown": {
-          "fully_covered_mention_rate": 0.9669669669669669,
-          "direct_fully_covered_mention_rate": 0.9763126727200947,
-          "documents_with_direct_identifier_leak": 37,
+          "fully_covered_mention_rate": 0.9664370252605546,
+          "direct_fully_covered_mention_rate": 0.9751283063560995,
+          "documents_with_direct_identifier_leak": 40,
           "documents": 250,
           "by_type": {
             "LOCATION": {
@@ -1065,10 +1065,10 @@
             },
             "ADDRESS": {
               "gold_mentions": 413,
-              "fully_covered_rate": 0.9927360774818402,
-              "character_coverage": 0.9986134495394672,
-              "predictions": 694,
-              "typed_overlap_precision": 0.9884726224783862
+              "fully_covered_rate": 0.9854721549636803,
+              "character_coverage": 0.9983163315836387,
+              "predictions": 449,
+              "typed_overlap_precision": 0.9866369710467706
             },
             "PATIENT_ID": {
               "gold_mentions": 322,
@@ -1167,7 +1167,7 @@
           ],
           "definition": "fully covered = every gold character covered by any prediction, any category; detection coverage only, not transformed-output verification"
         },
-        "uncertain_candidate_document_rate": 0.36,
+        "uncertain_candidate_document_rate": 0.356,
         "review_rate_definition": "candidate uncertainty proxy only; no transformation or semantic-model release gating evaluated",
         "strata": {
           "source": "meddocan",
@@ -1182,7 +1182,7 @@
         "table_reconstruction_quality": null,
         "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated"
       },
-      "prediction_sha256": "050b8aca3a16fb1f5f9855b7ccfee441a370f91c2944622424e929cc0e2b3743"
+      "prediction_sha256": "5e34723a8d6985b9e9b8bf5b224a817af09defbbdc544a14b1b26ff2daa8e88a"
     },
     {
       "name": "spacy_spanish",
@@ -1191,18 +1191,18 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 16.24323107300006,
+          "elapsed_seconds": 9.68992474699985,
           "units": 250,
-          "records_per_second": 15.391026506761747,
-          "mb_per_second": 0.044753965312255777,
-          "peak_rss_bytes": 1178042368,
-          "peak_process_tree_rss_bytes": 1178042368,
-          "cpu_percent_one_core_scale": 110.13818568238707,
+          "records_per_second": 25.79999396562949,
+          "mb_per_second": 0.07502111925328156,
+          "peak_rss_bytes": 1178804224,
+          "peak_process_tree_rss_bytes": 1178804224,
+          "cpu_percent_one_core_scale": 105.1607754039058,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.05919932999995581,
-      "p95_seconds": 0.11117080244948735,
+      "p50_seconds": 0.03621080050004366,
+      "p95_seconds": 0.0648644203999083,
       "metrics": {
         "exact": {
           "precision": 0.28257686676427524,
@@ -1536,18 +1536,18 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 20.921897584000362,
+          "elapsed_seconds": 12.094829680999965,
           "units": 250,
-          "records_per_second": 11.94920293421104,
-          "mb_per_second": 0.03474584449528712,
-          "peak_rss_bytes": 2011914240,
-          "peak_process_tree_rss_bytes": 2011914240,
-          "cpu_percent_one_core_scale": 110.26724467689952,
+          "records_per_second": 20.669989292427204,
+          "mb_per_second": 0.06010411218456265,
+          "peak_rss_bytes": 2013646848,
+          "peak_process_tree_rss_bytes": 2013646848,
+          "cpu_percent_one_core_scale": 105.49962534854839,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.0778883715001939,
-      "p95_seconds": 0.14378939149960387,
+      "p50_seconds": 0.04542779449991485,
+      "p95_seconds": 0.07965130974999958,
       "metrics": {
         "exact": {
           "precision": 0.3545071609098568,
@@ -1888,37 +1888,37 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 17.440761622000537,
+          "elapsed_seconds": 10.632415436999963,
           "units": 250,
-          "records_per_second": 14.33423639508031,
-          "mb_per_second": 0.041681035252668946,
-          "peak_rss_bytes": 2016489472,
-          "peak_process_tree_rss_bytes": 2016489472,
-          "cpu_percent_one_core_scale": 109.8575877318954,
+          "records_per_second": 23.513001488826312,
+          "mb_per_second": 0.06837101167720319,
+          "peak_rss_bytes": 2017320960,
+          "peak_process_tree_rss_bytes": 2017320960,
+          "cpu_percent_one_core_scale": 104.96203864612062,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.06420192499990662,
-      "p95_seconds": 0.11892233204989676,
+      "p50_seconds": 0.03987072699999317,
+      "p95_seconds": 0.07200004170014151,
       "metrics": {
         "exact": {
-          "precision": 0.45752753977968175,
-          "recall": 0.6603073661897191,
-          "f1": 0.5405249078157761,
-          "true_positives": 3738,
-          "false_positives": 4432,
-          "false_negatives": 1923,
+          "precision": 0.4868437155794884,
+          "recall": 0.7027027027027027,
+          "f1": 0.575187969924812,
+          "true_positives": 3978,
+          "false_positives": 4193,
+          "false_negatives": 1683,
           "document_leakage_rate": 1.0,
-          "false_redaction_rate": 0.03925023732557346,
-          "entity_level_recall": 0.8125772831655185,
+          "false_redaction_rate": 0.03885314355560243,
+          "entity_level_recall": 0.81293057763646,
           "recall_by_type": {
-            "ADDRESS": 0.2033898305084746,
+            "ADDRESS": 0.7820823244552058,
             "AGE": 0.04054054054054054,
             "DATE": 0.9312602291325696,
             "DEMOGRAPHIC": 0.8828633405639913,
             "EMAIL": 0.9919678714859438,
             "INSURANCE_ID": 0.98989898989899,
-            "LOCATION": 0.6353297952994693,
+            "LOCATION": 0.6360879454131918,
             "MEDICAL_FACILITY": 0.0,
             "OCCUPATION": 0.0,
             "ORGANIZATION": 0.29850746268656714,
@@ -1929,7 +1929,7 @@
             "REGIONAL_ID": 0.9914529914529915
           },
           "recall_by_format": {
-            "text": 0.6603073661897191
+            "text": 0.7027027027027027
           },
           "expected_calibration_error": null,
           "calibration_count": 0,
@@ -1937,23 +1937,23 @@
           "documents": 250
         },
         "overlap": {
-          "precision": 0.5630354957160343,
-          "recall": 0.8125772831655185,
-          "f1": 0.6651724387246041,
-          "true_positives": 4600,
-          "false_positives": 3570,
-          "false_negatives": 1061,
+          "precision": 0.563211357239016,
+          "recall": 0.81293057763646,
+          "f1": 0.6654135338345865,
+          "true_positives": 4602,
+          "false_positives": 3569,
+          "false_negatives": 1059,
           "document_leakage_rate": 1.0,
-          "false_redaction_rate": 0.03925023732557346,
-          "entity_level_recall": 0.8125772831655185,
+          "false_redaction_rate": 0.03885314355560243,
+          "entity_level_recall": 0.81293057763646,
           "recall_by_type": {
-            "ADDRESS": 0.8692493946731235,
+            "ADDRESS": 0.8716707021791767,
             "AGE": 0.9092664092664092,
             "DATE": 0.9312602291325696,
             "DEMOGRAPHIC": 0.8828633405639913,
             "EMAIL": 0.9919678714859438,
             "INSURANCE_ID": 0.98989898989899,
-            "LOCATION": 0.6580742987111448,
+            "LOCATION": 0.6588324488248674,
             "MEDICAL_FACILITY": 0.0,
             "OCCUPATION": 0.0,
             "ORGANIZATION": 0.44776119402985076,
@@ -1964,7 +1964,7 @@
             "REGIONAL_ID": 0.9914529914529915
           },
           "recall_by_format": {
-            "text": 0.8125772831655185
+            "text": 0.81293057763646
           },
           "expected_calibration_error": null,
           "calibration_count": 0,
@@ -1979,16 +1979,16 @@
           "confidence": 0.95,
           "intervals": {
             "precision": [
-              0.4478025945262206,
-              0.4674372871470162
+              0.47620291806856124,
+              0.4972867302830186
             ],
             "recall": [
-              0.6518723479177555,
-              0.6690319421078212
+              0.693410074001311,
+              0.7118125284117627
             ],
             "f1": [
-              0.5327474305174963,
-              0.548302315435501
+              0.5667265027453179,
+              0.5833357068672816
             ],
             "document_leakage_rate": [
               1.0,
@@ -1997,14 +1997,14 @@
           }
         },
         "person_only_exact": {
-          "precision": 0.48595848595848595,
+          "precision": 0.48714810281517745,
           "recall": 0.7343173431734318,
-          "f1": 0.5848640705363704,
+          "f1": 0.5857247976453275,
           "true_positives": 796,
-          "false_positives": 842,
+          "false_positives": 838,
           "false_negatives": 288,
           "document_leakage_rate": 0.696,
-          "false_redaction_rate": 0.012793385952066602,
+          "false_redaction_rate": 0.012760234997030828,
           "entity_level_recall": 0.8210332103321033,
           "recall_by_type": {
             "PERSON": 0.7343173431734318
@@ -2018,24 +2018,24 @@
           "documents": 250
         },
         "common_scope_exact": {
-          "precision": 0.47512963318609563,
-          "recall": 0.7506067961165048,
-          "f1": 0.5819122662589674,
-          "true_positives": 2474,
-          "false_positives": 2733,
-          "false_negatives": 822,
+          "precision": 0.47541298501728774,
+          "recall": 0.7509101941747572,
+          "f1": 0.5822159491884262,
+          "true_positives": 2475,
+          "false_positives": 2731,
+          "false_negatives": 821,
           "document_leakage_rate": 1.0,
-          "false_redaction_rate": 0.04350506855888903,
-          "entity_level_recall": 0.7888349514563107,
+          "false_redaction_rate": 0.0435020971041688,
+          "entity_level_recall": 0.7891383495145631,
           "recall_by_type": {
             "DATE": 0.9312602291325696,
             "EMAIL": 0.9919678714859438,
-            "LOCATION": 0.6353297952994693,
+            "LOCATION": 0.6360879454131918,
             "PERSON": 0.7343173431734318,
             "PHONE": 0.7272727272727273
           },
           "recall_by_format": {
-            "text": 0.7506067961165048
+            "text": 0.7509101941747572
           },
           "expected_calibration_error": null,
           "calibration_count": 0,
@@ -2052,11 +2052,11 @@
         "frequency_strata": {
           "once": {
             "gold_mentions": 2692,
-            "exact_recall": 0.6939078751857355
+            "exact_recall": 0.7826894502228826
           },
           "two_to_five": {
             "gold_mentions": 1363,
-            "exact_recall": 0.5935436537050623
+            "exact_recall": 0.5942773294203962
           },
           "more_than_five": {
             "gold_mentions": 1606,
@@ -2064,32 +2064,32 @@
           }
         },
         "coverage_leakage": {
-          "sensitive_character_recall": 0.8745845537462249,
+          "sensitive_character_recall": 0.8747363149348185,
           "documents_with_uncovered_gold_characters": 250,
           "character_coverage_document_leakage_rate": 1.0,
           "entity_value_groups": 3359,
-          "entity_value_complete_coverage_rate": 0.8097648109556416,
+          "entity_value_complete_coverage_rate": 0.8082762727002084,
           "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities."
         },
         "leakage_breakdown": {
-          "fully_covered_mention_rate": 0.7703585938880056,
-          "direct_fully_covered_mention_rate": 0.9044611133043822,
-          "documents_with_direct_identifier_leak": 155,
+          "fully_covered_mention_rate": 0.7691220632397103,
+          "direct_fully_covered_mention_rate": 0.90248716936439,
+          "documents_with_direct_identifier_leak": 157,
           "documents": 250,
           "by_type": {
             "LOCATION": {
               "gold_mentions": 1319,
-              "fully_covered_rate": 0.6808188021228203,
-              "character_coverage": 0.7484305975354568,
-              "predictions": 2530,
-              "typed_overlap_precision": 0.3438735177865613
+              "fully_covered_rate": 0.6793025018953753,
+              "character_coverage": 0.747500581260172,
+              "predictions": 2533,
+              "typed_overlap_precision": 0.34386103434662457
             },
             "PERSON": {
               "gold_mentions": 1084,
               "fully_covered_rate": 0.8690036900369004,
               "character_coverage": 0.9315892974197009,
-              "predictions": 1638,
-              "typed_overlap_precision": 0.7454212454212454
+              "predictions": 1634,
+              "typed_overlap_precision": 0.7454100367197063
             },
             "DATE": {
               "gold_mentions": 611,
@@ -2114,10 +2114,10 @@
             },
             "ADDRESS": {
               "gold_mentions": 413,
-              "fully_covered_rate": 0.8256658595641646,
-              "character_coverage": 0.9290878478756066,
-              "predictions": 364,
-              "typed_overlap_precision": 0.989010989010989
+              "fully_covered_rate": 0.8135593220338984,
+              "character_coverage": 0.9308705556105774,
+              "predictions": 365,
+              "typed_overlap_precision": 0.989041095890411
             },
             "PATIENT_ID": {
               "gold_mentions": 322,
@@ -2158,8 +2158,8 @@
               "gold_mentions": 67,
               "fully_covered_rate": 0.7611940298507462,
               "character_coverage": 0.8614206128133705,
-              "predictions": 979,
-              "typed_overlap_precision": 0.03472931562819203
+              "predictions": 980,
+              "typed_overlap_precision": 0.03469387755102041
             },
             "PHONE": {
               "gold_mentions": 33,
@@ -2231,7 +2231,7 @@
         "table_reconstruction_quality": null,
         "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated"
       },
-      "prediction_sha256": "37ac9b1d5cf8d23e505d89ea4fcce7ee1418709fc65cb70b6d54d07be62d0dac"
+      "prediction_sha256": "a26e73a0667d3970f2b2f65f05e263c66826afd4339ff040e2f6b938202058fb"
     }
   ],
   "tagger_models": {
