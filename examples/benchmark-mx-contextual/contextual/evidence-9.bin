@@ -1,0 +1,73 @@
+{
+  "D1": {
+    "current_evaluation_scope": "es-MX",
+    "easy_local_retraining_and_fine_tuning": true,
+    "global_product_objective": true,
+    "target": "automatic",
+    "universal_human_review_required": false,
+    "unresolved_ambiguity": "REVIEW_REQUIRED",
+    "unsupported_or_unverifiable": "BLOCKED_OR_UNSUPPORTED"
+  },
+  "D2": {
+    "ambiguous": "review_required",
+    "attributed_personal_plausible_even_invalid": "remove",
+    "documented_nonpersonal_distractor": "preserve",
+    "validity_is_sensitivity": false
+  },
+  "D3": {
+    "allowed_operators": {
+      "preserve": [
+        "keep"
+      ],
+      "remove": [
+        "placeholder",
+        "redact",
+        "suppress"
+      ],
+      "review_required": []
+    },
+    "contextual-v1": {
+      "clinical_facts_negation_dose_quantity_relations": "preserve",
+      "identifiers": "remove"
+    },
+    "engineering_defaults_not_individually_ratified": {
+      "age_without_agreed_granularity": "review_required",
+      "exact_personal_date": "remove",
+      "full_personal_address": "remove",
+      "other_unclassified_quasi_identifier": "review_required"
+    },
+    "precedence": [
+      "review_required",
+      "remove",
+      "preserve"
+    ],
+    "strict-v1": {
+      "clinical_facts_negation_dose_quantity_relations": "remove",
+      "identifiers": "remove"
+    }
+  },
+  "candidate_quality": "DESCRIPTIVE_ONLY",
+  "decided_at": "2026-11-06T18:02:28Z",
+  "decided_by": "requester",
+  "decision_id": "BMX-09-operational-v1",
+  "mandatory_formats": [
+    "text",
+    "json",
+    "jsonl",
+    "csv",
+    "tsv",
+    "docx",
+    "xlsx",
+    "html",
+    "eml",
+    "pdf",
+    "image"
+  ],
+  "missing_required_operator_or_verifier": "INCOMPLETE_NOT_APPROVED",
+  "ocr_required": true,
+  "provenance": "Explicit current-session reply: D1 automatic/global/easy fine-tuning; accepts recommendations D2 and D3; prior reply all formats mandatory",
+  "quality_profile_ratified": false,
+  "schema_version": "df-eval-mx.operational-decision.v1",
+  "status": "ratified",
+  "version": "1.0.0"
+}

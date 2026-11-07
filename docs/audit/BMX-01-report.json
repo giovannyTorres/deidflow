@@ -1,0 +1,63 @@
+{
+  "operational": {
+    "elapsed_seconds": 0.0066876230002890225,
+    "python_version": "3.12.14",
+    "started_at": "2026-11-06T08:31:47.217914+00:00"
+  },
+  "result": {
+    "candidate": {
+      "deidflow_version": "0.6.0b1",
+      "id": "rules.mx",
+      "nlp": null,
+      "offline": true,
+      "performance": "balanced",
+      "rules_version": "rules-0.6",
+      "source_sha256": "e880055b5bf5b22db470266a7f8a6ca83243917112eef89be14cc774196b9fbb"
+    },
+    "dataset": {
+      "corpus_sha256": "b88bf25437a58f017ef7afcfc3c7759a567e9e061a5b84d87d7c5a1064e78a1d",
+      "id": "sha256:144b40aaf0cbef25ae55d74175a15c4bac6fc1048472a3edbb6bbb0078a34e93",
+      "panel": "known_regression",
+      "synthetic": true,
+      "version": "1.0.0"
+    },
+    "documents": {
+      "negative": 1,
+      "positive": 1,
+      "total": 2
+    },
+    "limitations": [
+      "EMAIL_ONLY_KNOWN_SYNTHETIC_REGRESSION",
+      "TRANSFORMATION_NOT_EVALUATED",
+      "DATASET_INDEPENDENCE_NOT_EVALUATED",
+      "PROCESS_NETWORK_ISOLATION_NOT_EVALUATED"
+    ],
+    "metrics": {
+      "EMAIL": {
+        "f1": 1.0,
+        "false_negatives": 0,
+        "false_positives": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "support": 1,
+        "true_positives": 1
+      }
+    },
+    "profile": {
+      "id": "email-descriptive-v1",
+      "ratified": false
+    },
+    "quality": "DESCRIPTIVE_ONLY",
+    "scope": {
+      "country": "MX",
+      "entity_types": [
+        "EMAIL"
+      ],
+      "language": "es",
+      "matching": "exact",
+      "source_format": "text",
+      "track": "detection"
+    }
+  },
+  "schema_version": "df-eval-mx.email-report.v1"
+}

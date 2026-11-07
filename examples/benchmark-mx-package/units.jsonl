@@ -1,0 +1,2 @@
+{"case_id":"c-1","content_role":"body","locator":{"index":0,"kind":"text"},"text":"Correo: a.b@example.test.","text_sha256":"2c3544282c6cd3bcac7f03266b6f218e67a1559aedf4fcecfe868955b62bf8e0","unit_id":"u-1"}
+{"case_id":"c-2","content_role":"body","locator":{"index":0,"kind":"text"},"text":"No hay datos de contacto.","text_sha256":"0adfb9a2403b78b80f2b1aa18229e97515f638f6eee6534e57fbb72f295c8d21","unit_id":"u-2"}

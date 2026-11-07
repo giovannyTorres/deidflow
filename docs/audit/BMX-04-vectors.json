@@ -1,0 +1,177 @@
+{
+  "tool": "python-stdnum",
+  "version": "2.2",
+  "runtime_dependency_added": false,
+  "fixtures_only": true,
+  "checks": [
+    {
+      "entity": "RFC",
+      "fictional_value": "ZZZX010101AA1",
+      "reference_states": {
+        "pattern": "valid",
+        "structure": "valid",
+        "checksum": "valid"
+      },
+      "independent_tool_accepts": true
+    },
+    {
+      "entity": "RFC",
+      "fictional_value": "ZZZX010101AA2",
+      "reference_states": {
+        "pattern": "valid",
+        "structure": "valid",
+        "checksum": "invalid"
+      },
+      "independent_tool_accepts": false
+    },
+    {
+      "entity": "RFC",
+      "fictional_value": "ZZZX011301AA4",
+      "reference_states": {
+        "pattern": "valid",
+        "structure": "invalid",
+        "checksum": "valid"
+      },
+      "independent_tool_accepts": false
+    },
+    {
+      "entity": "RFC",
+      "fictional_value": "ZZZ010101AA1",
+      "reference_states": {
+        "pattern": "valid",
+        "structure": "valid",
+        "checksum": "valid"
+      },
+      "independent_tool_accepts": true
+    },
+    {
+      "entity": "RFC",
+      "fictional_value": "XAXX010101000",
+      "reference_states": {
+        "pattern": "valid",
+        "structure": "valid",
+        "checksum": "invalid"
+      },
+      "independent_tool_accepts": false
+    },
+    {
+      "entity": "RFC",
+      "fictional_value": "XEXX010101000",
+      "reference_states": {
+        "pattern": "valid",
+        "structure": "valid",
+        "checksum": "invalid"
+      },
+      "independent_tool_accepts": false
+    },
+    {
+      "entity": "CURP",
+      "fictional_value": "ZAXX010101HDFZZZ06",
+      "reference_states": {
+        "pattern": "valid",
+        "structure": "valid",
+        "checksum": "valid"
+      },
+      "independent_tool_accepts": true
+    },
+    {
+      "entity": "CURP",
+      "fictional_value": "ZAXX010231HDFZZZ05",
+      "reference_states": {
+        "pattern": "valid",
+        "structure": "invalid",
+        "checksum": "valid"
+      },
+      "independent_tool_accepts": false
+    },
+    {
+      "entity": "CURP",
+      "fictional_value": "ZAXX010101HDFZZZ07",
+      "reference_states": {
+        "pattern": "valid",
+        "structure": "valid",
+        "checksum": "invalid"
+      },
+      "independent_tool_accepts": false
+    },
+    {
+      "entity": "PAYMENT_CARD",
+      "fictional_value": "9999000011112228",
+      "reference_states": {
+        "pattern": "valid",
+        "structure": "valid",
+        "checksum": "valid"
+      },
+      "independent_tool_accepts": true
+    },
+    {
+      "entity": "PAYMENT_CARD",
+      "fictional_value": "9999000011112229",
+      "reference_states": {
+        "pattern": "valid",
+        "structure": "valid",
+        "checksum": "invalid"
+      },
+      "independent_tool_accepts": false
+    },
+    {
+      "entity": "RFC",
+      "fictional_value": "ZZZX-010101-AA1",
+      "reference_states": {
+        "pattern": "valid",
+        "structure": "valid",
+        "checksum": "valid"
+      },
+      "independent_tool_accepts": true
+    },
+    {
+      "entity": "CURP",
+      "fictional_value": "ZAXX010101HDFZZZ0",
+      "reference_states": {
+        "pattern": "invalid",
+        "structure": "invalid",
+        "checksum": "unknown"
+      },
+      "independent_tool_accepts": false
+    }
+  ],
+  "clabe_worksheet": {
+    "prefix": "00299900000000001",
+    "weights": [
+      3,
+      7,
+      1
+    ],
+    "reduced_terms": [
+      0,
+      0,
+      2,
+      7,
+      3,
+      9,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      7
+    ],
+    "sum": 28,
+    "check_digit": 2
+  },
+  "manifest_sha256": "22d591766e2659784145aeac953131dd3cb6bd83a93a2fbdbce3d94c641bd67a",
+  "known_disagreements": {
+    "RFC_generic_codes": "Ordinary strict checksum rejects both codes; DeidFlow accepts its generic-code exception. This does not establish legal invalidity of generic invoice codes."
+  },
+  "limitations": [
+    "No issuance or ownership query",
+    "Known synthetic regression, not blind test",
+    "Phone attributes unknown; checksum not_applicable"
+  ],
+  "sensitivity_note": "Generic invoice RFCs and impossible zero phone are explicit nonpersonal distractors, not detection gold."
+}
