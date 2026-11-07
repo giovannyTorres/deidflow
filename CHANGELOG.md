@@ -16,6 +16,9 @@ Gretel Spanish financial 0.743, synthetic 14-country set 0.845, against 0.363,
   accepts query strings in unquoted attributes (#34).
 - Supervised CSV review with signed approval receipts and file-wide pseudonyms
   (#32).
+- DF-EVAL-MX local benchmark harness: isolated pipeline runs, reference coverage
+  checks that never certify a nonexhaustive or pending-review document as fully
+  inspected, and a Unicode evasion comparison (#35).
 
 - Added local ODT/ODS extraction and same-format output using a shared XML text
   and content-attribute walk, with header-aware spreadsheet cells, typed-value

@@ -69,6 +69,16 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Release notes from the CHANGELOG section of this version
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v h="## ${version} " 'index($0, h) == 1 {on = 1; next} on && /^## / {exit} on {print}' \
+            CHANGELOG.md > "$RUNNER_TEMP/release-notes.md"
+          test -s "$RUNNER_TEMP/release-notes.md" || { echo "no CHANGELOG section for ${version}"; exit 1; }
       - uses: actions/download-artifact@v8
         with:
           name: release-dist
@@ -76,6 +86,7 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           files: dist/*
+          body_path: ${{ runner.temp }}/release-notes.md
           generate_release_notes: true
 
   pypi:

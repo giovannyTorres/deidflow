@@ -38,6 +38,14 @@ incierta queda en revisión humana.
 ## Empezar
 
 ```sh
+python -m pip install https://github.com/giovannyTorres/deidflow/releases/download/v0.6.0/deidflow-0.6.0-py3-none-any.whl
+```
+
+El wheel de cada versión, sus sumas SHA-256, el SBOM y la atestación de
+procedencia están en [Releases](https://github.com/giovannyTorres/deidflow/releases).
+Desde el código fuente:
+
+```sh
 git clone https://github.com/giovannyTorres/deidflow.git
 cd deidflow
 python -m pip install .
