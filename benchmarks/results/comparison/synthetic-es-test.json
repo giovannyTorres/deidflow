@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "machine": {
-    "platform": "Linux-6.18.44-fc-v242-x86_64-with-glibc2.39",
+    "platform": "Linux-6.18.44-fc-v300-x86_64-with-glibc2.39",
     "python": "3.13.18",
     "machine": "x86_64",
     "processor": "x86_64",
@@ -17,7 +17,7 @@
     },
     "execution": "CPU",
     "gpu_memory_bytes": null,
-    "physical_memory_bytes": 16867418112,
+    "physical_memory_bytes": 16867737600,
     "physical_cpu_count": 4
   },
   "source": {
@@ -85,31 +85,31 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 0.5147616200001721,
+          "elapsed_seconds": 0.29430879199981064,
           "units": 600,
-          "records_per_second": 1165.5880638494366,
-          "mb_per_second": 0.28835094582216597,
-          "peak_rss_bytes": 40841216,
-          "peak_process_tree_rss_bytes": 40841216,
-          "cpu_percent_one_core_scale": 99.07498542720211,
+          "records_per_second": 2038.6750797454465,
+          "mb_per_second": 0.5043410323946269,
+          "peak_rss_bytes": 41881600,
+          "peak_process_tree_rss_bytes": 41881600,
+          "cpu_percent_one_core_scale": 101.93375398727234,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.0008008479999261908,
-      "p95_seconds": 0.0013841899497492702,
+      "p50_seconds": 0.000472649000016645,
+      "p95_seconds": 0.0006714289499541336,
       "metrics": {
         "exact": {
-          "precision": 0.7660271408516612,
-          "recall": 0.4744927536231884,
-          "f1": 0.5860032217648111,
-          "true_positives": 1637,
-          "false_positives": 500,
-          "false_negatives": 1813,
+          "precision": 0.801123069723912,
+          "recall": 0.49623188405797103,
+          "f1": 0.6128512618578843,
+          "true_positives": 1712,
+          "false_positives": 425,
+          "false_negatives": 1738,
           "document_leakage_rate": 1.0,
-          "false_redaction_rate": 0.03243617908624194,
+          "false_redaction_rate": 0.0025728081202053546,
           "entity_level_recall": 0.5272463768115943,
           "recall_by_type": {
-            "ADDRESS": 0.5333333333333333,
+            "ADDRESS": 0.6761904761904762,
             "AGE": 1.0,
             "BANK_ACCOUNT": 1.0,
             "DATE": 1.0,
@@ -123,7 +123,7 @@
             "TAX_ID": 0.92
           },
           "recall_by_format": {
-            "text": 0.4744927536231884
+            "text": 0.49623188405797103
           },
           "expected_calibration_error": null,
           "calibration_count": 0,
@@ -138,7 +138,7 @@
           "false_positives": 318,
           "false_negatives": 1631,
           "document_leakage_rate": 1.0,
-          "false_redaction_rate": 0.03243617908624194,
+          "false_redaction_rate": 0.0025728081202053546,
           "entity_level_recall": 0.5272463768115943,
           "recall_by_type": {
             "ADDRESS": 0.8590476190476191,
@@ -170,16 +170,16 @@
           "confidence": 0.95,
           "intervals": {
             "precision": [
-              0.7537898720460946,
-              0.7794473398034347
+              0.788638526119403,
+              0.8144998129856648
             ],
             "recall": [
-              0.4590947548680275,
-              0.4869215896648866
+              0.48135033019616646,
+              0.5101088832741282
             ],
             "f1": [
-              0.573267025538753,
-              0.5970440436900832
+              0.6006847646019294,
+              0.6246571374383709
             ],
             "document_leakage_rate": [
               1.0,
@@ -239,7 +239,7 @@
         "frequency_strata": {
           "once": {
             "gold_mentions": 3054,
-            "exact_recall": 0.5049115913555993
+            "exact_recall": 0.5294695481335953
           },
           "two_to_five": {
             "gold_mentions": 289,
@@ -404,7 +404,7 @@
         "table_reconstruction_quality": null,
         "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated"
       },
-      "prediction_sha256": "22548b36a787d857340044b1d6e830cc3dec8cd6fd5ebe97f3a15325632d3439"
+      "prediction_sha256": "a7d07e03c2813d8648273cec8474717e7edddcff7670bd156a02616b8c7936a2"
     },
     {
       "name": "deidflow_auto",
@@ -413,18 +413,18 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 2.6211931529996946,
+          "elapsed_seconds": 1.408525520000012,
           "units": 600,
-          "records_per_second": 228.90339054691935,
-          "mb_per_second": 0.056627646776100556,
-          "peak_rss_bytes": 244772864,
-          "peak_process_tree_rss_bytes": 244772864,
-          "cpu_percent_one_core_scale": 108.7291105097867,
+          "records_per_second": 425.9773724227552,
+          "mb_per_second": 0.10538112223909067,
+          "peak_rss_bytes": 245862400,
+          "peak_process_tree_rss_bytes": 245862400,
+          "cpu_percent_one_core_scale": 106.4943431056888,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.0036006390005240974,
-      "p95_seconds": 0.008555619750177355,
+      "p50_seconds": 0.0019851695000170366,
+      "p95_seconds": 0.005401468149989341,
       "metrics": {
         "exact": {
           "precision": 0.8832278481012659,
@@ -755,31 +755,31 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 3.087353726999936,
+          "elapsed_seconds": 1.7787893259999237,
           "units": 600,
-          "records_per_second": 194.34119088875377,
-          "mb_per_second": 0.04807741940999917,
-          "peak_rss_bytes": 245706752,
-          "peak_process_tree_rss_bytes": 245706752,
-          "cpu_percent_one_core_scale": 109.4788708673313,
+          "records_per_second": 337.3080730978176,
+          "mb_per_second": 0.08344551984342545,
+          "peak_rss_bytes": 246771712,
+          "peak_process_tree_rss_bytes": 246771712,
+          "cpu_percent_one_core_scale": 105.68986290398283,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.00475758050015429,
-      "p95_seconds": 0.009063328400225144,
+      "p50_seconds": 0.00263957150002625,
+      "p95_seconds": 0.006020597000042469,
       "metrics": {
         "exact": {
-          "precision": 0.7975250131648236,
-          "recall": 0.8779710144927536,
-          "f1": 0.8358167770419426,
-          "true_positives": 3029,
-          "false_positives": 769,
-          "false_negatives": 421,
-          "document_leakage_rate": 0.5216666666666666,
-          "false_redaction_rate": 0.034339352216256856,
+          "precision": 0.8143969916733816,
+          "recall": 0.878840579710145,
+          "f1": 0.8453924438867978,
+          "true_positives": 3032,
+          "false_positives": 691,
+          "false_negatives": 418,
+          "document_leakage_rate": 0.5166666666666667,
+          "false_redaction_rate": 0.005039884399854325,
           "entity_level_recall": 0.8979710144927536,
           "recall_by_type": {
-            "ADDRESS": 0.9066666666666666,
+            "ADDRESS": 0.9123809523809524,
             "AGE": 1.0,
             "BANK_ACCOUNT": 1.0,
             "DATE": 1.0,
@@ -793,22 +793,22 @@
             "TAX_ID": 0.92
           },
           "recall_by_format": {
-            "text": 0.8779710144927536
+            "text": 0.878840579710145
           },
-          "expected_calibration_error": 0.04740600659245856,
-          "calibration_count": 2038,
+          "expected_calibration_error": 0.04929999620677294,
+          "calibration_count": 1963,
           "matching": "exact",
           "documents": 600
         },
         "overlap": {
-          "precision": 0.8156924697209057,
+          "precision": 0.8321246306741875,
           "recall": 0.8979710144927536,
-          "f1": 0.8548565121412803,
+          "f1": 0.863794786003067,
           "true_positives": 3098,
-          "false_positives": 700,
+          "false_positives": 625,
           "false_negatives": 352,
           "document_leakage_rate": 0.48833333333333334,
-          "false_redaction_rate": 0.034339352216256856,
+          "false_redaction_rate": 0.005039884399854325,
           "entity_level_recall": 0.8979710144927536,
           "recall_by_type": {
             "ADDRESS": 0.9866666666666667,
@@ -827,8 +827,8 @@
           "recall_by_format": {
             "text": 0.8979710144927536
           },
-          "expected_calibration_error": 0.0374708814119012,
-          "calibration_count": 2038,
+          "expected_calibration_error": 0.040943287791408225,
+          "calibration_count": 1963,
           "matching": "overlap",
           "documents": 600
         },
@@ -840,20 +840,20 @@
           "confidence": 0.95,
           "intervals": {
             "precision": [
-              0.7862714282215423,
-              0.8086632146712994
+              0.803141045367959,
+              0.825797796934555
             ],
             "recall": [
-              0.8664212001691578,
-              0.8876744617257343
+              0.8673732454883988,
+              0.8887181142725469
             ],
             "f1": [
-              0.8263263937027188,
-              0.8443638635023127
+              0.8360553435358359,
+              0.8546774885129169
             ],
             "document_leakage_rate": [
-              0.48,
-              0.56
+              0.475,
+              0.555
             ]
           }
         },
@@ -909,7 +909,7 @@
         "frequency_strata": {
           "once": {
             "gold_mentions": 3054,
-            "exact_recall": 0.8984937786509496
+            "exact_recall": 0.8994760969220694
           },
           "two_to_five": {
             "gold_mentions": 289,
@@ -945,7 +945,7 @@
               "gold_mentions": 525,
               "fully_covered_rate": 0.9733333333333334,
               "character_coverage": 0.9869437783106848,
-              "predictions": 696,
+              "predictions": 624,
               "typed_overlap_precision": 1.0
             },
             "DATE": {
@@ -1022,7 +1022,7 @@
               "gold_mentions": 0,
               "fully_covered_rate": null,
               "character_coverage": null,
-              "predictions": 78,
+              "predictions": 75,
               "typed_overlap_precision": 0.0
             },
             "IP_ADDRESS": {
@@ -1073,7 +1073,7 @@
           ],
           "definition": "fully covered = every gold character covered by any prediction, any category; detection coverage only, not transformed-output verification"
         },
-        "uncertain_candidate_document_rate": 0.36833333333333335,
+        "uncertain_candidate_document_rate": 0.36333333333333334,
         "review_rate_definition": "candidate uncertainty proxy only; no transformation or semantic-model release gating evaluated",
         "strata": {
           "source": "synthetic_es",
@@ -1088,7 +1088,7 @@
         "table_reconstruction_quality": null,
         "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated"
       },
-      "prediction_sha256": "72545070f53da4e81631dd654403b3d5ec00eb7d4e90d916632162d59a4c7023"
+      "prediction_sha256": "7b69ddf3d482822cbbe1e0f4ca09c87bb0e06f23345af2b213d6c523535223ad"
     },
     {
       "name": "spacy_spanish",
@@ -1097,18 +1097,18 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 7.088934497000082,
+          "elapsed_seconds": 3.774224319000041,
           "units": 600,
-          "records_per_second": 84.63895388706298,
-          "mb_per_second": 0.020938548672274224,
-          "peak_rss_bytes": 1138282496,
-          "peak_process_tree_rss_bytes": 1138282496,
-          "cpu_percent_one_core_scale": 112.00554897721342,
+          "records_per_second": 158.9730628832805,
+          "mb_per_second": 0.039327816116485156,
+          "peak_rss_bytes": 1139986432,
+          "peak_process_tree_rss_bytes": 1139986432,
+          "cpu_percent_one_core_scale": 105.71708681738153,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.011465843000223686,
-      "p95_seconds": 0.016190370149752196,
+      "p50_seconds": 0.006250473000022794,
+      "p95_seconds": 0.007696998449807779,
       "metrics": {
         "exact": {
           "precision": 0.47821011673151753,
@@ -1411,18 +1411,18 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 9.235265267000614,
+          "elapsed_seconds": 4.851958563999915,
           "units": 600,
-          "records_per_second": 64.96835582448463,
-          "mb_per_second": 0.016072304986233174,
-          "peak_rss_bytes": 1223987200,
-          "peak_process_tree_rss_bytes": 1223987200,
-          "cpu_percent_one_core_scale": 110.44620490162391,
+          "records_per_second": 123.66140231530851,
+          "mb_per_second": 0.030592182114109787,
+          "peak_rss_bytes": 1225658368,
+          "peak_process_tree_rss_bytes": 1225658368,
+          "cpu_percent_one_core_scale": 105.73049897958882,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.01455540100005237,
-      "p95_seconds": 0.02225243490020147,
+      "p50_seconds": 0.008030419000078837,
+      "p95_seconds": 0.01026175779990126,
       "metrics": {
         "exact": {
           "precision": 0.486933509758518,
@@ -1739,31 +1739,31 @@
       "repeats": 1,
       "runs": [
         {
-          "elapsed_seconds": 7.281707461999758,
+          "elapsed_seconds": 4.06338133700001,
           "units": 600,
-          "records_per_second": 82.39825660824108,
-          "mb_per_second": 0.020384230041457403,
-          "peak_rss_bytes": 1978114048,
-          "peak_process_tree_rss_bytes": 1978114048,
-          "cpu_percent_one_core_scale": 111.6496377041667,
+          "records_per_second": 147.66027360921518,
+          "mb_per_second": 0.036529182887271715,
+          "peak_rss_bytes": 1979691008,
+          "peak_process_tree_rss_bytes": 1979691008,
+          "cpu_percent_one_core_scale": 105.82319608660423,
           "cpu_accounting_note": "Process CPU only; excludes child CPU"
         }
       ],
-      "p50_seconds": 0.01185580450010093,
-      "p95_seconds": 0.016303614649950757,
+      "p50_seconds": 0.006821524999963913,
+      "p95_seconds": 0.008199153400084924,
       "metrics": {
         "exact": {
-          "precision": 0.5978593272171254,
-          "recall": 0.7933333333333333,
-          "f1": 0.6818634778276035,
-          "true_positives": 2737,
-          "false_positives": 1841,
-          "false_negatives": 713,
-          "document_leakage_rate": 0.7266666666666667,
-          "false_redaction_rate": 0.07924014050586811,
+          "precision": 0.6143762289709417,
+          "recall": 0.8150724637681159,
+          "f1": 0.7006353556745983,
+          "true_positives": 2812,
+          "false_positives": 1765,
+          "false_negatives": 638,
+          "document_leakage_rate": 0.605,
+          "false_redaction_rate": 0.05818775625286357,
           "entity_level_recall": 0.8950724637681159,
           "recall_by_type": {
-            "ADDRESS": 0.5333333333333333,
+            "ADDRESS": 0.6761904761904762,
             "AGE": 1.0,
             "BANK_ACCOUNT": 1.0,
             "DATE": 1.0,
@@ -1777,7 +1777,7 @@
             "TAX_ID": 0.92
           },
           "recall_by_format": {
-            "text": 0.7933333333333333
+            "text": 0.8150724637681159
           },
           "expected_calibration_error": null,
           "calibration_count": 0,
@@ -1785,14 +1785,14 @@
           "documents": 600
         },
         "overlap": {
-          "precision": 0.6745303626037571,
+          "precision": 0.67467773650863,
           "recall": 0.8950724637681159,
-          "f1": 0.7693074240159442,
+          "f1": 0.7694032639840538,
           "true_positives": 3088,
-          "false_positives": 1490,
+          "false_positives": 1489,
           "false_negatives": 362,
           "document_leakage_rate": 0.405,
-          "false_redaction_rate": 0.07924014050586811,
+          "false_redaction_rate": 0.05818775625286357,
           "entity_level_recall": 0.8950724637681159,
           "recall_by_type": {
             "ADDRESS": 0.8590476190476191,
@@ -1824,20 +1824,20 @@
           "confidence": 0.95,
           "intervals": {
             "precision": [
-              0.5841171581674838,
-              0.6120046583850931
+              0.602804946444724,
+              0.6266156574386703
             ],
             "recall": [
-              0.7819791302779029,
-              0.8061342556795682
+              0.8037827974276527,
+              0.8284622285188835
             ],
             "f1": [
-              0.6701880895241692,
-              0.6945364531916964
+              0.6902641713099085,
+              0.711982730433395
             ],
             "document_leakage_rate": [
-              0.6833333333333333,
-              0.7592083333333333
+              0.565,
+              0.6433333333333333
             ]
           }
         },
@@ -1863,14 +1863,14 @@
           "documents": 600
         },
         "common_scope_exact": {
-          "precision": 0.5329153605015674,
+          "precision": 0.5331010452961672,
           "recall": 0.8869565217391304,
-          "f1": 0.6657963446475196,
+          "f1": 0.6659412404787812,
           "true_positives": 1530,
-          "false_positives": 1341,
+          "false_positives": 1340,
           "false_negatives": 195,
           "document_leakage_rate": 0.30666666666666664,
-          "false_redaction_rate": 0.15445362252740755,
+          "false_redaction_rate": 0.15436916164124395,
           "entity_level_recall": 0.9657971014492753,
           "recall_by_type": {
             "DATE": 1.0,
@@ -1893,7 +1893,7 @@
         "frequency_strata": {
           "once": {
             "gold_mentions": 3054,
-            "exact_recall": 0.8156516044531762
+            "exact_recall": 0.8402095612311722
           },
           "two_to_five": {
             "gold_mentions": 289,
@@ -1905,7 +1905,7 @@
           }
         },
         "coverage_leakage": {
-          "sensitive_character_recall": 0.9672498066257427,
+          "sensitive_character_recall": 0.967085232789691,
           "documents_with_uncovered_gold_characters": 212,
           "character_coverage_document_leakage_rate": 0.35333333333333333,
           "entity_value_groups": 3170,
@@ -1928,7 +1928,7 @@
             "ADDRESS": {
               "gold_mentions": 525,
               "fully_covered_rate": 0.8647619047619047,
-              "character_coverage": 0.9539035438316014,
+              "character_coverage": 0.9532374100719424,
               "predictions": 451,
               "typed_overlap_precision": 1.0
             },
@@ -1943,8 +1943,8 @@
               "gold_mentions": 300,
               "fully_covered_rate": 0.98,
               "character_coverage": 0.9804500184433789,
-              "predictions": 867,
-              "typed_overlap_precision": 0.32410611303344866
+              "predictions": 866,
+              "typed_overlap_precision": 0.3244803695150115
             },
             "PHONE": {
               "gold_mentions": 300,
@@ -2058,7 +2058,7 @@
         "table_reconstruction_quality": null,
         "unavailable_metrics_reason": "Text gold corpus does not include original page images or table geometry; rule scores are not calibrated"
       },
-      "prediction_sha256": "76b3a43a6be275d8559e9ef924d8a8cc3c31277b35e53d36186dd0417bedd81b"
+      "prediction_sha256": "1e7e172fdb1b606075bfb8b1cf660aaa299fcbe10d00139679b3a9ea9f0b4009"
     }
   ],
   "tagger_models": {

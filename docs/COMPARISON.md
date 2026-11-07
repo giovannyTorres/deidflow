@@ -3,6 +3,8 @@
 Head-to-head on the two public, human-annotated Spanish test sets that DeidFlow
 uses and on DeidFlow's synthetic multi-country test set, with identical scoring
 for every system. No LLM is used by any of them.
+These are the 0.6.0 results: each test set was scored once, on the release's
+detection code, and nothing was tuned on any test set.
 Raw reports: `benchmarks/results/comparison/`. Reproduce with
 `scripts/benchmark_public_quality.py ... --spacy-model <es_core_news_lg> --tagger auto=builtin:auto`.
 
@@ -26,23 +28,23 @@ over general-purpose tools, not an apples-to-apples model architecture study.
 
 | Pipeline | Exact P | Exact R | Exact F1 [95% CI] | Sensitive-char recall | Docs fully covered | Over-redaction | p50 ms/doc |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| **DeidFlow auto** | **0.968** | 0.949 | **0.958** [0.950, 0.966] | 0.966 | 150 / 250 | **0.09%** | 27 |
-| **DeidFlow rules + auto** | 0.820 | **0.953** | 0.882 [0.875, 0.888] | **0.969** | **162 / 250** | 0.29% | 31 |
-| DeidFlow rules | 0.707 | 0.431 | 0.536 [0.527, 0.544] | 0.595 | 0 / 250 | 0.23% | 6 |
-| Presidio | 0.355 | 0.372 | 0.363 [0.355, 0.372] | 0.661 | 0 / 250 | 3.87% | 78 |
-| spaCy | 0.283 | 0.239 | 0.259 [0.251, 0.267] | 0.496 | 0 / 250 | 3.82% | 59 |
-| DeidFlow rules + spaCy | 0.458 | 0.660 | 0.541 [0.533, 0.548] | 0.875 | 0 / 250 | 3.93% | 64 |
+| **DeidFlow auto** | **0.968** | 0.949 | **0.958** [0.950, 0.966] | 0.966 | 150 / 250 | **0.09%** | 15 |
+| **DeidFlow rules + auto** | 0.852 | **0.953** | 0.900 [0.893, 0.906] | **0.969** | **160 / 250** | 0.25% | 18 |
+| DeidFlow rules | 0.776 | 0.473 | 0.588 [0.579, 0.597] | 0.596 | 0 / 250 | 0.18% | 4 |
+| Presidio | 0.355 | 0.372 | 0.363 [0.355, 0.372] | 0.661 | 0 / 250 | 3.87% | 45 |
+| spaCy | 0.283 | 0.239 | 0.259 [0.251, 0.267] | 0.496 | 0 / 250 | 3.82% | 36 |
+| DeidFlow rules + spaCy | 0.487 | 0.703 | 0.575 [0.567, 0.583] | 0.875 | 0 / 250 | 3.89% | 40 |
 
 ## Gretel synthetic financial, Spanish test (461 documents, 1,972 mentions)
 
 | Pipeline | Exact P | Exact R | Exact F1 [95% CI] | Sensitive-char recall | Docs fully covered | Over-redaction | p50 ms/doc |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| **DeidFlow auto** | **0.784** | 0.705 | **0.743** [0.715, 0.768] | 0.808 | 258 / 461 | **0.80%** | 22 |
-| **DeidFlow rules + auto** | 0.591 | **0.744** | 0.659 [0.630, 0.688] | **0.851** | **293 / 461** | 2.35% | 24 |
-| DeidFlow rules | 0.430 | 0.266 | 0.329 [0.293, 0.366] | 0.353 | 79 / 461 | 1.81% | 3 |
-| Presidio | 0.128 | 0.285 | 0.177 [0.160, 0.194] | 0.637 | 92 / 461 | 8.44% | 41 |
-| spaCy | 0.092 | 0.154 | 0.115 [0.098, 0.131] | 0.513 | 76 / 461 | 6.15% | 33 |
-| DeidFlow rules + spaCy | 0.178 | 0.405 | 0.247 [0.228, 0.268] | 0.730 | 127 / 461 | 7.46% | 37 |
+| **DeidFlow auto** | **0.784** | 0.705 | **0.743** [0.715, 0.768] | 0.808 | 258 / 461 | **0.80%** | 10 |
+| **DeidFlow rules + auto** | 0.592 | **0.744** | 0.659 [0.630, 0.688] | **0.851** | **293 / 461** | 2.35% | 13 |
+| DeidFlow rules | 0.431 | 0.266 | 0.329 [0.293, 0.366] | 0.353 | 79 / 461 | 1.81% | 2 |
+| Presidio | 0.128 | 0.285 | 0.177 [0.160, 0.194] | 0.637 | 92 / 461 | 8.44% | 23 |
+| spaCy | 0.092 | 0.154 | 0.115 [0.098, 0.131] | 0.513 | 76 / 461 | 6.15% | 20 |
+| DeidFlow rules + spaCy | 0.178 | 0.405 | 0.247 [0.228, 0.268] | 0.730 | 127 / 461 | 7.46% | 21 |
 
 ## Synthetic multi-country test families (600 documents, 3,450 mentions)
 
@@ -56,12 +58,12 @@ documents.
 
 | Pipeline | Exact P | Exact R | Exact F1 [95% CI] | Sensitive-char recall | Docs fully covered | Over-redaction | p50 ms/doc |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| **DeidFlow auto** | **0.883** | 0.809 | **0.844** [0.831, 0.857] | 0.954 | 388 / 600 | **0.29%** | 4 |
-| **DeidFlow rules + auto** | 0.798 | **0.878** | 0.836 [0.826, 0.844] | **0.968** | **432 / 600** | 3.43% | 5 |
-| DeidFlow rules | 0.766 | 0.474 | 0.586 [0.573, 0.597] | 0.570 | 0 / 600 | 3.24% | 1 |
-| Presidio | 0.487 | 0.427 | 0.455 [0.437, 0.474] | 0.684 | 24 / 600 | 5.64% | 15 |
-| spaCy | 0.478 | 0.356 | 0.408 [0.395, 0.424] | 0.610 | 16 / 600 | 5.61% | 11 |
-| DeidFlow rules + spaCy | 0.598 | 0.793 | 0.682 [0.670, 0.695] | 0.967 | 388 / 600 | 7.92% | 12 |
+| **DeidFlow auto** | **0.883** | 0.809 | 0.844 [0.831, 0.857] | 0.954 | 388 / 600 | 0.29% | 2 |
+| **DeidFlow rules + auto** | 0.814 | **0.879** | **0.845** [0.836, 0.855] | **0.968** | **432 / 600** | 0.50% | 3 |
+| DeidFlow rules | 0.801 | 0.496 | 0.613 [0.601, 0.625] | 0.570 | 0 / 600 | **0.26%** | 0 |
+| Presidio | 0.487 | 0.427 | 0.455 [0.437, 0.474] | 0.684 | 24 / 600 | 5.64% | 8 |
+| spaCy | 0.478 | 0.356 | 0.408 [0.395, 0.424] | 0.610 | 16 / 600 | 5.61% | 6 |
+| DeidFlow rules + spaCy | 0.614 | 0.815 | 0.701 [0.690, 0.712] | 0.967 | 388 / 600 | 5.82% | 7 |
 
 "Docs fully covered" counts documents in which every gold sensitive character
 is inside some prediction; over-redaction is the share of non-sensitive
@@ -72,15 +74,15 @@ boundaries; overlap scores are in the JSON reports.
 
 - On the two public sets DeidFlow's packaged taggers more than double the F1 of
   the best general-purpose alternative, while redacting four to forty times
-  less non-sensitive text, and run about twice as fast on one CPU core. On the
-  synthetic multi-country set the margin is smaller (0.844 against 0.455) and
-  DeidFlow's rules plus spaCy reach similar character coverage at twice the
-  over-redaction.
+  less non-sensitive text, and run two to three times as fast on one CPU core.
+  On the synthetic multi-country set the margin is smaller (0.845 against 0.455)
+  and DeidFlow's rules plus spaCy reach similar character coverage at more than
+  eleven times the over-redaction (5.82% against 0.50%).
 - Presidio covers more sensitive characters than spaCy because its regex
   recognizers add e-mails, phones and dates, but its generic NER labels many
   ordinary words, which is why its over-redaction is high.
 - Even the best configuration leaves at least one sensitive character
-  uncovered in 88 of 250 clinical, 168 of 461 financial and 168 of 600
+  uncovered in 90 of 250 clinical, 168 of 461 financial and 168 of 600
   synthetic test documents.
   Human review of `REVIEW_REQUIRED` output remains necessary
   ([release-gate results](TAGGER.md#operating-profiles-domain-routing-and-leak-targets)).
