@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import platform
 import re
 import time
@@ -145,7 +146,7 @@ def _write_report(destination: Path, report: dict[str, Any]) -> None:
         destination.mkdir(mode=0o700, parents=True, exist_ok=False)
     except FileExistsError:
         # Windows reports a file in a parent position as an existing path too.
-        if destination.exists():
+        if os.path.lexists(destination):  # a dangling link is an existing entry
             raise FileExistsError(
                 "Benchmark output already exists; choose a new directory"
             ) from None
