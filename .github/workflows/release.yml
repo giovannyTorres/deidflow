@@ -57,11 +57,23 @@ jobs:
           name: release-dist
           path: dist/
       - uses: actions/attest-build-provenance@v4
+        id: provenance
         with:
           create-storage-record: false
           subject-path: |
             dist/*.whl
             dist/*.tar.gz
+      - name: Preserve the signed provenance bundle
+        env:
+          BUNDLE_PATH: ${{ steps.provenance.outputs.bundle-path }}
+        run: |
+          mkdir -p provenance
+          cp "$BUNDLE_PATH" provenance/deidflow-provenance.jsonl
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-provenance
+          path: provenance/*.jsonl
+          if-no-files-found: error
 
   github-release:
     needs: attest
@@ -83,9 +95,16 @@ jobs:
         with:
           name: release-dist
           path: dist/
+      - uses: actions/download-artifact@v8
+        with:
+          name: release-provenance
+          path: provenance/
       - uses: softprops/action-gh-release@v2
         with:
-          files: dist/*
+          files: |
+            dist/*
+            provenance/*.jsonl
+          fail_on_unmatched_files: true
           body_path: ${{ runner.temp }}/release-notes.md
           generate_release_notes: true
 
@@ -101,6 +120,10 @@ jobs:
         with:
           name: release-dist
           path: dist/
-      - name: Keep only Python distributions
-        run: rm -f dist/SHA256SUMS dist/*.json
+      - name: Prepare only Python distributions
+        run: |
+          mkdir -p pypi-dist
+          cp dist/*.whl dist/*.tar.gz pypi-dist/
       - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: pypi-dist/
