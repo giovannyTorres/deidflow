@@ -1,0 +1,976 @@
+{
+  "additional_clinical_router_validation": {
+    "baseline": {
+      "configuration": {
+        "clinical_pack": {
+          "code_license": "Apache-2.0",
+          "detector_version": "domain-roles-1.0.1",
+          "evaluation_scope": "MEDDOCAN Spain held-out documents; not validation on local clinical records.",
+          "language": "es",
+          "limitations": [
+            "Supervised use: evaluate with representative local documents and review before release.",
+            "Rules and models can miss identifiers or remove useful context; scores are not calibrated probabilities.",
+            "Amounts and clinical content are kept by policy only when detected with the correct category; ambiguous overlaps retain identifier protection.",
+            "Exact-name consistency is scoped to a session; aliases, pronouns and relationships are not inferred.",
+            "Absolute dates and ages remain quasi-identifiers and are indexed by default; numeric date shifts are explicit opt-ins.",
+            "Clinical preservation is utility-oriented; rare diagnoses and combinations can re-identify a person."
+          ],
+          "model_card": "docs/TAGGER.md",
+          "model_name": "es-clinical",
+          "model_sha256": "dc824100552ddb5bae036d128da9cfe4e31aba68b7cb74c2ab1252ddc0952da9",
+          "name": "clinical",
+          "preserved_types": [
+            "DIAGNOSIS",
+            "MEDICAL_CONDITION",
+            "TREATMENT",
+            "MEDICATION",
+            "CLINICAL_OBSERVATION",
+            "MEDICAL_HISTORY",
+            "MEDICAL_ATTRIBUTE",
+            "DEMOGRAPHIC",
+            "AMOUNT"
+          ],
+          "roles": [
+            "patient",
+            "clinician",
+            "family"
+          ],
+          "supervised_review": true,
+          "title": "Clínico en español",
+          "training_corpus": [
+            "MEDDOCAN train, commit 783a6df385c975b328c99bcffb54196a9ba4078a: clinical text with synthetic PHI"
+          ],
+          "training_license": [
+            "CC-BY-4.0; attribution in NOTICE"
+          ],
+          "version": "1.0.0"
+        },
+        "model_pins": {
+          "es-clinical": [
+            "es-clinical-meddocan-1.json.gz",
+            "dc824100552ddb5bae036d128da9cfe4e31aba68b7cb74c2ab1252ddc0952da9"
+          ],
+          "es-finance": [
+            "es-finance-gretel-1.json.gz",
+            "f7a28b8fef3ccc1090d171b693f744098b4032008a48b56530c5aabdf371679c"
+          ],
+          "es-general": [
+            "es-general-2.json.gz",
+            "f3008720a246e32b7a2adaf4af2ba9a03fb665caadcf698658b029a73042c173"
+          ]
+        },
+        "profile": "balanced",
+        "router_pin": [
+          "es-domain-router-1.json.gz",
+          "316d2ee699ddee08879d0835df894715ae14b1ae176f1794b45b283d82ff6324"
+        ]
+      },
+      "corpus_texts_sha256": "4283ec8750e232d6693f785017f398176cde4e50f90a45e46261d9a5bb921a6d",
+      "documents": 250,
+      "evidence_type": "public_semi_synthetic_validation",
+      "helper_sha256": "8ad355fbb4541596527f95d95f0a32ab5bee0d2f5e40670a60e1097ebb98a128",
+      "integrity": {
+        "archive_sha256": "555470b36d90d04094aedf1a72bff079cb5dbcef98c8e40627a6beafc205ed1b",
+        "corpus_file_digest_sha256": "c1040f3756553a80ca7501ea6ec6e38f8004dcc56358e3aab81110711ab402a5",
+        "method": "Read-only byte equality with the SHA256-pinned source archive; no source files modified",
+        "verified_corpus_files": 2000
+      },
+      "official_split": "dev",
+      "partition": "validation",
+      "python_network_attempts": 0,
+      "results": {
+        "builtin_auto_balanced": {
+          "coverage_leakage": {
+            "character_coverage_document_leakage_rate": 0.376,
+            "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities.",
+            "documents_with_uncovered_gold_characters": 94,
+            "entity_value_complete_coverage_rate": 0.9500430663221361,
+            "entity_value_groups": 3483,
+            "sensitive_character_recall": 0.9731644608057965
+          },
+          "exact": {
+            "calibration_count": 3773,
+            "document_leakage_rate": 0.468,
+            "documents": 250,
+            "entity_level_recall": 0.9639717290122393,
+            "expected_calibration_error": 0.014912355830011569,
+            "f1": 0.8964000651571918,
+            "false_negatives": 298,
+            "false_positives": 974,
+            "false_redaction_rate": 0.002460429308517453,
+            "matching": "exact",
+            "precision": 0.8496217384591632,
+            "recall": 0.9486295466298914,
+            "recall_by_format": {
+              "text": 0.9486295466298914
+            },
+            "recall_by_type": {
+              "ADDRESS": 0.9354838709677419,
+              "AGE": 0.9616122840690979,
+              "DATE": 0.9737569060773481,
+              "DEMOGRAPHIC": 0.9846153846153847,
+              "EMAIL": 0.995850622406639,
+              "EMPLOYEE_ID": 0.0,
+              "INSURANCE_ID": 0.9896907216494846,
+              "LOCATION": 0.9662668665667167,
+              "MEDICAL_FACILITY": 0.8309859154929577,
+              "OCCUPATION": 0.0,
+              "ORGANIZATION": 0.4027777777777778,
+              "OTHER_SENSITIVE": 0.0,
+              "PATIENT_ID": 0.941358024691358,
+              "PERSON": 0.934981684981685,
+              "PHONE": 0.7741935483870968,
+              "REGIONAL_ID": 0.995575221238938
+            },
+            "true_positives": 5503
+          },
+          "nlp_scores_sha256": "24a576be36dbd7d43c7923600eeba57867d8a5194a4445400ae0755b1533407a",
+          "prediction_offsets_sha256": "faefb375bea66b949ccc36367b071953c0cdefce7a07ae161ee51079f8f62a46",
+          "uncertain_nlp_findings_at_075": 151,
+          "uncertain_nlp_offsets_sha256_at_075": "acac9ab542a07dfa569e19e8bdd425e1e705e7f9306d0f8a54e2f794d66fd835"
+        },
+        "clinical_domain_pack_balanced": {
+          "coverage_leakage": {
+            "character_coverage_document_leakage_rate": 0.316,
+            "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities.",
+            "documents_with_uncovered_gold_characters": 79,
+            "entity_value_complete_coverage_rate": 0.9592305483778352,
+            "entity_value_groups": 3483,
+            "sensitive_character_recall": 0.9784965086043182
+          },
+          "exact": {
+            "calibration_count": 2697,
+            "document_leakage_rate": 0.448,
+            "documents": 250,
+            "entity_level_recall": 0.9679365626616101,
+            "expected_calibration_error": 0.02955889950032442,
+            "f1": 0.8272557094721078,
+            "false_negatives": 277,
+            "false_positives": 2030,
+            "false_redaction_rate": 0.004047333418744686,
+            "matching": "exact",
+            "precision": 0.7312682022769393,
+            "recall": 0.9522496121358387,
+            "recall_by_format": {
+              "text": 0.9522496121358387
+            },
+            "recall_by_type": {
+              "ADDRESS": 0.9377880184331797,
+              "AGE": 0.9616122840690979,
+              "DATE": 0.9737569060773481,
+              "DEMOGRAPHIC": 0.9846153846153847,
+              "EMAIL": 0.995850622406639,
+              "EMPLOYEE_ID": 0.0,
+              "INSURANCE_ID": 0.9896907216494846,
+              "LOCATION": 0.974512743628186,
+              "MEDICAL_FACILITY": 0.8661971830985915,
+              "OCCUPATION": 0.0,
+              "ORGANIZATION": 0.4305555555555556,
+              "OTHER_SENSITIVE": 0.0,
+              "PATIENT_ID": 0.941358024691358,
+              "PERSON": 0.9368131868131868,
+              "PHONE": 0.7741935483870968,
+              "REGIONAL_ID": 0.995575221238938
+            },
+            "true_positives": 5524
+          },
+          "nlp_scores_sha256": "d0c8a5862dbec82aa9d3a02031fb7778a6aaa71654e76247cf7a8d8f6bc5397e",
+          "prediction_offsets_sha256": "3d308acebc6a1e1ce0e7911b9294957f7fe353e556bebb2d151a57038bee8712",
+          "uncertain_nlp_findings_at_075": 135,
+          "uncertain_nlp_offsets_sha256_at_075": "1c70884bcfe090ca7c432c38ce8a4459fac970ad70f1b052297ca02c5275263e"
+        }
+      },
+      "schema_version": "deidflow.unicode-additional-validation.v1",
+      "scoring_passes_per_configuration": 1,
+      "script_sha256": "f71f67a36866636f9ed2995f35f73eabf45617bad1f0c3d479afbe6257ec9527",
+      "source": "SPACCC MEDDOCAN",
+      "source_revision": "44d04b16fb1ec545161c4ef0c14f516c7b0d9d29",
+      "source_sha256": "04dbacaf9ae5cc8aa67c5690f66f078189348b094702bf4a10e578c93ee352b6",
+      "test_scoring_passes": 0,
+      "warmup_calls": 0
+    },
+    "candidate": {
+      "configuration": {
+        "clinical_pack": {
+          "code_license": "Apache-2.0",
+          "detector_version": "domain-roles-1.0.1",
+          "evaluation_scope": "MEDDOCAN Spain held-out documents; not validation on local clinical records.",
+          "language": "es",
+          "limitations": [
+            "Supervised use: evaluate with representative local documents and review before release.",
+            "Rules and models can miss identifiers or remove useful context; scores are not calibrated probabilities.",
+            "Amounts and clinical content are kept by policy only when detected with the correct category; ambiguous overlaps retain identifier protection.",
+            "Exact-name consistency is scoped to a session; aliases, pronouns and relationships are not inferred.",
+            "Absolute dates and ages remain quasi-identifiers and are indexed by default; numeric date shifts are explicit opt-ins.",
+            "Clinical preservation is utility-oriented; rare diagnoses and combinations can re-identify a person."
+          ],
+          "model_card": "docs/TAGGER.md",
+          "model_name": "es-clinical",
+          "model_sha256": "dc824100552ddb5bae036d128da9cfe4e31aba68b7cb74c2ab1252ddc0952da9",
+          "name": "clinical",
+          "preserved_types": [
+            "DIAGNOSIS",
+            "MEDICAL_CONDITION",
+            "TREATMENT",
+            "MEDICATION",
+            "CLINICAL_OBSERVATION",
+            "MEDICAL_HISTORY",
+            "MEDICAL_ATTRIBUTE",
+            "DEMOGRAPHIC",
+            "AMOUNT"
+          ],
+          "roles": [
+            "patient",
+            "clinician",
+            "family"
+          ],
+          "supervised_review": true,
+          "title": "Clínico en español",
+          "training_corpus": [
+            "MEDDOCAN train, commit 783a6df385c975b328c99bcffb54196a9ba4078a: clinical text with synthetic PHI"
+          ],
+          "training_license": [
+            "CC-BY-4.0; attribution in NOTICE"
+          ],
+          "version": "1.0.0"
+        },
+        "model_pins": {
+          "es-clinical": [
+            "es-clinical-meddocan-1.json.gz",
+            "dc824100552ddb5bae036d128da9cfe4e31aba68b7cb74c2ab1252ddc0952da9"
+          ],
+          "es-finance": [
+            "es-finance-gretel-1.json.gz",
+            "f7a28b8fef3ccc1090d171b693f744098b4032008a48b56530c5aabdf371679c"
+          ],
+          "es-general": [
+            "es-general-2.json.gz",
+            "f3008720a246e32b7a2adaf4af2ba9a03fb665caadcf698658b029a73042c173"
+          ]
+        },
+        "profile": "balanced",
+        "router_pin": [
+          "es-domain-router-1.json.gz",
+          "316d2ee699ddee08879d0835df894715ae14b1ae176f1794b45b283d82ff6324"
+        ]
+      },
+      "corpus_texts_sha256": "4283ec8750e232d6693f785017f398176cde4e50f90a45e46261d9a5bb921a6d",
+      "documents": 250,
+      "evidence_type": "public_semi_synthetic_validation",
+      "helper_sha256": "8ad355fbb4541596527f95d95f0a32ab5bee0d2f5e40670a60e1097ebb98a128",
+      "integrity": {
+        "archive_sha256": "555470b36d90d04094aedf1a72bff079cb5dbcef98c8e40627a6beafc205ed1b",
+        "corpus_file_digest_sha256": "c1040f3756553a80ca7501ea6ec6e38f8004dcc56358e3aab81110711ab402a5",
+        "method": "Read-only byte equality with the SHA256-pinned source archive; no source files modified",
+        "verified_corpus_files": 2000
+      },
+      "official_split": "dev",
+      "partition": "validation",
+      "python_network_attempts": 0,
+      "results": {
+        "builtin_auto_balanced": {
+          "coverage_leakage": {
+            "character_coverage_document_leakage_rate": 0.376,
+            "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities.",
+            "documents_with_uncovered_gold_characters": 94,
+            "entity_value_complete_coverage_rate": 0.9500430663221361,
+            "entity_value_groups": 3483,
+            "sensitive_character_recall": 0.9731644608057965
+          },
+          "exact": {
+            "calibration_count": 3773,
+            "document_leakage_rate": 0.468,
+            "documents": 250,
+            "entity_level_recall": 0.9639717290122393,
+            "expected_calibration_error": 0.014914291455832309,
+            "f1": 0.8964000651571918,
+            "false_negatives": 298,
+            "false_positives": 974,
+            "false_redaction_rate": 0.002460429308517453,
+            "matching": "exact",
+            "precision": 0.8496217384591632,
+            "recall": 0.9486295466298914,
+            "recall_by_format": {
+              "text": 0.9486295466298914
+            },
+            "recall_by_type": {
+              "ADDRESS": 0.9354838709677419,
+              "AGE": 0.9616122840690979,
+              "DATE": 0.9737569060773481,
+              "DEMOGRAPHIC": 0.9846153846153847,
+              "EMAIL": 0.995850622406639,
+              "EMPLOYEE_ID": 0.0,
+              "INSURANCE_ID": 0.9896907216494846,
+              "LOCATION": 0.9662668665667167,
+              "MEDICAL_FACILITY": 0.8309859154929577,
+              "OCCUPATION": 0.0,
+              "ORGANIZATION": 0.4027777777777778,
+              "OTHER_SENSITIVE": 0.0,
+              "PATIENT_ID": 0.941358024691358,
+              "PERSON": 0.934981684981685,
+              "PHONE": 0.7741935483870968,
+              "REGIONAL_ID": 0.995575221238938
+            },
+            "true_positives": 5503
+          },
+          "nlp_scores_sha256": "165ad71c5223b7ceea0c124a3cd9876cc85ddb0875153b029effd377409c90b0",
+          "prediction_offsets_sha256": "faefb375bea66b949ccc36367b071953c0cdefce7a07ae161ee51079f8f62a46",
+          "uncertain_nlp_findings_at_075": 151,
+          "uncertain_nlp_offsets_sha256_at_075": "acac9ab542a07dfa569e19e8bdd425e1e705e7f9306d0f8a54e2f794d66fd835"
+        },
+        "clinical_domain_pack_balanced": {
+          "coverage_leakage": {
+            "character_coverage_document_leakage_rate": 0.316,
+            "definition": "Union of predicted spans, irrespective of predicted category; detection coverage only, not final transformed-output leakage. Entity values group by category and casefolded text, not verified personal identities.",
+            "documents_with_uncovered_gold_characters": 79,
+            "entity_value_complete_coverage_rate": 0.9592305483778352,
+            "entity_value_groups": 3483,
+            "sensitive_character_recall": 0.9784965086043182
+          },
+          "exact": {
+            "calibration_count": 2697,
+            "document_leakage_rate": 0.448,
+            "documents": 250,
+            "entity_level_recall": 0.9679365626616101,
+            "expected_calibration_error": 0.02956034122297623,
+            "f1": 0.8272557094721078,
+            "false_negatives": 277,
+            "false_positives": 2030,
+            "false_redaction_rate": 0.004047333418744686,
+            "matching": "exact",
+            "precision": 0.7312682022769393,
+            "recall": 0.9522496121358387,
+            "recall_by_format": {
+              "text": 0.9522496121358387
+            },
+            "recall_by_type": {
+              "ADDRESS": 0.9377880184331797,
+              "AGE": 0.9616122840690979,
+              "DATE": 0.9737569060773481,
+              "DEMOGRAPHIC": 0.9846153846153847,
+              "EMAIL": 0.995850622406639,
+              "EMPLOYEE_ID": 0.0,
+              "INSURANCE_ID": 0.9896907216494846,
+              "LOCATION": 0.974512743628186,
+              "MEDICAL_FACILITY": 0.8661971830985915,
+              "OCCUPATION": 0.0,
+              "ORGANIZATION": 0.4305555555555556,
+              "OTHER_SENSITIVE": 0.0,
+              "PATIENT_ID": 0.941358024691358,
+              "PERSON": 0.9368131868131868,
+              "PHONE": 0.7741935483870968,
+              "REGIONAL_ID": 0.995575221238938
+            },
+            "true_positives": 5524
+          },
+          "nlp_scores_sha256": "ac2b6682adafc1275d2e50d9446c9c32770963e3941cec57ae0b551a6efb1018",
+          "prediction_offsets_sha256": "3d308acebc6a1e1ce0e7911b9294957f7fe353e556bebb2d151a57038bee8712",
+          "uncertain_nlp_findings_at_075": 135,
+          "uncertain_nlp_offsets_sha256_at_075": "1c70884bcfe090ca7c432c38ce8a4459fac970ad70f1b052297ca02c5275263e"
+        }
+      },
+      "schema_version": "deidflow.unicode-additional-validation.v1",
+      "scoring_passes_per_configuration": 1,
+      "script_sha256": "f71f67a36866636f9ed2995f35f73eabf45617bad1f0c3d479afbe6257ec9527",
+      "source": "SPACCC MEDDOCAN",
+      "source_revision": "3de9d732dca9a6df106a757836f0c8194be73916",
+      "source_sha256": "d3a8be22964a91a6a50a923d092501881a0c563dc473d95970aa045cd66dc274",
+      "test_scoring_passes": 0,
+      "warmup_calls": 0
+    },
+    "notes": [
+      "Confidence/context hashes are retained separately; equality is asserted for typed coordinates and uncertain positions, not every numeric confidence",
+      "Reproduction repeated from the published artifact path; no model adjustment or independent test scoring"
+    ],
+    "partition": "validation",
+    "reproducer": "verify_clinical_routes.py",
+    "same_typed_predictions": true,
+    "same_uncertain_nlp_positions_below_075": true,
+    "source": "MEDDOCAN dev"
+  },
+  "available_corpora_non_regression": "PASS_EXACT_TYPED_PREDICTION_IDENTITY",
+  "base_commit": "44d04b16fb1ec545161c4ef0c14f516c7b0d9d29",
+  "candidate_code_commit": "3de9d732dca9a6df106a757836f0c8194be73916",
+  "comparisons": {
+    "meddocan": {
+      "baseline": {
+        "corpus": {
+          "annotated_records_sha256": "370b1d0583d61afb306233db111a3bcdcf2c6039071564ed0f0986c0ef5dc415",
+          "documents": 250,
+          "gold_mentions": 5801,
+          "license": "CC-BY-4.0",
+          "official_split": "dev",
+          "source_commit": "783a6df385c975b328c99bcffb54196a9ba4078a",
+          "texts_sha256": "4283ec8750e232d6693f785017f398176cde4e50f90a45e46261d9a5bb921a6d"
+        },
+        "detection_passes_per_configuration": 1,
+        "evidence_type": "validation_public_semi_synthetic",
+        "partition": "validation",
+        "pipelines": {
+          "general_domain_pack_balanced": {
+            "acceptance_metrics": {
+              "documents_with_uncovered_gold_characters": 97,
+              "exact_f1": 0.8167255771978642,
+              "exact_false_negatives": 371,
+              "exact_false_positives": 2066,
+              "exact_precision": 0.7243863393810032,
+              "exact_recall": 0.9360455093949319,
+              "false_redaction_rate": 0.004326861482197557,
+              "sensitive_character_recall": 0.9728869021532708
+            },
+            "configuration": {
+              "arguments": {
+                "profile": "balanced"
+              },
+              "default_recognizer_types": [
+                "NarrativeRecognizer",
+                "DomainRoleRecognizer"
+              ],
+              "factory": "get_domain_pack('general').engine",
+              "measurement": "scan_text detection only; same frozen default domain recognizers",
+              "model_pin": [
+                "es-general-2.json.gz",
+                "f3008720a246e32b7a2adaf4af2ba9a03fb665caadcf698658b029a73042c173"
+              ],
+              "operating_settings": {
+                "description": "Model spans only; highest throughput",
+                "redact_margin": null,
+                "review_margin": null
+              },
+              "pack": {
+                "code_license": "Apache-2.0",
+                "detector_version": "domain-roles-1.0.1",
+                "evaluation_scope": "Held-out MEDDOCAN/Gretel and synthetic template families; not real-world country/domain validation.",
+                "language": "es",
+                "limitations": [
+                  "Supervised use: evaluate with representative local documents and review before release.",
+                  "Rules and models can miss identifiers or remove useful context; scores are not calibrated probabilities.",
+                  "Amounts and clinical content are kept by policy only when detected with the correct category; ambiguous overlaps retain identifier protection.",
+                  "Exact-name consistency is scoped to a session; aliases, pronouns and relationships are not inferred.",
+                  "Absolute dates and ages remain quasi-identifiers and are indexed by default; numeric date shifts are explicit opt-ins.",
+                  "Synthetic cross-country layouts do not establish recall on real documents from those countries."
+                ],
+                "model_card": "docs/TAGGER.md",
+                "model_name": "es-general",
+                "model_sha256": "f3008720a246e32b7a2adaf4af2ba9a03fb665caadcf698658b029a73042c173",
+                "name": "general",
+                "preserved_types": [
+                  "DIAGNOSIS",
+                  "MEDICAL_CONDITION",
+                  "TREATMENT",
+                  "MEDICATION",
+                  "CLINICAL_OBSERVATION",
+                  "MEDICAL_HISTORY",
+                  "MEDICAL_ATTRIBUTE",
+                  "DEMOGRAPHIC",
+                  "AMOUNT"
+                ],
+                "roles": [
+                  "patient",
+                  "clinician",
+                  "family",
+                  "customer",
+                  "creditor",
+                  "debtor",
+                  "agent",
+                  "plaintiff",
+                  "defendant",
+                  "witness",
+                  "lawyer",
+                  "judge"
+                ],
+                "supervised_review": true,
+                "title": "General en español",
+                "training_corpus": [
+                  "MEDDOCAN train, commit 783a6df385c975b328c99bcffb54196a9ba4078a",
+                  "Gretel Spanish train minus holdout, revision 7b844d16738527a04264f50214cb426a4cea0897",
+                  "deidflow.benchmarks.synthetic_es: 5000 documents, 51 training families, seed 1729, Faker 40.44.0"
+                ],
+                "training_license": [
+                  "CC-BY-4.0 (MEDDOCAN)",
+                  "Apache-2.0 (Gretel and project generator)",
+                  "MIT (Faker); attribution in NOTICE"
+                ],
+                "version": "1.1.0"
+              },
+              "pack_fingerprint": "d5c451ec1b018b450b2bea3d87c2748949cb110b249052c0d53b37e64b3f8304",
+              "policy_fingerprint_not_applied_to_detection": "6eebdbd167c50c947e17723076253b4baabc28377ca9c73fcd8dd8585d164a5a"
+            },
+            "configuration_sha256": "bdaa5c377f48637ddaf144116317448bc1ce5e901c3059fd9d45ecdbb0cb55d2",
+            "expected_calibration_error": 0.04445049718310616,
+            "prediction_offsets_sha256": "dabcbc90248768ce12b13e392c98b89751ba2f2e2f0b2e8d571d117ba0e1df0e"
+          },
+          "rules_only": {
+            "acceptance_metrics": {
+              "documents_with_uncovered_gold_characters": 250,
+              "exact_f1": 0.5840688912809473,
+              "exact_false_negatives": 3088,
+              "exact_false_positives": 776,
+              "exact_precision": 0.7775867010604758,
+              "exact_recall": 0.4676779865540424,
+              "false_redaction_rate": 0.0013364935533840365,
+              "sensitive_character_recall": 0.5872556753440267
+            },
+            "configuration": {
+              "additional_recognizers": [],
+              "arguments": {
+                "country": "ALL",
+                "performance": "balanced"
+              },
+              "factory": "deidflow.DeidEngine",
+              "measurement": "scan_text detection only; no policy transformation",
+              "nlp": null
+            },
+            "configuration_sha256": "b6a2976616b8569ff9a1c6269b54715ece1ba4f727c62a69feffe1ba0b24526b",
+            "expected_calibration_error": null,
+            "prediction_offsets_sha256": "a5e0113c64a497fbc49178b1f505f3f6748f341f182ec6ed651f8ef1830854de"
+          }
+        },
+        "python_network_attempts": 0,
+        "python_source_sha256": "04dbacaf9ae5cc8aa67c5690f66f078189348b094702bf4a10e578c93ee352b6",
+        "python_version": "3.12.14",
+        "receipt_sha256": "391a9e9f606f6b001be3cba831372e2f46bb9d5012e84cb54aeec629f612b725",
+        "runner_sha256": "8ad355fbb4541596527f95d95f0a32ab5bee0d2f5e40670a60e1097ebb98a128",
+        "source_dirty": false,
+        "source_revision": "44d04b16fb1ec545161c4ef0c14f516c7b0d9d29",
+        "warmup_calls": 0
+      },
+      "candidate": {
+        "corpus": {
+          "annotated_records_sha256": "370b1d0583d61afb306233db111a3bcdcf2c6039071564ed0f0986c0ef5dc415",
+          "documents": 250,
+          "gold_mentions": 5801,
+          "license": "CC-BY-4.0",
+          "official_split": "dev",
+          "source_commit": "783a6df385c975b328c99bcffb54196a9ba4078a",
+          "texts_sha256": "4283ec8750e232d6693f785017f398176cde4e50f90a45e46261d9a5bb921a6d"
+        },
+        "detection_passes_per_configuration": 1,
+        "evidence_type": "validation_public_semi_synthetic",
+        "partition": "validation",
+        "pipelines": {
+          "general_domain_pack_balanced": {
+            "acceptance_metrics": {
+              "documents_with_uncovered_gold_characters": 97,
+              "exact_f1": 0.8167255771978642,
+              "exact_false_negatives": 371,
+              "exact_false_positives": 2066,
+              "exact_precision": 0.7243863393810032,
+              "exact_recall": 0.9360455093949319,
+              "false_redaction_rate": 0.004326861482197557,
+              "sensitive_character_recall": 0.9728869021532708
+            },
+            "configuration": {
+              "arguments": {
+                "profile": "balanced"
+              },
+              "default_recognizer_types": [
+                "NarrativeRecognizer",
+                "DomainRoleRecognizer"
+              ],
+              "factory": "get_domain_pack('general').engine",
+              "measurement": "scan_text detection only; same frozen default domain recognizers",
+              "model_pin": [
+                "es-general-2.json.gz",
+                "f3008720a246e32b7a2adaf4af2ba9a03fb665caadcf698658b029a73042c173"
+              ],
+              "operating_settings": {
+                "description": "Model spans only; highest throughput",
+                "redact_margin": null,
+                "review_margin": null
+              },
+              "pack": {
+                "code_license": "Apache-2.0",
+                "detector_version": "domain-roles-1.0.1",
+                "evaluation_scope": "Held-out MEDDOCAN/Gretel and synthetic template families; not real-world country/domain validation.",
+                "language": "es",
+                "limitations": [
+                  "Supervised use: evaluate with representative local documents and review before release.",
+                  "Rules and models can miss identifiers or remove useful context; scores are not calibrated probabilities.",
+                  "Amounts and clinical content are kept by policy only when detected with the correct category; ambiguous overlaps retain identifier protection.",
+                  "Exact-name consistency is scoped to a session; aliases, pronouns and relationships are not inferred.",
+                  "Absolute dates and ages remain quasi-identifiers and are indexed by default; numeric date shifts are explicit opt-ins.",
+                  "Synthetic cross-country layouts do not establish recall on real documents from those countries."
+                ],
+                "model_card": "docs/TAGGER.md",
+                "model_name": "es-general",
+                "model_sha256": "f3008720a246e32b7a2adaf4af2ba9a03fb665caadcf698658b029a73042c173",
+                "name": "general",
+                "preserved_types": [
+                  "DIAGNOSIS",
+                  "MEDICAL_CONDITION",
+                  "TREATMENT",
+                  "MEDICATION",
+                  "CLINICAL_OBSERVATION",
+                  "MEDICAL_HISTORY",
+                  "MEDICAL_ATTRIBUTE",
+                  "DEMOGRAPHIC",
+                  "AMOUNT"
+                ],
+                "roles": [
+                  "patient",
+                  "clinician",
+                  "family",
+                  "customer",
+                  "creditor",
+                  "debtor",
+                  "agent",
+                  "plaintiff",
+                  "defendant",
+                  "witness",
+                  "lawyer",
+                  "judge"
+                ],
+                "supervised_review": true,
+                "title": "General en español",
+                "training_corpus": [
+                  "MEDDOCAN train, commit 783a6df385c975b328c99bcffb54196a9ba4078a",
+                  "Gretel Spanish train minus holdout, revision 7b844d16738527a04264f50214cb426a4cea0897",
+                  "deidflow.benchmarks.synthetic_es: 5000 documents, 51 training families, seed 1729, Faker 40.44.0"
+                ],
+                "training_license": [
+                  "CC-BY-4.0 (MEDDOCAN)",
+                  "Apache-2.0 (Gretel and project generator)",
+                  "MIT (Faker); attribution in NOTICE"
+                ],
+                "version": "1.1.0"
+              },
+              "pack_fingerprint": "d5c451ec1b018b450b2bea3d87c2748949cb110b249052c0d53b37e64b3f8304",
+              "policy_fingerprint_not_applied_to_detection": "6eebdbd167c50c947e17723076253b4baabc28377ca9c73fcd8dd8585d164a5a"
+            },
+            "configuration_sha256": "bdaa5c377f48637ddaf144116317448bc1ce5e901c3059fd9d45ecdbb0cb55d2",
+            "expected_calibration_error": 0.0444294404335889,
+            "prediction_offsets_sha256": "dabcbc90248768ce12b13e392c98b89751ba2f2e2f0b2e8d571d117ba0e1df0e"
+          },
+          "rules_only": {
+            "acceptance_metrics": {
+              "documents_with_uncovered_gold_characters": 250,
+              "exact_f1": 0.5840688912809473,
+              "exact_false_negatives": 3088,
+              "exact_false_positives": 776,
+              "exact_precision": 0.7775867010604758,
+              "exact_recall": 0.4676779865540424,
+              "false_redaction_rate": 0.0013364935533840365,
+              "sensitive_character_recall": 0.5872556753440267
+            },
+            "configuration": {
+              "additional_recognizers": [],
+              "arguments": {
+                "country": "ALL",
+                "performance": "balanced"
+              },
+              "factory": "deidflow.DeidEngine",
+              "measurement": "scan_text detection only; no policy transformation",
+              "nlp": null
+            },
+            "configuration_sha256": "b6a2976616b8569ff9a1c6269b54715ece1ba4f727c62a69feffe1ba0b24526b",
+            "expected_calibration_error": null,
+            "prediction_offsets_sha256": "a5e0113c64a497fbc49178b1f505f3f6748f341f182ec6ed651f8ef1830854de"
+          }
+        },
+        "python_network_attempts": 0,
+        "python_source_sha256": "d3a8be22964a91a6a50a923d092501881a0c563dc473d95970aa045cd66dc274",
+        "python_version": "3.12.14",
+        "receipt_sha256": "cc1f5e39e828ceae875dd2b7a23f4287731a30f4da5d0fdcdbd86020f5f91ecd",
+        "runner_sha256": "8ad355fbb4541596527f95d95f0a32ab5bee0d2f5e40670a60e1097ebb98a128",
+        "source_dirty": false,
+        "source_revision": "3de9d732dca9a6df106a757836f0c8194be73916",
+        "warmup_calls": 0
+      }
+    },
+    "synthetic": {
+      "baseline": {
+        "corpus": {
+          "annotated_records_sha256": "56dce2ff57c4781f73b4c09cf3089ebe50cd595b35b98be07bfbdd66d3179c6a",
+          "documents": 600,
+          "faker_version": "40.44.0",
+          "generator_sha256": "4cc17392a91959d3c42fc8d2f652230f5c86c18f3b7d795dc7b1e17956dd34bc",
+          "gold_mentions": 3258,
+          "seed": 1729,
+          "texts_sha256": "386ca024e577c8cbb7f1fddaaa409cbf49060d19573070a90059458bf8139a4b"
+        },
+        "detection_passes_per_configuration": 1,
+        "evidence_type": "validation_synthetic_fiction",
+        "partition": "validation",
+        "pipelines": {
+          "general_domain_pack_balanced": {
+            "acceptance_metrics": {
+              "documents_with_uncovered_gold_characters": 273,
+              "exact_f1": 0.7767618511745675,
+              "exact_false_negatives": 497,
+              "exact_false_positives": 1090,
+              "exact_precision": 0.7169566346403532,
+              "exact_recall": 0.8474524248004911,
+              "false_redaction_rate": 0.03047840956067496,
+              "sensitive_character_recall": 0.9289631154637985
+            },
+            "configuration": {
+              "arguments": {
+                "profile": "balanced"
+              },
+              "default_recognizer_types": [
+                "NarrativeRecognizer",
+                "DomainRoleRecognizer"
+              ],
+              "factory": "get_domain_pack('general').engine",
+              "measurement": "scan_text detection only; same frozen default domain recognizers",
+              "model_pin": [
+                "es-general-2.json.gz",
+                "f3008720a246e32b7a2adaf4af2ba9a03fb665caadcf698658b029a73042c173"
+              ],
+              "operating_settings": {
+                "description": "Model spans only; highest throughput",
+                "redact_margin": null,
+                "review_margin": null
+              },
+              "pack": {
+                "code_license": "Apache-2.0",
+                "detector_version": "domain-roles-1.0.1",
+                "evaluation_scope": "Held-out MEDDOCAN/Gretel and synthetic template families; not real-world country/domain validation.",
+                "language": "es",
+                "limitations": [
+                  "Supervised use: evaluate with representative local documents and review before release.",
+                  "Rules and models can miss identifiers or remove useful context; scores are not calibrated probabilities.",
+                  "Amounts and clinical content are kept by policy only when detected with the correct category; ambiguous overlaps retain identifier protection.",
+                  "Exact-name consistency is scoped to a session; aliases, pronouns and relationships are not inferred.",
+                  "Absolute dates and ages remain quasi-identifiers and are indexed by default; numeric date shifts are explicit opt-ins.",
+                  "Synthetic cross-country layouts do not establish recall on real documents from those countries."
+                ],
+                "model_card": "docs/TAGGER.md",
+                "model_name": "es-general",
+                "model_sha256": "f3008720a246e32b7a2adaf4af2ba9a03fb665caadcf698658b029a73042c173",
+                "name": "general",
+                "preserved_types": [
+                  "DIAGNOSIS",
+                  "MEDICAL_CONDITION",
+                  "TREATMENT",
+                  "MEDICATION",
+                  "CLINICAL_OBSERVATION",
+                  "MEDICAL_HISTORY",
+                  "MEDICAL_ATTRIBUTE",
+                  "DEMOGRAPHIC",
+                  "AMOUNT"
+                ],
+                "roles": [
+                  "patient",
+                  "clinician",
+                  "family",
+                  "customer",
+                  "creditor",
+                  "debtor",
+                  "agent",
+                  "plaintiff",
+                  "defendant",
+                  "witness",
+                  "lawyer",
+                  "judge"
+                ],
+                "supervised_review": true,
+                "title": "General en español",
+                "training_corpus": [
+                  "MEDDOCAN train, commit 783a6df385c975b328c99bcffb54196a9ba4078a",
+                  "Gretel Spanish train minus holdout, revision 7b844d16738527a04264f50214cb426a4cea0897",
+                  "deidflow.benchmarks.synthetic_es: 5000 documents, 51 training families, seed 1729, Faker 40.44.0"
+                ],
+                "training_license": [
+                  "CC-BY-4.0 (MEDDOCAN)",
+                  "Apache-2.0 (Gretel and project generator)",
+                  "MIT (Faker); attribution in NOTICE"
+                ],
+                "version": "1.1.0"
+              },
+              "pack_fingerprint": "d5c451ec1b018b450b2bea3d87c2748949cb110b249052c0d53b37e64b3f8304",
+              "policy_fingerprint_not_applied_to_detection": "6eebdbd167c50c947e17723076253b4baabc28377ca9c73fcd8dd8585d164a5a"
+            },
+            "configuration_sha256": "bdaa5c377f48637ddaf144116317448bc1ce5e901c3059fd9d45ecdbb0cb55d2",
+            "expected_calibration_error": 0.06212428308569136,
+            "prediction_offsets_sha256": "0e7b706512940c992d4239ed0b0e748129709337884a8035b779ddeaf86f57c0"
+          },
+          "rules_only": {
+            "acceptance_metrics": {
+              "documents_with_uncovered_gold_characters": 600,
+              "exact_f1": 0.5237596818086665,
+              "exact_false_negatives": 2007,
+              "exact_false_positives": 268,
+              "exact_precision": 0.8235681369321922,
+              "exact_recall": 0.3839779005524862,
+              "false_redaction_rate": 0.0010648026356997007,
+              "sensitive_character_recall": 0.42891501356473555
+            },
+            "configuration": {
+              "additional_recognizers": [],
+              "arguments": {
+                "country": "ALL",
+                "performance": "balanced"
+              },
+              "factory": "deidflow.DeidEngine",
+              "measurement": "scan_text detection only; no policy transformation",
+              "nlp": null
+            },
+            "configuration_sha256": "b6a2976616b8569ff9a1c6269b54715ece1ba4f727c62a69feffe1ba0b24526b",
+            "expected_calibration_error": null,
+            "prediction_offsets_sha256": "0516f583422b4496516d0ad4ec0c4de1ff5942db32645f10e94421a73e677817"
+          }
+        },
+        "python_network_attempts": 0,
+        "python_source_sha256": "04dbacaf9ae5cc8aa67c5690f66f078189348b094702bf4a10e578c93ee352b6",
+        "python_version": "3.12.14",
+        "receipt_sha256": "0f0226a9fe5a4b29faa615d784a905e50e5c239df6b90799b1e2b895f25d081a",
+        "runner_sha256": "8ad355fbb4541596527f95d95f0a32ab5bee0d2f5e40670a60e1097ebb98a128",
+        "source_dirty": false,
+        "source_revision": "44d04b16fb1ec545161c4ef0c14f516c7b0d9d29",
+        "warmup_calls": 0
+      },
+      "candidate": {
+        "corpus": {
+          "annotated_records_sha256": "56dce2ff57c4781f73b4c09cf3089ebe50cd595b35b98be07bfbdd66d3179c6a",
+          "documents": 600,
+          "faker_version": "40.44.0",
+          "generator_sha256": "4cc17392a91959d3c42fc8d2f652230f5c86c18f3b7d795dc7b1e17956dd34bc",
+          "gold_mentions": 3258,
+          "seed": 1729,
+          "texts_sha256": "386ca024e577c8cbb7f1fddaaa409cbf49060d19573070a90059458bf8139a4b"
+        },
+        "detection_passes_per_configuration": 1,
+        "evidence_type": "validation_synthetic_fiction",
+        "partition": "validation",
+        "pipelines": {
+          "general_domain_pack_balanced": {
+            "acceptance_metrics": {
+              "documents_with_uncovered_gold_characters": 273,
+              "exact_f1": 0.7767618511745675,
+              "exact_false_negatives": 497,
+              "exact_false_positives": 1090,
+              "exact_precision": 0.7169566346403532,
+              "exact_recall": 0.8474524248004911,
+              "false_redaction_rate": 0.03047840956067496,
+              "sensitive_character_recall": 0.9289631154637985
+            },
+            "configuration": {
+              "arguments": {
+                "profile": "balanced"
+              },
+              "default_recognizer_types": [
+                "NarrativeRecognizer",
+                "DomainRoleRecognizer"
+              ],
+              "factory": "get_domain_pack('general').engine",
+              "measurement": "scan_text detection only; same frozen default domain recognizers",
+              "model_pin": [
+                "es-general-2.json.gz",
+                "f3008720a246e32b7a2adaf4af2ba9a03fb665caadcf698658b029a73042c173"
+              ],
+              "operating_settings": {
+                "description": "Model spans only; highest throughput",
+                "redact_margin": null,
+                "review_margin": null
+              },
+              "pack": {
+                "code_license": "Apache-2.0",
+                "detector_version": "domain-roles-1.0.1",
+                "evaluation_scope": "Held-out MEDDOCAN/Gretel and synthetic template families; not real-world country/domain validation.",
+                "language": "es",
+                "limitations": [
+                  "Supervised use: evaluate with representative local documents and review before release.",
+                  "Rules and models can miss identifiers or remove useful context; scores are not calibrated probabilities.",
+                  "Amounts and clinical content are kept by policy only when detected with the correct category; ambiguous overlaps retain identifier protection.",
+                  "Exact-name consistency is scoped to a session; aliases, pronouns and relationships are not inferred.",
+                  "Absolute dates and ages remain quasi-identifiers and are indexed by default; numeric date shifts are explicit opt-ins.",
+                  "Synthetic cross-country layouts do not establish recall on real documents from those countries."
+                ],
+                "model_card": "docs/TAGGER.md",
+                "model_name": "es-general",
+                "model_sha256": "f3008720a246e32b7a2adaf4af2ba9a03fb665caadcf698658b029a73042c173",
+                "name": "general",
+                "preserved_types": [
+                  "DIAGNOSIS",
+                  "MEDICAL_CONDITION",
+                  "TREATMENT",
+                  "MEDICATION",
+                  "CLINICAL_OBSERVATION",
+                  "MEDICAL_HISTORY",
+                  "MEDICAL_ATTRIBUTE",
+                  "DEMOGRAPHIC",
+                  "AMOUNT"
+                ],
+                "roles": [
+                  "patient",
+                  "clinician",
+                  "family",
+                  "customer",
+                  "creditor",
+                  "debtor",
+                  "agent",
+                  "plaintiff",
+                  "defendant",
+                  "witness",
+                  "lawyer",
+                  "judge"
+                ],
+                "supervised_review": true,
+                "title": "General en español",
+                "training_corpus": [
+                  "MEDDOCAN train, commit 783a6df385c975b328c99bcffb54196a9ba4078a",
+                  "Gretel Spanish train minus holdout, revision 7b844d16738527a04264f50214cb426a4cea0897",
+                  "deidflow.benchmarks.synthetic_es: 5000 documents, 51 training families, seed 1729, Faker 40.44.0"
+                ],
+                "training_license": [
+                  "CC-BY-4.0 (MEDDOCAN)",
+                  "Apache-2.0 (Gretel and project generator)",
+                  "MIT (Faker); attribution in NOTICE"
+                ],
+                "version": "1.1.0"
+              },
+              "pack_fingerprint": "d5c451ec1b018b450b2bea3d87c2748949cb110b249052c0d53b37e64b3f8304",
+              "policy_fingerprint_not_applied_to_detection": "6eebdbd167c50c947e17723076253b4baabc28377ca9c73fcd8dd8585d164a5a"
+            },
+            "configuration_sha256": "bdaa5c377f48637ddaf144116317448bc1ce5e901c3059fd9d45ecdbb0cb55d2",
+            "expected_calibration_error": 0.06212428308569136,
+            "prediction_offsets_sha256": "0e7b706512940c992d4239ed0b0e748129709337884a8035b779ddeaf86f57c0"
+          },
+          "rules_only": {
+            "acceptance_metrics": {
+              "documents_with_uncovered_gold_characters": 600,
+              "exact_f1": 0.5237596818086665,
+              "exact_false_negatives": 2007,
+              "exact_false_positives": 268,
+              "exact_precision": 0.8235681369321922,
+              "exact_recall": 0.3839779005524862,
+              "false_redaction_rate": 0.0010648026356997007,
+              "sensitive_character_recall": 0.42891501356473555
+            },
+            "configuration": {
+              "additional_recognizers": [],
+              "arguments": {
+                "country": "ALL",
+                "performance": "balanced"
+              },
+              "factory": "deidflow.DeidEngine",
+              "measurement": "scan_text detection only; no policy transformation",
+              "nlp": null
+            },
+            "configuration_sha256": "b6a2976616b8569ff9a1c6269b54715ece1ba4f727c62a69feffe1ba0b24526b",
+            "expected_calibration_error": null,
+            "prediction_offsets_sha256": "0516f583422b4496516d0ad4ec0c4de1ff5942db32645f10e94421a73e677817"
+          }
+        },
+        "python_network_attempts": 0,
+        "python_source_sha256": "d3a8be22964a91a6a50a923d092501881a0c563dc473d95970aa045cd66dc274",
+        "python_version": "3.12.14",
+        "receipt_sha256": "24819c1831f3476fa6d18424c6e6c4214cc7c651a64ff706ae7e7589d73bd064",
+        "runner_sha256": "8ad355fbb4541596527f95d95f0a32ab5bee0d2f5e40670a60e1097ebb98a128",
+        "source_dirty": false,
+        "source_revision": "3de9d732dca9a6df106a757836f0c8194be73916",
+        "warmup_calls": 0
+      }
+    }
+  },
+  "gretel_validation": "NOT_RUN_ASSET_UNAVAILABLE",
+  "historical_failed_comparison": "history/93ed28c-validation.json",
+  "model_or_threshold_changes": false,
+  "quality_acceptance": "AVAILABLE_VALIDATION_PASS_GRETEL_PENDING",
+  "raw_corpora_committed": false,
+  "schema_version": "deidflow.unicode-validation-comparison.v2",
+  "test_corpus_scoring_passes": 0,
+  "unicode_database_version": "15.0.0"
+}

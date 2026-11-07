@@ -21,6 +21,42 @@ finding list on an incomplete graph must never approve a release.
 | Parquet | All flat columns through bounded Arrow batches; graph size limits apply | Automatic Parquet rewrite unsupported |
 | DataFrames | See structured engine | See structured engine |
 
+## Unicode detection and original offsets
+
+Built-in rules and NLP adapters receive a detection view of each text:
+
+- invisible characters are removed: format controls (`Cf`: zero-width space,
+  soft hyphen, word joiner, BOM, bidirectional controls, tag characters) and every
+  other `Default_Ignorable_Code_Point` (combining grapheme joiner, variation
+  selectors, Hangul fillers, Mongolian and Khmer invisibles);
+- NFKC is applied: full-width and mathematical letters and digits, superscript
+  digits, ligatures and no-break spaces become their ordinary forms;
+- inside a word that also contains ASCII letters or digits, Greek and Cyrillic
+  letters that look Latin are folded to Latin (`12345678Ζ`, `аna@example.com`).
+  Pure Greek or Cyrillic words are unchanged.
+
+Findings project back to complete original spans, including adjacent invisible
+characters, so a replacement removes them too; compatibility expansions and
+reordered combining marks never leave part of an original character. The emitted
+document is not normalized outside transformed spans. Lexical features and
+boundary validation use source ordinal provenance, since NFKC merges `º`/`ª`
+with `o`/`a`; built-in models, routers and combinators forward it, and external
+adapters keep the `detect_batch` interface on the normalized text.
+
+The view is built word by word at ASCII whitespace, a stable NFKC boundary.
+Unchanged text and words whose characters map one to one (a no-break space, a
+full-width letter) allocate no coordinate maps; only words whose length changes
+do, up to 8 million traced characters by default (`NormalizationLimitError`, a
+`ValueError`, beyond that, like the other size limits).
+
+Text, structured cells, Office, HTML and e-mail writers transform original spans
+and reread the emitted artifact. An invisible character remaining between
+alphanumeric characters yields `UNICODE_FORMAT_CONTROLS_REQUIRE_REVIEW` and
+prevents approval, without inventing a sensitive entity. HTML entities are
+checked after decoding by the existing parser. Unicode behavior uses the
+interpreter's Unicode database. Look-alikes outside Greek and Cyrillic (for
+example Cherokee or mathematical symbols not covered by NFKC) are not folded.
+
 ## DOCX and XLSX
 
 The readers use Python's standard ZIP/XML implementations and do not need Word,

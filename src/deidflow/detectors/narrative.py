@@ -17,6 +17,7 @@ import re
 import unicodedata
 
 from deidflow.core import Finding
+from deidflow.normalization import DetectionView, ordinal_feature_text
 
 from .gazetteer import AMBIGUOUS_GIVEN, GIVEN_NAMES, INSTITUTIONS, LOCATIONS, variants
 
@@ -487,6 +488,10 @@ class NarrativeRecognizer:
     Does not change packaged tagger profiles or claim calibrated release quality.
     Evaluate on a representative holdout before using it for release decisions.
     """
+
+    def detect_view(self, source: str, view: DetectionView) -> list[Finding]:
+        """Interpret source ordinal classes without changing normalized offsets."""
+        return self.detect(ordinal_feature_text(source, view))
 
     def detect(self, text: str) -> list[Finding]:
         return narrative_spanish(text)

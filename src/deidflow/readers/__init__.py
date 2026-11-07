@@ -18,6 +18,7 @@ from typing import Any
 from xml.etree import ElementTree as ET
 
 from deidflow.core import DocumentGraph, Fragment, SourceLocation
+from deidflow.normalization import FORMAT_CONTROL_ISSUE, has_internal_format_controls
 from deidflow.ocr import OCREngine, OCRError, OCRResult
 
 DEFAULT_MAX_BYTES = 64 * 1024 * 1024
@@ -1207,6 +1208,8 @@ def read_document(
         raise DocumentError("Malformed or unsupported document encoding") from None
     except Exception:
         raise DocumentError("Document extraction failed") from None
+    if any(has_internal_format_controls(fragment.text) for fragment in graph.fragments):
+        graph.issues.append(FORMAT_CONTROL_ISSUE)
     return graph
 
 
