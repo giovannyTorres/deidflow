@@ -301,3 +301,49 @@ def test_eml_spreadsheet_attachment_is_kept_for_review(tmp_path, suffix):
     parsed = email.message_from_bytes(result.output_path.read_bytes(), policy=email.policy.default)
     attachment = next(parsed.iter_attachments())
     assert attachment.get_filename() == f"adjunto-1{suffix}"
+
+
+def test_inline_binary_image_is_kept_when_media_retention_is_requested(tmp_path):
+    from opendocument_samples import NS, PNG, manifest, write_package
+
+    media_type = "application/vnd.oasis.opendocument.text"
+    import base64
+
+    picture = base64.b64encode(PNG).decode()
+    content = (
+        f'<?xml version="1.0" encoding="UTF-8"?><office:document-content {NS} '
+        'office:version="1.3"><office:body><office:text><text:p>Informe.</text:p>'
+        '<text:p><draw:frame draw:name="Foto" text:anchor-type="as-char" svg:width="1cm" '
+        f'svg:height="1cm"><draw:image><office:binary-data>{picture}</office:binary-data>'
+        "</draw:image></draw:frame></text:p></office:text></office:body></office:document-content>"
+    )
+    parts = {"content.xml": content}
+    parts["META-INF/manifest.xml"] = manifest(media_type, {"content.xml": "text/xml"})
+    source = write_package(tmp_path / "foto.odt", media_type, parts)
+    policy = Policy.strict(require_ner=False)
+    kept = DeidEngine().deidentify(
+        source, output=tmp_path / "kept.odt", policy=policy, office_media="keep"
+    )
+    assert kept.status == "BLOCKED"  # retained, uninspected media is never approved
+    removed = DeidEngine().deidentify(source, output=tmp_path / "removed.odt", policy=policy)
+    assert removed.output_path is not None
+    assert "binary-data" not in package_text(removed.output_path)
+
+
+def test_rewritten_cell_keeps_spacing_of_unchanged_content(tmp_path):
+    from opendocument_samples import make_ods_cell
+
+    source = make_ods_cell(
+        tmp_path / "dosis.ods",
+        '<text:p>Dosis:<text:s text:c="3"/>15 mg<text:tab/>correo ana.lopez@example.com</text:p>',
+    )
+    result = DeidEngine().deidentify(
+        source, output=tmp_path / "salida.ods", policy=Policy.strict(require_ner=False)
+    )
+    assert result.output_path is not None, result.issues
+    with zipfile.ZipFile(result.output_path) as archive:
+        content = archive.read("content.xml").decode()
+    assert "ana.lopez@example.com" not in content
+    assert 'Dosis: <text:s text:c="2"/>15 mg<text:tab/>correo [EMAIL]' in content
+    cell_text = [f.text for f in read_document(result.output_path).fragments if "Dosis" in f.text]
+    assert cell_text and "Dosis:   15 mg\tcorreo [EMAIL]" in cell_text[0]

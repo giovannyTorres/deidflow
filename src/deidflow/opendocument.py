@@ -1178,8 +1178,40 @@ def _set_cell(cell: Node, text: str) -> None:
         else:
             paragraph = document.createElementNS(TEXT, f"{prefix}:p")
             cell.appendChild(paragraph)
-        if line:
-            paragraph.insertBefore(document.createTextNode(line), paragraph.firstChild)
+        anchor = paragraph.firstChild
+        for node in _odf_text_nodes(document, prefix, line):
+            paragraph.insertBefore(node, anchor)
+
+
+_WHITESPACE_TOKEN = re.compile(r"\t|[ ]+|[^\t ]+")
+
+
+def _odf_text_nodes(document: Node, prefix: str, line: str) -> list[Node]:
+    """Nodes for one paragraph line, with spaces and tabs as OpenDocument elements.
+
+    Consumers collapse whitespace in plain text, so runs of spaces, leading or
+    trailing spaces and tabs are written as ``text:s``/``text:tab`` to keep the
+    displayed layout of the unchanged content.
+    """
+    nodes: list[Node] = []
+    for match in _WHITESPACE_TOKEN.finditer(line):
+        token = match.group()
+        if token == "\t":
+            nodes.append(document.createElementNS(TEXT, f"{prefix}:tab"))
+        elif token.startswith(" "):
+            edge = match.start() == 0 or match.end() == len(line)
+            literal = 0 if edge else 1
+            if literal:
+                nodes.append(document.createTextNode(" "))
+            count = len(token) - literal
+            if count:
+                space = document.createElementNS(TEXT, f"{prefix}:s")
+                if count > 1:
+                    space.setAttributeNS(TEXT, f"{prefix}:c", str(count))
+                nodes.append(space)
+        else:
+            nodes.append(document.createTextNode(token))
+    return nodes
 
 
 class _Writer:
@@ -1275,9 +1307,11 @@ class _Writer:
             if not _attached(element):
                 continue
             key = _qualified(element)
-            if key == (OFFICE, "binary-data") or (
-                self.remove_media
-                and key
+            # Inline images follow the media option like package images: kept
+            # media is never silently discarded (the reread then blocks release).
+            if self.remove_media and (
+                key == (OFFICE, "binary-data")
+                or key
                 in {
                     (STYLE, "background-image"),
                     (DRAW, "fill-image"),
