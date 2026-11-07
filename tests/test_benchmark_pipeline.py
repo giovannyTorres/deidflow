@@ -197,3 +197,70 @@ def test_secondary_output_losing_negation_reduces_context_and_retention(tmp_path
     assert result["metrics"]["retention"] < 1
     assert result["metrics"]["overtransformed_chars"] == 2
     assert result["verdicts"]["technical_conformity"] == "FAIL"
+
+
+def _coverage_variant(tmp_path, mutate):
+    from benchmark_case_fixtures import save_manifest
+    from test_benchmark_package import write_fixture
+
+    from deidflow.benchmarks.pipeline_runner import run_pipeline_benchmark
+
+    records = fixture_records()
+    for item in records["expectations"]:
+        item["acceptable_release_states"] = ["APPROVED", "REVIEW_REQUIRED", "BLOCKED"]
+    records["profile-1"]["profile_id"] = "pipeline-descriptive-v1"
+    for item in records["expectations"]:
+        item["profile_id"] = "pipeline-descriptive-v1"
+    root = tmp_path / "package"
+    manifest, _ = write_fixture(root, records)
+    manifest["profiles"] = {"pipeline-descriptive-v1": manifest["profiles"]["email-descriptive-v1"]}
+    manifest["scope"]["entity_types"] = ["EMAIL"]
+    for coverage in manifest["annotation_coverage"]:
+        coverage["exhaustive_entity_types"] = ["EMAIL"]
+    mutate(manifest)
+    digest = save_manifest(root, manifest)
+    return run_pipeline_benchmark(
+        root,
+        manifest_sha256=digest,
+        candidate="rules.mx",
+        profile="pipeline-descriptive-v1",
+        output=tmp_path / "report",
+    )["result"]
+
+
+def test_nonexhaustive_reference_never_certifies_complete_inspection(tmp_path):
+    def nonexhaustive(manifest):
+        for coverage in manifest["annotation_coverage"]:
+            coverage["exhaustive_entity_types"] = []
+
+    result = _coverage_variant(tmp_path, nonexhaustive)
+    assert result["detection"]["reference_conformity"] == "INCOMPLETE"
+    assert result["verdicts"]["technical_conformity"] != "PASS"
+    assert result["release"]["emitted"]["completely_inspected"] == 0
+    emitted = result["release"]["emitted"]
+    assert (
+        emitted["emitted"] == 0
+        or emitted["risk_upper"] > emitted["risk_lower"]
+        or (emitted["unverified_without_confirmed_leak"] > 0)
+    )
+
+
+def test_pending_human_review_keeps_approved_risk_uncertain(tmp_path):
+    import hashlib
+    from pathlib import Path
+
+    from deidflow.benchmarks.pipeline_runner import run_pipeline_benchmark
+
+    root = Path(__file__).resolve().parents[1] / "examples/benchmark-mx-contextual/ambiguous"
+    digest = hashlib.sha256((root / "manifest.json").read_bytes()).hexdigest()
+    result = run_pipeline_benchmark(
+        root,
+        manifest_sha256=digest,
+        candidate="rules.mx",
+        profile="pipeline-descriptive-v1",
+        output=tmp_path / "report",
+    )["result"]
+    approved = result["release"]["approved"]
+    assert result["release"]["emitted"]["completely_inspected"] == 0
+    assert approved["emitted"] == 0 or approved["risk_upper"] > approved["risk_lower"]
+    assert result["verdicts"]["technical_conformity"] != "PASS"

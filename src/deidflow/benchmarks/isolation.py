@@ -87,7 +87,14 @@ def _read_file(path: Path, maximum: int) -> bytes:
     return payload
 
 
+# File-size and CPU-time limit signals (POSIX); absent on Windows.
+_LIMIT_SIGNALS = [getattr(signal, name) for name in ("SIGXFSZ", "SIGXCPU") if hasattr(signal, name)]
+_LIMIT_RETURN_CODES = {-number for number in _LIMIT_SIGNALS} | {128 + n for n in _LIMIT_SIGNALS}
+
+
 def _set_limits(limits: IsolationLimits) -> None:
+    if sys.platform == "win32":
+        raise OSError("POSIX resource limits are unavailable on Windows")
     import resource
 
     cpu = math.ceil(limits.wall_seconds) + 1
@@ -398,7 +405,10 @@ def _execute(
                 process.wait(timeout=limits.wall_seconds)
             except subprocess.TimeoutExpired:
                 timed_out = True
-                os.killpg(process.pid, signal.SIGKILL)
+                if sys.platform == "win32":
+                    process.kill()
+                else:
+                    os.killpg(process.pid, signal.SIGKILL)
                 process.wait()
         audited, network, memory, integrity = _trace_summary(root, limits.output_bytes)
         result.update(
@@ -410,12 +420,7 @@ def _execute(
             result["status"] = "TIMEOUT"
         elif network or integrity:
             result["status"] = "LOCAL_POLICY_VIOLATION"
-        elif memory or process.returncode in {
-            -signal.SIGXFSZ,
-            -signal.SIGXCPU,
-            128 + signal.SIGXFSZ,
-            128 + signal.SIGXCPU,
-        }:
+        elif memory or process.returncode in _LIMIT_RETURN_CODES:
             result["status"] = "RESOURCE_LIMIT"
         elif not audited:
             result["status"] = "UNSUPPORTED"

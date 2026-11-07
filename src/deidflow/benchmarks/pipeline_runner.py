@@ -83,8 +83,32 @@ def _document_summary(events: list[dict[str, Any]]) -> _DocumentObservation:
     )
 
 
+def _reference_complete(
+    unit: dict[str, Any],
+    coverage: dict[str, Any] | None,
+    entity_types: list[str],
+    ambiguous_units: set[str],
+) -> bool:
+    """Whether the reference annotates every in-scope type over the whole unit text.
+
+    Inspecting every known requirement cannot certify regions or entity types the
+    reference did not exhaustively annotate, nor units with ambiguous mentions.
+    """
+    if coverage is None or unit["unit_id"] in ambiguous_units:
+        return False
+    if not set(entity_types) <= set(coverage["exhaustive_entity_types"]):
+        return False
+    covered = 0
+    for region in sorted(coverage["inspected_ranges"], key=lambda r: (r["start"], r["end"])):
+        if region["start"] > covered:
+            return False
+        covered = max(covered, region["end"])
+    return covered >= len(unit["text"])
+
+
 def _artifact_text(path: Path) -> str:
-    descriptor = os.open(path, os.O_RDONLY | os.O_NONBLOCK | getattr(os, "O_NOFOLLOW", 0))
+    flags = os.O_RDONLY | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_NOFOLLOW", 0)
+    descriptor = os.open(path, flags)
     with os.fdopen(descriptor, "rb") as stream:
         if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
             raise ValueError
@@ -236,6 +260,11 @@ def run_pipeline_benchmark(
     totals: dict[str, int] = {}
     failed_units = 0
     detection_failed = False
+    coverage_rows = {row["unit_id"]: row for row in loaded.manifest["annotation_coverage"]}
+    scope_types = sorted(loaded.manifest["scope"]["entity_types"])
+    ambiguous_units = {
+        row["unit_id"] for row in records["mentions"] if row["certainty"] == "ambiguous"
+    }
     for unit in sorted(records["units"], key=lambda row: row["unit_id"]):
         if unit["case_id"] not in cases:
             continue
@@ -281,7 +310,23 @@ def run_pipeline_benchmark(
             if isinstance(result, Result) and isinstance(result.status, ReleaseStatus)
             else inspect_text_output(unit["text"], requirements, None)
         )
-        cases[unit["case_id"]].append({**inspected, "state": state, "error": error})
+        reference_ok = _reference_complete(
+            unit, coverage_rows.get(unit["unit_id"]), scope_types, ambiguous_units
+        )
+        cases[unit["case_id"]].append(
+            {
+                **inspected,
+                # A pending human decision or an unannotated region is not a
+                # completed inspection of the emitted document.
+                "verification_complete": bool(
+                    inspected["verification_complete"]
+                    and reference_ok
+                    and not inspected["review_required_spans"]
+                ),
+                "state": state,
+                "error": error,
+            }
+        )
         for key, value in inspected.items():
             if type(value) is int:
                 totals[key] = totals.get(key, 0) + value
@@ -321,6 +366,7 @@ def run_pipeline_benchmark(
         and not detection_failed
         and not totals["review_required_spans"]
         and not pending_cases
+        and detection["reference_conformity"] != "INCOMPLETE"
     )
     report = {
         "schema_version": "df-eval-mx.pipeline-report.v1",
