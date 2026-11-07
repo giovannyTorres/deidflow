@@ -18,6 +18,7 @@ from typing import Any
 from deidflow.benchmarks.datasets import Example
 from deidflow.core import Finding
 from deidflow.engine import DeidEngine
+from deidflow.normalization import DetectionView
 from deidflow.policies import Policy
 
 # Categories that identify a person or account on their own (TAB's DIRECT
@@ -146,6 +147,21 @@ class CachedTagger:
 
     def detect_batch(self, texts: list[str]) -> list[list[Finding]]:
         return [self.detect(text) for text in texts]
+
+    def detect_views(self, sources: list[str], views: list[DetectionView]) -> list[list[Finding]]:
+        if len(sources) != len(views):
+            raise ValueError("Normalized inference source/view batch length differs")
+        result = []
+        detect_views = getattr(self.tagger, "detect_views", None)
+        for source, view in zip(sources, views, strict=True):
+            if source == view.text or not callable(detect_views):
+                result.append(self.detect(view.text))
+            else:
+                predicted = detect_views([source], [view])
+                if len(predicted) != 1:
+                    raise ValueError("NLP adapter returned an invalid batch length")
+                result.append(list(predicted[0]))
+        return result
 
 
 __all__ = ["DIRECT_IDENTIFIERS", "CachedTagger", "release_gate_metrics", "wilson_interval"]

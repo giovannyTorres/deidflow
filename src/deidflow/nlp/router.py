@@ -23,6 +23,7 @@ from typing import Any
 from deidflow.core import Finding
 from deidflow.detectors import fuse
 from deidflow.nlp.tagger import MAX_MODEL_BYTES, SpanTagger, feature_key, tokenize
+from deidflow.normalization import DetectionView, ordinal_feature_text
 
 ROUTER_FORMAT = "deidflow.domain-router"
 ROUTER_FORMAT_VERSION = 1
@@ -212,6 +213,31 @@ class DomainRouter:
             raise RuntimeError(
                 "Local tagger inference failed; processing must be blocked"
             ) from None
+
+    def detect_views(self, sources: list[str], views: list[DetectionView]) -> list[list[Finding]]:
+        if len(sources) != len(views):
+            raise ValueError("Normalized inference source/view batch length differs")
+        result = []
+        try:
+            for source, view in zip(sources, views, strict=True):
+                domain = self.route(ordinal_feature_text(source, view))
+                selected = self.mixed if domain == "mixed" else (self.taggers[domain],)
+                findings: list[Finding] = []
+                for tagger in selected:
+                    detect_views = getattr(tagger, "detect_views", None)
+                    if callable(detect_views):
+                        predicted = detect_views([source], [view])
+                        if len(predicted) != 1:
+                            raise ValueError("NLP adapter returned an invalid batch length")
+                        findings.extend(predicted[0])
+                    else:
+                        findings.extend(tagger.detect(view.text))
+                result.append(fuse(findings))
+        except Exception:
+            raise RuntimeError(
+                "Local tagger inference failed; processing must be blocked"
+            ) from None
+        return result
 
 
 def route_counts(router: DomainRouter, texts: Iterable[str]) -> dict[str, int]:

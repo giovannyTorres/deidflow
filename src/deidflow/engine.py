@@ -22,6 +22,13 @@ from typing import Any
 
 from deidflow.core import DocumentGraph, Finding
 from deidflow.detectors import CORE_RULES_VERSION, RuleDetector, fuse
+from deidflow.normalization import (
+    DEFAULT_MAX_CHARACTERS,
+    FORMAT_CONTROL_ISSUE,
+    NormalizationLimitError,
+    detection_view,
+    has_internal_format_controls,
+)
 from deidflow.placeholders import PLACEHOLDER, PlaceholderAllocator, canonical_placeholder
 from deidflow.policies import Policy
 from deidflow.structured import dataframe_columns, profile_column, profile_table, scan_cell
@@ -129,6 +136,10 @@ def _source_review_issues(findings: Iterable[Finding], policy: Policy) -> list[s
     return issues
 
 
+def _unicode_review_issues(texts: Iterable[str]) -> list[str]:
+    return [FORMAT_CONTROL_ISSUE] if any(has_internal_format_controls(t) for t in texts) else []
+
+
 def _json_pairs(items: list[tuple[str, Any]]) -> dict[str, Any]:
     if len({key for key, _ in items}) != len(items):
         raise ValueError("Duplicate JSON keys are unsupported")
@@ -198,6 +209,10 @@ class DeidEngine:
         self.nlp, self.ocr, self.performance = nlp, ocr, performance
         self.key, self.tenant_id, self.dataset_id = key, tenant_id, dataset_id
         self.max_bytes, self.memory_budget_mb = max_bytes, memory_budget_mb
+        # Each traced character keeps two 4-byte coordinates (plus transient maps).
+        self.detector.normalization_budget = min(
+            DEFAULT_MAX_CHARACTERS, memory_budget_mb * 1024**2 // 64
+        )
         self.schema_fast_path = schema_fast_path
         self.pdf_dpi, self.pdf_max_pages = pdf_dpi, pdf_max_pages
         if (
@@ -238,20 +253,44 @@ class DeidEngine:
         try:
             with profiler.stage("rules") if profiler else nullcontext():
                 results = [self.detector.detect(t) for t in texts]
+        except NormalizationLimitError:
+            raise  # a size limit, reported like the other configured limits
         except Exception:
             raise RuntimeError("Local rule recognizer failed; output is not verified") from None
         if self.nlp is not None and texts:
+            views = [
+                detection_view(
+                    text,
+                    max_characters=min(
+                        DEFAULT_MAX_CHARACTERS,
+                        self.max_bytes,
+                        self.memory_budget_mb * 1024**2 // 64,
+                    ),
+                )
+                for text in texts
+            ]
+            if (
+                sum(len(text) * 4 for text in texts)
+                + sum(view.traced_characters * 8 for view in views)
+                > self.memory_budget_mb * 1024**2 // 2
+            ):
+                raise ValueError("Normalized text batch exceeds configured memory budget")
             try:
                 with self._nlp_lock, profiler.stage("nlp") if profiler else nullcontext():
-                    predicted = self.nlp.detect_batch(texts)
+                    detect_views = getattr(self.nlp, "detect_views", None)
+                    predicted = (
+                        detect_views(texts, views)
+                        if callable(detect_views)
+                        else self.nlp.detect_batch([view.text for view in views])
+                    )
             except Exception:
                 raise RuntimeError("Local NLP adapter failed; output is not verified") from None
             if len(predicted) != len(texts):
                 raise ValueError("NLP adapter returned an invalid batch length")
             for i, items in enumerate(predicted):
-                if any(not 0 <= f.start < f.end <= len(texts[i]) for f in items):
+                if any(not 0 <= f.start < f.end <= len(views[i].text) for f in items):
                     raise ValueError("NLP adapter returned invalid offsets")
-                results[i] = fuse(results[i] + items)
+                results[i] = fuse(results[i] + [views[i].project(finding) for finding in items])
         return results
 
     def _rescan_texts(
@@ -468,7 +507,7 @@ class DeidEngine:
             for f in rescanned
             if not replacement_only(transformed, f.start, f.end, ranges=applied)
         ]
-        checks = []
+        checks = _unicode_review_issues([transformed])
         if policy.independent_check == "proper_nouns" and residual_proper_nouns(
             transformed, applied
         ):
@@ -565,6 +604,7 @@ class DeidEngine:
 
         def consume(values: Iterable[str]) -> None:
             for cells in _batches(values, 128):
+                issues.extend(_unicode_review_issues(cells))
                 for items in self._rescan_texts(cells, placeholders):
                     for f in items:
                         if (
@@ -866,6 +906,7 @@ class DeidEngine:
             output_frame = pl.DataFrame(transformed, schema=headers, orient="row", strict=False)
         residual: list[Finding] = []
         for cells in _batches((str(v) for row in transformed for v in row if v is not None), 128):
+            issues.extend(_unicode_review_issues(cells))
             residual.extend(f for items in self._rescan_texts(cells, allocator) for f in items)
         # Headers and pandas indices may themselves disclose identities.
         metadata = list(headers)
@@ -874,6 +915,7 @@ class DeidEngine:
             metadata.extend(str(v) for v in frame.index.names if v is not None)
         if any(self.scan_text(x) for x in metadata):
             issues.append("SENSITIVE_SCHEMA_OR_INDEX")
+        issues.extend(_unicode_review_issues(metadata))
         result = self._gate(policy=policy, residual=residual, issues=issues, domain=domain)
         result.dataframe, result.records = output_frame, len(transformed)
         result.audit["transformations"] = count
@@ -895,6 +937,7 @@ class DeidEngine:
                 csv.writer(out, delimiter=delimiter),
             )
             headers = next(reader, [])
+            issues.extend(_unicode_review_issues(headers))
             for header in headers:
                 allocator.reserve_source(header)
             if len(set(headers)) != len(headers):
@@ -920,6 +963,7 @@ class DeidEngine:
                     return Result(ReleaseStatus.BLOCKED, issues=["SCHEMA_MISMATCH"])
                 reread += len(batch)
                 for cells in _batches((v for row in batch for v in row if v), 128):
+                    issues.extend(_unicode_review_issues(cells))
                     found = [f for items in self._rescan_texts(cells, allocator) for f in items]
                     disallowed = [
                         f

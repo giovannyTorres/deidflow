@@ -121,7 +121,7 @@ def test_updated_rules_refuse_old_calibration_provenance():
     from deidflow.training import ScoreCalibrator
 
     finding = DeidEngine().scan_text("a@example.test")[0]
-    assert finding.model_version == CORE_RULES_VERSION == "rules-0.6"
-    for version in ("rules-0.1", "rules-0.2"):
+    assert finding.model_version == CORE_RULES_VERSION == "rules-0.7"
+    for version in ("rules-0.1", "rules-0.2", "rules-0.6"):
         with pytest.raises(ValueError, match="provenance"):
             ScoreCalibrator("rules.es_MX", version, 1.0, 0.0, 100).apply(finding)

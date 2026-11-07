@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 from pathlib import Path
 from threading import Lock
 from typing import Any
 
 from deidflow.core import Finding
 from deidflow.detectors import fuse
+from deidflow.normalization import DetectionView
 
 
 class SpacyNER:
@@ -172,10 +173,26 @@ class CombinedNER:
         self.adapters = adapters
 
     def detect_batch(self, texts: list[str]) -> list[list[Finding]]:
-        combined: list[list[Finding]] = [[] for _ in texts]
-        for adapter in self.adapters:
-            predicted = adapter.detect_batch(texts)
-            if len(predicted) != len(texts):
+        return self._combine((adapter.detect_batch(texts) for adapter in self.adapters), len(texts))
+
+    def detect_views(self, sources: list[str], views: list[DetectionView]) -> list[list[Finding]]:
+        if len(sources) != len(views):
+            raise ValueError("Normalized inference source/view batch length differs")
+        texts = [view.text for view in views]
+        predictions = (
+            detect_views(sources, views)
+            if callable(detect_views := getattr(adapter, "detect_views", None))
+            else adapter.detect_batch(texts)
+            for adapter in self.adapters
+        )
+        return self._combine(predictions, len(views))
+
+    def _combine(
+        self, predictions: Iterable[list[list[Finding]]], documents: int
+    ) -> list[list[Finding]]:
+        combined: list[list[Finding]] = [[] for _ in range(documents)]
+        for predicted in predictions:
+            if len(predicted) != documents:
                 raise ValueError("NLP adapter returned an invalid batch length")
             for index, items in enumerate(predicted):
                 combined[index].extend(items)

@@ -1,0 +1,87 @@
+{
+  "base_commit": "44d04b16fb1ec545161c4ef0c14f516c7b0d9d29",
+  "branch": "fix/html-url-attributes",
+  "coverage": {
+    "covered_branches": 3990,
+    "covered_lines": 10282,
+    "excluded_lines": 29,
+    "missing_branches": 1096,
+    "missing_lines": 1601,
+    "num_branches": 5086,
+    "num_partial_branches": 822,
+    "num_statements": 11883,
+    "percent_branches_covered": 78.4506488399528,
+    "percent_branches_covered_display": "78",
+    "percent_covered": 84.1063115092227,
+    "percent_covered_display": "84",
+    "percent_statements_covered": 86.52697130354288,
+    "percent_statements_covered_display": "87"
+  },
+  "date_utc": "2026-11-06",
+  "distribution": {
+    "artifacts_sha256": {
+      "deidflow-0.6.0b1-py3-none-any.whl": "52914a5049178b29dc26cbb08188f8eae56c9cc2b228e84b9f37d51d1ca83d4b",
+      "deidflow-0.6.0b1.tar.gz": "a92950da96ccff7396130c3c72b912e2929124be5b7d721f35a7630fe283d821"
+    },
+    "build_no_isolation": "PASS",
+    "clean_git_archive_commit": "ad9d72abb8bd4b9914385039840678846c1876a5",
+    "network_attempts_during_probe": 0,
+    "scope_specific_wheel_probe": "PASS",
+    "twine_strict": "PASS",
+    "wheel_without_extras_outside_checkout": "PASS"
+  },
+  "evidence_type": "known_synthetic_development_regression",
+  "existing_public_api_changed": false,
+  "github_api": "BLOCKED_BY_ENFORCED_NETWORK_POLICY",
+  "held_out_test_scoring_passes": 0,
+  "internal_matt_review": {
+    "Spec": {
+      "corrected_findings": [
+        "P2 semicolonless entity source projection"
+      ],
+      "open_findings": 0
+    },
+    "Standards": {
+      "corrected_findings": [
+        "P2 semicolonless entity source projection"
+      ],
+      "open_documented_violations": 0,
+      "open_smells": 0
+    },
+    "external_claude_approval": false
+  },
+  "merge_gates": {
+    "actual_ci_11_of_11": "PENDING",
+    "all_review_threads_resolved": "PENDING",
+    "claude_blockers_closed": "PENDING",
+    "giovanny_approval": "PENDING"
+  },
+  "merge_performed": false,
+  "micro": {
+    "critical_exact_recall": {
+      "API_KEY": 1.0,
+      "CLABE": 1.0,
+      "CURP": 1.0,
+      "EMAIL": 1.0,
+      "RFC": 1.0
+    },
+    "engine_to_same_run_reference_ratio": 3.2234690913723956,
+    "median_seconds_per_record": 0.0013211043449991848,
+    "passed": true,
+    "records": 1000,
+    "repeats": 5,
+    "scope": "Gross CI regression guard; identical contextual rules, engine wrapper versus direct detector, alternating timing order; no fine-grained cross-machine or statistical speedup claim"
+  },
+  "production_dependencies_models_profiles_changed": false,
+  "release_or_pypi_publication": false,
+  "scope": "HTML: conservar URL y atributos (H3/H4)",
+  "source_commit": "ad9d72abb8bd4b9914385039840678846c1876a5",
+  "tests": {
+    "commit_at_start": "ad9d72abb8bd4b9914385039840678846c1876a5",
+    "passed": 1105,
+    "platform": "Linux x86_64 / Python 3.12.14",
+    "seconds": 280.9,
+    "skipped": 11,
+    "suite_log_sha256": "95700b728de63e5e877018b41a3934e3dbb0918b2610321105697ad208d516ee"
+  }
+}

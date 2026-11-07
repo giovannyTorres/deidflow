@@ -14,6 +14,7 @@ from dataclasses import dataclass, replace
 from typing import Protocol
 
 from deidflow.core import Finding
+from deidflow.normalization import DEFAULT_MAX_CHARACTERS, detection_view, ordinal_feature_text
 from deidflow.validators import (
     ValidationResult,
     validate_card,
@@ -24,7 +25,7 @@ from deidflow.validators import (
 )
 
 from .addresses import AddressCandidate, address_candidates
-from .clinical import contextual_spanish
+from .clinical import contextual_spanish, person_field_boundary
 from .international import (
     SUPPORTED_COUNTRIES,
     date_candidates,
@@ -34,7 +35,7 @@ from .international import (
 )
 from .narrative import coordinated_person_spans
 
-CORE_RULES_VERSION = "rules-0.6"
+CORE_RULES_VERSION = "rules-0.7"
 
 
 class Detector(Protocol):
@@ -264,8 +265,14 @@ class RuleDetector:
             if unknown or not countries:
                 raise ValueError("Unsupported country codes: " + ", ".join(sorted(unknown)))
         self.countries: frozenset[str] | None = countries
+        # Traced characters of normalized words; the engine ties it to its memory budget.
+        self.normalization_budget = DEFAULT_MAX_CHARACTERS
 
     def detect(self, text: str) -> list[Finding]:
+        source = text
+        view = detection_view(text, max_characters=self.normalization_budget)
+        text = view.text
+        lexical_text = ordinal_feature_text(source, view)
         findings: list[Finding] = []
 
         def add(
@@ -458,14 +465,18 @@ class RuleDetector:
                 add(kind, start, end, 0.85, context=("explicit_field_label",))
             for pattern in (_NAME, _NAME_FIELD, _HONORIFIC):
                 for match in pattern.finditer(text):
-                    spans = coordinated_person_spans(text, *match.span("value"))
+                    start, end = match.span("value")
+                    end = person_field_boundary(lexical_text, start, end)
+                    if end <= start:
+                        continue
+                    spans = coordinated_person_spans(text, start, end)
                     context = ("person_label",) + (
                         ("person_coordination_split",) if len(spans) > 1 else ()
                     )
                     for start, end in spans:
                         add("PERSON", start, end, 0.88, context=context)
             labelled_addresses: list[tuple[int, int]] = []
-            candidates = list(address_candidates(text))
+            candidates = list(address_candidates(lexical_text))
             for pattern in (_ADDRESS, _STREET):
                 for match in pattern.finditer(text):
                     start, end = match.span("value")
@@ -542,10 +553,13 @@ class RuleDetector:
                     context=("explicit_blood_type",),
                 )
         for recognizer in self.recognizers:
-            findings.extend(recognizer.detect(text))
+            detect_view = getattr(recognizer, "detect_view", None)
+            findings.extend(
+                detect_view(source, view) if callable(detect_view) else recognizer.detect(text)
+            )
         if self.contextual:
-            findings.extend(contextual_spanish(text))
-        return fuse(findings)
+            findings.extend(contextual_spanish(text, lexical_text=lexical_text))
+        return fuse(view.project(finding) for finding in findings)
 
     def detect_batch(self, texts: list[str]) -> list[list[Finding]]:
         return [self.detect(text) for text in texts]
