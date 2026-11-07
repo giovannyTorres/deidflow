@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import sys
 
 import pytest
 
@@ -191,6 +192,10 @@ def test_deep_candidate_json_is_not_a_dataset_failure(tmp_path):
     assert result["required_support"]["mentions"] == 3
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="POSIX resource limits; native isolation fails closed on Windows",
+)
 def test_lower_inherited_hard_limit_keeps_a_sanitized_report(tmp_path):
     import subprocess
     import sys

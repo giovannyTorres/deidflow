@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import shutil
+import sys
 from pathlib import Path
 
 import pytest
@@ -21,7 +22,18 @@ def test_valid_jsonl_keeps_unicode_separators_inside_document(tmp_path, separato
     assert report["result"]["documents"] == {"total": 1, "positive": 0, "negative": 1}
 
 
-@pytest.mark.parametrize("suffix", ("\ud800", "\x00"))
+@pytest.mark.parametrize(
+    "suffix",
+    (
+        pytest.param(
+            "\ud800",
+            marks=pytest.mark.skipif(
+                sys.platform == "win32", reason="Windows file names accept unpaired surrogates"
+            ),
+        ),
+        "\x00",
+    ),
+)
 def test_invalid_output_path_uses_generic_error(tmp_path, suffix):
     from deidflow.benchmarks.email import run_email_benchmark
 

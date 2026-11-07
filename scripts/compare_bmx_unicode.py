@@ -4,12 +4,11 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
-import select
+import queue
 import shutil
 import subprocess
 import sys
-import time
+import threading
 from pathlib import Path
 from typing import Any
 
@@ -67,7 +66,8 @@ class LocalCandidate:
             framed.update(len(payload).to_bytes(8, "big") + payload)
         self.source_sha256 = framed.hexdigest()
         self.process: subprocess.Popen[bytes] | None = None
-        self.pending = bytearray()
+        # A reader thread is portable; select() does not support pipes on Windows.
+        self.lines: queue.Queue[bytes] = queue.Queue()
 
     def __enter__(self):
         try:
@@ -85,27 +85,36 @@ class LocalCandidate:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.DEVNULL,
             )
+            threading.Thread(target=self._read_lines, daemon=True).start()
             self.descriptor = self._receive()["ready"]
             return self
         except Exception:
             self.__exit__(None, None, None)
             raise ValueError("Invalid pinned local candidate") from None
 
+    def _read_lines(self):
+        stream = self.process.stdout if self.process is not None else None
+        if stream is None:
+            self.lines.put(b"")
+            return
+        while True:
+            try:
+                line = stream.readline(4 * 1024 * 1024 + 1)
+            except (OSError, ValueError):
+                line = b""
+            self.lines.put(line)
+            if not line.endswith(b"\n"):
+                return  # end of stream, or a line over the limit
+
     def _receive(self):
-        process = self.process
-        if process is None or process.stdout is None:
+        if self.process is None or self.process.stdout is None:
             raise ValueError("Invalid pinned local candidate")
-        deadline = time.monotonic() + 30
-        while b"\n" not in self.pending:
-            remaining = deadline - time.monotonic()
-            if remaining <= 0 or not select.select([process.stdout], [], [], remaining)[0]:
-                raise ValueError("Invalid pinned local candidate")
-            chunk = os.read(process.stdout.fileno(), 65536)
-            if not chunk or len(self.pending) + len(chunk) > 4 * 1024 * 1024:
-                raise ValueError("Invalid pinned local candidate")
-            self.pending.extend(chunk)
-        line, _, following = self.pending.partition(b"\n")
-        self.pending = bytearray(following)
+        try:
+            line = self.lines.get(timeout=30)
+        except queue.Empty:
+            raise ValueError("Invalid pinned local candidate") from None
+        if not line.endswith(b"\n"):
+            raise ValueError("Invalid pinned local candidate")
         try:
             response = json.loads(line)
         except (ValueError, RecursionError):
