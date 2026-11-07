@@ -1,0 +1,115 @@
+{
+  "base_commit": "44d04b16fb1ec545161c4ef0c14f516c7b0d9d29",
+  "branch": "feat/opendocument-reader-review",
+  "coverage": {
+    "covered_branches": 4261,
+    "covered_lines": 10789,
+    "excluded_lines": 29,
+    "missing_branches": 1155,
+    "missing_lines": 1673,
+    "num_branches": 5416,
+    "num_partial_branches": 857,
+    "num_statements": 12462,
+    "percent_branches_covered": 78.67429837518463,
+    "percent_branches_covered_display": "79",
+    "percent_covered": 84.1816758026625,
+    "percent_covered_display": "84",
+    "percent_statements_covered": 86.57518857326272,
+    "percent_statements_covered_display": "87"
+  },
+  "date_utc": "2026-11-06",
+  "distribution": {
+    "artifacts_sha256": {
+      "deidflow-0.6.0b1-py3-none-any.whl": "a473a7fee31ed197af3e37937f5348376e3d15e6f86ced3e95b882a5e84e1859",
+      "deidflow-0.6.0b1.tar.gz": "ebbaadaeb51874cfcffd029a0756cd52c329385547b0d0266d5fc08a3aabe83b"
+    },
+    "build_no_isolation": "PASS",
+    "clean_git_archive_commit": "93242156e9cb259a01b6dba66bde7c3000f9c49c",
+    "documented_stdin_probe": "PASS",
+    "network_attempts_during_probe": 0,
+    "scope_specific_wheel_probe": "PASS",
+    "scope_wheel_reproducer": "REPRODUCE_WHEEL.md",
+    "scope_wheel_reproducer_python_sha256": "6720247953b5ff84e00f1bd4d7a586685a12067d7ab70b397e441a8b697c7fc3",
+    "twine_strict": "PASS",
+    "wheel_without_extras_outside_checkout": "PASS"
+  },
+  "evidence_type": "known_synthetic_development_regression",
+  "existing_public_api_changed": false,
+  "format_capabilities": {
+    "automatic_transformation": false,
+    "odf_mime_rewrite_enabled": false,
+    "read": [
+      "ODT",
+      "ODS"
+    ],
+    "standalone_verification": [
+      "ODT",
+      "ODS"
+    ],
+    "unsupported_attachments_keep_existing_removal_behavior": true
+  },
+  "github_api": "BLOCKED_BY_ENFORCED_NETWORK_POLICY",
+  "github_pull_request_created": false,
+  "held_out_test_scoring_passes": 0,
+  "historical_interrupted_attempt": {
+    "log_sha256": "4edd6d5ab904737986bd5f9687dab23c05dad2f1662668ca6a3797c52de20da7",
+    "reason": "Stopped for newly reproduced whitespace/binary coverage review findings; not final acceptance evidence.",
+    "source_commit": "9a27b832b6e15b461650dbabd6b49f3db5098cba"
+  },
+  "integration_dependency": "P1 privacy fixes must be closed and audited before product/release adoption; actual four PR merge gates remain pending.",
+  "internal_matt_review": {
+    "Spec": {
+      "open_findings": 0
+    },
+    "Standards": {
+      "open_documented_violations": 0,
+      "open_smells": 0
+    },
+    "external_claude_approval": false
+  },
+  "merge_gates": {
+    "actual_ci_11_of_11": "PENDING",
+    "all_review_threads_resolved": "PENDING",
+    "claude_blockers_closed": "PENDING",
+    "giovanny_approval": "PENDING"
+  },
+  "merge_performed": false,
+  "micro": {
+    "critical_exact_recall": {
+      "API_KEY": 1.0,
+      "CLABE": 1.0,
+      "CURP": 1.0,
+      "EMAIL": 1.0,
+      "RFC": 1.0
+    },
+    "engine_to_same_run_reference_ratio": 0.9633589249013348,
+    "median_seconds_per_record": 0.0002921299959998578,
+    "passed": true,
+    "records": 1000,
+    "repeats": 5,
+    "scope": "Gross CI regression guard; identical contextual rules, engine wrapper versus direct detector, alternating timing order; no fine-grained cross-machine or statistical speedup claim"
+  },
+  "production_dependencies_models_profiles_changed": false,
+  "release_or_pypi_publication": false,
+  "review_size": {
+    "added_nonblank_noncomment_lines_including_fixture_data": 1519,
+    "added_physical_python_lines": 1789,
+    "conservative_lines_excluding_only_116_fixture_input_lines": 1673,
+    "guide_is_approximate": true
+  },
+  "scope": "OpenDocument: lectura y verificación local",
+  "source_commit": "93242156e9cb259a01b6dba66bde7c3000f9c49c",
+  "tests": {
+    "passed": 1169,
+    "platform": "Linux x86_64 / Python 3.12.14",
+    "seconds": 234.21,
+    "skipped": 11,
+    "suite_log_sha256": "45b1704de5da57d4a73ab9188e56e6ef07d38f11c939eafea114877d65b97fdd",
+    "threads": {
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    }
+  }
+}

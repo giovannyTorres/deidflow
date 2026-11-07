@@ -214,13 +214,10 @@ def test_eml_attachments_use_the_same_original_offset_detection(tmp_path, suffix
     target = tmp_path / "output.eml"
     result = DeidEngine().deidentify(source, output=target, policy=Policy.strict(require_ner=False))
     if suffix == "xlsx":
-        # Existing MIME completeness rules retain the mandatory XLSX review as
-        # incomplete attachment coverage. Unicode detection cannot approve it.
-        assert result.status == "BLOCKED"
-        assert result.output_path is None
-        assert not target.exists()
-        assert "INCOMPLETE_COVERAGE" in result.issues
-        return
+        # A completely read XLSX attachment keeps its mandatory review; it is
+        # not incomplete coverage of the message, and never approval.
+        assert result.status == "REVIEW_REQUIRED", result.issues
+        assert "INCOMPLETE_COVERAGE" not in result.issues
     assert result.output_path == target, result.issues
     recovered = "\n".join(fragment.text for fragment in read_document(target).fragments)
     assert "lopez@example.test" not in recovered

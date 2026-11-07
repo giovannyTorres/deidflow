@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+- Added local ODT/ODS extraction and same-format output using a shared XML text
+  and content-attribute walk, with header-aware spreadsheet cells, typed-value
+  checks and removal of known hidden data copies. ODS output and standalone
+  verification always require review; retained uninspected media, unknown package
+  parts and unsupported/encrypted input cannot receive an approved output.
+- Added ODT/ODS e-mail attachment rewriting with canonical MIME types and the
+  existing attachment review/removal rules. Documented OpenDocument channels,
+  package limits and local LibreOffice regression checks.
+- E-mail with a completely read XLSX or ODS attachment now needs review instead
+  of being blocked: the attachment's review-only issue was re-raised as
+  incomplete coverage of the whole message. Incomplete attachments still block.
+- Retained structural metadata and qualified XML names are scanned; unsupported
+  sensitive syntax and excessive XML depth fail closed. Standalone verification
+  preserves uncertainty for opaque XML/package/ZIP channels; rewriting removes
+  those channels and rebuilds package metadata before the final reread.
+- ODF whitespace elements reject retained children and ODS cells reject direct
+  non-whitespace text/CDATA. Opaque binary settings, signatures and certificate/
+  typed-binary metadata preserve incomplete coverage; printable runs alone do
+  not establish inspection of the underlying bytes.
+- OpenDocument media removal rejects unsupported binary-data parents. Changed
+  ODS cells retain and transform inline comments/text boxes and their anchors;
+  cell/field flattening cannot erase retained opaque binary coverage markers.
 - Detect identifiers on a Cf-free NFKC view and project findings back to complete
   original character spans, including inserted format controls. Preserve source
   text outside transformed spans and ordinal address syntax through provenance.
