@@ -47,3 +47,26 @@ python -m build && twine check --strict dist/*
    and attaches everything to a GitHub release. PyPI publishing runs only when
    the repository variable `PUBLISH_TO_PYPI` is `true` and a trusted publisher
    is configured.
+
+The signed `deidflow-provenance.jsonl` bundle is preserved as the separate
+`release-provenance` workflow artifact and attached to the GitHub release.
+It covers the wheel and source distribution; only those Python distributions
+are passed to the PyPI publisher. `create-storage-record: false` disables
+optional registry storage metadata, not attestation publication to GitHub.
+
+After downloading a release's distributions and bundle, verify each file with
+[GitHub CLI](https://cli.github.com/manual/gh_attestation_verify):
+
+```sh
+gh attestation verify deidflow-X.Y.Z-py3-none-any.whl \
+  --repo giovannyTorres/deidflow \
+  --signer-workflow giovannyTorres/deidflow/.github/workflows/release.yml \
+  --source-ref refs/tags/vX.Y.Z --bundle deidflow-provenance.jsonl
+gh attestation verify deidflow-X.Y.Z.tar.gz \
+  --repo giovannyTorres/deidflow \
+  --signer-workflow giovannyTorres/deidflow/.github/workflows/release.yml \
+  --source-ref refs/tags/vX.Y.Z --bundle deidflow-provenance.jsonl
+```
+
+Replace `X.Y.Z` with the downloaded version. Omit `--bundle` to verify against
+the attestation stored by GitHub instead.
