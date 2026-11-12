@@ -85,7 +85,7 @@ python-dateutil==4.0.0
 python-stdnum==2.2
 pyyaml==6.0.3
 regex==2026.9.29
-reportlab==4.5.1
+reportlab==5.1.0
 requests==2.34.2
 requests-file==3.0.1
 requests-oauthlib==2.0.0
