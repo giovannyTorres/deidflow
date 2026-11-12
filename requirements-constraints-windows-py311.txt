@@ -102,7 +102,7 @@ spacy-legacy==3.0.12
 spacy-loggers==1.0.5
 srsly==2.5.5
 thinc==8.3.14
-threadpoolctl==3.7.0
+threadpoolctl==3.8.0
 tldextract==5.4.0
 tomli==2.5.0
 tomli-w==1.2.0
